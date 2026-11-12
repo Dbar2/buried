@@ -12,18 +12,31 @@ inclusion: always
 | 2D map in the Studio | MapLibre GL JS (today's map for plate alignment and review) |
 | Explorer 3D | Unity 6 (6000.3.26f1), URP, WebGL build, embedded in the web shell |
 | Hero props, video stills | Blender, exported as GLB. Never the source of building geometry. |
-| Pipeline | Python 3.12: rasterio/GDAL, OpenCV, shapely, pyproj. Run from the terminal via Kiro CLI. |
+| Pipeline | Python 3.12: rasterio/GDAL, OpenCV, shapely, pyproj, pyogrio. Run from the terminal via Kiro CLI. |
 | Evidence store | Versioned JSON/GeoJSON files under `data/evidence/`, validated by one JSON Schema |
 | Tests | Vitest + fast-check (TS), pytest + Hypothesis (Python), Unity EditMode tests (C#) |
 
 Three.js is not used. PostGIS is not used now; a database can come later. The evidence files are
 the contract between the pipeline, the shell and Unity, whatever comes later.
 
+### Decided
+
+- **Present-day data:** City of Toronto Open Data, Open Government Licence - Toronto, checked
+  2026-11-12. Building outlines (`topographic-mapping-building-outlines`) for today's buildings,
+  property boundaries (`property-boundaries`) for lots, address points
+  (`address-points-municipal-toronto-one-address-repository`) for search, and the intersection
+  file (`intersection-file-city-of-toronto`) for alignment control points. Source ids and
+  attribution are in `sources.md`. Fetched and clipped by `buried present` (spec 02). Reason:
+  one publisher and one licence for all four layers, published as current City data, with no
+  login.
+- **Present-day heights:** optional, from City of Toronto 3D massing once its licence is
+  confirmed; otherwise a fixed storey height. The Explorer spec sets the value.
+
 ### Not decided yet
 
-Hosting, any API server, PDF rendering, the runtime AI provider (Amazon Bedrock or a direct API),
-the present-day building source and the basemap provider are open. Do not pick them in passing.
-The spec that needs one decides it and records why.
+Hosting, any API server, PDF rendering, the runtime AI provider (Amazon Bedrock or a direct API)
+and the basemap provider are open. Do not pick them in passing. The spec that needs one decides it
+and records why.
 
 ## Responsibilities
 

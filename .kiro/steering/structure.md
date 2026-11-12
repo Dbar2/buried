@@ -11,9 +11,14 @@ web/        Vite + React + TypeScript shell: all DOM UI, Studio, Report, bridge 
 unity/      Unity 6 project: Explorer scene, runtime mesh building, bridge (C# side, .jslib)
 pipeline/   Python 3.12: fetch, inspect, align check, tile, extract, publish
 data/
-  schema/   JSON Schemas shared by pipeline, shell and Unity
-  evidence/ Versioned JSON/GeoJSON evidence files (the contract)
-  tiles/    Web- and Unity-ready showcase rasters (published)
+  schema/       JSON Schemas shared by pipeline, shell and Unity
+  sources.json  Source registry
+  project.json  Project origin, bounds and eras
+  evidence/     Versioned JSON/GeoJSON evidence files (the contract)
+  control/      Control point files, one per aligned raster
+  alignment/    Alignment records, one per aligned raster
+  present/      Present-day City of Toronto layers, clipped to the project bounds
+  tiles/        Web- and Unity-ready showcase rasters (published)
   raw/      Archival downloads (gitignored)
   work/     Intermediate pipeline output (gitignored)
 docs/       Concept brief, Kiro session notes, write-up material
@@ -31,8 +36,17 @@ docs/       Concept brief, Kiro session notes, write-up material
   residuals, intervals) is kept separate from file and network I/O.
 - **`data/schema/`**: the evidence schema and the bridge message schema. A change to a schema is
   a reviewed change with a version bump, never a side effect of other work.
-- **`data/evidence/`**: written by the pipeline's publish step, or by a reviewed hand edit.
-  Every file validates against the schema.
+- **`data/sources.json`**: the source registry. A reviewed hand edit. Only sources with a row in
+  `sources.md`.
+- **`data/project.json`**: the project origin (E0, N0), the project bounds and the eras. Created
+  once by the evidence model spec; the origin is frozen after the first evidence is published.
+- **`data/evidence/`**: written by the pipeline's `publish` and `match` steps, or by a reviewed
+  hand edit. Every file validates against the schema.
+- **`data/control/`**: `<source id>.json`, control points read by a person: plate pixels paired
+  with present-day reference features. Committed, so alignment can be remeasured.
+- **`data/alignment/`**: `<source id>.json`, written by `buried align-check`. Committed.
+- **`data/present/`**: `<source id>.geojson`, present-day layers written by `buried present`,
+  clipped to the project bounds and in EPSG:26917. Small files only; never a citywide copy.
 - **`data/tiles/`**: only the showcase plates and aerials, downsampled for the web. Never a bulk
   copy of a collection.
 - **`data/raw/`**: fetched by the pipeline. Gitignored. Never referenced by the shell or Unity.
@@ -61,6 +75,9 @@ A source id names one archival item. Lowercase, `snake_case`, built from what th
 - 1947 aerials: `aerial_1947_<id>`, where `<id>` is the record identifier from the U of T index
   service, lowercased.
 - Other sources: `<type>_<publisher>_<year or edition>`, agreed in `sources.md` before first use.
+  When one publisher supplies several datasets, the dataset name goes after the publisher:
+  `<type>_<publisher>_<dataset>_<year or edition>`. Present-day City of Toronto layers use type
+  `present` and the retrieval year, for example `present_toronto_intersections_2026`.
 - A source id is never reused or renamed once evidence cites it.
 
 ## Evidence ids
@@ -69,6 +86,8 @@ A source id names one archival item. Lowercase, `snake_case`, built from what th
   `wtr` (water) or `use` (land-use area). Example form: `bld_fip_v3_1911_229_0001`.
 - The origin source is the source the geometry was first read from. Later observations from other
   sources attach to the same id.
+- A building drawn on two plates is two features, one per origin source, linked with `same_as`.
+  Each keeps its own id and provenance. Linking is not merging.
 - Ids are stable. Never renumber, never reuse a retired id. A rejected or merged feature keeps its
   id with a status that says so.
 

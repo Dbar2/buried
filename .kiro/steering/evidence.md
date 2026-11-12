@@ -20,10 +20,16 @@ This file states the rules the schema and the code must follow.
   - observations (at least one);
   - confidence (`documented`, `estimated`, `unknown`) and `confidence_reason`;
   - provenance: origin source, crop rectangle in source pixels, alignment error of that source,
-    `confirmed_by`, `confirmed_at`;
-  - status (for example proposed, published, rejected, merged). Only published features are shown.
+    digitising error, `confirmed_by`, `confirmed_at`;
+  - status (for example proposed, published, rejected, merged). Only published features are shown;
+  - optional `same_as` links to features from other sources that show the same thing.
 - **Observation.** What one source shows at the feature's location: `source`, `present`
-  (true or false) and `visibility`.
+  (true or false), `visibility`, and `method`: `origin` (the source the feature was read from),
+  `match_auto` (computed by `buried match` from geometry) or `person` (set by a named person, with
+  `confirmed_by` and `confirmed_at`).
+- **Coverage of an evidence file.** Its `mapped_area` (where the source draws the ground) and its
+  `reviewed_areas` (where a person attests that every building the source draws is published).
+  Absence can only be read inside a reviewed area.
 
 A feature with no observation, no source or no position error is invalid. The validator rejects it.
 
@@ -40,12 +46,21 @@ A feature with no observation, no source or no position error is invalid. The va
   building stands there.
 - `obscured` and `not_covered` observations say nothing about the feature. They are kept so the
   Report can list what was checked.
+- Code never decides presence or readability from a photograph. For a 1947 aerial, the pipeline
+  may only write `not_covered` (the photo's footprint misses the spot). `clear` and `obscured`
+  aerial observations are always `method: person`.
 
 ## Date logic
 
 All of this is pure code in one implementation (TypeScript, see `tech.md`). For each feature,
 let **P** be its clear presences and **A** its clear absences. Each observation takes
 `year_from` and `year_to` from its source.
+
+Linked features are dated together. A **linked set** is a connected group of published features
+joined by `same_as`; a feature with no links is a set of one. P and A are taken over the union of
+the set's observations, each source once. If two members disagree about the same source, the set
+is a conflict (rule 7). Linking never widens a window beyond what that union of clear observations
+supports.
 
 Rules for one observation:
 - A presence supports **"Built by `year_to`"** and **"Last seen `year_from`"**.
@@ -72,13 +87,48 @@ Combined:
 
 ## Position error
 
-- Every feature carries `position_error_m`: how far, in metres, its true position may be from
-  where it is drawn.
-- It is never less than the alignment error (RMSE, in metres) of its origin source as measured by
-  the pipeline's alignment check. A source with no measured alignment error cannot publish
-  features. The georeferencing supplied with a plate is not a measurement.
-- A source's alignment error is stored on the source's alignment record with its control points,
-  so it can be recomputed.
+- Every feature carries `position_error_m`: about how far, in metres, its true position may be
+  from where it is drawn. It is a conservative figure (about 95 in 100 points fall within it),
+  not an absolute bound. UI and Report wording is "Positioned within about X m".
+- **A source's alignment error** is `max(2.0, 2 × B)` metres, rounded up to the next 0.1 m, where
+  B is the out-of-sample RMSE of the transform the pipeline's alignment check chose: the RMSE of
+  the supplied georeferencing at independent control points, or the leave-one-out RMSE of the
+  refined fit. The 2 m floor stays even when the points fit better.
+- **A feature's position error** is the root-sum-square of its source's alignment error and a
+  digitising term, rounded up to the next 0.1 m. The digitising term defaults to 1.0 m and is
+  never less than 2 source pixels. A reviewer may raise a feature's position error, never lower
+  it.
+- A source with no measured alignment error cannot publish features. The georeferencing supplied
+  with a plate is not a measurement.
+- A source's alignment record stores its control points, the in-sample and leave-one-out RMSE,
+  the basis B and the rule constants, so every number can be recomputed.
+
+## Matching across sources
+
+`buried match` (pipeline) adds observations to published buildings from every other source that
+covers the spot. All tests are in EPSG:26917 metres. Let `e` be the combined position error of the
+two footprints compared (for an absence, the feature's error plus the other plate's smallest
+possible feature error).
+
+- **Another plate, present.** One footprint on that plate clearly overlaps the feature: take the
+  smaller of the two footprints, shrink it inward by `e`, and divide its intersection with the
+  larger by its shrunk area. Exactly one footprint scores at least the match threshold and no
+  other scores at least the competing threshold (both set once in spec 02), and the same holds
+  from the other footprint's side. The result is `present: true, clear`, and the two features are
+  linked (`same_as`).
+- **Another plate, absent.** The feature, grown by `e`, lies inside that plate's reviewed area,
+  and no footprint on that plate touches the feature shrunk inward by `e`. The result is
+  `present: false, clear`.
+- **Another plate, not covered.** The feature does not touch that plate's mapped area. The result
+  is `not_covered`.
+- **Anything else** (partial overlap, competing footprints, a feature too small to shrink, a spot
+  on the plate but outside its reviewed area): no observation. The case goes on a review list and a
+  person decides. Code never guesses.
+- **A 1947 aerial.** `not_covered` when the photo's footprint misses the feature; otherwise a
+  pending item for a person to set present or absent, clear or obscured.
+- Person decisions are never changed by `match`. Automatic results are recomputed on every run.
+- A different building standing on the spot is a clear absence (see Visibility), but code cannot
+  tell it from the same building redrawn. It is always a person's call.
 
 ## On this lot vs near this lot
 

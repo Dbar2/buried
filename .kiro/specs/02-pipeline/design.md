@@ -8,7 +8,11 @@ data/sources.json ──► fetch ──► data/raw/<id>/ + data/raw/manifest.j
                          ▼
                       inspect ──► data/work/inspect/<id>.json  (CRS, pixel size, corners, bounds)
                          │
-data/control/<id>.json ──┤
+CKAN (City of Toronto) ──┤
+                         ▼
+                      present ──► data/present/<id>.geojson   (clipped, EPSG:26917)
+                         │
+data/control/<id>.json ──┤  (points cite present-layer features)
                          ▼
                     align-check ──► data/alignment/<id>.json   (residuals, RMSE, chosen transform)
                          │
@@ -18,6 +22,10 @@ data/control/<id>.json ──┤
   data/tiles/<id>.jpg + .json          │
                                        ▼   person writes data/work/review/<id>.json
                                     publish ──► data/evidence/<id>.geojson  (passes `buried validate`)
+                                       │
+                                       ▼   person writes data/work/review/match.json
+                                     match ──► observations + same_as in data/evidence/*.geojson
+                                               data/work/match/review.json
 ```
 
 Every step after `align-check` uses the chosen transform from the alignment record, so the draped
@@ -46,12 +54,18 @@ pipeline/
       zipsafe.py            # safe extraction (pure path checks + extraction)
     inspect/
       georef.py             # read transform/CRS via rasterio (I/O)
-      report.py             # pure: pixel size, corners, bounds, origin proposal
+      report.py             # pure: pixel size, corners, bounds, origin proposal, project bounds
+    present/
+      datasets.py           # pure: per-dataset config (package id, resource, id field, kept fields)
+      ckan.py               # package_show call and resource choice through the HTTP client
+      clip.py               # pure (shapely + pyproj): bounds filter, reprojection, field filter
+      run.py                # I/O: download, read with pyogrio, write data/present/<id>.geojson
     align/
       affine.py             # pure: fit, apply, invert, condition check
-      residuals.py          # pure: residuals, RMSE, LOO, outliers, choice
+      residuals.py          # pure: residuals, RMSE, LOO, outliers, choice, error rule
       supplied.py           # pure given a transform spec: pixel -> CRS -> EPSG:26917
-      run.py                # I/O: read control file + raster, write record
+      references.py         # pure: look up and check control point references in a present layer
+      run.py                # I/O: read control file + raster + present layers, write record
     tile/
       corners.py            # pure: corners, bilinear check
       run.py                # I/O: downsample, write JPEG + sidecar
@@ -65,8 +79,13 @@ pipeline/
       score.py              # pure: quality components
       run.py                # I/O: read raster, write proposals
     publish/
-      build.py              # pure: proposals + decisions + record -> features
+      build.py              # pure: proposals + decisions + record -> features, coverage areas
       run.py                # I/O: read inputs, validate, write
+    match/
+      rules.py              # pure: MATCH_MIN, COMPETE_MIN, overlap score, per-pair outcome
+      links.py              # pure: linked sets (union-find), same-origin check
+      apply.py              # pure: strip match_auto results, apply person decisions, write new ones
+      run.py                # I/O: read evidence, alignment, tiles, decisions; validate; write
     validate/               # spec 01
   tests/
     fixtures/               # small committed fixtures; never data/raw
@@ -77,8 +96,9 @@ pipeline/
 allowed in pure modules. Time is passed in as an argument.
 
 Dependencies: `rasterio` (bundles GDAL in its wheels, so no system GDAL), `numpy`,
-`opencv-python-headless`, `shapely`, `pyproj`, `jsonschema`, `httpx`. Dev: `pytest`, `hypothesis`,
-`ruff`. CLI uses `argparse` to avoid a dependency for seven subcommands.
+`opencv-python-headless`, `shapely`, `pyproj`, `pyogrio` (reads GPKG with a bounding-box filter;
+also bundles GDAL), `jsonschema`, `httpx`. Dev: `pytest`, `hypothesis`, `ruff`. CLI uses
+`argparse` to avoid a dependency for nine subcommands.
 
 Commands (recorded in `tech.md` by the tasks that add them), all from `pipeline/`:
 `uv sync`, `uv run pytest`, `uv run ruff check .`, `uv run buried <command>`.
@@ -115,20 +135,27 @@ Commands (recorded in `tech.md` by the tasks that add them), all from `pipeline/
   with "up to date" and make no request. Mismatch: error, no overwrite (requirement 2.7). To
   refetch, the maintainer deletes `data/raw/<id>/` by hand.
 - If spec 01 has not created `data/sources.json` yet, task 1 creates it with the four plates, using
-  the exact shape in spec 01's design. Spec 01 task 2 checks it later.
+  the exact shape in spec 01's design and `rights_checked_on: 2026-11-10`. Spec 01 task 2 checks
+  it later.
 
 ### Aerials
 
 - `--aerial-candidates`: needs inspect reports for the showcase plates. Builds the union bounds in
   EPSG:26917 and sends an ArcGIS REST `query` to the index layer with an envelope geometry,
-  `inSR=26917`, `spatialRel=esriSpatialRelIntersects`, `returnGeometry=true`, `f=json`.
-- The layer URL and the record id field name are constants in `fetch/aerials.py`, `AERIAL_INDEX_URL`
-  and `AERIAL_ID_FIELD`. Their values are not in the steering docs yet (see open questions). The
-  command fails with a clear message while they are unset.
+  `inSR=26917`, `spatialRel=esriSpatialRelIntersects`, `outFields=Name,url,zip_url,thumbnail_url`,
+  `returnGeometry=true`, `outSR=26917`, `f=json`.
+- Constants in `fetch/aerials.py`:
+  `AERIAL_INDEX_URL = "https://services1.arcgis.com/9NvE8jKNWWlDGsUJ/arcgis/rest/services/Toronto_Aerial_Photographs_1947_Index/FeatureServer/0"`,
+  `AERIAL_ID_FIELD = "Name"`, `AERIAL_ZIP_FIELD = "zip_url"`. Proposed source id:
+  `aerial_1947_` + `Name` lowercased; the command refuses a `Name` that does not lowercase to the
+  source id pattern.
 - Cap: more than 10 matches is an error. The showcase area is a few blocks, so a larger result
   means the query is wrong.
-- Downloads happen through the normal `fetch` path only for registered `aerial_1947_<id>`
-  sources, using the `zip_url` stored as the source's `url`.
+- A person checks the candidates, lists the chosen ids under "1947 aerial records in use" in
+  `sources.md`, and adds them to the Registry. Downloads then happen through the normal `fetch`
+  path, using the `zip_url` stored as the source's `url`.
+- The plate index layers on the same server (`vol3_19111914`, `vol3_1935`) are recorded in
+  `sources.md` but not used by this spec.
 
 ## inspect
 
@@ -144,13 +171,72 @@ Commands (recorded in `tech.md` by the tasks that add them), all from `pipeline/
     in metres;
   - rotation terms: the transform's `b` and `d` coefficients, reported as-is.
 - `--propose-origin`: union bounds of the four showcase plates; origin = each centre coordinate
-  rounded down to a multiple of 100 m; bounds rounded outward to multiples of 100 m. Printed only.
+  rounded down to a multiple of 100 m; bounds = union expanded by 250 m, rounded outward to
+  multiples of 100 m (spec 01 requirement 7.6). Printed only.
+- `project_bounds(reports)` in `report.py` is the one implementation of the bounds rule. `present`
+  calls it when `data/project.json` does not exist yet, and a test checks it gives the same
+  rectangle as `--propose-origin`.
+
+## present
+
+### Datasets
+
+Defined once in `present/datasets.py`. The id field and kept fields are confirmed from the first
+downloaded file in task 10 and recorded in this table in the same change. Until then the command
+stops for that dataset with "dataset fields not confirmed".
+
+| Source id | CKAN package id | Geometry | Id field | Kept fields |
+|---|---|---|---|---|
+| `present_toronto_intersections_2026` | `intersection-file-city-of-toronto` | Point | to confirm | the intersection's name or description fields, to confirm |
+| `present_toronto_building_outlines_2026` | `topographic-mapping-building-outlines` | Polygon / MultiPolygon | to confirm | none beyond the id unless a later spec needs one |
+| `present_toronto_property_boundaries_2026` | `property-boundaries` | Polygon / MultiPolygon | to confirm | parcel type and status fields, to confirm |
+| `present_toronto_address_points_2026` | `address-points-municipal-toronto-one-address-repository` | Point | to confirm | address number, street name and full address fields, to confirm |
+
+Fields are kept only when a named consumer needs them. Personal data is not expected in these
+layers; if a field looks like it holds any, it is left out and raised for review.
+
+### Steps
+
+1. `package_show?id=<package id>` through the HTTP client. Read the package's last-refresh date
+   from its last-refresh field (expected to be `last_refreshed`; confirmed on the first download
+   and recorded here). If that field is absent, use the resource's `last_modified`; if both are
+   absent, stop.
+2. Check the Registry years (requirement 12.4).
+3. Pick the GPKG resource. If the package has several GPKG resources (for example one per CRS),
+   the dataset config names the one to use by its resource name; until it does, stop and list them.
+4. Download to `data/raw/present/<source id>/<resource file name>`, streamed, with SHA-256, and add
+   a manifest entry. Same idempotence rules as `fetch`.
+5. Read with `pyogrio.read_dataframe`'s lower-level counterpart `pyogrio.raw.read` (no pandas
+   dependency), with a `bbox` equal to the project bounds transformed into the layer's CRS and
+   densified (16 points per edge). Then filter exactly in EPSG:26917 with shapely `intersects`.
+   Features that cross the bounds are kept whole.
+6. Reproject with `pyproj.Transformer.from_crs(layer_crs, "EPSG:26917", always_xy=True)`. The
+   layer CRS comes from the GPKG; none means stop.
+7. Build the `presentLayer` (spec 01) with feature ids as strings from the id field, kept fields
+   only, sorted by id, coordinates written with 3 decimals (millimetres). Check the size limits
+   (requirement 12.7). Write atomically.
+
+The intersections layer is all the gate needs: `buried present present_toronto_intersections_2026`
+right after `inspect`.
 
 ## align-check
 
 ### Inputs
 
-`data/control/<id>.json` (spec 01 `controlPoints`), the raster, the Registry.
+`data/control/<id>.json` (spec 01 `controlPoints`), the raster, the Registry, and the present
+layers the points cite.
+
+### Reference check
+
+`align/references.py` (pure) takes the control points and the parsed present layers and, for each
+point, finds the cited feature and compares coordinates: an `intersection` point's `reference` must
+be within 0.001 m of the layer's point; a `building_corner` point's `reference` must be within
+0.001 m of exterior-ring vertex `reference_vertex.vertex` of polygon `reference_vertex.polygon`.
+Any failure stops the command and names the point (requirement 5.2). The reference table in spec 01
+design decides which layer each kind may cite.
+
+On the plate, an intersection point is clicked where the two street centrelines cross, which on a
+fire insurance plan is midway between the opposite street lines, not at a curb or lot corner.
 
 ### Supplied georeferencing check
 
@@ -182,8 +268,17 @@ residuals measure the supplied georeferencing. They are not a fit.
 ### Choice and error
 
 - `chosen = refined` if a refined fit exists and `rmse_loo_m < supplied.rmse_m`; else `supplied`.
-- `alignment_error_m` = the chosen transform's error (supplied RMSE or refined LOO RMSE), rounded
-  up to the next 0.01 m. If it would be 0, the command fails: a zero error is not a measurement.
+- Basis B (`error_basis_m`): `supplied.rmse_m` when supplied is chosen (`error_basis:
+  supplied_rmse`); `refined.rmse_loo_m` when refined is chosen (`error_basis: refined_loo_rmse`).
+  Both are out-of-sample: the supplied georeferencing was not fitted to our points, and LOO measures
+  the refined fit at points it did not see.
+- `alignment_error_m = ceil_0.1(max(2.0, 2.0 × B))`, with `ceil_0.1` as defined in spec 01 design
+  (provenance). The constants are written to `error_rule`. Doubling gives a conservative figure that
+  most points fall within; the 2 m floor holds even when a handful of points fit unusually well.
+- If B is 0, the command fails: a zero RMSE from real control points means the points were copied
+  from the georeferencing, not measured.
+- `source_pixel_size_m`: the larger of the two pixel sizes from inspect's unit-step rule, so the
+  digitising floor of 2 pixels is never understated.
 - Outliers: ids of points with `|r_i| > 3 × median(|r|)` under the chosen transform. Listed, never
   dropped. The person decides whether to fix or remove a point in the control file.
 
@@ -192,12 +287,13 @@ residuals measure the supplied georeferencing. They are not a fit.
 Spec 01 `alignmentRecord`, written atomically. Printed table:
 
 ```
-fip_v3_1911_229  reference: <reference source id>  points: 6
-id   description                       dE (m)   dN (m)   |r| (m)
+fip_v3_1911_229  points: 6  references: present_toronto_intersections_2026
+id   kind           description                  dE (m)   dN (m)   |r| (m)
 ...
 supplied   RMSE 0.00 m   max 0.00 m
 refined    RMSE in-sample 0.00 m   leave-one-out 0.00 m   max 0.00 m
-chosen: refined   alignment_error_m: 0.00
+chosen: refined   basis (leave-one-out RMSE): 0.00 m
+published alignment error: 0.0 m   (max(2.0, 2 x basis), rounded up to 0.1 m)
 possible outliers: none
 ```
 
@@ -211,7 +307,8 @@ round-trip property and by later Studio work (map position to plate pixel).
 ## tile
 
 - Refuses without an alignment record or with `attribution_status: to_be_confirmed`
-  (requirement 7.2). Aerials stay untiled until their attribution line is confirmed in `sources.md`.
+  (requirement 7.2). The 1947 aerial attribution line was confirmed on 2026-11-12, so registered
+  aerials can be tiled once they have an alignment record.
 - Reads the raster decimated by rasterio with `out_shape` and `Resampling.average`, long edge at
   most 4096 px. Palette rasters are expanded to RGB using their own colour table. No other change
   to pixel values (`design.md`: rasters are evidence).
@@ -292,7 +389,9 @@ found, all regions are kept and every proposal gets `neatline: "not_found"`, whi
 ### Proposal file
 
 GeoJSON FeatureCollection with `crs: "EPSG:26917"`, `source`, `params_id`, `params_sha256`,
-`alignment_record_sha256`, and features:
+`alignment_record_sha256`, `neatline` (`"found"` or `"not_found"`), `neatline_px` and
+`neatline_geometry` (EPSG:26917, the chosen transform applied to `neatline_px`) when found, and
+features:
 
 ```json
 {
@@ -353,13 +452,19 @@ Pipeline-internal; lives in `data/work/`. The Studio spec may promote it to a co
       "confidence_reason": "<why>",
       "position_error_m": 0.0
     }
+  ],
+  "reviewed_areas": [
+    { "pixel_polygon": [[0, 0], "..."], "confirmed_by": "<name>",
+      "confirmed_at": "2026-11-15T10:30:00-05:00" }
   ]
 }
 ```
 
 Only `proposal_id`, `decision`, `confirmed_by` and `confirmed_at` are required. `pixel_polygon`
 replaces the proposal's polygon when the reviewer moved vertices. `attributes` holds only what the
-reviewer read on the plate. `position_error_m` may only raise the error.
+reviewer read on the plate. `position_error_m` may only raise the error. A reviewed area is the
+reviewer's statement that every building the plate draws inside it has been accepted in this file;
+the reviewer leaves out any area where a building has no usable proposal.
 
 ### Building features (pure, `publish/build.py`)
 
@@ -369,16 +474,22 @@ For each accepted decision whose proposal id is not already in the file:
   proposal geometry;
 - `kind: building`, id `bld_<source id>_<NNNN>` (requirement 10.6);
 - attributes: `material` = proposal's class unless `unclassified`; plus the reviewer's attributes;
-- observations: one, `{ source: <source id>, present: true, visibility: clear }`;
+- observations: one, `{ source: <source id>, present: true, visibility: clear, method: origin }`;
 - confidence: the decision's, else `estimated` with reason
   "Footprint read from <source id>; storeys not recorded";
-- `position_error_m = max(alignment_error_m, decision.position_error_m)`;
+- `digitising_error_m = max(1.0, 2 × source_pixel_size_m)`;
+- `position_error_m = max(ceil_0.1(sqrt(alignment_error_m² + digitising_error_m²)),
+  decision.position_error_m)`;
 - provenance: origin source, `crop_px` (the proposal's, or the bounding box of the edited polygon),
-  `alignment_error_m`, `confirmed_by`, `confirmed_at`, `proposal_id`, `extraction_params_id`;
+  `alignment_error_m`, `digitising_error_m`, `confirmed_by`, `confirmed_at`, `proposal_id`,
+  `extraction_params_id`;
 - `status: published`.
 
 Existing features are copied unchanged. The collection gets `schema_version`, `crs`,
-`origin_source`.
+`origin_source`, `mapped_area` (the proposal file's `neatline_geometry` with `method: neatline`, or
+the chosen transform applied to the raster's pixel corners with `method: raster_footprint`), and
+`reviewed_areas`: the existing ones unchanged, plus each new one from the decisions file through the
+chosen transform with `method: person`. A reviewed area identical to an existing one is skipped.
 
 ### Writing
 
@@ -386,6 +497,119 @@ Existing features are copied unchanged. The collection gets `schema_version`, `c
 spec 01's Validator in-process. On any error it prints them and writes nothing. On success it
 writes atomically and prints counts: accepted, published now, already published, rejected,
 undecided.
+
+After publishing a plate that overlaps another published plate, run `buried match`. Until then the
+new features carry only their origin observation.
+
+## match
+
+### What it compares
+
+- Features: every `published` building in `data/evidence/*.geojson`.
+- Other plates: every registered `fire_insurance_plan` with an evidence file. Its `mapped_area`,
+  `reviewed_areas` and published buildings are read from that file. Its smallest possible feature
+  error is `ceil_0.1(sqrt(alignment_error_m² + max(1.0, 2 × source_pixel_size_m)²))` from its
+  alignment record.
+- Aerials: every registered `aerial_photograph` with an alignment record and a tile sidecar. Its
+  footprint is the sidecar's four corners as a polygon.
+
+All geometry is shapely in EPSG:26917. `shrink(g, d)` is `g.buffer(-d)` and `grow(g, d)` is
+`g.buffer(d)`, both with round joins and 16 segments per quadrant. For an inward buffer the chords
+of the polygonal arcs make the shrunk shape very slightly larger than the exact one, which errs
+toward "something touches the core" and so away from a false absence.
+
+### Thresholds
+
+Defined once in `match/rules.py`:
+
+- `MATCH_MIN = 0.5`: at least half of the smaller footprint's certain core lies inside the larger.
+- `COMPETE_MIN = 0.1`: any second footprint with a tenth of the core is a competitor, and the case
+  goes to a person.
+
+These are design values, not tuned on any plate. Changing one is a reviewed change to this file.
+
+### Per pair: F against another plate P
+
+1. If `F ∩ mapped_area(P)` is empty: `not_covered`.
+2. Candidates: published buildings G on P with `distance(F, G) <= e_FG`, where
+   `e_FG = F.position_error_m + G.position_error_m`. For each, `r` as in requirement 13.2. If the
+   shrunk smaller footprint is empty, the pair goes to review ("too small for its error").
+3. Match: exactly one G with `r >= MATCH_MIN`, no other with `r >= COMPETE_MIN`, and
+   `grow(F, e_FG)` inside `mapped_area(P)`; and the same holds the other way round (F is G's only
+   strong candidate on F's plate, with no competitor), so the outcome does not depend on which
+   feature is processed first. Matches found this way are only candidate links until the
+   same-origin check below.
+
+   Same-origin check (`match/links.py`): after all plate pairs are scored, build the linked sets
+   from person links plus every candidate link. In any set that would contain two features with the
+   same origin source, every candidate link in that set goes to review and none of them, nor their
+   presences, is written. This is done on the whole graph at once so the result does not depend on
+   processing order.
+4. Absence: `e_abs = F.position_error_m + min_error(P)`. `shrink(F, e_abs)` is not empty,
+   `grow(F, e_abs)` lies inside the union of `reviewed_areas(P)`, and no published building on P
+   intersects `shrink(F, e_abs)`: `present: false, clear`.
+5. Otherwise: review, with the reason (partial overlap, competing candidates, outside reviewed
+   areas, on the plate edge) and every candidate's id and `r`.
+
+Rules 3 and 4 cannot both hold: a match needs a candidate whose overlap with F's core is positive,
+and absence needs no building touching F's core.
+
+A clear absence can also mean a different building stands on the spot (`evidence.md`). Code cannot
+tell that from the same building redrawn, so a footprint that overlaps F's core but does not match
+always goes to review.
+
+### Per pair: F against an aerial A
+
+- If `F ∩ footprint(A)` is empty: `not_covered`, `method: match_auto`.
+- Otherwise a pending item: aerial id, the feature to show (the member of F's linked set whose
+  origin source has the greatest `year_to`), and the tile to show it on. No observation is written.
+  Only a person's `observation` decision can set present or absent, clear or obscured.
+
+### Match decisions file
+
+`data/work/review/match.json`, written by a person now and by the Studio later:
+
+```json
+{
+  "decisions": [
+    { "type": "link", "features": ["bld_fip_v3_1911_229_0001", "bld_fip_v3_1935_229_0004"],
+      "confirmed_by": "<name>", "confirmed_at": "2026-11-20T10:00:00-05:00" },
+    { "type": "no_link", "features": ["...", "..."],
+      "confirmed_by": "<name>", "confirmed_at": "..." },
+    { "type": "observation", "feature": "bld_fip_v3_1935_229_0004",
+      "source": "aerial_1947_<id>", "present": false, "visibility": "clear",
+      "note": "<what the person saw>",
+      "confirmed_by": "<name>", "confirmed_at": "..." }
+  ]
+}
+```
+
+- `link` writes `same_as` both ways and a presence on each feature from the other's origin source,
+  all `method: person`.
+- `no_link` stops `match` from proposing or auto-linking that pair. It writes nothing to evidence.
+  Because `data/work/` is gitignored, a lost decisions file means the pair returns to review, which
+  is the safe direction.
+- `observation` writes one observation, `method: person`. It replaces any `match_auto`
+  observation for that feature and source.
+
+### Run order inside `match`
+
+1. Read everything. Remove every `match_auto` observation and `match_auto` link from every feature
+   (person ones stay).
+2. Apply the decisions file.
+3. Score plate pairs, run the same-origin check, then write the surviving matches, absences and
+   not-covered results; then aerial pairs. Skip any feature and source that already has an origin
+   or person observation, and any pair marked `no_link`.
+4. Sort each feature's observations (origin first, then by source id) and links (by feature id).
+5. Validate the whole would-be `data/` state. Write all changed evidence files atomically, or
+   nothing.
+6. Write `data/work/match/review.json` (sorted) and print counts.
+
+Step 1 makes the run idempotent: the output depends only on the published features, the coverage
+areas, the alignment records and the decisions file.
+
+`match` never edits geometry, attributes, confidence, provenance, status or ids (spec 01
+requirement 17.4).
 
 ## Error handling
 
@@ -401,6 +625,13 @@ undecided.
 | Params `tuned_on` invalid | extract refuses to start. |
 | Stale proposals (alignment changed) | publish refuses, says to rerun extract. |
 | Validator errors at publish | Nothing written; errors printed. |
+| Control point reference missing or moved | align-check refuses and names the point. |
+| CKAN package has no GPKG, or several unnamed | present stops and lists the resources. |
+| Registry years differ from CKAN metadata | present stops and says which value to record. |
+| Present layer output too large | present stops; nothing written. |
+| Present layer content changed on `--recheck` | present stops; existing file kept; a new source id is needed. |
+| Same-origin clash in a would-be linked set | match sends every candidate link in that set to review. |
+| Validator errors at match | Nothing written; errors printed. |
 
 ## Correctness properties
 
@@ -426,16 +657,25 @@ record produced by `align-check` from generated inputs: re-applying the chosen t
 stored control points reproduces every stored residual within 1e-9 m; the RMS of those residuals
 equals the chosen in-sample RMSE within 1e-9 m; every point's residual is at most the reported
 `max_residual_m`; and `alignment_error_m` is at least the chosen transform's in-sample RMSE.
-(This is the `tech.md` property. A single residual can exceed the RMSE, so "within the reported
-error" is tested as: the reported numbers are exactly what the transform does to the points, and
-the reported error is never below the in-sample RMSE.)
+(This is the `tech.md` property, in the reading accepted in session 002b. A single residual can
+exceed the RMSE, so "within the reported error" is tested as: the reported numbers are exactly what
+the transform does to the points, and the reported error is never below the in-sample RMSE.)
 
 **A6. Order independence.** For every point set, permuting the points leaves the RMSE values, the
 choice and `alignment_error_m` unchanged.
 
 **A7. Choice rule.** For every record, `chosen == "refined"` exactly when a refined fit exists and
-its LOO RMSE is lower than the supplied RMSE, and `alignment_error_m` is the chosen error rounded up
-to 0.01 m.
+its LOO RMSE is lower than the supplied RMSE; `error_basis_m` is the supplied RMSE or the refined
+LOO RMSE to match; and `alignment_error_m == ceil_0.1(max(2.0, 2.0 × error_basis_m))`.
+
+**A8. The published error is conservative.** For every record: `alignment_error_m >= 2.0`,
+`alignment_error_m >= 2 × error_basis_m - 1e-9`,
+`alignment_error_m < max(2.0, 2 × error_basis_m) + 0.1`, and `alignment_error_m` is a multiple of
+0.1 (checked as `abs(x × 10 - round(x × 10)) < 1e-9`).
+
+**A9. References are checked exactly.** For every generated present layer and control file: if any
+point's `reference` differs from its cited feature's coordinate by more than 0.001 m, or cites a
+missing feature, `align-check` refuses; otherwise it runs.
 
 **T1. Tile corners are exact.** For every affine chosen transform and raster size, the sidecar
 corners equal the transform at the full-resolution pixel corners within 1e-6 m, independent of the
@@ -470,7 +710,51 @@ exactly the accepted, not-yet-published proposals with `confirmed_by` and `confi
 features) and new decisions: existing features are unchanged, and every new sequence number is
 greater than every existing one.
 
-**U5. Error floor.** Every published feature has `position_error_m >= alignment_error_m`.
+**U5. Error floor.** Every published feature has
+`position_error_m >= ceil_0.1(sqrt(alignment_error_m² + digitising_error_m²))`,
+`digitising_error_m >= max(1.0, 2 × source_pixel_size_m)`, and `position_error_m` is never below a
+value the reviewer entered.
+
+**U6. Coverage is kept.** For every sequence of publish runs, every reviewed area written by an
+earlier run is still present and unchanged after a later run, and `mapped_area` is set whenever
+`reviewed_areas` is non-empty.
+
+**R1. Present layers are clipped, whole and in metres.** For every generated layer (features in
+EPSG:4326 and in another projected CRS, some inside, some outside, some crossing the bounds): every
+written feature intersects the project bounds; every feature that intersects the bounds is written;
+every written geometry equals the reprojection of its source geometry to EPSG:26917 within 0.001 m
+(no cutting); and ids are unique and sorted.
+
+**R2. Present layers never change under an id.** For every existing layer and a `--recheck` that
+yields different content, the file on disk is byte-identical afterwards and the command exits
+non-zero. With identical content it exits zero.
+
+**M1. A match needs one clear, mutual winner.** For every generated pair of plates with published
+buildings: a `match_auto` presence on F from plate P exists only if exactly one building G on P has
+`r >= MATCH_MIN`, no other has `r >= COMPETE_MIN`, the same holds from G's side, and F and G are
+linked both ways.
+
+**M2. Absence only inside reviewed areas and with an empty core.** For every `match_auto` clear
+absence on F from plate P: `grow(F, e_abs)` lies inside P's reviewed areas and no published building
+on P intersects `shrink(F, e_abs)`. Removing P's reviewed areas removes every such absence.
+
+**M3. Code never reads a photograph.** For every run, no `match_auto` observation from an
+`aerial_photograph` source has visibility other than `not_covered`.
+
+**M4. Person decisions are never overridden.** For every evidence state and decisions file, every
+`person` observation and link present before the run is present and unchanged after it, and no
+`match_auto` observation exists for a feature and source that has a `person` one.
+
+**M5. Idempotence and order independence.** For every input, running `match` twice gives
+byte-identical files, and permuting features within files, or the order of files, gives the same
+output.
+
+**M6. Linked sets stay one per origin source.** For every run, no linked set in the output contains
+two features with the same origin source, and every candidate link that would have caused one is
+in the review list.
+
+**M7. Only observations and links change.** For every run, every feature's id, geometry,
+attributes, confidence, provenance and status are unchanged.
 
 **F1. Fetch is idempotent and contained.** For every sequence of fetch runs against a fake HTTP
 client serving fixture zips: the second run makes no requests, manifest SHA-256 values match the
@@ -482,5 +766,9 @@ refused.
 - Unit tests for each pure module, property tests above, and one end-to-end test per command on a
   synthetic GeoTIFF fixture (a few hundred pixels, written by a test helper into a temp dir with a
   known transform in EPSG:26917 and one in EPSG:3857 to exercise reprojection).
+- `present` is tested with a fake CKAN response and a small synthetic GPKG written by a test helper
+  (a few points and polygons in EPSG:4326, some outside the bounds).
+- `match` is tested on synthetic evidence files: rectangles on two fake plates with known overlaps,
+  a reviewed area, and one fake aerial footprint. No real building is described.
 - No test reads `data/raw/` or uses the network.
 - The held-out guard and fixture regression tests run in the normal `uv run pytest`.

@@ -37,6 +37,7 @@ pipeline/buried_pipeline/validate/               web/src/evidence/
 | `data/project.json` | Origin, bounds, eras |
 | `data/evidence/<origin source id>.geojson` | Evidence files (written by spec 02's publish) |
 | `data/control/<source id>.json`, `data/alignment/<source id>.json`, `data/tiles/<source id>.json` | Shapes defined here, written by spec 02 |
+| `data/present/<source id>.geojson` | Present-day layers. Shape defined here, written by spec 02 `buried present` |
 | `web/package.json`, `web/tsconfig.json`, `web/vitest.config.ts` | Minimal web package so the library can be built and tested before the shell exists. Spec 03 adds Vite and React to the same package. |
 | `web/src/evidence/*.ts` | The Evidence Library (modules below) |
 | `pipeline/buried_pipeline/validate/` | The Validator. The package itself is created by spec 02 task 1. |
@@ -65,6 +66,8 @@ noted, so a typo is an error.
   "schema_version": "1.0.0",
   "crs": "EPSG:26917",              // const
   "origin_source": "<sourceId>",
+  "mapped_area"?: coverageArea,            // method neatline | raster_footprint
+  "reviewed_areas"?: [ coverageArea, ... ], // method person
   "features": [ feature, ... ]
 }
 ```
@@ -72,6 +75,24 @@ noted, so a typo is an error.
 RFC 7946 GeoJSON assumes WGS84 and has no `crs` member. Buried's files are GeoJSON-shaped but in
 EPSG:26917. The `crs` foreign member and the position ranges make that explicit, and consumers must
 not hand these files to a library that assumes WGS84.
+
+### coverageArea
+
+```
+{
+  "geometry": { "type": "Polygon" | "MultiPolygon", "coordinates": ... },   // EPSG:26917
+  "method": "neatline" | "raster_footprint" | "person",
+  "pixel_polygon"?: [[x, y], ...],          // required when method is person; integers
+  "confirmed_by"?: string, "confirmed_at"?: dateTime   // required when method is person
+}
+```
+
+- `mapped_area` is where the origin source draws the ground: the plate's neatline from extraction
+  (spec 02), or the raster footprint under the chosen transform when no neatline was found. It is
+  written by `publish`.
+- A reviewed area is a person's statement that every building the source draws inside it is
+  published in this file (requirement 19.3). `buried match` reads absence only inside reviewed
+  areas, because a building nobody published is not an empty lot.
 
 ### feature
 
@@ -90,14 +111,18 @@ not hand these files to a library that assumes WGS84.
     "provenance": provenance,
     "status": "published" | "rejected" | "merged",
     "status_reason"?: string,              // required when rejected
-    "merged_into"?: featureId              // required when merged
+    "merged_into"?: featureId,             // required when merged
+    "same_as"?: [ link, ... ]
   }
 }
+
+link = { "feature": featureId, "method": "match_auto" | "person",
+         "confirmed_by"?: string, "confirmed_at"?: dateTime }   // both required when person
 ```
 
 `if/then` blocks enforce: id prefix matches kind; geometry type allowed for kind (lines only for
 water); `storeys` required when a building is `documented`; `status_reason` and `merged_into` per
-status.
+status; `confirmed_by` and `confirmed_at` on person links.
 
 `proposed` is not a status in evidence files. Proposals live in `data/work/` (spec 02) until a
 person accepts them, so an evidence file only ever holds features a person has confirmed.
@@ -106,11 +131,23 @@ person accepts them, so an evidence file only ever holds features a person has c
 
 ```
 { "source": sourceId, "present": boolean, "visibility": "clear" | "obscured" | "not_covered",
+  "method": "origin" | "match_auto" | "person",
+  "matched_feature"?: featureId,                        // required when match_auto and present
+  "confirmed_by"?: string, "confirmed_at"?: dateTime,   // required when person
   "note"?: string }
 ```
 
 No year field. The year range comes from the source record, so a source's dates are stated once.
 The task brief listed `year` on observations; this follows `evidence.md` instead.
+
+`method` says who or what made the observation:
+
+- `origin`: the feature was read from this source. Exactly one per feature, for the origin source.
+- `match_auto`: written by `buried match` from geometry alone. A presence names the feature it
+  matched, which must also be linked in `same_as`, so that rejecting that feature makes the file
+  invalid until `match` runs again. Never `clear` or `obscured` for an aerial photograph.
+- `person`: set by a named person in review. The only way an aerial observation can be `clear` or
+  `obscured`.
 
 ### provenance
 
@@ -119,6 +156,7 @@ The task brief listed `year` on observations; this follows `evidence.md` instead
   "origin_source": sourceId,
   "crop_px": { "x": int >= 0, "y": int >= 0, "width": int >= 1, "height": int >= 1 },
   "alignment_error_m": number > 0,
+  "digitising_error_m": number > 0,
   "confirmed_by": string (minLength 1),
   "confirmed_at": dateTime,
   "proposal_id"?: string,
@@ -128,6 +166,12 @@ The task brief listed `year` on observations; this follows `evidence.md` instead
 
 Pixel coordinates use the GDAL convention: (0, 0) is the top-left corner of the top-left pixel,
 x to the right, y down, in the full-resolution source raster.
+
+`digitising_error_m` is how far the drawn outline may sit from the plate's printed line: 1.0 m by
+default, never less than 2 source pixels. `position_error_m` is at least
+`ceil_0.1(sqrt(alignment_error_m² + digitising_error_m²))`, where `ceil_0.1(x)` is the smallest
+multiple of 0.1 not less than x, computed as `ceil(round(x × 10, 9)) / 10` so float noise does not
+add 0.1. A reviewer may raise `position_error_m`, never lower it.
 
 ### source and sourceRegistry
 
@@ -151,9 +195,20 @@ source = {
 The four plates are entered with the values in `sources.md`: `fip_v3_1911_229` and
 `fip_v3_1911_232` with `year_from: 1911, year_to: 1914`; `fip_v3_1935_229` and `fip_v3_1935_232`
 with 1935 to 1935; attribution "Digitized and georeferenced by the University of Toronto Map & Data
-Library."; `attribution_status: confirmed`; `held_out: true` only on `fip_v3_1935_232`. URLs follow
-the download patterns in `sources.md`. Aerial records are added only after their ids are agreed in
-`sources.md`, and stay `to_be_confirmed` until their attribution line is.
+Library."; `attribution_status: confirmed`; `rights_checked_on: 2026-11-10`; `held_out: true` only
+on `fip_v3_1935_232`. URLs follow the download patterns in `sources.md`.
+
+1947 aerial records are added one by one, each only after its id is listed under "1947 aerial
+records in use" in `sources.md`: type `aerial_photograph`, 1947 to 1947, `url` = the record's
+`zip_url`, attribution "1947 aerial photographs: City of Toronto Archives. Georeferenced by the
+University of Toronto Map & Data Library.", `attribution_status: confirmed`,
+`rights_checked_on: 2026-11-12`.
+
+The four present-day sources use the ids, attribution and dates in `sources.md`: type
+`present_day_reference`, `url` = the CKAN `package_show` URL for the package id,
+`attribution_status: confirmed`, `rights_checked_on: 2026-11-12`, `year_from` = the year of the
+package's last refresh, `year_to` = 2026. `buried present` checks both years and stops if they do
+not match what it sees.
 
 ### project and era
 
@@ -174,7 +229,10 @@ the download patterns in `sources.md`. Aerial records are added only after their
   `buried inspect`, each coordinate rounded down to a multiple of 100 m. This puts the origin
   inside the showcase area, keeps Unity coordinates within a few hundred metres of zero, and is
   reproducible. `buried inspect --propose-origin` (spec 02) prints the value.
-- Bounds: the same union, expanded outward to multiples of 100 m. Used to reject stray coordinates.
+- Bounds: the same union, expanded by 250 m on every side, then rounded outward to multiples of
+  100 m (requirement 7.6). Used to reject stray coordinates and as the clip rectangle for the
+  present layers, so that lots, intersections and today's buildings reach a little past the plate
+  edges.
 - Eras:
 
 | id | label | year_from | year_to |
@@ -184,8 +242,9 @@ the download patterns in `sources.md`. Aerial records are added only after their
 | `1947` | 1947 | 1947 | 1947 |
 | `today` | Today | 2026 | 2026 |
 
-  `today` uses 2026 until the present-day building source is chosen. That spec sets the range to
-  match its source's year. Nothing is drawn in `today` from evidence until then.
+  `today` uses 2026, the retrieval year of the present-day layers. Today's buildings come from
+  the building outlines present layer and are drawn as context by the Explorer, not through the
+  date logic. Nothing is drawn in `today` from evidence unless a feature's window reaches 2026.
 
 ### controlPoints
 
@@ -193,12 +252,32 @@ the download patterns in `sources.md`. Aerial records are added only after their
 {
   "schema_version": "1.0.0",
   "source": sourceId,                     // the raster being checked
-  "reference_source": sourceId,           // where the present-day coordinates came from
   "pixel_convention": "gdal_corner",
-  "points": [ { "id": string, "description": string,
-                "pixel": [x, y], "reference": position }, ... ]   // minItems 3
+  "points": [ {
+      "id": string, "description": string,
+      "pixel": [x, y],
+      "reference": position,              // EPSG:26917, copied from the present layer
+      "reference_source": sourceId,       // a present layer
+      "reference_kind": "intersection" | "building_corner",
+      "reference_feature_id": string,     // the layer's own feature id
+      "reference_vertex"?: { "polygon": int >= 0, "vertex": int >= 0 }   // building_corner only
+  }, ... ]                                // minItems 3
 }
 ```
+
+- An `intersection` point pairs the crossing of two street centrelines as drawn on the plate with
+  that intersection's point in `present_toronto_intersections_2026`.
+- A `building_corner` point pairs a building corner on the plate with a vertex of the same
+  building's exterior ring in `present_toronto_building_outlines_2026`. The person judges that the
+  building on the plate still stands and says why in `description`.
+- Reference table (requirement 22.3), defined once in the Validator:
+
+| `reference_kind` | Allowed `reference_source` |
+|---|---|
+| `intersection` | `present_toronto_intersections_2026` |
+| `building_corner` | `present_toronto_building_outlines_2026` |
+
+  A later retrieval with a new id is added to this table in the same change that registers it.
 
 ### alignmentRecord
 
@@ -206,22 +285,54 @@ the download patterns in `sources.md`. Aerial records are added only after their
 {
   "schema_version": "1.0.0",
   "source": sourceId,
-  "reference_source": sourceId,
+  "reference_sources": [ sourceId, ... ], // every reference_source used, sorted
   "control_file": string, "control_sha256": string,
   "measured_at": dateTime, "tool_version": string,
   "status": "measured",                   // const in 1.0.0; align-check writes no record otherwise
+  "source_pixel_size_m": number > 0,      // from inspect's pixel size rule
   "supplied": { "crs": string, "operation": string, "residuals": [residual],
                 "rmse_m": number, "max_residual_m": number },
   "refined"?: { "affine": [a, b, c, d, e, f], "residuals": [residual],
                 "rmse_in_sample_m": number, "rmse_loo_m": number, "max_residual_m": number },
   "chosen": "supplied" | "refined",
-  "alignment_error_m": number > 0,
+  "error_basis": "supplied_rmse" | "refined_loo_rmse",
+  "error_basis_m": number,                // B: supplied.rmse_m or refined.rmse_loo_m
+  "error_rule": { "multiplier": 2.0, "floor_m": 2.0, "round_up_to_m": 0.1 },   // consts
+  "alignment_error_m": number >= 2.0,     // ceil_0.1(max(2.0, 2.0 × B))
   "outliers": [ point id, ... ]
 }
 residual = { "id": string, "dx_m": number, "dy_m": number, "r_m": number }
 ```
 
-The fields are explained in spec 02's design.
+The fields are explained in spec 02's design. The raw in-sample and leave-one-out RMSE stay in the
+record so the published figure can be recomputed from them.
+
+### presentLayer
+
+```
+{
+  "type": "FeatureCollection",
+  "schema_version": "1.0.0",
+  "crs": "EPSG:26917",
+  "source": sourceId,                     // a present_day_reference source
+  "ckan_package_id": string, "ckan_resource_id": string, "resource_url": string (uri),
+  "retrieved_at": dateTime, "last_refreshed": date,
+  "source_sha256": string,                // of the downloaded citywide file
+  "id_field": string,                     // the dataset field copied into each feature's id
+  "clip_bounds": { "min_e": number, "min_n": number, "max_e": number, "max_n": number },
+  "attribution_line": string,
+  "features": [ presentFeature, ... ]
+}
+
+presentFeature = {
+  "type": "Feature",
+  "id": string,
+  "geometry": { "type": "Point" | "Polygon" | "MultiPolygon", "coordinates": ... },  // positions
+  "properties": { <string>: string | number | boolean | null }
+}
+```
+
+Present layers are reference data, not evidence. Which fields each layer keeps is set in spec 02.
 
 ### tileSidecar
 
@@ -253,8 +364,12 @@ Package: `pipeline/buried_pipeline/validate/`
 Order: schema errors first; cross-file checks run only on files that passed the schema, so one
 mistake is not reported ten times.
 
-Cross-file checks, each tied to a requirement: 2.7, 3.3, 3.4, 3.5, 5.2, 5.3, 5.4, 5.5, 6.2, 6.3,
-7.5, 8.3, 8.4, and `merged_into` must name an existing feature.
+Cross-file checks, each tied to a requirement: 2.7, 3.3, 3.4, 3.5, 5.2, 5.3, 5.4, 5.5, 5.6, 6.2,
+6.3, 7.5, 8.3, 8.4, 16.4, 16.5, 16.6, 17.2, 17.3, 19.4, 20.1, 20.2, 21.3, 21.4, 22.2, 22.3, and
+`merged_into` must name an existing feature.
+
+Linked sets for 17.3 are found with a union-find over `same_as` among published features. That is
+graph bookkeeping, not date logic, so it does not conflict with requirement 8.7.
 
 `buried validate` is registered in spec 02's CLI. The Validator must not import the date logic (it
 has none) or reimplement it (requirement 8.7).
@@ -270,9 +385,11 @@ buffers and distances assume degrees. Every coordinate stays in EPSG:26917.
 | `schema.ts` | Ajv 2020 instance with `ajv-formats`; `validate(defName, value)`. |
 | `load.ts` | `parseEvidenceFile`, `parseSourceRegistry`, `parseProject`: JSON text in, validated typed value out, or an `EvidenceLoadError` with Ajv errors. |
 | `sources.ts` | `indexSources(registry): SourceIndex` (map by id; throws on duplicates). |
-| `dates.ts` | `summariseDates(feature, sources): DateSummary`; `datePhrases(summary): string[]`. |
-| `eras.ts` | `isDrawnInEra(summary, era)`; `featuresForEra(collections, sources, era): EraFeatureList`. |
+| `dates.ts` | `summariseDates(feature, sources): DateSummary`; `summariseSet(set, sources): DateSummary`; `datePhrases(summary): string[]`. |
+| `links.ts` | `linkedSets(collections): LinkedSet[]` (published features only, connected components over `same_as`, members sorted by id, sets sorted by first member id). |
+| `eras.ts` | `isDrawnInEra(summary, era)`; `drawnMember(set, era, sources)`; `featuresForEra(collections, sources, era): EraFeatureList`. |
 | `lot.ts` | `lotRelation(feature, lot): LotRelation`. |
+| `position.ts` | `positionPhrase(positionErrorM): string`. |
 | `findings.ts` | `createFinding`, `createNothingFound`, `statusLabel`, `checkedRecordsText`. |
 | `text.ts` | `BANNED_WORDS`, `findBannedWords(text)`, `HonestyError`. |
 | `index.ts` | Public exports. |
@@ -305,6 +422,28 @@ All arrays are sorted by (yearFrom, source) so the output does not depend on inp
 these with its own separators. A conflicted summary still has phrases; the shell decides how to show
 "needs review" (spec 03 / Report spec).
 
+### Linked sets
+
+```ts
+type LinkedSet = { memberIds: string[]; members: Feature[] };   // sorted by id; length >= 1
+```
+
+`summariseSet(set, sources)`:
+
+1. Gather every member's observations. Group them by source.
+2. If a source's group holds observations that differ in `present` or `visibility`, every
+   observation in that group goes to `conflicts` and none of them is counted as P or A
+   (requirement 18.2). Identical observations from several members count once.
+3. Run the same rules as `summariseDates` on the deduplicated observations. A set of one gives
+   exactly `summariseDates(feature)`.
+
+`summariseDates(feature)` stays as the single-feature form. Every consumer that shows dates calls
+`summariseSet` on the feature's set, so a member never shows dates different from its set.
+
+Because P is the union of the members' clear presences, the set's window runs from the minimum
+`year_from` to the maximum `year_to` over that union and no further (requirement 18.3). Links
+cannot add a year that no member's sources state.
+
 ### Eras
 
 `isDrawnInEra(s, era)` is true only when `s.kind === 'dated'`, `s.conflicts.length === 0`,
@@ -319,14 +458,24 @@ type EraFeature = {
   attributes: { use?: string; material?: string; storeys?: number };
   dates: DateSummary & { kind: 'dated' }; phrases: string[];
   sourceIds: string[];                // origin source first, then the rest sorted
+  linkedIds: string[];                // every member of the set, sorted; [id] for a set of one
 };
 type EraFeatureList = { eraId: string; yearFrom: number; yearTo: number;
                         features: EraFeature[];     // sorted by id
                         needsReview: string[] };    // conflicted published ids, sorted
 ```
 
-Only `status: published` features are considered. This type is what spec 03's `scene/loadEra`
-carries. Spec 03's bridge schema must reference or mirror it, checked by test.
+Only `status: published` features are considered. `featuresForEra` works per linked set: it
+summarises the set, tests `isDrawnInEra` on the set's summary, and if drawn emits one entry built
+from `drawnMember(set, era, sources)` (the order in requirement 18.4). `id`, `geometry`,
+`positionErrorM`, confidence and attributes come from that member; `dates` and `phrases` from the
+set; `sourceIds` from all members, with the drawn member's origin source first. For the four eras
+at submission this means the 1911 plate geometry is drawn in 1911, the 1935 plate geometry in 1935
+and 1947, and today's era uses whichever member the rule picks. A conflicted set lists every member
+id in `needsReview`.
+
+This type is what spec 03's `scene/loadEra` carries. Spec 03's bridge schema must reference or
+mirror it, checked by test.
 
 ### Lot relation
 
@@ -378,11 +527,20 @@ type Finding =
 
 ### Banned words
 
-`BANNED_WORDS = ['contaminated', 'unsafe', 'safe', 'clean', 'will flood']`. Matching: lower-case
-the text, then test each entry with a regex where letters must not be preceded or followed by a
-letter (`(?<![a-z])` / `(?![a-z])`), and the space in "will flood" is `\s+`. So "Safe", "clean-up"
-and "will\nflood" match; "safety" and "Cleanview" do not. The rule targets words, not substrings.
-Product may later decide that "safety" should also fail; that is a one-line change.
+`BANNED_WORDS = ['contaminated', 'unsafe', 'safe', 'safer', 'safest', 'clean', 'cleaner',
+'cleanest', 'will flood']`. Matching: lower-case the text, then test each entry with a regex where
+letters must not be preceded or followed by a letter (`(?<![a-z])` / `(?![a-z])`), and the space in
+"will flood" is `\s+`. So "Safe", "SAFER", "clean-up" and "will\nflood" match; "safety",
+"cleaning" and "Cleanview" do not. The rule targets whole words, not substrings. Any further word
+is a one-line change with a product decision behind it.
+
+### Position phrase
+
+`positionPhrase(m)` returns `Positioned within about ${m.toFixed(1)} m`. Stored errors are
+multiples of 0.1 m, so one decimal shows the stored value exactly. It throws for `m <= 0` or a
+non-finite value. The figure is a conservative estimate, not a bound, and the wording says so
+(requirement 20.4); the shell and the Report use this function and never word the error
+themselves.
 
 ## Error handling
 
@@ -445,8 +603,10 @@ not intersect L at all, the result is `near`. *(tech.md property 3; req 13.2, 13
 `createFinding` or `createNothingFound`: either it throws `HonestyError`, or the result has at
 least one source id, every source id is in the index, and `findBannedWords(text)` is empty.
 For every string S that contains a banned word as a whole word (generated by inserting a banned
-word with random case and surrounding non-letters into random text), `findBannedWords(S)` is
-non-empty. *(tech.md property 5; req 14.2, 14.4, 14.5)*
+word, including the inflections "safer", "safest", "cleaner" and "cleanest", with random case and
+surrounding non-letters into random text), `findBannedWords(S)` is non-empty. For every string made
+only of allowed words such as "safety" and "cleaning" with non-letter separators,
+`findBannedWords` is empty. *(tech.md property 5; req 14.2, 14.4, 14.5)*
 
 **P11. "Nothing found" lists the records and years checked.** For every non-empty list of checked
 observations C: the `nothing_found` finding's `checked` has one entry per source in C with that
@@ -454,8 +614,9 @@ source's `year_from`, `year_to` and visibility, and `checkedRecordsText` contain
 and year range in C. *(tech.md property 6; req 14.3)*
 
 **P12. Era lists are well-formed.** For every set of collections and era E: `featuresForEra` returns
-only `published` features, only features for which P1's condition holds, no duplicate ids, sorted
-by id, and every conflicted published feature's id is in `needsReview`. *(req 2.8, 12.2, 12.4)*
+only `published` features, only entries whose set satisfies P1's condition, at most one entry per
+linked set, no duplicate ids, sorted by id, and every member of a conflicted set is in
+`needsReview`. *(req 2.8, 12.2, 12.4, 18.4, 18.6)*
 
 **P13. Validator rejects missing evidence (Python, Hypothesis).** For every valid generated feature,
 removing `position_error_m`, setting it to 0 or less, emptying `observations`, or replacing an
@@ -467,7 +628,41 @@ position with a pair where the first value is in [-180, 180] and the second in [
 Validator report an error. *(req 1.6)*
 
 **P15. Position error floor (Python, Hypothesis).** For every feature and alignment record:
-the Validator accepts the feature only if `position_error_m >= alignment_error_m`. *(req 5.4)*
+the Validator accepts the feature only if
+`position_error_m >= ceil_0.1(sqrt(alignment_error_m² + digitising_error_m²))`,
+`digitising_error_m >= 2 × source_pixel_size_m`, and `provenance.alignment_error_m` equals the
+record's. *(req 5.4, 5.6)*
+
+**P16. Linking never widens a window.** For every linked set S built from generated features with
+random links: if `summariseSet(S)` is dated, its window runs exactly from the minimum `year_from` to
+the maximum `year_to` over the clear presences in the union of the members' observations (after
+removing same-source disagreements), and for any two sets S1 and S2 joined by one new link, the
+joined set's window lies inside the hull of the two windows. A set of one gives the same summary as
+`summariseDates`. *(req 18.1, 18.3)*
+
+**P17. A linked set is drawn at most once, from one of its members.** For every set of collections
+and era E: no two entries in `featuresForEra(E).features` share a linked set; each entry's geometry
+equals the geometry of the member that the rule in requirement 18.4 picks; and the result is the
+same under any permutation of features, links and observations. *(req 18.4, 18.5, 18.7)*
+
+**P18. Same-source disagreement inside a set is a conflict.** For every linked set where two
+members carry observations from one source that differ in `present` or `visibility`: the summary
+lists both in `conflicts`, the set is in no era's `features`, and every member is in `needsReview`.
+*(req 18.2, 18.6)*
+
+**P19. Code never reads a photograph (Python, Hypothesis).** For every valid feature, adding an
+observation from an `aerial_photograph` source with visibility `clear` or `obscured` and a method
+other than `person` makes the Validator report an error for that feature. *(req 16.5)*
+
+**P20. Links are symmetric and one per origin source (Python, Hypothesis).** For every valid set of
+evidence files, removing one side of a link, pointing a link at an unpublished or missing feature,
+or linking two features with the same origin source into one set makes the Validator report an
+error. *(req 17.2, 17.3)*
+
+**P21. The alignment error rule (Python, Hypothesis).** For every generated alignment record, the
+Validator accepts it only if `alignment_error_m == ceil_0.1(max(2.0, 2.0 × error_basis_m))` and
+`error_basis_m` is the chosen transform's out-of-sample RMSE; and every accepted value is at least
+2.0 m and at least `error_basis_m`. *(req 20.1, 20.2)*
 
 The tech.md property "An alignment transform round-trips control points within the reported error"
 belongs to the alignment maths and is specified in spec 02 (property A5, with A1 to A7 around it).
@@ -483,6 +678,12 @@ belongs to the alignment maths and is specified in spec 02 (property A5, with A1
   feature, a 1911 + 1935 feature with a clear 1947 absence, and one with an obscured 1947
   observation ("Last seen 1935"). Source ids in examples are the real plate ids; geometry is
   synthetic. No example states what stood on a real block.
+- Linked-set examples: a 1911 feature linked to a 1935 feature (window 1911 to 1935, drawn in 1911
+  from the 1911 geometry and in 1935 from the 1935 geometry, one entry each); the same pair with a
+  person-set clear 1947 absence on the 1935 member ("Gone by 1947"); a pair that disagrees about
+  one source (conflict).
+- `positionPhrase` examples: 2.0 gives "Positioned within about 2.0 m"; 2.3 gives
+  "Positioned within about 2.3 m"; 0 and NaN throw.
 - pytest + Hypothesis in `pipeline/tests/validate/`.
 - Conformance: both suites load every file in `data/schema/fixtures/` and assert valid files pass
   and invalid files fail (requirement 9.3). Each invalid fixture fails for exactly one reason,
@@ -502,3 +703,20 @@ belongs to the alignment maths and is specified in spec 02 (property A5, with A1
 - **JSTS over Turf:** planar maths in metres, with real negative buffers.
 - **Ajv on load in TS, jsonschema in Python:** both are mature draft 2020-12 implementations; the
   shared fixtures catch disagreement.
+- **Link, do not merge, across sources:** each plate keeps its own geometry and provenance, and a
+  wrong link can be removed without losing either feature. The date logic dates the set as one.
+- **A `match_auto` presence names its matched feature:** the presence and the link are the same
+  fact stored in two places, so the Validator ties them together (requirement 16.6). If the matched
+  feature is rejected, the file fails validation until `match` runs again.
+- **Absence only inside reviewed areas:** a plate shows a building only if someone published it.
+  Without a person's statement that an area is complete, "no footprint here" could mean "not
+  reviewed yet", which would close a vanish window falsely.
+- **Position error is a conservative estimate with a 2 m floor:** RMSE alone understates how far a
+  typical point can be off, and 2 control points per plate from U of T give no error at all.
+  Doubling the out-of-sample RMSE and adding a digitising term in quadrature gives a figure most
+  points fall within. The wording "about" keeps it from reading as a guarantee.
+- **Project bounds include a 250 m margin:** lots, intersections and today's buildings near the
+  plate edges are needed for control points and for lots that straddle the edge, and one rectangle
+  serves as both the validation bounds and the present-layer clip.
+- **Schema version stays 1.0.0:** no contract file has been written yet, so the additions in
+  session 002b are part of the first version, not a change to it.

@@ -8,6 +8,8 @@ defines:
 - one JSON Schema for every contract file under `data/`;
 - the source registry `data/sources.json`;
 - the project file `data/project.json` (project origin and eras);
+- the shape of the present-day layers under `data/present/` and of control points that cite them;
+- links between features from different sources (`same_as`) and how linked features are dated;
 - a TypeScript library in `web/src/evidence/` that is the single implementation of the date logic
   and the honesty rules;
 - a Python validator in `pipeline/` that checks every contract file against the schema and the
@@ -20,7 +22,8 @@ spec and the concept brief differ, the steering docs win.
 
 - **Schema**: `data/schema/evidence.schema.json`, JSON Schema draft 2020-12.
 - **Contract file**: any file under `data/` that the Schema describes: evidence files, the source
-  registry, the project file, control point files, alignment records and tile sidecars.
+  registry, the project file, control point files, alignment records, tile sidecars and
+  present-day layers.
 - **Evidence file**: `data/evidence/<origin source id>.geojson`, one GeoJSON FeatureCollection.
 - **Validator**: the Python command `buried validate` in `pipeline/buried_pipeline/validate/`.
 - **Evidence Library**: the TypeScript modules in `web/src/evidence/`.
@@ -30,8 +33,16 @@ spec and the concept brief differ, the steering docs win.
 - **Evidence window, Built by, Last seen, Gone by, Not yet built at, conflict**: as defined in
   `evidence.md`, "Date logic".
 - **Era**: an id, a label and a year range (`year_from`, `year_to`), stored in the project file.
-- **Lot**: a polygon in EPSG:26917 with its own position error. Where lots come from is decided by
-  the Report spec; this spec only takes a lot as input.
+- **Lot**: a polygon in EPSG:26917 with its own position error. Lots come from the
+  `present_toronto_property_boundaries_2026` layer; the lot's position error is set by the Report
+  spec. This spec only takes a lot as input.
+- **Present layer**: `data/present/<source id>.geojson`, a clipped present-day City of Toronto
+  layer in EPSG:26917. Not evidence.
+- **Linked set**: a connected group of published features joined by `same_as` links. A feature
+  with no links is a set of one.
+- **Method**: how an observation was made: `origin`, `match_auto` or `person`.
+- **Out-of-sample RMSE (B)**: the RMSE of the chosen transform at control points it was not fitted
+  to (spec 02 requirement 6.6).
 
 ## Requirement 1: One schema for all contract files
 
@@ -60,6 +71,9 @@ contract file it affects, in the same change.
 1.6 THE Schema SHALL require every geometry position to have exactly two numbers, an easting in
 the range 166000 to 834000 and a northing in the range 0 to 9400000, so that a lon/lat pair fails
 validation.
+
+1.7 THE Schema SHALL also define, under `$defs`, `link`, `coverageArea`, `presentLayer` and
+`presentFeature` (requirements 17, 19 and 21).
 
 ## Requirement 2: Features
 
@@ -145,12 +159,18 @@ file's `origin_source`, or whose `id` does not contain that origin source id.
 5.3 THE Validator SHALL reject a feature whose origin source has no alignment record at
 `data/alignment/<origin source id>.json` with `status: measured`.
 
-5.4 THE Validator SHALL reject a feature whose `position_error_m` is less than the
-`alignment_error_m` in its origin source's alignment record, or less than its own
-`provenance.alignment_error_m`.
+5.4 THE Validator SHALL reject a feature whose `position_error_m` is less than R, where R is the
+root-sum-square of the `alignment_error_m` in its origin source's alignment record and the
+feature's `provenance.digitising_error_m`, rounded up to the next 0.1 m; and SHALL reject a
+feature whose `provenance.alignment_error_m` differs from the alignment record's
+`alignment_error_m`.
 
 5.5 THE Validator SHALL reject a feature whose `confirmed_at` is later than the time of
 validation.
+
+5.6 THE Schema SHALL require `provenance.digitising_error_m` (a number greater than 0), and THE
+Validator SHALL reject a feature whose `digitising_error_m` is less than 2 times the
+`source_pixel_size_m` in its origin source's alignment record.
 
 ## Requirement 6: Source registry
 
@@ -175,6 +195,14 @@ Validator SHALL reject that evidence file.
 6.5 THE registry SHALL contain only sources that already have a row in `.kiro/steering/sources.md`.
 This is checked by review, not by code, because code does not read steering docs.
 
+6.7 THE registry SHALL record `rights_checked_on` as 2026-11-10 for the four showcase plates and
+2026-11-12 for each 1947 aerial and each present-day source, with the licence notes and
+attribution lines in `sources.md`, and `attribution_status: confirmed` for all of them.
+
+6.8 THE registry SHALL hold the four present-day sources named in `sources.md` with type
+`present_day_reference`; their `year_from` is the year of the dataset's last refresh and their
+`year_to` is the retrieval year (checked by spec 02's `buried present`).
+
 ## Requirement 7: Project file and eras
 
 **User story:** As the Explorer and the pipeline, I want one place that defines the project origin
@@ -196,7 +224,12 @@ spec.
 7.4 THE eras at submission SHALL be `1911` (label "1911 (revised to 1914)", 1911 to 1914), `1935`
 (1935 to 1935), `1947` (1947 to 1947) and `today`.
 
-7.5 THE Validator SHALL reject a contract file with any coordinate outside the project `bounds`.
+7.5 THE Validator SHALL reject a contract file with any coordinate outside the project `bounds`,
+except present layers (requirement 21.4).
+
+7.6 THE project `bounds` SHALL be the union of the four showcase plates' EPSG:26917 bounds,
+expanded by 250 m on every side and then rounded outward to multiples of 100 m. The origin rule in
+7.2 is unchanged.
 
 ## Requirement 8: Python validator
 
@@ -227,6 +260,8 @@ status.
 exit with status 0.
 
 8.7 THE Validator SHALL NOT compute dates, windows, conflicts or lot relations.
+
+8.8 THE Validator SHALL check `data/present/*.geojson` as `presentLayer`.
 
 ## Requirement 9: TypeScript loading and types
 
@@ -353,8 +388,10 @@ records checked and SHALL store, for each, the source id, `year_from`, `year_to`
 including `obscured` and `not_covered` records.
 
 14.4 THE Evidence Library SHALL provide a banned-word check that finds "contaminated", "unsafe",
-"safe", "clean" and "will flood" as whole words or phrases, case-insensitive, with any run of
-whitespace inside "will flood".
+"safe", "safer", "safest", "clean", "cleaner", "cleanest" and the phrase "will flood" as whole
+words, case-insensitive, with any run of whitespace inside "will flood". A word counts as whole
+when no letter comes directly before or after it, so "safety" is allowed and "clean-up" is
+caught.
 
 14.5 IF a finding's text contains a banned word, THEN THE Evidence Library SHALL refuse to create
 the finding.
@@ -374,3 +411,174 @@ Evidence Library, Hypothesis for the Validator.
 
 15.3 WHEN this spec adds a command (web install, test, type generation, schema validation), THE
 same change SHALL record it under "Commands" in `.kiro/steering/tech.md`.
+
+## Requirement 16: How each observation was made
+
+**User story:** As a reviewer, I want to know whether an observation came from the source the
+feature was read from, from a geometry rule, or from a named person, so that I can trust "Gone by"
+and trace every claim.
+
+### Acceptance criteria
+
+16.1 THE Schema SHALL require every observation to carry `method`: `origin`, `match_auto` or
+`person`.
+
+16.2 WHEN `method` is `person`, THE Schema SHALL require `confirmed_by` (non-empty) and
+`confirmed_at` (RFC 3339 date-time).
+
+16.3 WHEN `method` is `match_auto` and `present` is true, THE Schema SHALL require
+`matched_feature` (a feature id).
+
+16.4 THE Validator SHALL reject an observation with `method: origin` whose source is not the
+feature's origin source, and a feature whose origin-source observation does not have
+`method: origin`.
+
+16.5 THE Validator SHALL reject an observation from an `aerial_photograph` source with visibility
+`clear` or `obscured` unless its `method` is `person`.
+
+16.6 THE Validator SHALL reject a `match_auto` presence whose `matched_feature` does not exist, is
+not published, is not in this feature's `same_as`, or has an origin source different from the
+observation's source.
+
+## Requirement 17: Linked features
+
+**User story:** As a researcher, I want a building drawn on both the 1911 and 1935 plates to be
+recognised as one building without losing either plate's provenance.
+
+### Acceptance criteria
+
+17.1 THE Schema SHALL allow an optional `same_as` on a feature: an array of links, each with
+`feature` (a feature id), `method` (`match_auto` or `person`) and, when `method` is `person`,
+`confirmed_by` and `confirmed_at`.
+
+17.2 THE Validator SHALL reject a link to a feature that does not exist, to the feature itself,
+to a feature of a different `kind`, or to a feature that is not published, and a link that is not
+mirrored by a link back from the target with the same `method`.
+
+17.3 THE Validator SHALL reject a linked set that contains two members with the same origin source,
+because two features on one source are a merge, not a link.
+
+17.4 Linking SHALL NOT change any member's id, geometry, attributes, confidence, provenance or
+status.
+
+## Requirement 18: Dates and eras for linked sets
+
+**User story:** As a viewer, I want a building seen on two plates dated from both, drawn once per
+era, and never given a longer life than the sources show.
+
+### Acceptance criteria
+
+18.1 THE Evidence Library SHALL compute one DateSummary per linked set from the union of its
+members' observations, taking each source once, and SHALL give every member that summary.
+
+18.2 IF two members of a linked set carry observations from the same source that differ in
+`present` or `visibility`, THEN THE Evidence Library SHALL mark the set as conflicted and list both
+observations in `conflicts`.
+
+18.3 THE Evidence Library SHALL NOT let linking widen a set's evidence window beyond the minimum
+`year_from` and the maximum `year_to` over the clear presences in the union of its members'
+observations.
+
+18.4 THE per-era feature list SHALL contain at most one entry per linked set. The entry SHALL carry
+the geometry, attributes, confidence and position error of one member, chosen in this order: the
+member whose origin source's year range contains the era's range; else the member whose origin
+source has the greatest `year_to` that is not after the era's `year_from`; else the member whose
+origin source has the smallest `year_from`; ties broken by the smallest feature id.
+
+18.5 THE per-era entry SHALL list every member id in `linkedIds`, sorted, and its `sourceIds` SHALL
+include every source cited by any member.
+
+18.6 WHILE a linked set is conflicted, THE Evidence Library SHALL leave it out of every per-era
+feature list and SHALL list every member id in `needsReview`.
+
+18.7 THE result SHALL NOT depend on the order of features, links or observations.
+
+## Requirement 19: Coverage of an evidence file
+
+**User story:** As the matching step, I want to know where a plate draws the ground and where a
+person has checked that every building on it was published, so that absence is only read where
+the record is complete.
+
+### Acceptance criteria
+
+19.1 THE Schema SHALL allow on a `featureCollection` an optional `mapped_area` and an optional
+`reviewed_areas` array, each a `coverageArea`: a `Polygon` or `MultiPolygon` in EPSG:26917 with a
+`method`.
+
+19.2 THE `mapped_area` SHALL have `method` `neatline` or `raster_footprint`. Each reviewed area
+SHALL have `method: person`, `confirmed_by`, `confirmed_at` and `pixel_polygon` (integer pixel
+vertices on the origin source).
+
+19.3 A reviewed area SHALL mean that the person named attests that every building the origin source
+draws inside it is published in this file.
+
+19.4 THE Validator SHALL reject a reviewed area that is not inside the file's `mapped_area`
+(allowing 0.01 m for rounding), or a file with reviewed areas and no `mapped_area`.
+
+## Requirement 20: Position error composition and wording
+
+**User story:** As a reader, I want the position error to mean the same thing everywhere and be
+worded so it is not mistaken for a guarantee.
+
+### Acceptance criteria
+
+20.1 THE Validator SHALL reject an alignment record whose `alignment_error_m` is not
+`max(error_rule.floor_m, error_rule.multiplier × error_basis_m)` rounded up to the next
+`error_rule.round_up_to_m`, or whose rule constants are not `floor_m: 2.0`, `multiplier: 2.0` and
+`round_up_to_m: 0.1`.
+
+20.2 THE Validator SHALL reject an alignment record whose `error_basis_m` is not the stored
+supplied RMSE when `chosen` is `supplied`, or the stored refined leave-one-out RMSE when `chosen`
+is `refined`.
+
+20.3 THE Evidence Library SHALL provide `positionPhrase(positionErrorM)` returning
+"Positioned within about X m", with X written with one decimal place.
+
+20.4 THE Evidence Library SHALL be the only place that words a position error; it SHALL NOT produce
+"±", "exactly" or "guaranteed" in any position wording.
+
+## Requirement 21: Present-day layers
+
+**User story:** As the shell and the pipeline, I want the present-day City of Toronto layers in the
+same coordinates and with the same checks as everything else.
+
+### Acceptance criteria
+
+21.1 THE Schema SHALL define `presentLayer` as a GeoJSON-shaped FeatureCollection with
+`schema_version`, `crs` (`EPSG:26917`), `source` (a source id), `ckan_package_id`,
+`ckan_resource_id`, `resource_url`, `retrieved_at`, `last_refreshed`, `source_sha256`,
+`id_field`, `clip_bounds`, `attribution_line` and `features`.
+
+21.2 THE Schema SHALL define `presentFeature` with a string `id` (the dataset's own feature id), a
+`Point`, `Polygon` or `MultiPolygon` geometry made of `position`s, and `properties` whose values are
+strings, numbers, booleans or null.
+
+21.3 THE Validator SHALL reject a present layer whose source is not registered as
+`present_day_reference` with `attribution_status: confirmed`, or that has two features with the
+same `id`.
+
+21.4 THE Validator SHALL reject a present layer feature that does not intersect the project
+`bounds`. Coordinates of a feature that crosses the bounds may lie outside them.
+
+21.5 THE Evidence Library and every consumer SHALL NOT treat present layer features as evidence
+features: they carry no observations and never pass through the date logic.
+
+## Requirement 22: Control points that cite present-day features
+
+**User story:** As the maintainer, I want every control point to name the present-day feature it
+was taken from, so that a reviewer can check it and the alignment can be remeasured.
+
+### Acceptance criteria
+
+22.1 THE Schema SHALL require each control point to carry `reference_source`, `reference_kind`
+(`intersection` or `building_corner`) and `reference_feature_id`, and SHALL require
+`reference_vertex` (`polygon` and `vertex` indexes into the exterior rings) when `reference_kind`
+is `building_corner`.
+
+22.2 THE Validator SHALL reject a control point whose `reference_source` has no present layer under
+`data/present/`, whose `reference_feature_id` is not in that layer, or whose `reference` coordinate
+is more than 0.001 m from the cited intersection point or building vertex.
+
+22.3 THE Validator SHALL reject a control point whose `reference_source` is not listed for its
+`reference_kind` in the reference table in design.md (intersections layers for `intersection`,
+building outline layers for `building_corner`).

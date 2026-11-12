@@ -3,13 +3,16 @@
 Property-based test tasks are marked **[PBT]** and name the correctness property from `design.md`.
 A task is done only when its tests pass. Do not weaken a property to make it pass.
 
-**Gate (due Nov 14): tasks 1, 2 and 3 on their own fetch one plate, inspect it, and report its
-alignment error in metres.** They do not depend on spec 01. Use `fip_v3_1911_229` or
-`fip_v3_1935_229` for the gate, not the held-out plate.
+**Gate (due Nov 14): tasks 1, 2, 10.1 to 10.4 and 3, in that order, fetch one plate, inspect it,
+clip the intersections layer, and report the plate's alignment error in metres.** They do not
+depend on spec 01. Use `fip_v3_1911_229` or `fip_v3_1935_229` for the gate, not the held-out plate.
+
+Task numbers are stable, so the run order is not numeric:
+1, 2, 10.1 to 10.4 (present layers, intersections first), 3, 4, 5, 10.5, 6, 7, 8, 11, 9.
 
 - [ ] 1. Create the package and fetch the showcase plates
   - [ ] 1.1 Create the uv project: Python 3.12, package `buried_pipeline`, console script `buried`,
-    dependencies and dev dependencies from design.md, `argparse` CLI with the seven subcommands
+    dependencies and dev dependencies from design.md, `argparse` CLI with the nine subcommands
     registered (unimplemented ones exit 2 with "not implemented yet"), repo root discovery and
     `--root`.
     Files: `pipeline/pyproject.toml`, `pipeline/uv.lock`, `pipeline/.python-version`,
@@ -21,9 +24,8 @@ alignment error in metres.** They do not depend on spec 01. Use `fip_v3_1911_229
     Files: `.gitignore`, `pipeline/buried_pipeline/io/atomic.py`, `pipeline/tests/io/test_atomic.py`.
     Requirements: 1.6.
   - [ ] 1.3 If `data/sources.json` does not exist, create it with the four showcase plates exactly
-    as in spec 01 design "source and sourceRegistry", with `rights_checked_on: null`. The
-    maintainer fills in the date after checking each item's rights statement. Add the Registry
-    reader.
+    as in spec 01 design "source and sourceRegistry", with `rights_checked_on: 2026-11-10` (checked
+    in the Nov 10 research session). Add the Registry reader.
     Files: `data/sources.json`, `pipeline/buried_pipeline/io/registry.py`,
     `pipeline/tests/io/test_registry.py`.
     Requirements: 2.2, 2.3.
@@ -49,7 +51,8 @@ alignment error in metres.** They do not depend on spec 01. Use `fip_v3_1911_229
 
 - [ ] 2. Inspect georeferencing
   - [ ] 2.1 Implement the pure report functions: corners, densified bounds, pixel size from unit
-    steps, rotation terms, origin proposal.
+    steps, rotation terms, origin proposal, and `project_bounds` (union plus 250 m, rounded outward
+    to 100 m).
     Files: `pipeline/buried_pipeline/inspect/__init__.py`,
     `pipeline/buried_pipeline/inspect/report.py`, `pipeline/tests/inspect/test_report.py`.
     Requirements: 1.4, 4.1, 4.2, 4.6.
@@ -72,18 +75,22 @@ alignment error in metres.** They do not depend on spec 01. Use `fip_v3_1911_229
     `pipeline/tests/align/test_affine.py`.
     Requirements: 6.3, 6.4, 6.9.
   - [ ] 3.2 Implement pure residual maths: residuals, RMSE, max, leave-one-out, outlier flags,
-    choice rule, rounding up to 0.01 m; and the supplied mapping (affine then pyproj to EPSG:26917).
+    choice rule, error basis and the published error rule (`ceil_0.1(max(2.0, 2 × B))`); and the
+    supplied mapping (affine then pyproj to EPSG:26917).
     Files: `pipeline/buried_pipeline/align/residuals.py`, `pipeline/buried_pipeline/align/supplied.py`,
     `pipeline/tests/align/test_residuals.py`, `pipeline/tests/align/test_supplied.py`.
     Requirements: 6.1, 6.5, 6.6, 6.7, 6.9.
   - [ ] 3.3 Implement `buried align-check <SOURCE_ID>`: read the control file (shape from spec 01
-    design `controlPoints`, checked in code until spec 01's Schema exists), refuse an unregistered
-    reference source, refuse fewer than 3 points, compute, print the table, write
-    `data/alignment/<id>.json` (shape from spec 01 design `alignmentRecord`) atomically with the
-    control file SHA-256, time and package version.
-    Files: `pipeline/buried_pipeline/align/run.py`, `pipeline/buried_pipeline/cli.py`,
-    `pipeline/tests/align/test_run.py`, `pipeline/tests/fixtures/align/*.json`.
-    Requirements: 5.1, 5.2, 6.1 to 6.8.
+    design `controlPoints`, checked in code until spec 01's Schema exists), check every point's
+    reference against its present layer (`align/references.py`), refuse an unregistered reference
+    source, refuse fewer than 3 points, compute, print the table with raw RMSE values and the
+    published error on separate lines, write `data/alignment/<id>.json` (shape from spec 01 design
+    `alignmentRecord`, including `source_pixel_size_m`, `error_basis`, `error_basis_m` and
+    `error_rule`) atomically with the control file SHA-256, time and package version.
+    Files: `pipeline/buried_pipeline/align/run.py`, `pipeline/buried_pipeline/align/references.py`,
+    `pipeline/buried_pipeline/cli.py`, `pipeline/tests/align/test_run.py`,
+    `pipeline/tests/align/test_references.py`, `pipeline/tests/fixtures/align/*.json`.
+    Requirements: 5.1, 5.2, 5.4, 6.1 to 6.8, 6.10, 6.11.
   - [ ] 3.4 **[PBT] A1** Inverse round-trip.
     Files: `pipeline/tests/align/test_align_properties.py`, `pipeline/tests/align/strategies.py`.
     Requirements: 6.9.
@@ -102,22 +109,34 @@ alignment error in metres.** They do not depend on spec 01. Use `fip_v3_1911_229
   - [ ] 3.9 **[PBT] A6** Order independence.
     Files: `pipeline/tests/align/test_align_properties.py`.
     Requirements: 6.1, 6.6.
-  - [ ] 3.10 **[PBT] A7** Choice rule and rounding.
+  - [ ] 3.10 **[PBT] A7** Choice rule, error basis and the published error rule.
     Files: `pipeline/tests/align/test_align_properties.py`.
     Requirements: 6.5, 6.6.
   - [ ] 3.11 Record `uv run buried align-check <SOURCE_ID>` in `.kiro/steering/tech.md`.
     Files: `.kiro/steering/tech.md`.
     Requirements: 1.8.
-  - [ ] 3.12 Gate run (maintainer). Prerequisites the builder cannot supply: a registered reference
-    source for present-day coordinates, and a control file
+  - [ ] 3.12 Gate run (maintainer). Prerequisites: tasks 10.1 to 10.4 done, so
+    `data/present/present_toronto_intersections_2026.geojson` exists; then a control file
     `data/control/fip_v3_1911_229.json` (or `fip_v3_1935_229`) with at least 4 points spread across
-    the plate, read by a person. Then run `uv run buried fetch fip_v3_1911_229`,
-    `uv run buried inspect fip_v3_1911_229`, `uv run buried align-check fip_v3_1911_229`. Pass:
-    the command prints per-point residuals, supplied RMSE, refined leave-one-out RMSE, the chosen
-    transform and `alignment_error_m` in metres, and writes the alignment record. Record the
-    numbers in `docs/kiro-sessions/` notes.
+    the plate, read by a person, each pairing a street centreline crossing on the plate with an
+    intersection from that layer (building corners from the outlines layer are allowed once that
+    layer is clipped). Then run `uv run buried fetch` and `uv run buried inspect` (all four
+    showcase plates, because the project bounds that clip the intersections layer come from all
+    four; inspect reads only georeferencing, so this does not touch the held-out rule),
+    `uv run buried present present_toronto_intersections_2026`,
+    `uv run buried align-check fip_v3_1911_229`. Pass: the command prints per-point residuals,
+    supplied RMSE, refined leave-one-out RMSE, the chosen transform and the published
+    `alignment_error_m` in metres, and writes the alignment record. Record the numbers in
+    `docs/kiro-sessions/` notes.
     Files: `data/control/<id>.json`, `data/alignment/<id>.json`.
     Requirements: 11.1, 11.2, 11.3.
+  - [ ] 3.13 **[PBT] A8** The published error is at least 2 m, at least twice the basis, less than
+    0.1 m above the rule, and a multiple of 0.1 m.
+    Files: `pipeline/tests/align/test_align_properties.py`.
+    Requirements: 6.6, 6.10.
+  - [ ] 3.14 **[PBT] A9** Control point references are checked exactly.
+    Files: `pipeline/tests/align/test_align_properties.py`, `pipeline/tests/align/strategies.py`.
+    Requirements: 5.2.
 
 - [ ] 4. Validate alignment output against the Schema (needs spec 01 task 1)
   - [ ] 4.1 Replace the in-code shape checks in align-check with spec 01's `controlPoints` and
@@ -127,12 +146,13 @@ alignment error in metres.** They do not depend on spec 01. Use `fip_v3_1911_229
 
 - [ ] 5. Find and fetch the 1947 aerials
   - [ ] 5.1 Implement `buried fetch --aerial-candidates`: union bounds from inspect reports, ArcGIS
-    query through the HTTP client, cap of 10, write `data/work/aerial_candidates.json`. Leave
-    `AERIAL_INDEX_URL` and `AERIAL_ID_FIELD` unset (command fails clearly) until the maintainer
-    records them. Test with a fake response fixture.
+    query through the HTTP client with `AERIAL_INDEX_URL`, `AERIAL_ID_FIELD = "Name"` and
+    `AERIAL_ZIP_FIELD = "zip_url"` as in design.md, cap of 10, write
+    `data/work/aerial_candidates.json` with `Name`, proposed source id, `zip_url`, `url`,
+    `thumbnail_url` and footprint bounds. Test with a fake response fixture.
     Files: `pipeline/buried_pipeline/fetch/aerials.py`, `pipeline/buried_pipeline/cli.py`,
     `pipeline/tests/fetch/test_aerials.py`, `pipeline/tests/fixtures/fetch/aerial_index_*.json`.
-    Requirements: 3.1, 3.2.
+    Requirements: 3.1, 3.2, 3.4.
   - [ ] 5.2 Extend `buried fetch` to download registered `aerial_photograph` sources from their
     stored `url`, with the same manifest, rights-date and idempotence rules. Aerial ids enter the
     Registry only after they are agreed in `sources.md`.
@@ -190,10 +210,11 @@ alignment error in metres.** They do not depend on spec 01. Use `fip_v3_1911_229
     Files: `pipeline/tests/extract/test_extract_properties.py`.
     Requirements: 8.1.
   - [ ] 7.8 Implement `buried extract <SOURCE_ID>`: refuse without an alignment record, neatline
-    rule, write the proposal file with sorted output.
+    rule, write the proposal file with sorted output and the neatline header (`neatline`,
+    `neatline_px`, `neatline_geometry`).
     Files: `pipeline/buried_pipeline/extract/run.py`, `pipeline/buried_pipeline/cli.py`,
     `pipeline/tests/extract/test_run.py`.
-    Requirements: 8.2, 8.3, 8.5, 9.4.
+    Requirements: 8.2, 8.3, 8.5, 8.7, 9.4.
   - [ ] 7.9 **[PBT] X2** Determinism: two runs give byte-identical files.
     Files: `pipeline/tests/extract/test_extract_properties.py`.
     Requirements: 8.3.
@@ -212,10 +233,11 @@ alignment error in metres.** They do not depend on spec 01. Use `fip_v3_1911_229
 
 - [ ] 8. Publish accepted proposals (needs spec 01 task 4)
   - [ ] 8.1 Implement `publish/build.py` (pure): decisions to features per design.md, id
-    allocation, skip already-published proposal ids, error floor, confidence rule.
+    allocation, skip already-published proposal ids, digitising term and position error rule,
+    origin observation with `method: origin`, confidence rule, `mapped_area` and reviewed areas.
     Files: `pipeline/buried_pipeline/publish/__init__.py`, `pipeline/buried_pipeline/publish/build.py`,
     `pipeline/tests/publish/test_build.py`.
-    Requirements: 10.2, 10.4 to 10.7.
+    Requirements: 10.2, 10.4 to 10.7, 10.10, 10.11.
   - [ ] 8.2 Implement `buried publish <SOURCE_ID>`: refusals (unregistered, attribution not
     confirmed, stale alignment), in-process validation of the would-be `data/` state, atomic write,
     printed counts.
@@ -234,16 +256,116 @@ alignment error in metres.** They do not depend on spec 01. Use `fip_v3_1911_229
   - [ ] 8.6 **[PBT] U4** Ids are never reused or renumbered.
     Files: `pipeline/tests/publish/test_publish_properties.py`.
     Requirements: 10.6.
-  - [ ] 8.7 **[PBT] U5** Every published feature's position error is at least the alignment error.
+  - [ ] 8.7 **[PBT] U5** Every published feature's position error is at least the root-sum-square
+    of the alignment error and the digitising term, rounded up to 0.1 m, and never below the
+    reviewer's value.
     Files: `pipeline/tests/publish/test_publish_properties.py`.
     Requirements: 10.4.
   - [ ] 8.8 Record `uv run buried publish <SOURCE_ID>` in `.kiro/steering/tech.md`.
     Files: `.kiro/steering/tech.md`.
     Requirements: 1.8.
+  - [ ] 8.9 **[PBT] U6** Reviewed areas are kept across publish runs, and `mapped_area` is set
+    whenever reviewed areas exist.
+    Files: `pipeline/tests/publish/test_publish_properties.py`.
+    Requirements: 10.10.
 
-- [ ] 9. Final check
+- [ ] 9. Final check (run last, after task 11)
   - [ ] 9.1 Run `uv run ruff check .`, `uv run pytest` and `uv run buried validate` from
-    `pipeline/`. All pass. Confirm every property A1 to A7, T1, X1 to X5, U1 to U5 and F1 has a
-    passing test, and the held-out guard passes.
+    `pipeline/`. All pass. Confirm every property A1 to A9, T1, X1 to X5, U1 to U6, F1, R1, R2 and
+    M1 to M7 has a passing test, and the held-out guard passes.
     Files: none.
     Requirements: 1.4 to 1.7, 9.3.
+
+- [ ] 10. Clip the present-day layers (10.1 to 10.4 are part of the gate; no spec 01 dependency)
+  - [ ] 10.1 Implement the CKAN client: `package_show` through the HTTP client, last-refresh date,
+    GPKG resource choice (stop and list when there is none or several unnamed). Test with fake
+    CKAN responses.
+    Files: `pipeline/buried_pipeline/present/__init__.py`, `pipeline/buried_pipeline/present/ckan.py`,
+    `pipeline/tests/present/test_ckan.py`, `pipeline/tests/fixtures/present/ckan_*.json`.
+    Requirements: 1.7, 12.1, 12.2.
+  - [ ] 10.2 Implement the pure clip functions: project bounds (from `data/project.json` or from
+    `inspect/report.py`'s `project_bounds`), densified bbox in the layer CRS, exact intersects
+    filter in EPSG:26917, reprojection, field filter, id extraction, sorting, size limits; and the
+    dataset table in `datasets.py` with the intersections layer first.
+    Files: `pipeline/buried_pipeline/present/clip.py`, `pipeline/buried_pipeline/present/datasets.py`,
+    `pipeline/tests/present/test_clip.py`, `pipeline/tests/helpers/vectors.py`.
+    Requirements: 1.4, 12.5, 12.7, 12.9, 12.10.
+  - [ ] 10.3 Implement `buried present [SOURCE_ID ...] [--recheck]`: Registry year check, streamed
+    download with manifest entry, read with `pyogrio`, clip, write
+    `data/present/<id>.geojson` atomically (shape from spec 01 design `presentLayer`, checked in
+    code until spec 01's Schema exists), skip when the file exists, stop on changed content under
+    `--recheck`. Add the present-day sources to `data/sources.json` (ids, attribution and dates from
+    `sources.md`).
+    Files: `pipeline/buried_pipeline/present/run.py`, `pipeline/buried_pipeline/cli.py`,
+    `pipeline/tests/present/test_run.py`, `data/sources.json`.
+    Requirements: 12.1 to 12.10.
+  - [ ] 10.4 Run `uv run buried present present_toronto_intersections_2026` (maintainer, after
+    `inspect` on the four plates). Confirm the id field and kept fields from the downloaded file,
+    record them in design.md's dataset table, set the source's `year_from` from the CKAN metadata,
+    and commit `data/present/present_toronto_intersections_2026.geojson`. Record
+    `uv run buried present [SOURCE_ID ...]` in `.kiro/steering/tech.md`.
+    Files: `.kiro/specs/02-pipeline/design.md`, `data/sources.json`,
+    `data/present/present_toronto_intersections_2026.geojson`, `.kiro/steering/tech.md`.
+    Requirements: 1.8, 12.4, 12.6, 11.1.
+  - [ ] 10.5 Run `buried present` for the building outlines, property boundaries and address points
+    layers in the same way: confirm fields, record them, set `year_from`, commit the files.
+    Files: `.kiro/specs/02-pipeline/design.md`, `data/sources.json`, `data/present/*.geojson`.
+    Requirements: 12.1 to 12.8.
+  - [ ] 10.6 **[PBT] R1** Present layers are clipped, whole and in metres.
+    Files: `pipeline/tests/present/test_present_properties.py`.
+    Requirements: 12.5, 12.6.
+  - [ ] 10.7 **[PBT] R2** Present layers never change under an id.
+    Files: `pipeline/tests/present/test_present_properties.py`.
+    Requirements: 12.8.
+  - [ ] 10.8 Replace the in-code shape check with spec 01's `presentLayer` definition once spec 01
+    task 1 is done.
+    Files: `pipeline/buried_pipeline/present/run.py`, `pipeline/tests/present/test_run.py`.
+    Requirements: 12.6.
+
+- [ ] 11. Match published buildings across sources (needs task 8 and spec 01 task 12)
+  - [ ] 11.1 Implement `match/rules.py` (pure): `MATCH_MIN = 0.5`, `COMPETE_MIN = 0.1`, `shrink`,
+    `grow`, the overlap score, and the per-pair outcome for plates (match candidate, absence, not
+    covered, review with reason) and for aerials (not covered or pending).
+    Files: `pipeline/buried_pipeline/match/__init__.py`, `pipeline/buried_pipeline/match/rules.py`,
+    `pipeline/tests/match/test_rules.py`, `pipeline/tests/helpers/synthetic_evidence.py`.
+    Requirements: 13.2 to 13.7, 13.13.
+  - [ ] 11.2 Implement `match/links.py` (pure): linked sets by union-find over person links plus
+    candidate links, and the same-origin check that sends a whole clashing set to review.
+    Files: `pipeline/buried_pipeline/match/links.py`, `pipeline/tests/match/test_links.py`.
+    Requirements: 13.6.
+  - [ ] 11.3 Implement `match/apply.py` (pure): strip `match_auto` results, apply the decisions
+    file (`link`, `no_link`, `observation`, each requiring `confirmed_by` and `confirmed_at`), write
+    new results, sort observations and links.
+    Files: `pipeline/buried_pipeline/match/apply.py`, `pipeline/tests/match/test_apply.py`.
+    Requirements: 13.8 to 13.11.
+  - [ ] 11.4 Implement `buried match`: read evidence files, alignment records, tile sidecars and
+    the decisions file; run the steps in design.md "Run order inside match"; validate the whole
+    would-be `data/` state; write all changed files atomically or nothing; write
+    `data/work/match/review.json`; print counts per source pair.
+    Files: `pipeline/buried_pipeline/match/run.py`, `pipeline/buried_pipeline/cli.py`,
+    `pipeline/tests/match/test_run.py`.
+    Requirements: 13.1, 13.12, 13.14.
+  - [ ] 11.5 **[PBT] M1** A match needs one clear, mutual winner.
+    Files: `pipeline/tests/match/test_match_properties.py`, `pipeline/tests/match/strategies.py`.
+    Requirements: 13.2, 13.3.
+  - [ ] 11.6 **[PBT] M2** Absence only inside reviewed areas and with an empty core.
+    Files: `pipeline/tests/match/test_match_properties.py`.
+    Requirements: 13.4.
+  - [ ] 11.7 **[PBT] M3** Code never reads a photograph.
+    Files: `pipeline/tests/match/test_match_properties.py`.
+    Requirements: 13.7, 13.8.
+  - [ ] 11.8 **[PBT] M4** Person decisions are never overridden.
+    Files: `pipeline/tests/match/test_match_properties.py`.
+    Requirements: 13.9, 13.10.
+  - [ ] 11.9 **[PBT] M5** Idempotence and order independence.
+    Files: `pipeline/tests/match/test_match_properties.py`.
+    Requirements: 13.11.
+  - [ ] 11.10 **[PBT] M6** Linked sets stay one per origin source.
+    Files: `pipeline/tests/match/test_match_properties.py`.
+    Requirements: 13.6.
+  - [ ] 11.11 **[PBT] M7** Only observations and links change.
+    Files: `pipeline/tests/match/test_match_properties.py`.
+    Requirements: 13.11.
+  - [ ] 11.12 Record `uv run buried match` in `.kiro/steering/tech.md`.
+    Files: `.kiro/steering/tech.md`.
+    Requirements: 1.8.

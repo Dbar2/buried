@@ -41,7 +41,9 @@ dark ink on off-white, with grey rules. It does not use `lantern`, `water` or `f
 - UI and body: Inter.
 - Dates, plate numbers, source ids, coordinates, error margins: IBM Plex Mono.
 - Self-host the font files with the shell; do not load them from a CDN at runtime.
-- Body size at least 16 px. Numbers with units always carry the unit: `±4 m`, `1947`.
+- Body size at least 16 px. Numbers with units always carry the unit: `about 4.0 m`, `1947`.
+- Position error is always worded "Positioned within about X m", never `±` or any wording that
+  reads as an absolute bound. The text comes from the Evidence Library, not from components.
 
 ## Motion
 

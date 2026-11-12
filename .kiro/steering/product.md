@@ -70,7 +70,9 @@ Outside the coverage area, say "Not reconstructed yet." Nothing else.
 ## Honesty rules (hard rules, enforced in code and tests)
 
 1. **Banned words.** Report text and generated text never contain "contaminated", "unsafe",
-   "safe", "clean" or "will flood". A test fails the build if they appear.
+   "safe", "safer", "safest", "clean", "cleaner", "cleanest" or the phrase "will flood". Matching
+   is whole-word and case-insensitive, so "safety" is allowed. A test fails the build if they
+   appear.
 2. **On this lot vs near this lot.** A finding is "on this lot" only if the feature overlaps the
    lot by more than its position error. Otherwise it is "near this lot (within X m)". The exact
    test is in `evidence.md`.
