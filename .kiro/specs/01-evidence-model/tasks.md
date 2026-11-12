@@ -47,27 +47,27 @@ alignment gate is not blocked by it.
     Files: `data/sources.json`.
     Requirements: 6.1, 6.4, 6.5, 6.7, 6.8.
 
-- [ ] 3. Set up the web package, generated types and validated loading
-  - [ ] 3.1 Create the minimal web package: TypeScript (strict), Vitest, fast-check, Ajv with
+- [x] 3. Set up the web package, generated types and validated loading
+  - [x] 3.1 Create the minimal web package: TypeScript (strict), Vitest, fast-check, Ajv with
     `ajv-formats`, JSTS, `json-schema-to-typescript`. Scripts: `test` (`vitest run`), `typecheck`
     (`tsc --noEmit`), `gen:types`. No Vite app or React yet; spec 03 adds them to this package.
     Files: `web/package.json`, `web/tsconfig.json`, `web/vitest.config.ts`, `web/.gitignore`.
     Requirements: 15.2.
-  - [ ] 3.2 Generate `web/src/evidence/types.generated.ts` from the Schema and add a test that
+  - [x] 3.2 Generate `web/src/evidence/types.generated.ts` from the Schema and add a test that
     regenerates into memory and fails if the output differs from the committed file.
     Files: `web/scripts/genTypes.ts`, `web/src/evidence/types.generated.ts`,
     `web/src/evidence/types.test.ts`.
     Requirements: 9.1.
-  - [ ] 3.3 Implement `schema.ts`, `load.ts` and `sources.ts`. Loading validates with Ajv and
+  - [x] 3.3 Implement `schema.ts`, `load.ts` and `sources.ts`. Loading validates with Ajv and
     throws `EvidenceLoadError` on failure. `indexSources` throws on duplicate ids.
     Files: `web/src/evidence/schema.ts`, `web/src/evidence/load.ts`, `web/src/evidence/sources.ts`,
     `web/src/evidence/load.test.ts`.
     Requirements: 9.2, 3.2.
-  - [ ] 3.4 Add the TypeScript conformance test: every file under `data/schema/fixtures/valid/`
+  - [x] 3.4 Add the TypeScript conformance test: every file under `data/schema/fixtures/valid/`
     passes and every file under `invalid/` fails for its `$defs` entry.
     Files: `web/src/evidence/conformance.test.ts`.
     Requirements: 9.3.
-  - [ ] 3.5 Record the web commands (`npm install`, `npm test`, `npm run typecheck`,
+  - [x] 3.5 Record the web commands (`npm install`, `npm test`, `npm run typecheck`,
     `npm run gen:types`, all run from `web/`) under "Commands" in `.kiro/steering/tech.md`.
     Files: `.kiro/steering/tech.md`.
     Requirements: 15.3.
@@ -114,47 +114,47 @@ alignment gate is not blocked by it.
     Files: `.kiro/steering/tech.md`.
     Requirements: 15.3.
 
-- [ ] 5. Implement the date logic
-  - [ ] 5.1 Implement `summariseDates` and `datePhrases` per design.md "DateSummary" and the rules
+- [x] 5. Implement the date logic
+  - [x] 5.1 Implement `summariseDates` and `datePhrases` per design.md "DateSummary" and the rules
     in `evidence.md`. Sort every array so output is order-independent.
     Files: `web/src/evidence/dates.ts`.
     Requirements: 10.1 to 10.9, 11.1, 11.2.
-  - [ ] 5.2 Write the shared fast-check generators (sources with year ranges, observations,
+  - [x] 5.2 Write the shared fast-check generators (sources with year ranges, observations,
     features, rectangles, L-shaped lots).
     Files: `web/src/evidence/testing/arbitraries.ts`.
     Requirements: 15.1.
-  - [ ] 5.3 Example tests: each phrase form; 1911-only, 1935-only, 1911 + 1935 with a clear 1947
+  - [x] 5.3 Example tests: each phrase form; 1911-only, 1935-only, 1911 + 1935 with a clear 1947
     absence ("Gone by 1947"), 1911 + 1935 with an obscured 1947 observation ("Last seen 1935"),
     a before-absence, a conflict, no presence.
     Files: `web/src/evidence/dates.test.ts`.
     Requirements: 10.2 to 10.8, 11.1.
-  - [ ] 5.4 **[PBT] P2** A vanish window is only closed by a clear absence.
+  - [x] 5.4 **[PBT] P2** A vanish window is only closed by a clear absence.
     Files: `web/src/evidence/dates.property.test.ts`.
     Requirements: 10.5, 10.6.
-  - [ ] 5.5 **[PBT] P3** Obscured and not-covered observations never change dates.
+  - [x] 5.5 **[PBT] P3** Obscured and not-covered observations never change dates.
     Files: `web/src/evidence/dates.property.test.ts`.
     Requirements: 10.6.
-  - [ ] 5.6 **[PBT] P4** Order independence.
+  - [x] 5.6 **[PBT] P4** Order independence.
     Files: `web/src/evidence/dates.property.test.ts`.
     Requirements: 10.9.
-  - [ ] 5.7 **[PBT] P6** Phrases never say "Built in"; every year in a phrase comes from a cited
+  - [x] 5.7 **[PBT] P6** Phrases never say "Built in"; every year in a phrase comes from a cited
     source.
     Files: `web/src/evidence/dates.property.test.ts`.
     Requirements: 10.8.
 
-- [ ] 6. Implement drawn-in-era and per-era lists
-  - [ ] 6.1 Implement `isDrawnInEra` and `featuresForEra` per design.md "Eras": published only,
+- [x] 6. Implement drawn-in-era and per-era lists
+  - [x] 6.1 Implement `isDrawnInEra` and `featuresForEra` per design.md "Eras": published only,
     conflicted features to `needsReview`, sorted output.
     Files: `web/src/evidence/eras.ts`, `web/src/evidence/eras.test.ts`.
     Requirements: 2.8, 11.3, 12.1 to 12.4.
-  - [ ] 6.2 **[PBT] P1** A feature is never drawn outside its evidence window.
+  - [x] 6.2 **[PBT] P1** A feature is never drawn outside its evidence window.
     Files: `web/src/evidence/eras.property.test.ts`.
     Requirements: 12.1.
-  - [ ] 6.3 **[PBT] P5** Conflicts are flagged, never resolved (dates unchanged, feature in
+  - [x] 6.3 **[PBT] P5** Conflicts are flagged, never resolved (dates unchanged, feature in
     `needsReview`, absent from `features` in every era).
     Files: `web/src/evidence/eras.property.test.ts`.
     Requirements: 11.1, 11.2, 11.3.
-  - [ ] 6.4 **[PBT] P12** Era lists are well-formed.
+  - [x] 6.4 **[PBT] P12** Era lists are well-formed.
     Files: `web/src/evidence/eras.property.test.ts`.
     Requirements: 2.8, 12.2, 12.4.
 
@@ -189,9 +189,10 @@ alignment gate is not blocked by it.
     Files: `web/src/evidence/findings.property.test.ts`.
     Requirements: 14.3.
 
-- [ ] 9. Export the public API
-  - [ ] 9.1 Export the library from `index.ts`. Nothing outside `web/src/evidence/` may import its
-    internal modules directly.
+- [x] 9. Export the public API
+  - [x] 9.1 Export the library from `index.ts`. Nothing outside `web/src/evidence/` may import its
+    internal modules directly. Exports for
+    lot, findings and text are added by tasks 7 and 8.
     Files: `web/src/evidence/index.ts`.
     Requirements: 10.1.
 
@@ -243,36 +244,36 @@ alignment gate is not blocked by it.
     Files: `pipeline/tests/validate/test_properties.py`, `pipeline/tests/validate/strategies.py`.
     Requirements: 20.1, 20.2.
 
-- [ ] 13. Linked sets in the Evidence Library (needs tasks 5 and 6)
-  - [ ] 13.1 Implement `links.ts` (`linkedSets`) and `summariseSet` in `dates.ts` per design.md
+- [x] 13. Linked sets in the Evidence Library (needs tasks 5 and 6)
+  - [x] 13.1 Implement `links.ts` (`linkedSets`) and `summariseSet` in `dates.ts` per design.md
     "Linked sets". A set of one must give exactly `summariseDates`.
     Files: `web/src/evidence/links.ts`, `web/src/evidence/dates.ts`, `web/src/evidence/links.test.ts`.
     Requirements: 18.1, 18.2, 18.3, 18.7.
-  - [ ] 13.2 Change `featuresForEra` to work per linked set with `drawnMember`, `linkedIds` and
+  - [x] 13.2 Change `featuresForEra` to work per linked set with `drawnMember`, `linkedIds` and
     combined `sourceIds`, and conflicted sets to `needsReview`. Add the linked-set example tests
     from design.md "Testing strategy".
     Files: `web/src/evidence/eras.ts`, `web/src/evidence/eras.test.ts`.
     Requirements: 17.4, 18.4, 18.5, 18.6.
-  - [ ] 13.3 Extend the shared generators with random `same_as` links between features from
+  - [x] 13.3 Extend the shared generators with random `same_as` links between features from
     different origin sources, mirrored on both sides.
     Files: `web/src/evidence/testing/arbitraries.ts`.
     Requirements: 15.1.
-  - [ ] 13.4 **[PBT] P16** Linking never widens a window.
+  - [x] 13.4 **[PBT] P16** Linking never widens a window.
     Files: `web/src/evidence/links.property.test.ts`.
     Requirements: 18.1, 18.3.
-  - [ ] 13.5 **[PBT] P17** A linked set is drawn at most once, from the member the rule picks,
+  - [x] 13.5 **[PBT] P17** A linked set is drawn at most once, from the member the rule picks,
     whatever the input order.
     Files: `web/src/evidence/links.property.test.ts`.
     Requirements: 18.4, 18.5, 18.7.
-  - [ ] 13.6 **[PBT] P18** Same-source disagreement inside a set is a conflict.
+  - [x] 13.6 **[PBT] P18** Same-source disagreement inside a set is a conflict.
     Files: `web/src/evidence/links.property.test.ts`.
     Requirements: 18.2, 18.6.
-  - [ ] 13.7 Rerun **[PBT] P1, P5 and P12** with linked generators enabled; they must still pass.
+  - [x] 13.7 Rerun **[PBT] P1, P5 and P12** with linked generators enabled; they must still pass.
     Files: `web/src/evidence/eras.property.test.ts`.
     Requirements: 12.1, 11.3, 18.4.
 
-- [ ] 14. Position wording
-  - [ ] 14.1 Implement `positionPhrase` and its example tests; export it from `index.ts`.
+- [x] 14. Position wording
+  - [x] 14.1 Implement `positionPhrase` and its example tests; export it from `index.ts`.
     Files: `web/src/evidence/position.ts`, `web/src/evidence/position.test.ts`,
     `web/src/evidence/index.ts`.
     Requirements: 20.3, 20.4.

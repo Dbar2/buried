@@ -104,7 +104,12 @@ and records why.
 No tooling exists yet. Each command below is to be added by the spec that creates it. Do not
 invent commands; when one is added, record it here.
 
-- Web shell install, dev, build, test: to be added by the spec that creates them.
+- Web package (spec 01), all run from `web/`:
+  - Install: `npm install`. Tests: `npm test` (Vitest + fast-check). Type check:
+    `npm run typecheck`.
+  - Regenerate `src/evidence/types.generated.ts` from the Schema: `npm run gen:types`. A test
+    fails if the committed file differs from a fresh generation.
+  - Dev server and build: to be added by the spec that creates them (spec 03 adds Vite and React).
 - Pipeline (spec 02), all run from `pipeline/`:
   - Environment: `uv sync` (Python 3.12).
   - Tests: `uv run pytest`. Lint: `uv run ruff check .`.
