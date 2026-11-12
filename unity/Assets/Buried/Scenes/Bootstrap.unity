@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &620149870
+--- !u!1 &1759958812
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,9 +127,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 620149873}
-  - component: {fileID: 620149872}
-  - component: {fileID: 620149871}
+  - component: {fileID: 1759958815}
+  - component: {fileID: 1759958814}
+  - component: {fileID: 1759958813}
   m_Layer: 0
   m_Name: Bridge
   m_TagString: Untagged
@@ -137,13 +137,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &620149871
+--- !u!114 &1759958813
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 620149870}
+  m_GameObject: {fileID: 1759958812}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 42583b5ae74f34baaaf4afcb64049cb7, type: 3}
@@ -153,25 +153,25 @@ MonoBehaviour:
   ghostShader: {fileID: 4800000, guid: 656b91836f2cf470eb6881105de987d7, type: 3}
   drapeShader: {fileID: 4800000, guid: 70001df4eff7d424aad79408376d14ca, type: 3}
   markerShader: {fileID: 4800000, guid: 4add49462ed904d91807e34b87001873, type: 3}
---- !u!114 &620149872
+--- !u!114 &1759958814
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 620149870}
+  m_GameObject: {fileID: 1759958812}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 67b23fe483e1e478cbf0a2f4a3b4c71f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Buried.Runtime::Buried.Interop.Bridge
---- !u!4 &620149873
+--- !u!4 &1759958815
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 620149870}
+  m_GameObject: {fileID: 1759958812}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -184,4 +184,4 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 620149873}
+  - {fileID: 1759958815}

@@ -19,7 +19,7 @@ Dependencies of group 1:
 Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232` for any gate data.
 
 - [ ] 1. Gate: one plate, one building, two eras, in the browser
-  - [ ] 1.1 Add Vite and React to the existing `web/` package (spec 01 task 3.1), the app entry and
+  - [x] 1.1 Add Vite and React to the existing `web/` package (spec 01 task 3.1), the app entry and
     routes (`/` Explorer, `/sources`), the palette tokens as CSS custom properties, and the
     self-hosted fonts with their licence files. Scripts: `dev`, `build`, `preview`. Add
     `web/public/unity/` and `web/e2e/output/` to `.gitignore`.
@@ -27,7 +27,7 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     `web/src/App.tsx`, `web/src/styles/tokens.css`, `web/src/styles/fonts.css`, `web/public/fonts/**`,
     `.gitignore`.
     Requirements: 1.3, 20.1.
-  - [ ] 1.2 Implement the Vite data plugin (allowed paths only, `/data/index.json`, copy at build)
+  - [x] 1.2 Implement the Vite data plugin (allowed paths only, `/data/index.json`, copy at build)
     and `loadData.ts` using spec 01's loaders and `validate()`. Test the plugin's path allow-list
     (refuses `raw/`, `work/`, `..`) and `loadData` on a synthetic `data/` tree; a file that fails
     validation is left out and reported.
@@ -53,7 +53,7 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
   - [x] 1.5 **[PBT] E1** Every bridge message parses on the Shell side (gate subset).
     Files: `web/src/bridge/bridge.property.test.ts`.
     Requirements: 4.4, 4.6, 4.7.
-  - [ ] 1.6 Create the Unity project: Unity 6000.3.26f1, URP, packages
+  - [x] 1.6 Create the Unity project: Unity 6000.3.26f1, URP, packages
     (`com.unity.nuget.newtonsoft-json`, `com.unity.test-framework`), Linear colour space, WebGL 2
     only, the asmdefs (`Buried.Runtime` without UI or TextMeshPro, `Buried.Editor`,
     `Buried.Tests.EditMode`), the `Bootstrap` scene with one root `Bridge` GameObject, `link.xml`,
@@ -100,7 +100,7 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     - [x] 1.9.3 **[PBT] E9** Drape meshes follow the corners.
       Files: `unity/Assets/Buried/Tests/EditMode/DrapePropertyTests.cs`.
       Requirements: 8.3.
-  - [ ] 1.10 Build the gate scene at runtime: `SceneBootstrap` (camera, sun, ground, plain fog),
+  - [x] 1.10 Build the gate scene at runtime: `SceneBootstrap` (camera, sun, ground, plain fog),
     `SceneController` handling `scene/init`, `scene/loadEra`, `scene/setDepth` (integer depths shown
     as a hard switch; transitions come in group 3), `debug/markers`; `EraLayer` with one plain
     ghost material (confidence treatments come in group 4); `DrapeLayer` and `TextureCache`

@@ -125,7 +125,14 @@ invent commands; when one is added, record it here.
     `npm run typecheck`.
   - Regenerate `src/evidence/types.generated.ts` from the Schema: `npm run gen:types`. A test
     fails if the committed file differs from a fresh generation.
-  - Dev server and build: to be added by the spec that creates them (spec 03 adds Vite and React).
+  - Dev server and build (spec 03): `npm run dev`, `npm run build` (type check, then Vite build),
+    `npm run preview`.
+  - Regenerate the bridge types and the generated bridge samples (spec 03): `npm run gen:bridge-types`
+    and `npm run gen:bridge-samples`. Tests fail if the committed files differ from a fresh run.
+  - Explorer gate test (spec 03): `npm run test:e2e` (builds, then runs Playwright against
+    `vite preview` with the real Unity build in `web/public/unity/`). One-time browser install:
+    `npm exec -- playwright install chromium`. Screenshots and pixel deltas go to
+    `web/e2e/output/` (gitignored).
 - Pipeline (spec 02), all run from `pipeline/`:
   - Environment: `uv sync` (Python 3.12).
   - Tests: `uv run pytest`. Lint: `uv run ruff check .`.
@@ -148,7 +155,14 @@ invent commands; when one is added, record it here.
     a record and names the ones it skipped.
   - `extract`, `publish` and `match` are registered and exit 2 with "not
     implemented yet" until their tasks land.
-- Unity WebGL build and EditMode test run: to be added by the spec that creates them.
+- Unity (spec 03), run from the repository root with `tools/unity.sh` (headless Unity 6000.3.26f1;
+  set `UNITY_BIN` to override the editor path; logs in `unity/Logs/`):
+  - `tools/unity.sh exec Buried.Editor.Setup.Run`: creates the palette asset, URP assets, player
+    settings and the Bootstrap scene. First run imports packages.
+  - `tools/unity.sh test`: EditMode tests, results in `unity/Logs/editmode-results.xml`.
+  - `tools/unity.sh build`: WebGL build into `web/public/unity/` (gitignored).
+  - Equivalent raw commands: `Unity -batchmode -quit -projectPath unity -executeMethod Buried.Editor.Build.WebGL`
+    and `Unity -batchmode -projectPath unity -runTests -testPlatform EditMode -testResults unity/Logs/editmode-results.xml`.
 - Studio service (spec 04), run from `pipeline/`: dev server, service tests, Docker build and
   deploy steps are added by spec 04 tasks 3 and 15.2 (spec 04 requirement 22.4). Studio end-to-end tests
   (`npm run test:e2e:studio`) by spec 04 task 16.2. Report print tests
