@@ -225,11 +225,19 @@ def test_bounds_from_project_json_else_from_inspect_reports(tmp_path: Path) -> N
 
 
 def test_cli_present_with_unconfirmed_fields_exits_1(
-    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # The building outlines fields are not confirmed yet (task 10.5), so the command downloads
-    # and stops. (The intersections fields were confirmed in task 10.4.)
+    # All four real datasets are confirmed now (task 10.5), so a dataset whose fields are not
+    # confirmed is supplied by the test: the command downloads, lists the fields and stops.
+    from buried_pipeline.present import run as present_run
+
     outlines = "present_toronto_building_outlines_2026"
+    unconfirmed = PresentDataset(
+        source_id=outlines,
+        package_id="topographic-mapping-building-outlines",
+        geometry=("Polygon", "MultiPolygon"),
+    )
+    monkeypatch.setattr(present_run, "get_dataset", lambda _source_id: unconfirmed)
     paths, http = setup(tmp_path)
     pkg_url = (PACKAGE_SHOW_URL, (("id", "topographic-mapping-building-outlines"),))
     http.documents[pkg_url] = CKAN_DOC

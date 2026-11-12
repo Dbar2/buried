@@ -316,7 +316,7 @@ task 16), 7, 8, 16, 11, 9.
     Files: `.kiro/specs/02-pipeline/design.md`, `data/sources.json`,
     `data/present/present_toronto_intersections_2026.geojson`, `.kiro/steering/tech.md`.
     Requirements: 1.8, 12.4, 12.6, 11.1, 12.11, 12.12.
-  - [ ] 10.5 Run `buried present` for the building outlines, property boundaries and address points
+  - [x] 10.5 Run `buried present` for the building outlines, property boundaries and address points
     layers in the same way: confirm fields, record them, set `year_from`, commit the files.
     Files: `.kiro/specs/02-pipeline/design.md`, `data/sources.json`, `data/present/*.geojson`.
     Requirements: 12.1 to 12.8.

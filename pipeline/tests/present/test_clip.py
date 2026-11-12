@@ -151,16 +151,31 @@ def test_dataset_table_has_intersections_first_and_four_layers() -> None:
         get_dataset("present_toronto_nope_2026")
 
 
-def test_only_the_intersections_fields_are_confirmed_so_far() -> None:
-    # Task 10.4 confirmed the intersections file; the other three wait for task 10.5.
-    confirmed = [d.source_id for d in DATASETS if d.fields_confirmed]
-    assert confirmed == ["present_toronto_intersections_2026"]
-    intersections = get_dataset("present_toronto_intersections_2026")
-    assert intersections.id_field == "INTERSECTION_ID"
-    assert intersections.kept_fields == (
-        "INTERSECTION_DESC", "CLASSIFICATION", "CLASSIFICATION_DESC"
-    )  # fmt: skip
-    assert intersections.resource_name == "Centreline Intersection - 2952.gpkg"
+def test_all_four_layers_have_confirmed_fields_and_a_named_projected_resource() -> None:
+    # Task 10.4 confirmed the intersections file and task 10.5 the other three (design.md).
+    assert all(d.fields_confirmed for d in DATASETS)
+    expected = {
+        "present_toronto_intersections_2026": (
+            "INTERSECTION_ID",
+            ("INTERSECTION_DESC", "CLASSIFICATION", "CLASSIFICATION_DESC"),
+            "Centreline Intersection - 2952.gpkg",
+        ),
+        "present_toronto_building_outlines_2026": (
+            "OBJECTID", ("SUBTYPE_CODE", "SUBTYPE_DESC"), "Building Outlines - 2952.gpkg",
+        ),
+        "present_toronto_property_boundaries_2026": (
+            "PARCELID", ("FEATURE_TYPE",), "Property Boundaries - 2952.gpkg",
+        ),
+        "present_toronto_address_points_2026": (
+            "ADDRESS_POINT_ID",
+            ("ADDRESS_FULL", "ADDRESS_NUMBER", "LINEAR_NAME_FULL", "MAINT_STAGE"),
+            "Address Points - 2952.gpkg",
+        ),
+    }  # fmt: skip
+    for dataset in DATASETS:
+        assert (dataset.id_field, dataset.kept_fields, dataset.resource_name) == expected[
+            dataset.source_id
+        ]
 
 
 def test_one_point_multipoint_becomes_a_point() -> None:

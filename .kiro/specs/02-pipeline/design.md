@@ -209,15 +209,45 @@ Commands (recorded in `tech.md` by the tasks that add them), all from `pipeline/
 
 Defined once in `present/datasets.py`. The id field and kept fields are confirmed from the first
 downloaded file in task 10 and recorded in this table in the same change. Until then the command
-stops for that dataset with "dataset fields not confirmed". Confirmed so far: the intersections
-layer (task 10.4, 2026-11-12).
+stops for that dataset with "dataset fields not confirmed". Confirmed: all four layers (the
+intersections in task 10.4, 2026-11-12; the other three in task 10.5, 2026-11-12).
 
 | Source id | CKAN package id | Geometry | Id field | Kept fields |
 |---|---|---|---|---|
 | `present_toronto_intersections_2026` | `intersection-file-city-of-toronto` | Point (the file stores each as a one-point MultiPoint) | `INTERSECTION_ID` | `INTERSECTION_DESC` (street names, "A St / B Ave"), `CLASSIFICATION`, `CLASSIFICATION_DESC` |
-| `present_toronto_building_outlines_2026` | `topographic-mapping-building-outlines` | Polygon / MultiPolygon | to confirm | none beyond the id unless a later spec needs one |
-| `present_toronto_property_boundaries_2026` | `property-boundaries` | Polygon / MultiPolygon | to confirm | parcel type and status fields, to confirm |
-| `present_toronto_address_points_2026` | `address-points-municipal-toronto-one-address-repository` | Point | to confirm | address number, street name and full address fields, to confirm |
+| `present_toronto_building_outlines_2026` | `topographic-mapping-building-outlines` | Polygon / MultiPolygon (stored as MultiPolygon) | `OBJECTID` | `SUBTYPE_CODE`, `SUBTYPE_DESC` (Building Outline, Garage, Miscellaneous Structure) |
+| `present_toronto_property_boundaries_2026` | `property-boundaries` | Polygon / MultiPolygon (stored as MultiPolygon) | `PARCELID` | `FEATURE_TYPE` (COMMON, CONDO, RESERVE) |
+| `present_toronto_address_points_2026` | `address-points-municipal-toronto-one-address-repository` | Point (stored as one-point MultiPoint) | `ADDRESS_POINT_ID` | `ADDRESS_FULL`, `ADDRESS_NUMBER`, `LINEAR_NAME_FULL`, `MAINT_STAGE` (REGULAR, RESERVED) |
+
+What the first downloads of the other three files showed (2026-11-12). All three packages offer the
+same layer in EPSG:4326 and EPSG:2952, and the config names the `... - 2952.gpkg` resource for the
+reason given for the intersections. The CKAN `last_refreshed` year is 2026 for each, so `year_from`
+is 2026 in the Registry.
+
+| Layer | Rows in file | Rows in bbox | Features written | File size |
+|---|---|---|---|---|
+| Building outlines | 557694 | 1547 | 1507 | 2.1 MB |
+| Property boundaries | 498477 | 1623 | 1591 | 2.1 MB |
+| Address points | 525164 | 2208 | 2119 | 0.8 MB |
+
+- **Building outlines.** Fields: `_id`, `SUBTYPE_CODE`, `SUBTYPE_DESC`, `ELEVATION`,
+  `DERIVED_HEIGHT` (text), `OBJECTID`, `LAST_GEOMETRY_MAINT`, `LAST_ATTRIBUTE_MAINT`. There is no
+  building id. `OBJECTID` is the City's object id and is unique across the rows in the bounds;
+  `_id` is the portal's row number. An id from either is stable for this retrieval only, which is
+  what a source id promises. `DERIVED_HEIGHT` and `ELEVATION` are left out because which source
+  gives present-day heights is not decided (tech.md); adding them later needs a new source id,
+  because a committed layer never changes. Subtypes inside the bounds: 1476 Building Outline, 46
+  Garage, 25 Miscellaneous Structure.
+- **Property boundaries.** Fields: `_id`, `PARCELID`, `FEATURE_TYPE`, `STATEDAREA` (text such as
+  "58.65 sq.m"), `OBJECTID`. `PARCELID` is the City's parcel id and is unique across the rows in the
+  bounds. Types inside the bounds: 1521 COMMON, 93 CONDO, 9 RESERVE. There is no status field.
+  `STATEDAREA` is left out.
+- **Address points.** 37 fields. `ADDRESS_POINT_ID` is the City's id, unique across the rows in the
+  bounds. Each point is a one-point MultiPoint (requirement 12.12). 374 of the 2208 rows have
+  `MAINT_STAGE` RESERVED (reserved numbers), which is why that field is kept: search decides whether
+  to offer them. `GENERAL_USE` and `ADDRESS_STATUS` hold a single value, so they say nothing.
+- The exact `intersects` filter drops 40, 32 and 89 rows that the bounding box returned (the box is
+  larger than the bounds in the layer's CRS).
 
 What the first download of the intersections file showed (46305 rows, CRS EPSG:2952, 20 fields):
 
