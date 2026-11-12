@@ -195,8 +195,8 @@ alignment gate is not blocked by it.
     Files: `web/src/evidence/index.ts`.
     Requirements: 10.1.
 
-- [ ] 10. Write the project file (needs spec 02 task 2 and the four plates)
-  - [ ] 10.1 Run `uv run buried inspect --propose-origin` on the four showcase plates and write
+- [x] 10. Write the project file (needs spec 02 task 2 and the four plates)
+  - [x] 10.1 Run `uv run buried inspect --propose-origin` on the four showcase plates and write
     `data/project.json` with that origin, the bounds (union plus 250 m, rounded outward to 100 m),
     the `origin_note` stating the derivation and the date, and the four eras from design.md. This
     is a reviewed hand edit. After the first evidence file is published, the origin is frozen.
