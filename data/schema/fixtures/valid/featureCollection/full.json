@@ -1,0 +1,298 @@
+{
+  "type": "FeatureCollection",
+  "schema_version": "1.0.0",
+  "crs": "EPSG:26917",
+  "origin_source": "fip_v3_1911_229",
+  "mapped_area": {
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            499950.0,
+            3999950.0
+          ],
+          [
+            500150.0,
+            3999950.0
+          ],
+          [
+            500150.0,
+            4000150.0
+          ],
+          [
+            499950.0,
+            4000150.0
+          ],
+          [
+            499950.0,
+            3999950.0
+          ]
+        ]
+      ]
+    },
+    "method": "neatline"
+  },
+  "reviewed_areas": [
+    {
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              499990.0,
+              3999990.0
+            ],
+            [
+              500070.0,
+              3999990.0
+            ],
+            [
+              500070.0,
+              4000070.0
+            ],
+            [
+              499990.0,
+              4000070.0
+            ],
+            [
+              499990.0,
+              3999990.0
+            ]
+          ]
+        ]
+      },
+      "method": "person",
+      "pixel_polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          400,
+          0
+        ],
+        [
+          400,
+          300
+        ],
+        [
+          0,
+          300
+        ]
+      ],
+      "confirmed_by": "fixture reviewer",
+      "confirmed_at": "2026-11-12T10:00:00Z"
+    }
+  ],
+  "features": [
+    {
+      "type": "Feature",
+      "id": "bld_fip_v3_1911_229_0001",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              500000.0,
+              4000000.0
+            ],
+            [
+              500010.0,
+              4000000.0
+            ],
+            [
+              500010.0,
+              4000008.0
+            ],
+            [
+              500000.0,
+              4000008.0
+            ],
+            [
+              500000.0,
+              4000000.0
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "kind": "building",
+        "position_error_m": 4.5,
+        "attributes": {
+          "use": "synthetic use",
+          "material": "synthetic material",
+          "storeys": 2
+        },
+        "observations": [
+          {
+            "source": "fip_v3_1911_229",
+            "present": true,
+            "visibility": "clear",
+            "method": "origin"
+          }
+        ],
+        "confidence": "documented",
+        "confidence_reason": "Synthetic fixture: footprint and storeys both stated.",
+        "provenance": {
+          "origin_source": "fip_v3_1911_229",
+          "crop_px": {
+            "x": 100,
+            "y": 200,
+            "width": 300,
+            "height": 250
+          },
+          "alignment_error_m": 4.3,
+          "digitising_error_m": 1.0,
+          "confirmed_by": "fixture reviewer",
+          "confirmed_at": "2026-11-12T10:00:00Z",
+          "proposal_id": "prop_0001",
+          "extraction_params_id": "v1"
+        },
+        "status": "published"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "wtr_fip_v3_1911_229_0001",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            500000.0,
+            4000000.0
+          ],
+          [
+            500020.0,
+            4000005.0
+          ],
+          [
+            500040.0,
+            4000004.0
+          ]
+        ]
+      },
+      "properties": {
+        "kind": "water",
+        "position_error_m": 4.5,
+        "attributes": {},
+        "observations": [
+          {
+            "source": "fip_v3_1911_229",
+            "present": true,
+            "visibility": "clear",
+            "method": "origin"
+          }
+        ],
+        "confidence": "estimated",
+        "confidence_reason": "Synthetic fixture: footprint and storeys both stated.",
+        "provenance": {
+          "origin_source": "fip_v3_1911_229",
+          "crop_px": {
+            "x": 100,
+            "y": 200,
+            "width": 300,
+            "height": 250
+          },
+          "alignment_error_m": 4.3,
+          "digitising_error_m": 1.0,
+          "confirmed_by": "fixture reviewer",
+          "confirmed_at": "2026-11-12T10:00:00Z",
+          "proposal_id": "prop_0001",
+          "extraction_params_id": "v1"
+        },
+        "status": "published"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "use_fip_v3_1911_229_0001",
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                500000.0,
+                4000000.0
+              ],
+              [
+                500010.0,
+                4000000.0
+              ],
+              [
+                500010.0,
+                4000008.0
+              ],
+              [
+                500000.0,
+                4000008.0
+              ],
+              [
+                500000.0,
+                4000000.0
+              ]
+            ]
+          ],
+          [
+            [
+              [
+                500030.0,
+                4000000.0
+              ],
+              [
+                500036.0,
+                4000000.0
+              ],
+              [
+                500036.0,
+                4000006.0
+              ],
+              [
+                500030.0,
+                4000006.0
+              ],
+              [
+                500030.0,
+                4000000.0
+              ]
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "kind": "land_use",
+        "position_error_m": 4.5,
+        "attributes": {
+          "use": "synthetic use"
+        },
+        "observations": [
+          {
+            "source": "fip_v3_1911_229",
+            "present": true,
+            "visibility": "clear",
+            "method": "origin"
+          }
+        ],
+        "confidence": "unknown",
+        "confidence_reason": "Synthetic fixture: footprint and storeys both stated.",
+        "provenance": {
+          "origin_source": "fip_v3_1911_229",
+          "crop_px": {
+            "x": 100,
+            "y": 200,
+            "width": 300,
+            "height": 250
+          },
+          "alignment_error_m": 4.3,
+          "digitising_error_m": 1.0,
+          "confirmed_by": "fixture reviewer",
+          "confirmed_at": "2026-11-12T10:00:00Z",
+          "proposal_id": "prop_0001",
+          "extraction_params_id": "v1"
+        },
+        "status": "published"
+      }
+    }
+  ]
+}

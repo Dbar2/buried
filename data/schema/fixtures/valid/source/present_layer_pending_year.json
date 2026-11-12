@@ -1,0 +1,13 @@
+{
+  "id": "present_toronto_building_outlines_2026",
+  "type": "present_day_reference",
+  "title": "Synthetic plate",
+  "year_from": null,
+  "year_to": 2026,
+  "url": "https://example.invalid/plate.zip",
+  "licence_note": "Synthetic.",
+  "attribution_line": "Synthetic attribution.",
+  "attribution_status": "confirmed",
+  "rights_checked_on": "2026-11-12",
+  "held_out": false
+}

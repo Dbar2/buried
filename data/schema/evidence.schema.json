@@ -1,0 +1,670 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buried.invalid/schema/evidence.schema.json",
+  "title": "Buried contract files",
+  "description": "The one schema for every Buried contract file under data/. All coordinates are EPSG:26917 (NAD83 / UTM zone 17N) metres, easting first then northing, and never longitude/latitude. The root validates a featureCollection (an evidence file); every other contract file is validated against its own entry under $defs. schema_version is 1.0.0.",
+  "$ref": "#/$defs/featureCollection",
+  "$defs": {
+    "schemaVersion": {
+      "description": "MAJOR.MINOR.PATCH. A change to this schema bumps it here and in every contract file it affects.",
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "sourceId": {
+      "description": "A source id, built as in structure.md: lowercase snake_case.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$"
+    },
+    "featureId": {
+      "description": "<bld|wtr|use>_<origin source id>_<4 digits>.",
+      "type": "string",
+      "pattern": "^(bld|wtr|use)_[a-z0-9]+(_[a-z0-9]+)*_\\d{4}$"
+    },
+    "position": {
+      "description": "One position in EPSG:26917 metres: [easting, northing]. Never longitude/latitude: a pair such as [-79.35, 43.65] fails the easting minimum. Exactly two numbers.",
+      "type": "array",
+      "prefixItems": [
+        { "description": "Easting in EPSG:26917 metres.", "type": "number", "minimum": 166000, "maximum": 834000 },
+        { "description": "Northing in EPSG:26917 metres.", "type": "number", "minimum": 0, "maximum": 9400000 }
+      ],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "date": {
+      "description": "An ISO 8601 calendar date.",
+      "type": "string",
+      "format": "date"
+    },
+    "dateTime": {
+      "description": "An RFC 3339 date-time.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "bounds": {
+      "description": "A rectangle in EPSG:26917 metres.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min_e", "min_n", "max_e", "max_n"],
+      "properties": {
+        "min_e": { "type": "number", "minimum": 166000, "maximum": 834000 },
+        "min_n": { "type": "number", "minimum": 0, "maximum": 9400000 },
+        "max_e": { "type": "number", "minimum": 166000, "maximum": 834000 },
+        "max_n": { "type": "number", "minimum": 0, "maximum": 9400000 }
+      }
+    },
+    "linearRing": {
+      "description": "A closed ring of EPSG:26917 positions (at least four, first equal to last is checked by the Validator).",
+      "type": "array",
+      "minItems": 4,
+      "items": { "$ref": "#/$defs/position" }
+    },
+    "pointGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": { "const": "Point" },
+        "coordinates": { "$ref": "#/$defs/position" }
+      }
+    },
+    "polygonGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": { "const": "Polygon" },
+        "coordinates": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/linearRing" } }
+      }
+    },
+    "multiPolygonGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": { "const": "MultiPolygon" },
+        "coordinates": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/linearRing" } }
+        }
+      }
+    },
+    "lineStringGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": { "const": "LineString" },
+        "coordinates": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/position" } }
+      }
+    },
+    "multiLineStringGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": { "const": "MultiLineString" },
+        "coordinates": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/position" } }
+        }
+      }
+    },
+    "polygonalGeometry": {
+      "description": "Polygon or MultiPolygon in EPSG:26917 metres.",
+      "oneOf": [
+        { "$ref": "#/$defs/polygonGeometry" },
+        { "$ref": "#/$defs/multiPolygonGeometry" }
+      ]
+    },
+    "featureGeometry": {
+      "description": "Polygon, MultiPolygon, LineString or MultiLineString in EPSG:26917 metres. Lines are allowed for water features only (enforced in feature).",
+      "oneOf": [
+        { "$ref": "#/$defs/polygonGeometry" },
+        { "$ref": "#/$defs/multiPolygonGeometry" },
+        { "$ref": "#/$defs/lineStringGeometry" },
+        { "$ref": "#/$defs/multiLineStringGeometry" }
+      ]
+    },
+    "coverageArea": {
+      "description": "A Polygon or MultiPolygon in EPSG:26917 metres with the method that produced it. A reviewed area (method person) is a person's statement that every building the origin source draws inside it is published in the file.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["geometry", "method"],
+      "properties": {
+        "geometry": { "$ref": "#/$defs/polygonalGeometry" },
+        "method": { "enum": ["neatline", "raster_footprint", "person"] },
+        "pixel_polygon": {
+          "description": "Integer pixel vertices on the origin source (GDAL convention).",
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "array",
+            "prefixItems": [{ "type": "integer", "minimum": 0 }, { "type": "integer", "minimum": 0 }],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "confirmed_by": { "type": "string", "minLength": 1 },
+        "confirmed_at": { "$ref": "#/$defs/dateTime" }
+      },
+      "if": { "properties": { "method": { "const": "person" } }, "required": ["method"] },
+      "then": { "required": ["pixel_polygon", "confirmed_by", "confirmed_at"] }
+    },
+    "link": {
+      "description": "A link to a feature from another source that shows the same thing. Linking is not merging.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["feature", "method"],
+      "properties": {
+        "feature": { "$ref": "#/$defs/featureId" },
+        "method": { "enum": ["match_auto", "person"] },
+        "confirmed_by": { "type": "string", "minLength": 1 },
+        "confirmed_at": { "$ref": "#/$defs/dateTime" }
+      },
+      "if": { "properties": { "method": { "const": "person" } }, "required": ["method"] },
+      "then": { "required": ["confirmed_by", "confirmed_at"] }
+    },
+    "observation": {
+      "description": "What one source shows at the feature's location. No year: the year range comes from the source in the registry.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "present", "visibility", "method"],
+      "properties": {
+        "source": { "$ref": "#/$defs/sourceId" },
+        "present": { "type": "boolean" },
+        "visibility": { "enum": ["clear", "obscured", "not_covered"] },
+        "method": { "enum": ["origin", "match_auto", "person"] },
+        "matched_feature": { "$ref": "#/$defs/featureId" },
+        "confirmed_by": { "type": "string", "minLength": 1 },
+        "confirmed_at": { "$ref": "#/$defs/dateTime" },
+        "note": { "type": "string" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "method": { "const": "person" } }, "required": ["method"] },
+          "then": { "required": ["confirmed_by", "confirmed_at"] }
+        },
+        {
+          "if": {
+            "properties": { "method": { "const": "match_auto" }, "present": { "const": true } },
+            "required": ["method", "present"]
+          },
+          "then": { "required": ["matched_feature"] }
+        }
+      ]
+    },
+    "provenance": {
+      "description": "Where a feature came from, who confirmed it and how far off its outline may be. Pixel coordinates use the GDAL convention: (0, 0) is the top-left corner of the top-left pixel of the full-resolution source raster.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "origin_source",
+        "crop_px",
+        "alignment_error_m",
+        "digitising_error_m",
+        "confirmed_by",
+        "confirmed_at"
+      ],
+      "properties": {
+        "origin_source": { "$ref": "#/$defs/sourceId" },
+        "crop_px": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["x", "y", "width", "height"],
+          "properties": {
+            "x": { "type": "integer", "minimum": 0 },
+            "y": { "type": "integer", "minimum": 0 },
+            "width": { "type": "integer", "minimum": 1 },
+            "height": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "alignment_error_m": { "type": "number", "exclusiveMinimum": 0 },
+        "digitising_error_m": { "type": "number", "exclusiveMinimum": 0 },
+        "confirmed_by": { "type": "string", "minLength": 1 },
+        "confirmed_at": { "$ref": "#/$defs/dateTime" },
+        "proposal_id": { "type": "string" },
+        "extraction_params_id": { "type": "string" }
+      }
+    },
+    "attributes": {
+      "description": "Attributes read from the source. Each is optional and never guessed.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "use": { "type": "string" },
+        "material": { "type": "string" },
+        "storeys": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "feature": {
+      "description": "One building (bld), water feature (wtr) or land-use area (use). Geometry is EPSG:26917 metres.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "geometry", "properties"],
+      "properties": {
+        "type": { "const": "Feature" },
+        "id": { "$ref": "#/$defs/featureId" },
+        "geometry": { "$ref": "#/$defs/featureGeometry" },
+        "properties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "position_error_m",
+            "attributes",
+            "observations",
+            "confidence",
+            "confidence_reason",
+            "provenance",
+            "status"
+          ],
+          "properties": {
+            "kind": { "enum": ["building", "water", "land_use"] },
+            "position_error_m": {
+              "description": "About how far, in metres, the true position may be from where the feature is drawn. A conservative estimate, not an absolute bound.",
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "attributes": { "$ref": "#/$defs/attributes" },
+            "observations": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/observation" } },
+            "confidence": { "enum": ["documented", "estimated", "unknown"] },
+            "confidence_reason": { "type": "string", "minLength": 1 },
+            "provenance": { "$ref": "#/$defs/provenance" },
+            "status": { "enum": ["published", "rejected", "merged"] },
+            "status_reason": { "type": "string", "minLength": 1 },
+            "merged_into": { "$ref": "#/$defs/featureId" },
+            "same_as": { "type": "array", "items": { "$ref": "#/$defs/link" } }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": { "kind": { "const": "building" }, "confidence": { "const": "documented" } },
+                "required": ["kind", "confidence"]
+              },
+              "then": { "properties": { "attributes": { "required": ["storeys"] } } }
+            },
+            {
+              "if": { "properties": { "status": { "const": "merged" } }, "required": ["status"] },
+              "then": { "required": ["merged_into"] }
+            },
+            {
+              "if": { "properties": { "status": { "const": "rejected" } }, "required": ["status"] },
+              "then": { "required": ["status_reason"] }
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "properties": { "properties": { "kind": { "const": "building" } }, "required": ["kind"] } }, "required": ["properties"] },
+          "then": { "properties": { "id": { "pattern": "^bld_" }, "geometry": { "$ref": "#/$defs/polygonalGeometry" } } }
+        },
+        {
+          "if": { "properties": { "properties": { "properties": { "kind": { "const": "land_use" } }, "required": ["kind"] } }, "required": ["properties"] },
+          "then": { "properties": { "id": { "pattern": "^use_" }, "geometry": { "$ref": "#/$defs/polygonalGeometry" } } }
+        },
+        {
+          "if": { "properties": { "properties": { "properties": { "kind": { "const": "water" } }, "required": ["kind"] } }, "required": ["properties"] },
+          "then": { "properties": { "id": { "pattern": "^wtr_" } } }
+        }
+      ]
+    },
+    "featureCollection": {
+      "description": "An evidence file: data/evidence/<origin source id>.geojson. GeoJSON-shaped but in EPSG:26917 metres, not WGS84; do not hand it to a library that assumes lon/lat.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "schema_version", "crs", "origin_source", "features"],
+      "properties": {
+        "type": { "const": "FeatureCollection" },
+        "schema_version": { "$ref": "#/$defs/schemaVersion" },
+        "crs": { "const": "EPSG:26917" },
+        "origin_source": { "$ref": "#/$defs/sourceId" },
+        "mapped_area": {
+          "description": "Where the origin source draws the ground: its neatline, or the raster footprint under the chosen transform.",
+          "allOf": [
+            { "$ref": "#/$defs/coverageArea" },
+            { "properties": { "method": { "enum": ["neatline", "raster_footprint"] } } }
+          ]
+        },
+        "reviewed_areas": {
+          "description": "Areas where a person attests that every building the origin source draws is published.",
+          "type": "array",
+          "items": {
+            "allOf": [
+              { "$ref": "#/$defs/coverageArea" },
+              { "properties": { "method": { "const": "person" } } }
+            ]
+          }
+        },
+        "features": { "type": "array", "items": { "$ref": "#/$defs/feature" } }
+      }
+    },
+    "source": {
+      "description": "One archival item or present-day dataset, registered once. year_from is null only for a present_day_reference source whose CKAN last-refresh year has not been read yet; evidence cannot cite such a source.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "title",
+        "year_from",
+        "year_to",
+        "url",
+        "licence_note",
+        "attribution_line",
+        "attribution_status",
+        "rights_checked_on",
+        "held_out"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/sourceId" },
+        "type": { "enum": ["fire_insurance_plan", "aerial_photograph", "present_day_reference", "historical_map"] },
+        "title": { "type": "string", "minLength": 1 },
+        "year_from": { "type": ["integer", "null"] },
+        "year_to": { "type": "integer" },
+        "url": { "type": "string", "format": "uri" },
+        "licence_note": { "type": "string", "minLength": 1 },
+        "attribution_line": { "type": "string", "minLength": 1 },
+        "attribution_status": { "enum": ["confirmed", "to_be_confirmed"] },
+        "rights_checked_on": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+        "held_out": { "type": "boolean" }
+      },
+      "if": { "properties": { "type": { "const": "present_day_reference" } }, "required": ["type"] },
+      "else": { "properties": { "year_from": { "type": "integer" } } }
+    },
+    "sourceRegistry": {
+      "description": "data/sources.json.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "sources"],
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/schemaVersion" },
+        "sources": { "type": "array", "items": { "$ref": "#/$defs/source" } }
+      }
+    },
+    "era": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "year_from", "year_to"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$" },
+        "label": { "type": "string", "minLength": 1 },
+        "year_from": { "type": "integer" },
+        "year_to": { "type": "integer" }
+      }
+    },
+    "project": {
+      "description": "data/project.json: the project origin, bounds and eras. Coordinates are EPSG:26917 metres.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "crs", "origin", "origin_note", "bounds", "eras"],
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/schemaVersion" },
+        "crs": { "const": "EPSG:26917" },
+        "origin": {
+          "description": "The project origin (E0, N0) in EPSG:26917 metres. Frozen once evidence is published.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["easting", "northing"],
+          "properties": {
+            "easting": { "type": "number", "minimum": 166000, "maximum": 834000 },
+            "northing": { "type": "number", "minimum": 0, "maximum": 9400000 }
+          }
+        },
+        "origin_note": { "type": "string", "minLength": 1 },
+        "bounds": { "$ref": "#/$defs/bounds" },
+        "eras": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/era" } }
+      }
+    },
+    "controlPoint": {
+      "description": "One control point: a pixel on the plate paired with a present-day feature. reference is EPSG:26917 metres, copied from the present layer.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description",
+        "pixel",
+        "reference",
+        "reference_source",
+        "reference_kind",
+        "reference_feature_id"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "pixel": {
+          "description": "[x, y] in the full-resolution raster, GDAL convention.",
+          "type": "array",
+          "prefixItems": [{ "type": "number", "minimum": 0 }, { "type": "number", "minimum": 0 }],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "reference": { "$ref": "#/$defs/position" },
+        "reference_source": { "$ref": "#/$defs/sourceId" },
+        "reference_kind": { "enum": ["intersection", "building_corner"] },
+        "reference_feature_id": { "type": "string", "minLength": 1 },
+        "reference_vertex": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["polygon", "vertex"],
+          "properties": {
+            "polygon": { "type": "integer", "minimum": 0 },
+            "vertex": { "type": "integer", "minimum": 0 }
+          }
+        }
+      },
+      "if": { "properties": { "reference_kind": { "const": "building_corner" } }, "required": ["reference_kind"] },
+      "then": { "required": ["reference_vertex"] }
+    },
+    "controlPoints": {
+      "description": "data/control/<source id>.json.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "source", "pixel_convention", "points"],
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/schemaVersion" },
+        "source": { "$ref": "#/$defs/sourceId" },
+        "pixel_convention": { "const": "gdal_corner" },
+        "points": { "type": "array", "minItems": 3, "items": { "$ref": "#/$defs/controlPoint" } }
+      }
+    },
+    "residual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "dx_m", "dy_m", "r_m"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "dx_m": { "type": "number" },
+        "dy_m": { "type": "number" },
+        "r_m": { "type": "number", "minimum": 0 }
+      }
+    },
+    "alignmentRecord": {
+      "description": "data/alignment/<source id>.json, written by buried align-check. alignment_error_m = ceil_0.1(max(2.0, 2 x error_basis_m)).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "source",
+        "reference_sources",
+        "control_file",
+        "control_sha256",
+        "measured_at",
+        "tool_version",
+        "status",
+        "source_pixel_size_m",
+        "supplied",
+        "chosen",
+        "error_basis",
+        "error_basis_m",
+        "error_rule",
+        "alignment_error_m",
+        "outliers"
+      ],
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/schemaVersion" },
+        "source": { "$ref": "#/$defs/sourceId" },
+        "reference_sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/sourceId" } },
+        "control_file": { "type": "string", "minLength": 1 },
+        "control_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "measured_at": { "$ref": "#/$defs/dateTime" },
+        "tool_version": { "type": "string", "minLength": 1 },
+        "status": { "const": "measured" },
+        "source_pixel_size_m": { "type": "number", "exclusiveMinimum": 0 },
+        "supplied": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["crs", "operation", "residuals", "rmse_m", "max_residual_m"],
+          "properties": {
+            "crs": { "type": "string", "minLength": 1 },
+            "operation": { "type": "string" },
+            "residuals": { "type": "array", "minItems": 3, "items": { "$ref": "#/$defs/residual" } },
+            "rmse_m": { "type": "number", "minimum": 0 },
+            "max_residual_m": { "type": "number", "minimum": 0 }
+          }
+        },
+        "refined": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["affine", "residuals", "rmse_in_sample_m", "rmse_loo_m", "max_residual_m"],
+          "properties": {
+            "affine": {
+              "description": "[a, b, c, d, e, f]: E = a x + b y + c, N = d x + e y + f, pixel to EPSG:26917.",
+              "type": "array",
+              "items": { "type": "number" },
+              "minItems": 6,
+              "maxItems": 6
+            },
+            "residuals": { "type": "array", "minItems": 4, "items": { "$ref": "#/$defs/residual" } },
+            "rmse_in_sample_m": { "type": "number", "minimum": 0 },
+            "rmse_loo_m": { "type": "number", "minimum": 0 },
+            "max_residual_m": { "type": "number", "minimum": 0 }
+          }
+        },
+        "chosen": { "enum": ["supplied", "refined"] },
+        "error_basis": { "enum": ["supplied_rmse", "refined_loo_rmse"] },
+        "error_basis_m": { "type": "number", "exclusiveMinimum": 0 },
+        "error_rule": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["multiplier", "floor_m", "round_up_to_m"],
+          "properties": {
+            "multiplier": { "const": 2.0 },
+            "floor_m": { "const": 2.0 },
+            "round_up_to_m": { "const": 0.1 }
+          }
+        },
+        "alignment_error_m": { "type": "number", "minimum": 2.0 },
+        "outliers": { "type": "array", "items": { "type": "string" } }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "chosen": { "const": "refined" } }, "required": ["chosen"] },
+          "then": { "required": ["refined"], "properties": { "error_basis": { "const": "refined_loo_rmse" } } },
+          "else": { "properties": { "error_basis": { "const": "supplied_rmse" } } }
+        }
+      ]
+    },
+    "tileSidecar": {
+      "description": "data/tiles/<source id>.json. Corner coordinates are EPSG:26917 metres.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "source",
+        "image",
+        "width_px",
+        "height_px",
+        "corners",
+        "transform",
+        "alignment_error_m",
+        "source_pixel_size_m",
+        "tile_pixel_size_m",
+        "attribution_line"
+      ],
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/schemaVersion" },
+        "source": { "$ref": "#/$defs/sourceId" },
+        "image": { "type": "string", "pattern": "^[a-z0-9_]+\\.jpg$" },
+        "width_px": { "type": "integer", "minimum": 1 },
+        "height_px": { "type": "integer", "minimum": 1 },
+        "corners": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["top_left", "top_right", "bottom_right", "bottom_left"],
+          "properties": {
+            "top_left": { "$ref": "#/$defs/position" },
+            "top_right": { "$ref": "#/$defs/position" },
+            "bottom_right": { "$ref": "#/$defs/position" },
+            "bottom_left": { "$ref": "#/$defs/position" }
+          }
+        },
+        "transform": { "enum": ["supplied", "refined"] },
+        "alignment_error_m": { "type": "number", "exclusiveMinimum": 0 },
+        "source_pixel_size_m": { "type": "number", "exclusiveMinimum": 0 },
+        "tile_pixel_size_m": { "type": "number", "exclusiveMinimum": 0 },
+        "attribution_line": { "type": "string", "minLength": 1 }
+      }
+    },
+    "presentFeature": {
+      "description": "A present-day City of Toronto feature in EPSG:26917 metres. Reference data, not evidence: it carries no observations.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "geometry", "properties"],
+      "properties": {
+        "type": { "const": "Feature" },
+        "id": { "type": "string", "minLength": 1 },
+        "geometry": {
+          "oneOf": [
+            { "$ref": "#/$defs/pointGeometry" },
+            { "$ref": "#/$defs/polygonGeometry" },
+            { "$ref": "#/$defs/multiPolygonGeometry" }
+          ]
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": { "type": ["string", "number", "boolean", "null"] }
+        }
+      }
+    },
+    "presentLayer": {
+      "description": "data/present/<source id>.geojson: a present-day layer clipped to the project bounds, in EPSG:26917 metres.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "schema_version",
+        "crs",
+        "source",
+        "ckan_package_id",
+        "ckan_resource_id",
+        "resource_url",
+        "retrieved_at",
+        "last_refreshed",
+        "source_sha256",
+        "id_field",
+        "clip_bounds",
+        "attribution_line",
+        "features"
+      ],
+      "properties": {
+        "type": { "const": "FeatureCollection" },
+        "schema_version": { "$ref": "#/$defs/schemaVersion" },
+        "crs": { "const": "EPSG:26917" },
+        "source": { "$ref": "#/$defs/sourceId" },
+        "ckan_package_id": { "type": "string", "minLength": 1 },
+        "ckan_resource_id": { "type": "string", "minLength": 1 },
+        "resource_url": { "type": "string", "format": "uri" },
+        "retrieved_at": { "$ref": "#/$defs/dateTime" },
+        "last_refreshed": { "$ref": "#/$defs/date" },
+        "source_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "id_field": { "type": "string", "minLength": 1 },
+        "clip_bounds": { "$ref": "#/$defs/bounds" },
+        "attribution_line": { "type": "string", "minLength": 1 },
+        "features": { "type": "array", "items": { "$ref": "#/$defs/presentFeature" } }
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "origin_source": "fip_v3_1911_229",
+  "crop_px": {
+    "x": 100,
+    "y": 200,
+    "width": 300,
+    "height": 250
+  },
+  "alignment_error_m": 4.3,
+  "digitising_error_m": 1.0,
+  "confirmed_by": "fixture reviewer",
+  "confirmed_at": "2026-11-12T10:00:00Z",
+  "proposal_id": "prop_0001",
+  "extraction_params_id": "v1"
+}

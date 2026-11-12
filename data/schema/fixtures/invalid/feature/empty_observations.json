@@ -1,0 +1,59 @@
+{
+  "type": "Feature",
+  "id": "bld_fip_v3_1911_229_0001",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          500000.0,
+          4000000.0
+        ],
+        [
+          500010.0,
+          4000000.0
+        ],
+        [
+          500010.0,
+          4000008.0
+        ],
+        [
+          500000.0,
+          4000008.0
+        ],
+        [
+          500000.0,
+          4000000.0
+        ]
+      ]
+    ]
+  },
+  "properties": {
+    "kind": "building",
+    "position_error_m": 4.5,
+    "attributes": {
+      "use": "synthetic use",
+      "material": "synthetic material",
+      "storeys": 2
+    },
+    "observations": [],
+    "confidence": "documented",
+    "confidence_reason": "Synthetic fixture: footprint and storeys both stated.",
+    "provenance": {
+      "origin_source": "fip_v3_1911_229",
+      "crop_px": {
+        "x": 100,
+        "y": 200,
+        "width": 300,
+        "height": 250
+      },
+      "alignment_error_m": 4.3,
+      "digitising_error_m": 1.0,
+      "confirmed_by": "fixture reviewer",
+      "confirmed_at": "2026-11-12T10:00:00Z",
+      "proposal_id": "prop_0001",
+      "extraction_params_id": "v1"
+    },
+    "status": "published"
+  }
+}

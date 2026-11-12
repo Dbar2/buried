@@ -1,0 +1,13 @@
+{
+  "id": "fip_v3_1911_229",
+  "type": "fire_insurance_plan",
+  "title": "Synthetic plate",
+  "year_from": 1911,
+  "year_to": 1914,
+  "url": "https://example.invalid/plate.zip",
+  "licence_note": "Synthetic.",
+  "attribution_line": "Synthetic attribution.",
+  "attribution_status": "confirmed",
+  "rights_checked_on": "2026-11-10",
+  "held_out": false
+}

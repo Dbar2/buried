@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0.0",
+  "source": "fip_v3_1911_229",
+  "reference_sources": [
+    "present_toronto_intersections_2026"
+  ],
+  "control_file": "data/control/fip_v3_1911_229.json",
+  "control_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "measured_at": "2026-11-12T10:00:00Z",
+  "tool_version": "0.1.0",
+  "status": "measured",
+  "source_pixel_size_m": 0.0592,
+  "supplied": {
+    "crs": "EPSG:26917",
+    "operation": "synthetic",
+    "residuals": [
+      {
+        "id": "cp_1",
+        "dx_m": 0.5,
+        "dy_m": -0.5,
+        "r_m": 0.7071
+      },
+      {
+        "id": "cp_2",
+        "dx_m": 0.5,
+        "dy_m": -0.5,
+        "r_m": 0.7071
+      },
+      {
+        "id": "cp_3",
+        "dx_m": 0.5,
+        "dy_m": -0.5,
+        "r_m": 0.7071
+      }
+    ],
+    "rmse_m": 0.7071,
+    "max_residual_m": 0.7071
+  },
+  "chosen": "supplied",
+  "error_basis": "supplied_rmse",
+  "error_basis_m": 0.7071,
+  "error_rule": {
+    "multiplier": 2.0,
+    "floor_m": 2.0,
+    "round_up_to_m": 0.1
+  },
+  "alignment_error_m": 2.0,
+  "outliers": []
+}

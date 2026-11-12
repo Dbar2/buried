@@ -1,0 +1,75 @@
+{
+  "type": "FeatureCollection",
+  "schema_version": "1.0.0",
+  "crs": "EPSG:26917",
+  "source": "present_toronto_intersections_2026",
+  "ckan_package_id": "synthetic-package",
+  "ckan_resource_id": "00000000-0000-0000-0000-000000000000",
+  "resource_url": "https://example.invalid/synthetic.gpkg",
+  "retrieved_at": "2026-11-12T10:00:00Z",
+  "last_refreshed": "2026-11-11",
+  "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "id_field": "ID",
+  "clip_bounds": {
+    "min_e": 499500.0,
+    "min_n": 3999500.0,
+    "max_e": 500500.0,
+    "max_n": 4000500.0
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "1001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500000.0,
+          4000000.0
+        ]
+      },
+      "properties": {
+        "NAME": "Synthetic",
+        "COUNT": 3,
+        "FLAG": true,
+        "NOTE": null
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "1001",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              500000.0,
+              4000000.0
+            ],
+            [
+              500010.0,
+              4000000.0
+            ],
+            [
+              500010.0,
+              4000008.0
+            ],
+            [
+              500000.0,
+              4000008.0
+            ],
+            [
+              500000.0,
+              4000000.0
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "NAME": "Synthetic",
+        "COUNT": 3,
+        "FLAG": true,
+        "NOTE": null
+      }
+    }
+  ]
+}

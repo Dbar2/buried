@@ -1,0 +1,27 @@
+{
+  "type": "Feature",
+  "id": "1001",
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [
+        500000.0,
+        4000000.0
+      ],
+      [
+        500020.0,
+        4000005.0
+      ],
+      [
+        500040.0,
+        4000004.0
+      ]
+    ]
+  },
+  "properties": {
+    "NAME": "Synthetic",
+    "COUNT": 3,
+    "FLAG": true,
+    "NOTE": null
+  }
+}

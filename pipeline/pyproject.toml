@@ -12,6 +12,8 @@ dependencies = [
     "pyogrio>=0.9",
     "jsonschema>=4.22",
     "httpx>=0.27",
+    "rfc3339-validator>=0.1.4",
+    "rfc3986-validator>=0.1.1",
 ]
 
 [project.scripts]

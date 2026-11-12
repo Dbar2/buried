@@ -10,8 +10,8 @@ Dependencies on spec 02:
 Spec 02 tasks 1, 2, 10.1 to 10.4 and 3 (the gate) do not depend on this spec, so the Nov 14
 alignment gate is not blocked by it.
 
-- [ ] 1. Write the Schema and its conformance fixtures
-  - [ ] 1.1 Write `data/schema/evidence.schema.json` (draft 2020-12) with `$defs` for
+- [x] 1. Write the Schema and its conformance fixtures
+  - [x] 1.1 Write `data/schema/evidence.schema.json` (draft 2020-12) with `$defs` for
     `featureCollection` (root), `feature`, `observation`, `provenance`, `sourceRegistry`, `source`,
     `project`, `era`, `controlPoints`, `alignmentRecord`, `tileSidecar`, `link`, `coverageArea`,
     `presentLayer`, `presentFeature`, plus the common definitions (`schemaVersion`, `sourceId`,
@@ -22,7 +22,7 @@ alignment gate is not blocked by it.
     Files: `data/schema/evidence.schema.json`.
     Requirements: 1.1, 1.2, 1.3, 1.4, 1.6, 1.7, 2.1 to 2.6, 3.1, 3.2, 4.1, 4.2, 5.1, 5.6, 6.1, 7.1,
     16.1 to 16.3, 17.1, 19.1, 19.2, 21.1, 21.2, 22.1.
-  - [ ] 1.2 Write conformance fixtures: at least one valid file per `$defs` entry, and one invalid
+  - [x] 1.2 Write conformance fixtures: at least one valid file per `$defs` entry, and one invalid
     file per rule the Schema enforces (no position error, zero position error, empty observations,
     lon/lat position, 3D position, id prefix not matching kind, line geometry on a building,
     documented building without storeys, merged without `merged_into`, rejected without
@@ -36,8 +36,8 @@ alignment gate is not blocked by it.
     Files: `data/schema/fixtures/valid/<def>/*.json`, `data/schema/fixtures/invalid/<def>/*.json`.
     Requirements: 9.3, 15.2.
 
-- [ ] 2. Create or check the source registry
-  - [ ] 2.1 If spec 02 task 1 has already created `data/sources.json`, check it against the
+- [x] 2. Create or check the source registry
+  - [x] 2.1 If spec 02 task 1 has already created `data/sources.json`, check it against the
     `sourceRegistry` definition and fix only fields that differ from design.md. Otherwise create it
     with the four plate sources and the values in design.md "source and sourceRegistry"
     (`rights_checked_on: 2026-11-10`). Add the four present-day sources from `sources.md` with

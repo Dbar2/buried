@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "source": "fip_v3_1911_229",
+  "image": "fip_v3_1911_229.jpg",
+  "width_px": 4096,
+  "height_px": 3000,
+  "corners": {
+    "top_left": [
+      500000.0,
+      4000100.0
+    ],
+    "top_right": [
+      500150.0,
+      4000100.0
+    ],
+    "bottom_right": [
+      500150.0,
+      4000000.0
+    ]
+  },
+  "transform": "supplied",
+  "alignment_error_m": 4.3,
+  "source_pixel_size_m": 0.0592,
+  "tile_pixel_size_m": 0.0366,
+  "attribution_line": "Synthetic attribution."
+}

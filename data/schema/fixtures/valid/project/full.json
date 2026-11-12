@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "crs": "EPSG:26917",
+  "origin": {
+    "easting": 500000.0,
+    "northing": 4000000.0
+  },
+  "origin_note": "Synthetic origin.",
+  "bounds": {
+    "min_e": 499500.0,
+    "min_n": 3999500.0,
+    "max_e": 500500.0,
+    "max_n": 4000500.0
+  },
+  "eras": [
+    {
+      "id": "1911",
+      "label": "1911 (revised to 1914)",
+      "year_from": 1911,
+      "year_to": 1914
+    },
+    {
+      "id": "today",
+      "label": "Today",
+      "year_from": 2026,
+      "year_to": 2026
+    }
+  ]
+}
