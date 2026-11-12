@@ -74,6 +74,13 @@ def run_inspect(
     reports = [inspect_source(paths, source_id) for source_id in ids]
     out(format_table(reports))
     for r in reports:
+        out(f"{r['source']}: CRS from {r['crs_source']}")
+        supplied = r["supplied_control_points"]
+        if supplied is not None:
+            out(
+                f"{r['source']}: {supplied['count']} supplied control points in "
+                f"{supplied['file']} (provenance only, not independent)"
+            )
         for note in r["notes"]:
             out(f"{r['source']}: {note}")
         rel_report = paths.inspect_report(r["source"]).relative_to(paths.root)

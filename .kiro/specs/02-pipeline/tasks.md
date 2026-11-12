@@ -369,3 +369,22 @@ Task numbers are stable, so the run order is not numeric:
   - [ ] 11.12 Record `uv run buried match` in `.kiro/steering/tech.md`.
     Files: `.kiro/steering/tech.md`.
     Requirements: 1.8.
+
+- [x] 12. Plates as TIFF or JPEG (session 006; the real 1935 plates are JPEGs)
+  - [x] 12.1 Find the raster as a TIFF or JPEG (ignoring `.ovr` and thumbnails) and choose its
+    georeferencing in the order GeoTIFF tags, PAM sidecar, world file plus `.prj` or PAM SRS; record
+    `georef_source` and `crs_source`; fail loudly on a transform with no CRS; warn once per
+    disagreeing source. Test with synthetic JPEG + world file + PAM + `.prj` fixtures written by the
+    test helper, in each combination, and a property test that a world file and a PAM sidecar read
+    back the transform written. `align-check` opens a JPEG plate through the same functions (test).
+    Files: `pipeline/buried_pipeline/inspect/georef.py`, `pipeline/buried_pipeline/inspect/choice.py`,
+    `pipeline/buried_pipeline/inspect/run.py`, `pipeline/tests/helpers/rasters.py`,
+    `pipeline/tests/inspect/test_georef.py`, `pipeline/tests/align/test_run.py`.
+    Requirements: 4.1, 4.3, 4.4, 14.1 to 14.5, 14.8.
+  - [x] 12.2 Record the plate's own `.txt` control points in the inspect report as
+    `supplied_control_points` (count and coordinates, `independent: false`); a parse failure is a
+    warning. Nothing else reads them. Test parsing, the report block, a wrongly named file, a
+    malformed file, and a round-trip property.
+    Files: `pipeline/buried_pipeline/inspect/supplied_points.py`,
+    `pipeline/tests/inspect/test_georef.py`.
+    Requirements: 14.6, 14.7.

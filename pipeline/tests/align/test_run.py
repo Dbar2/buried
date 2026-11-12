@@ -15,7 +15,7 @@ from buried_pipeline.errors import PipelineError
 from buried_pipeline.io.registry import load_registry
 from buried_pipeline.paths import Paths
 from tests.conftest import make_root
-from tests.helpers.rasters import write_geotiff
+from tests.helpers.rasters import esri_wkt, write_geotiff, write_jpeg, write_pam
 
 FIXTURES = Path(__file__).parent.parent / "fixtures" / "align"
 NOW = datetime(2026, 11, 13, 12, 0, 0, tzinfo=UTC)
@@ -184,3 +184,17 @@ def test_cli_align_check(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> 
     out = capsys.readouterr().out
     assert "published alignment_error_m" in out
     assert paths.alignment_record(SOURCE).exists()
+
+def test_align_check_opens_a_jpeg_plate_with_a_pam_sidecar(tmp_path: Path) -> None:
+    """A JPEG plate gives the same measurement as the same georeferencing held in a GeoTIFF."""
+    paths = build(tmp_path / "tiff")
+    expected, _ = run(paths)
+
+    jpeg_paths = build(tmp_path / "jpeg")
+    (jpeg_paths.raw / SOURCE / "plate.tif").unlink()
+    jpg = write_jpeg(jpeg_paths.raw / SOURCE / "plate.jpg", width=1000, height=750)
+    write_pam(jpg, TRANSFORM, esri_wkt())
+    result, _ = run(jpeg_paths)
+
+    assert result.supplied.rmse_m == pytest.approx(expected.supplied.rmse_m, abs=1e-9)
+    assert result.alignment_error_m == expected.alignment_error_m

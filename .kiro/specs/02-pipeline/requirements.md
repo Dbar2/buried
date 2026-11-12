@@ -25,8 +25,8 @@ Rules come from `.kiro/steering/` (`tech.md`, `structure.md`, `sources.md`, `evi
 - **Tuning plates**: `fip_v3_1911_229` and `fip_v3_1935_229`, the only plates extraction may be
   tuned on.
 - **Registry**: `data/sources.json` (spec 01).
-- **Supplied georeferencing**: the transform and CRS that come with a raster (GeoTIFF tags or a
-  world file plus projection file). It is not a measurement of error.
+- **Supplied georeferencing**: the transform and CRS that come with a raster (GeoTIFF tags, a PAM
+  `.aux.xml` sidecar, or a world file plus a CRS; requirement 14). It is not a measurement of error.
 - **Control file**: `data/control/<source id>.json`, pixel positions on a raster paired with
   present-day EPSG:26917 coordinates of the same physical points, each citing the present-day
   feature it came from.
@@ -147,9 +147,8 @@ with, and to be stopped if there is none.
 ### Acceptance criteria
 
 4.1 WHEN `buried inspect [SOURCE_ID ...]` runs, THE Pipeline SHALL report for each raster: file,
-width and height in pixels, band count, CRS, where the georeferencing came from (GeoTIFF tags or
-world file), pixel size in metres, rotation terms, the four corner coordinates and the bounds in
-EPSG:26917.
+width and height in pixels, band count, CRS, where the georeferencing came from (requirement 14),
+pixel size in metres, rotation terms, the four corner coordinates and the bounds in EPSG:26917.
 
 4.2 THE Pipeline SHALL compute pixel size in metres by transforming unit pixel steps at the raster
 centre into EPSG:26917, not by reading the transform's units.
@@ -157,8 +156,8 @@ centre into EPSG:26917, not by reading the transform's units.
 4.3 IF a raster has no transform, an identity transform, or no CRS, THEN THE Pipeline SHALL exit
 with a non-zero status and the message "No georeferencing: <file>".
 
-4.4 IF a raster has both GeoTIFF tags and a world file and their corner positions differ by more
-than one pixel, THEN THE Pipeline SHALL warn and state which one GDAL used.
+4.4 IF a raster holds more than one georeferencing (requirement 14.1) and their corner positions
+differ by more than one pixel, THEN THE Pipeline SHALL warn and state which one it used.
 
 4.5 THE Pipeline SHALL write each report to `data/work/inspect/<source id>.json` and print a
 summary table.
@@ -486,3 +485,48 @@ NOT vary by plate.
 
 13.14 THE Pipeline SHALL print counts per source pair: matched, absent, not covered, sent to review,
 pending aerial checks; and SHALL write the match review list.
+
+## Requirement 14: Plates as TIFF or JPEG, and the control points they ship with
+
+**User story:** As the maintainer, I want every command that opens a plate to accept the formats
+U of T actually publishes, so that the 1935 JPEG plates work as well as the 1911 GeoTIFFs.
+
+The real plates (fetched 2026-11-13) are two kinds. The 1911 plates are GeoTIFFs with tags and a
+`.tfw`. The 1935 plates are JPEGs with a world file (`.jgw`), an ESRI PAM sidecar
+(`<name>.jpg.aux.xml`, holding the SRS and a GeoTransform) and an overview file (`.jpg.ovr`). Every
+zip also holds a `.txt` of U of T's own ground control points.
+
+### Acceptance criteria
+
+14.1 THE Pipeline SHALL take a raster's georeferencing from the first of these that holds both a
+transform and a CRS: (1) GeoTIFF tags; (2) a PAM `.aux.xml` sidecar named after the raster file;
+(3) a world file, with its CRS from a `.prj` file named after the raster or, failing that, from the
+PAM sidecar's SRS. It SHALL NOT pair a transform with a CRS from any other place.
+
+14.2 THE Pipeline SHALL accept a TIFF (`.tif`, `.tiff`) or a JPEG (`.jpg`, `.jpeg`) as the raster of
+a source, and SHALL ignore overview (`.ovr`) and thumbnail files when choosing it. A JPEG has no
+GeoTIFF tags, so for a JPEG the order starts at the PAM sidecar.
+
+14.3 THE Pipeline SHALL record in each inspect report which source gave the transform
+(`georef_source`: `geotiff_tags`, `pam_aux_xml` or `world_file`) and which gave the CRS
+(`crs_source`: `geotiff_tags`, `pam_aux_xml`, `prj_file` or `pam_srs`).
+
+14.4 IF a raster has a transform but no CRS in any of those places, THEN THE Pipeline SHALL exit
+with a non-zero status and a message that starts "No georeferencing: <file>" and says which
+transform was found and that the CRS is missing. An identity transform counts as no transform.
+
+14.5 IF the georeferencings a raster holds disagree at the pixel corners by more than one pixel,
+THEN THE Pipeline SHALL warn once per disagreeing source and state which one it used.
+
+14.6 WHEN a `.txt` named after the raster is present, THE Pipeline SHALL record its lines in the
+inspect report as `supplied_control_points`: file, count, the four columns
+(`source_x`, `source_y`, `map_easting`, `map_northing`), the points as written, `map_crs`, and
+`independent: false` with a note that they are the points the supplied georeferencing was fitted
+to. THE Pipeline SHALL NOT use them for `align-check` or for any error figure.
+
+14.7 IF that `.txt` cannot be parsed, THEN THE Pipeline SHALL name the file and line in a warning
+in the report's notes, set `supplied_control_points` to null, and carry on, since the file is
+provenance only.
+
+14.8 `align-check`, `control-crops` and every later command that opens a plate SHALL find and read
+the raster through the same functions as `inspect`.

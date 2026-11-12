@@ -53,7 +53,9 @@ pipeline/
       manifest.py           # manifest read/write, SHA-256
       zipsafe.py            # safe extraction (pure path checks + extraction)
     inspect/
-      georef.py             # read transform/CRS via rasterio (I/O)
+      georef.py             # read transform/CRS via rasterio and sidecar files (I/O)
+      choice.py             # pure: which georeferencing wins (tags, PAM, world file + CRS)
+      supplied_points.py    # parse U of T's own control points `.txt` (provenance only)
       report.py             # pure: pixel size, corners, bounds, origin proposal, project bounds
     present/
       datasets.py           # pure: per-dataset config (package id, resource, id field, kept fields)
@@ -159,10 +161,29 @@ Commands (recorded in `tech.md` by the tasks that add them), all from `pipeline/
 
 ## inspect
 
-- Opens each raster in `data/raw/<id>/` with rasterio. GDAL reads internal GeoTIFF tags and, if
-  absent, a `.tfw`/`.wld` world file with `.prj` or `.aux.xml` for the CRS. The report records
-  which was found by checking for the sidecar files and the internal tags separately.
-- "No georeferencing" when the transform is identity, or the CRS is missing (requirement 4.3).
+- Finds the raster in `data/raw/<id>/`: the one `.tif`, `.tiff`, `.jpg` or `.jpeg` file there,
+  ignoring `.ovr` overview files and any file whose name contains "thumb". None, or more than
+  one, is an error (requirement 14.2).
+- Georeferencing (requirement 14), read by `inspect/georef.py` and chosen by the pure
+  `inspect/choice.py`, in this order:
+  1. **GeoTIFF tags** (TIFF only; GDAL is told to use internal tags and nothing else).
+  2. **PAM sidecar** `<raster file name>.aux.xml`: `<SRS>` (WKT) and `<GeoTransform>` (GDAL order:
+     x0, dx/col, dx/row, y0, dy/col, dy/row). Parsed with `xml.etree`, not GDAL, so the choice does
+     not depend on GDAL's own source order, which does not apply to JPEG.
+  3. **World file** (`.tfw`/`.jgw`, then `.<ext>w`, then `.wld`), read as 6 numbers and moved from
+     the pixel centre to the pixel corner, with the CRS from `<stem>.prj`, else from the PAM `<SRS>`.
+  The first source with both a transform and a CRS wins. A transform is never paired with a CRS
+  from anywhere else. The report records `georef_source` and `crs_source`.
+- "No georeferencing: <file>. Found: ..." when nothing is complete, naming any transform found
+  without a CRS. An identity transform counts as none (requirements 4.3 and 14.4).
+- Every other georeferencing the raster holds is compared with the one used at the four corners,
+  in EPSG:26917. A gap over one pixel gives one WARNING per source, naming the one used.
+- The plate's own `.txt` (same stem) is parsed by `inspect/supplied_points.py`: four numbers per
+  line, `source_x source_y map_easting map_northing`. The report keeps them under
+  `supplied_control_points` with `independent: false`. They are the points U of T fitted the
+  supplied georeferencing to, so measuring that georeferencing against them would be circular. No
+  code outside inspect reads them. `source_x` and `source_y` are stored as written because the
+  file does not state their units. (A parse failure is a warning, not an error: requirement 14.7.)
 - Pure computations in `inspect/report.py`, given the affine transform and a pyproj transformer:
   - corners: pixel `(0,0), (W,0), (W,H), (0,H)` to EPSG:26917;
   - bounds: min and max of the corners plus 16 points per edge (exact for affine-only cases;
@@ -617,7 +638,7 @@ requirement 17.4).
 |---|---|
 | Network failure in fetch | Remove the `.part` file, report URL and error, exit 1. Already-complete sources stay. |
 | Zip entry escapes the folder | Abort that source before extracting anything, exit 1. |
-| No georeferencing | "No georeferencing: <file>", exit 1. |
+| No georeferencing | "No georeferencing: <file>. Found: ...", exit 1. Includes a transform with no CRS. |
 | Reference source not registered | align-check refuses (requirement 5.2). |
 | Fewer than 3 control points | Error, no record. |
 | Collinear points | Supplied result only, refined skipped with reason. |
@@ -765,7 +786,9 @@ refused.
 
 - Unit tests for each pure module, property tests above, and one end-to-end test per command on a
   synthetic GeoTIFF fixture (a few hundred pixels, written by a test helper into a temp dir with a
-  known transform in EPSG:26917 and one in EPSG:3857 to exercise reprojection).
+  known transform in EPSG:26917 and one in EPSG:3857 to exercise reprojection). Plates that are
+  JPEGs are tested with a synthetic JPEG plus world file, PAM sidecar and `.prj` written by the
+  same helper, in each combination in requirement 14.1.
 - `present` is tested with a fake CKAN response and a small synthetic GPKG written by a test helper
   (a few points and polygons in EPSG:4326, some outside the bounds).
 - `match` is tested on synthetic evidence files: rectangles on two fake plates with known overlaps,
