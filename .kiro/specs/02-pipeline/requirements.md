@@ -420,6 +420,14 @@ intersections layer can be clipped before `data/project.json` exists.
 12.10 THE Pipeline SHALL refuse to clip if any showcase plate has no inspect report and
 `data/project.json` does not exist.
 
+12.11 THE Pipeline SHALL write one feature per id. WHEN several rows share an id and agree on
+geometry and kept fields (a multi-level intersection has one row per elevation, all at the same
+point), THE Pipeline SHALL keep one; IF they differ, THEN it SHALL stop and write nothing.
+
+12.12 WHEN a dataset expects Point geometry and the file stores a MultiPoint holding one point,
+THE Pipeline SHALL write that point as a Point; IF a MultiPoint holds more than one point, THEN it
+SHALL stop.
+
 ## Requirement 13: Match published buildings across sources
 
 **User story:** As a viewer, I want a building that the 1911 plate shows to learn from the 1935

@@ -104,6 +104,23 @@ def round_geometry(geometry: BaseGeometry) -> BaseGeometry:
     return shapely.transform(geometry, lambda c: np.round(c, COORD_DECIMALS))
 
 
+def single_point(geometry: BaseGeometry, geometry_types: Sequence[str]) -> BaseGeometry:
+    """A MultiPoint holding one point becomes that Point when the dataset expects Points (the
+    City's intersections file stores every point as a one-point MultiPoint). A MultiPoint with
+    several points is never reduced."""
+    if (
+        geometry.geom_type == "MultiPoint"
+        and "MultiPoint" not in geometry_types
+        and "Point" in geometry_types
+    ):
+        if len(geometry.geoms) != 1:
+            raise PipelineError(
+                f"A MultiPoint holds {len(geometry.geoms)} points; expected a single point"
+            )
+        return geometry.geoms[0]
+    return geometry
+
+
 def clip_features(
     features: Iterable[RawFeature],
     bounds: Bounds,
@@ -125,6 +142,7 @@ def clip_features(
         projected = reproject(raw.geometry, transformer)
         if not projected.intersects(window):
             continue
+        projected = single_point(projected, geometry_types)
         if projected.geom_type not in geometry_types:
             raise PipelineError(
                 f"Unexpected geometry type {projected.geom_type}; expected {list(geometry_types)}"
@@ -144,10 +162,28 @@ def clip_features(
             )
 
     kept.sort(key=lambda f: f["id"])
-    for first, second in zip(kept, kept[1:], strict=False):
-        if first["id"] == second["id"]:
-            raise PipelineError(f"Duplicate feature id {first['id']!r} in field {id_field!r}")
-    return kept
+    return _collapse_repeated_ids(kept, id_field)
+
+
+def _collapse_repeated_ids(kept: list[dict[str, Any]], id_field: str) -> list[dict[str, Any]]:
+    """One feature per id. Rows that share an id and agree on geometry and kept fields are one
+    feature (the intersections file has one row per elevation of a multi-level intersection, all
+    at the same point). Rows that share an id but differ stop the run."""
+    unique: list[dict[str, Any]] = []
+    for feature in kept:
+        if unique and unique[-1]["id"] == feature["id"]:
+            previous = unique[-1]
+            if (
+                previous["geometry"] != feature["geometry"]
+                or previous["properties"] != feature["properties"]
+            ):
+                raise PipelineError(
+                    f"Duplicate feature id {feature['id']!r} in field {id_field!r} with "
+                    "different geometry or fields"
+                )
+            continue
+        unique.append(feature)
+    return unique
 
 
 def check_size(text: str) -> None:

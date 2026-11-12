@@ -2,7 +2,8 @@
 
 `id_field` and `kept_fields` are `None` until they are confirmed from the first downloaded file
 (spec 02 task 10.4 / 10.5). Until then `buried present` downloads, lists the file's fields and stops
-for that dataset with "dataset fields not confirmed". Nothing is guessed here.
+for that dataset with "dataset fields not confirmed". Nothing is guessed here. Confirmed so far:
+the intersections layer (task 10.4).
 
 `resource_name` names the GPKG resource to use when a package offers several. `None` means the
 package is expected to have exactly one.
@@ -38,6 +39,16 @@ DATASETS: tuple[PresentDataset, ...] = (
         source_id="present_toronto_intersections_2026",
         package_id="intersection-file-city-of-toronto",
         geometry=("Point",),
+        # Confirmed from the downloaded file (spec 02 task 10.4). The id is the City's
+        # INTERSECTION_ID. The description lists the street names ("A St / B Ave"); the
+        # classification code and text tell a person whether it is a true street crossing
+        # (for example "Pseudo Intersection-Overpass/Underpass" is not one).
+        id_field="INTERSECTION_ID",
+        kept_fields=("INTERSECTION_DESC", "CLASSIFICATION", "CLASSIFICATION_DESC"),
+        # The package offers the same layer in EPSG:4326 and EPSG:2952 (NAD83(CSRS) / MTM zone 10).
+        # The projected one is used: pyproj goes from 2952 to EPSG:26917 within the NAD83 family,
+        # while 4326 to 26917 goes through a ballpark NAD83-to-WGS84 step it rates at 4 m.
+        resource_name="Centreline Intersection - 2952.gpkg",
     ),
     PresentDataset(
         source_id="present_toronto_building_outlines_2026",

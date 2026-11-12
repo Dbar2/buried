@@ -204,14 +204,37 @@ Commands (recorded in `tech.md` by the tasks that add them), all from `pipeline/
 
 Defined once in `present/datasets.py`. The id field and kept fields are confirmed from the first
 downloaded file in task 10 and recorded in this table in the same change. Until then the command
-stops for that dataset with "dataset fields not confirmed".
+stops for that dataset with "dataset fields not confirmed". Confirmed so far: the intersections
+layer (task 10.4, 2026-11-12).
 
 | Source id | CKAN package id | Geometry | Id field | Kept fields |
 |---|---|---|---|---|
-| `present_toronto_intersections_2026` | `intersection-file-city-of-toronto` | Point | to confirm | the intersection's name or description fields, to confirm |
+| `present_toronto_intersections_2026` | `intersection-file-city-of-toronto` | Point (the file stores each as a one-point MultiPoint) | `INTERSECTION_ID` | `INTERSECTION_DESC` (street names, "A St / B Ave"), `CLASSIFICATION`, `CLASSIFICATION_DESC` |
 | `present_toronto_building_outlines_2026` | `topographic-mapping-building-outlines` | Polygon / MultiPolygon | to confirm | none beyond the id unless a later spec needs one |
 | `present_toronto_property_boundaries_2026` | `property-boundaries` | Polygon / MultiPolygon | to confirm | parcel type and status fields, to confirm |
 | `present_toronto_address_points_2026` | `address-points-municipal-toronto-one-address-repository` | Point | to confirm | address number, street name and full address fields, to confirm |
+
+What the first download of the intersections file showed (46305 rows, CRS EPSG:2952, 20 fields):
+
+- The package has two GPKG resources, the same layer in EPSG:4326 and in EPSG:2952 (NAD83(CSRS) /
+  MTM zone 10). The dataset config names `Centreline Intersection - 2952.gpkg`. Reason: pyproj
+  goes from EPSG:2952 to EPSG:26917 inside the NAD83 family, while EPSG:4326 to EPSG:26917 goes
+  through a ballpark NAD83-to-WGS84 step that pyproj rates at 4.0 m. Control points should not
+  start with a coordinate step of that size.
+- `INTERSECTION_ID` is the intersection's id. It is not unique in the file: a multi-level
+  intersection has one row per elevation (`ELEVATION_ID` is unique, `NUMBER_OF_ELEVATIONS` is 2 or
+  3), all at the same point. Inside the project bounds, 33 of 396 rows repeat an id, every pair at
+  an identical point. The clip keeps one feature per id when the rows agree on geometry and kept
+  fields, and stops when they do not. `_id` and `OBJECTID` are row numbers, not used.
+- `CLASSIFICATION` and `CLASSIFICATION_DESC` are kept because a person picking control points
+  needs them: `SEUML` ("Pseudo Intersection-Overpass/Underpass") and `SEUSL` ("Pseudo
+  Intersection-Single Level") are not street crossings, and `CDSSL` is a cul-de-sac end. Elevation,
+  height-restriction, date and transaction fields are not needed by any consumer and are left out.
+- Every row has `STATE` 8 and `DATE_EXPIRY` 2999-12-31, so there is nothing to filter out as
+  expired.
+- The CKAN `last_refreshed` is 2026-11-11, so `year_from` is 2026 in the Registry.
+- Result on 2026-11-12: 363 features inside the bounds (631900, 4834400, 633200, 4835600), from
+  396 rows, 137 KB.
 
 Fields are kept only when a named consumer needs them. Personal data is not expected in these
 layers; if a field looks like it holds any, it is left out and raised for review.
@@ -232,7 +255,8 @@ layers; if a field looks like it holds any, it is left out and raised for review
    densified (16 points per edge). Then filter exactly in EPSG:26917 with shapely `intersects`.
    Features that cross the bounds are kept whole.
 6. Reproject with `pyproj.Transformer.from_crs(layer_crs, "EPSG:26917", always_xy=True)`. The
-   layer CRS comes from the GPKG; none means stop.
+   layer CRS comes from the GPKG; none means stop. A MultiPoint of one point becomes a Point when
+   the dataset expects Points; a MultiPoint of several points stops the run.
 7. Build the `presentLayer` (spec 01) with feature ids as strings from the id field, kept fields
    only, sorted by id, coordinates written with 3 decimals (millimetres). Check the size limits
    (requirement 12.7). Write atomically.

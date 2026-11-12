@@ -1,0 +1,5830 @@
+{
+  "type": "FeatureCollection",
+  "schema_version": "1.0.0",
+  "crs": "EPSG:26917",
+  "source": "present_toronto_intersections_2026",
+  "ckan_package_id": "intersection-file-city-of-toronto",
+  "ckan_resource_id": "8f015999-5a52-490c-b7d0-1cd230865938",
+  "resource_url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/2c83f641-7808-49ba-b80f-7011851d4e27/resource/8f015999-5a52-490c-b7d0-1cd230865938/download/centreline-intersection-2952.gpkg",
+  "retrieved_at": "2026-11-12T20:51:47Z",
+  "last_refreshed": "2026-11-11",
+  "source_sha256": "42257688da8bc83513ca361479d05f29da2c6b5936008727cb4f83f92797a635",
+  "id_field": "INTERSECTION_ID",
+  "clip_bounds": {
+    "min_e": 631900.0,
+    "min_n": 4834400.0,
+    "max_e": 633200.0,
+    "max_n": 4835600.0
+  },
+  "attribution_line": "Contains information licensed under the Open Government Licence - Toronto.",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "13464879",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632380.199,
+          4835554.579
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Dundas St E / River St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13464928",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633105.324,
+          4835528.152
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Kintyre Ave / Grant St",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13464930",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632551.202,
+          4835528.905
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Mark St",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13464941",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632492.823,
+          4835510.511
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Mark St / Defries St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13464965",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632195.135,
+          4835490.871
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Dundas St E / Sumach St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13464967",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632998.856,
+          4835485.692
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Kintyre Ave / Broadview Ave",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13464973",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632403.796,
+          4835483.477
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Mark St / River St / Wyatt Walk",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13464989",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632151.228,
+          4835475.946
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Dundas St E / Belshaw Pl / Regent Park Trl",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465000",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633196.625,
+          4835466.189
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Howie Ave / Clark St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632675.426,
+          4835468.167
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "DVP / Queen St E Dvp N Ramp",
+        "CLASSIFICATION": "XICSL",
+        "CLASSIFICATION_DESC": "Expressway Interchange-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465005",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632928.117,
+          4835461.627
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Kintyre Ave / Hamilton St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465009",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632914.065,
+          4835456.611
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Kintyre Ave / Hamilton St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465018",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632891.453,
+          4835449.63
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Kintyre Ave / Peggy Ann Smith Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465032",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633132.7,
+          4835445.163
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Clark St / Grant St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465041",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632565.848,
+          4835437.926
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Labatt Ave",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465044",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632781.9,
+          4835433.881
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Matilda St / Carroll St / Joel Weeks Park Trl",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465058",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631992.446,
+          4835423.505
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Dundas St E / Sackville St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465060",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632520.867,
+          4835424.471
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Labatt Ave / Defries St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465075",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632712.283,
+          4835413.672
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Davies Ave / Matilda St",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465091",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631933.216,
+          4835404.342
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Dundas St E / Pashler Ave",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465104",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632431.915,
+          4835396.912
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Labatt Ave / River St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465115",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633031.889,
+          4835386.739
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Broadview Ave / Thompson St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465144",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632441.22,
+          4835368.409
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Shuter St / River St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465155",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632684.689,
+          4835361.779
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "DVP / Dvp S Eastern Av W Ramp",
+        "CLASSIFICATION": "XICSL",
+        "CLASSIFICATION_DESC": "Expressway Interchange-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465161",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632944.357,
+          4835358.115
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Thompson St / Hamilton St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465177",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632014.998,
+          4835350.398
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sackville St / St Bartholomew St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465178",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633166.272,
+          4835345.574
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Grant St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465188",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633153.724,
+          4835341.354
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Lewis St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465200",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631956.077,
+          4835330.917
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Pashler Ave / St Bartholomew St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465211",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632841.596,
+          4835322.359
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Carroll St / Thompson St / Joel Weeks Park Trl",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465231",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633057.264,
+          4835309.324
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Broadview Ave",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465248",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632750.831,
+          4835291.921
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Davies Ave / Thompson St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465266",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632970.303,
+          4835280.914
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Hamilton St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465291",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632919.061,
+          4835264.775
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Baseball Pl / Munro St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465306",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632759.525,
+          4835259.927
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Davies Ave / Queen St E Dvp N Ramp",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465309",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631914.831,
+          4835247.769
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "St David St / Regent St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465313",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632865.501,
+          4835245.798
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Carroll St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465348",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632488.066,
+          4835226.474
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Wascana Ave / River St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465352",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632055.959,
+          4835221.811
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sutton Ave / Sackville St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465357",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632775.818,
+          4835216.139
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Davies Ave / East Don Roadway",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465369",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632753.208,
+          4835209.117
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "DVP / Queen St E",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465373",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632742.582,
+          4835205.648
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "DVP / Queen St E",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465379",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632729.323,
+          4835201.506
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Dvp S Eastern Av W Ramp",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465388",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631997.429,
+          4835202.373
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sutton Ave / Peaceful Way",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465398",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632696.95,
+          4835191.311
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Don River",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465407",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632670.091,
+          4835183.109
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / C N R",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465412",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631936.201,
+          4835182.996
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sutton Ave / Regent St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465413",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632657.474,
+          4835179.074
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Bayview Ave",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465426",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632662.343,
+          4835165.354
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Bayview Ave / Old Brewery Lane Bayview Ramp",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465433",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632298.502,
+          4835165.632
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Wascana Ave / Sumach St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465453",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632078.601,
+          4835150.599
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sackville St / Shuter St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465458",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632623.988,
+          4835154.785
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / Old Brewery Lane Bayview Ramp",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465478",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632520.683,
+          4835131.258
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / River St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465481",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632020.719,
+          4835130.438
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Shuter St / Peaceful Way",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465486",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632375.279,
+          4835129.55
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln N Queen E Sumach / Fee Pl",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465490",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632011.792,
+          4835127.611
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Shuter St / Tracy St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465496",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633117.297,
+          4835121.981
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Broadview Ave / Broadview S Eastern W Ramp",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465501",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632842.427,
+          4835107.001
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "East Don Roadway",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465507",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631959.514,
+          4835111.724
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Shuter St / Regent St / Paterson Pl",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465515",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631936.97,
+          4835104.144
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Trefann St / Shuter St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465523",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632422.429,
+          4835099.255
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Fee Pl",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465534",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633059.145,
+          4835091.793
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Eastern Ave Diversion / Broadview S Eastern W Ramp",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465536",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632924.159,
+          4835088.932
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Eastern Ave Diversion / Eastern Av E Dvp N Ramp",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465537",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632777.343,
+          4835086.061
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Dvp S Eastern Av W Ramp / Don River",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465552",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632101.092,
+          4835079.722
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sackville St / Sydenham St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465557",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632551.297,
+          4835076.943
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / River St / Lower River St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465571",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632328.353,
+          4835068.6
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Sumach St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465574",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632851.873,
+          4835066.744
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "DVP / Eastern Ave Diversion / Eastern Av E Dvp N Ramp",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465575",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633137.484,
+          4835065.212
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Eastern Ave / Eastern Ave Diversion / Broadview Ave",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465578",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632842.773,
+          4835062.941
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "DVP / Eastern Ave Diversion",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465582",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632033.465,
+          4835059.582
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sydenham St / Tracy St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465586",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632766.293,
+          4835056.408
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Dvp S Eastern Av W Ramp / C N R",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465598",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632276.399,
+          4835051.234
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Bright St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465603",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631979.839,
+          4835052.72
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sydenham St / Paterson Pl / Ln E Trefann S Sydenham",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465606",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632811.516,
+          4835048.46
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Eastern Ave Diversion / Don River",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465618",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632758.632,
+          4835043.678
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Bayview Ave / Dvp S Eastern Av W Ramp",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465619",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631950.526,
+          4835044.477
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sydenham St / Trefann St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465634",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632784.911,
+          4835034.199
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Eastern Ave Diversion / C N R",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465642",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632201.984,
+          4835026.916
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / St Paul St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465645",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632486.142,
+          4835021.647
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / St Lawrence St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465646",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632772.184,
+          4835026.186
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Adelaide St E / Eastern Ave Diversion / Bayview Ave",
+        "CLASSIFICATION": "MJRML",
+        "CLASSIFICATION_DESC": "Major-Multi Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465656",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633153.111,
+          4835014.983
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sunlight Park Rd / Broadview Ave",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465665",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631903.707,
+          4835010.714
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Anna Hilliard Lane",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465673",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632125.946,
+          4835001.697
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Sackville St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465694",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632709.552,
+          4834990.755
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Eastern Ave Diversion / Dvp S Eastern Av W Ramp",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465708",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632059.197,
+          4834979.926
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Tracy St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465711",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632434.191,
+          4834977.912
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / Ashby Pl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465747",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632975.809,
+          4834958.201
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sunlight Park Rd",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465752",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631984.132,
+          4834954.972
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Trefann St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465760",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632403.109,
+          4834951.655
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / Percy St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465764",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631967.614,
+          4834949.777
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Power St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465784",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632372.983,
+          4834926.923
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / Sumach St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465803",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632233.851,
+          4834921.488
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sackville St / St Paul St",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465817",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632579.355,
+          4834909.725
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Richmond St E / Eastern Ave Diversion / St Lawrence St",
+        "CLASSIFICATION": "MJRML",
+        "CLASSIFICATION_DESC": "Major-Multi Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465839",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632331.94,
+          4834892.05
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / Bright St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465849",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632447.505,
+          4834888.062
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Percy St",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465864",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632606.66,
+          4834878.868
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Adelaide St E / St Lawrence St",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465868",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632311.714,
+          4834874.664
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Richmond St E / King St E",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465878",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632373.117,
+          4834864.304
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Richmond St E / Sumach St / Cherry St",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465884",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632293.52,
+          4834859.065
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Adelaide St E / King St E",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465897",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632369.051,
+          4834851.192
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Adelaide St E / Cherry St",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465907",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632632.619,
+          4834846.394
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Old Foundry Rd / St Lawrence St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465919",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632490.5,
+          4834839.134
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Adelaide St E / Eastern Ave Diversion",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465921",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632403.346,
+          4834839.346
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sumach St",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465922",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632003.94,
+          4834836.056
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Richmond St E / Power St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465957",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632456.569,
+          4834814.592
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Eastern Ave Diversion / Old Foundry Rd / Eastern Ave",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465959",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631924.119,
+          4834807.757
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Richmond St E / Parliament St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465961",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632119.521,
+          4834806.781
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Wilkins Ave",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465975",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632220.951,
+          4834799.067
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / Sackville St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13465996",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632421.127,
+          4834786.43
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Eastern Ave / Sumach St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466039",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632029.226,
+          4834756.731
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Adelaide St E / Power St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466042",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632166.513,
+          4834752.502
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / Wilkins Ave",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466053",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633122.396,
+          4834746.071
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "DVP / C N R",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466055",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632359.788,
+          4834739.035
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Eastern Ave / Cherry St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466065",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633112.872,
+          4834739.328
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "DVP / C N R",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466067",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632151.685,
+          4834740.07
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / Gilead Pl",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466087",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633093.533,
+          4834724.477
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Don River / C N R",
+        "CLASSIFICATION": "LSRML",
+        "CLASSIFICATION_DESC": "Lesser-Multi Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466098",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632173.004,
+          4834715.308
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Gilead Pl / Corktown Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466117",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631959.953,
+          4834699.29
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Adelaide St E / Parliament St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466119",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632310.668,
+          4834694.581
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Eastern Ave / Sackville St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466123",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632097.702,
+          4834695.009
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / Trinity St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466152",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632214.459,
+          4834666.733
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Gilead Pl / Corktown Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466159",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632058.673,
+          4834661.939
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / Power St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466193",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632240.587,
+          4834637.221
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Eastern Ave / Gilead Pl",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466220",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632095.108,
+          4834617.557
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Erin St / Derby St",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466238",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633166.289,
+          4834607.269
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "DVP / Don River",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466240",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632404.554,
+          4834602.411
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Front St E / Cherry St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466241",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631991.44,
+          4834606.381
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / Parliament St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466264",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633197.3,
+          4834592.476
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "DVP / DVP",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466279",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632196.28,
+          4834580.224
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Eastern Ave / Trinity St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466323",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632010.412,
+          4834547.907
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Parliament St / Derby St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466330",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632224.969,
+          4834540.792
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Front St E / Trinity St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466344",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632169.365,
+          4834531.538
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Eastern Ave / Erin St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466367",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632144.454,
+          4834514.562
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Front St E / Eastern Ave",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466427",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632033.457,
+          4834478.177
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Front St E / Parliament St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466454",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632465.117,
+          4834460.184
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Mill St / Cherry St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "13466475",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631929.898,
+          4834441.789
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Front St E / Berkeley St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14020641",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632451.436,
+          4835498.05
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Mark St / Carfrae Lane",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14020660",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632478.38,
+          4835411.721
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Labatt Ave / Carfrae Lane",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14020678",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632429.665,
+          4835208.041
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Wascana Ave / Ln W River N Wascana",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14020679",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632335.988,
+          4835177.864
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Wascana Ave / Ln E Sumach N Wascana / Ln E Sumach S Wascana",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14020709",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632061.22,
+          4835067.161
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sydenham St / Ln W Sackville St N Sydenham",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14020815",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631966.461,
+          4835001.823
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Trefann St / Myer Willinsky Lane / Ln N Queen E Trefann",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14020842",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632113.939,
+          4835036.208
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sackville St / Ln N Queen W Sackville St",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14020954",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632315.242,
+          4835108.497
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sumach St / Ln N Queen E Sumach",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14020970",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632089.142,
+          4835116.918
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sackville St / Ln N Queen E Sackville St",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14022376",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633044.025,
+          4835350.017
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Broadview Ave / Ln N Queen E Broadview",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14022377",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633041.406,
+          4835357.522
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Broadview Ave / Ln N Queen W Broadview",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14022422",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632883.0,
+          4835598.235
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Hamilton St / Ln 2 S Dundas W Hamilton St",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14022466",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632750.022,
+          4835425.509
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Matilda St / Ln W Carroll N Thompson",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14022530",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632793.553,
+          4835306.081
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Thompson St / Ln W Carroll N Thompson / Ln W Carroll S Thompson",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14022543",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633173.815,
+          4835458.327
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Clark St / Ln E Grant S Clark St",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14023507",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632848.392,
+          4835587.538
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Peggy Ann Smith Lane / Ln 2 S Dundas W Hamilton St",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14023538",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632960.985,
+          4835473.069
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Kintyre Ave / Ln W Broadview N Kintyre",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14023555",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632982.16,
+          4835370.631
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Thompson St / Ln W Broadview N Thompson",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14023727",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632954.121,
+          4835329.471
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Hamilton St / Ln N Queen W Hamilton St / Ln N Queen W Broadview / Thompson Street Parkette Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14023753",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632905.941,
+          4835306.698
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Munro St / Ln N Queen E Carroll / Ln N Queen W Hamilton St",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14024507",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632476.253,
+          4835261.898
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "River St / Ln N Wascana E River",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14024529",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632366.648,
+          4835594.868
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "River St / Ln N Dundas E River",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14025168",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632922.651,
+          4835424.708
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Hamilton St / Ln N Thompson E Hamilton",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14025184",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632754.063,
+          4835520.681
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Carroll St / Ln S Dundas W Carroll",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14036539",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632453.155,
+          4834993.854
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / Ln E Ashby Pl N King",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14036547",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632359.374,
+          4834970.737
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sumach St / Ln N King E Sumach",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14036556",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632303.315,
+          4834924.826
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Bright St / Ln N King E Bright",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14036567",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632140.376,
+          4834956.052
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sackville St / Ray Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14036572",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632275.299,
+          4834844.093
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / Virgin Pl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14036866",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631936.931,
+          4834769.495
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Parliament St / Worts Lane",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14037018",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633072.841,
+          4835257.151
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Broadview Ave / Ln S Queen W Broadview",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14037036",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633170.787,
+          4835290.329
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Lewis St / June Callwood Way",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14042678",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632048.541,
+          4835103.431
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln W Sackville St N Sydenham",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14043091",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632069.709,
+          4835050.64
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln N Queen W Sackville St",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14043584",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632352.902,
+          4835121.038
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln E Sumach S Wascana / Ln N Queen E Sumach",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14043803",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631933.817,
+          4834990.434
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Myer Willinsky Lane / Ln N Queen E Parliament",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14044004",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631924.98,
+          4835016.657
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln N Queen E Parliament",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14044143",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633188.821,
+          4835414.061
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln W Boulton S Clark St / Ln E Grant S Clark St",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14044157",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632960.918,
+          4835437.493
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln W Broadview N Thompson / Ln N Thompson E Hamilton",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14044516",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631987.751,
+          4835010.303
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln E Trefann S Sydenham / Ln N Queen E Trefann",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14044612",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632418.863,
+          4835241.977
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln W River N Wascana",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14045185",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631971.003,
+          4835078.456
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Paterson Pl / Ln S Shuter W Tracy",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14045190",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632023.932,
+          4835091.334
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Tracy St / Ln S Shuter W Tracy",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14045321",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632327.837,
+          4835201.469
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln E Sumach N Wascana",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14045405",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632404.998,
+          4835010.694
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln N King E Sumach / Ashby Pl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14045569",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632383.413,
+          4835230.303
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln W River N Wascana",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14045710",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632422.502,
+          4835272.747
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln W River N Wascana",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14046127",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633112.388,
+          4835372.361
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln N Queen E Broadview",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14046135",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632852.364,
+          4835286.208
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Carroll St / Ln N Queen E Carroll / Ln N Queen W Carroll",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14047355",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632807.021,
+          4835270.999
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln N Queen W Carroll / Ln W Carroll S Thompson",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14047475",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632875.402,
+          4835335.22
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Thompson St / Ln E Carroll S Thompson",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14047845",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631901.988,
+          4834742.65
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Worts Lane",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14048501",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632321.223,
+          4834957.266
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln N King E Bright",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14065179",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632989.882,
+          4835229.224
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln S Queen W Broadview",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14173484",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632501.251,
+          4835185.789
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "River St / Old Brewery Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14173509",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632587.921,
+          4835214.341
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Old Brewery Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14173587",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632605.207,
+          4835161.648
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Old Brewery Lane",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14243510",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632122.204,
+          4834715.331
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / Pemberton St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14243522",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632165.485,
+          4834664.024
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Pemberton St",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14672941",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632141.063,
+          4835133.567
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln N Queen E Sackville St",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14673650",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632260.459,
+          4834435.364
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Trinity St / Ln S Front E Trinity",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14673657",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632365.577,
+          4834471.649
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln S Front E Trinity",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14673909",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632305.234,
+          4834922.334
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Bright St / Joyce Wieland Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14673913",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632274.102,
+          4834897.202
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Joyce Wieland Lane",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14673918",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632216.282,
+          4834980.966
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "St Paul St / Ray Lane / North Star Way",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14673925",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632281.674,
+          4834903.312
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Joyce Wieland Lane / Henry Box Brown Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14673961",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632180.241,
+          4834969.237
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ray Lane / Gurney St",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14673966",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632196.467,
+          4834916.841
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sackville St / Gurney St",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14674110",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632410.478,
+          4835045.377
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln E Ashby Pl N King",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14674567",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632548.169,
+          4835201.702
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Old Brewery Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14674612",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632523.013,
+          4835276.518
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Raffeix Lane / Old Brewery Lane / Ln N Wascana E River / Old Primrose Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14674613",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632534.255,
+          4835243.085
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Wascana Ave / Old Brewery Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14674651",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632560.608,
+          4835288.199
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Old Primrose Lane",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14674695",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632535.538,
+          4835239.27
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Old Brewery Lane / Old Trillium Lane",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14674704",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632575.247,
+          4835252.523
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Old Trillium Lane",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "14677803",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632694.581,
+          4835449.946
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln S Dundas W Carroll",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20005768",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632318.32,
+          4834794.228
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Virgin Pl",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20005801",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632288.393,
+          4834767.74
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Virgin Pl",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20039060",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632388.97,
+          4835029.142
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ashby Pl",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20040968",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632587.072,
+          4835235.418
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Old Brewery Lane",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20041403",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632462.122,
+          4835304.809
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "River St / Raffeix Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20042961",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632170.882,
+          4834717.835
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Gilead Pl / Ln S King W Gilead Pl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20042975",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632160.027,
+          4834700.84
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln S King W Gilead Pl",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20053607",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632533.052,
+          4835302.362
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Raffeix Lane",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20079491",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632886.7,
+          4835300.266
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln N Queen E Carroll / Ln E Carroll S Thompson",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20110803",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632608.838,
+          4835151.608
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Old Brewery Lane Bayview Ramp / Old Brewery Lane",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20110860",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632629.336,
+          4835161.221
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20110945",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632645.811,
+          4835175.306
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "King St E / Queen St E",
+        "CLASSIFICATION": "MJRSL",
+        "CLASSIFICATION_DESC": "Major-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20141378",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632854.355,
+          4835437.675
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Kintyre Ave / Matilda St / Munro St / Joel Weeks Park Trl",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20235096",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631967.715,
+          4835499.682
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sackville St / Cole St / Regent Park Trl",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20235147",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631947.817,
+          4835566.174
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sackville St / Oak St / Regent Park Trl",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20260349",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632805.784,
+          4835484.873
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Doris Anderson Crt",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20348861",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632817.127,
+          4835579.496
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Munro St / Mary Ann Shadd Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20348870",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632764.942,
+          4835562.785
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Mary Ann Shadd Lane / Frances Loring Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20348877",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632788.142,
+          4835569.651
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Mary Ann Shadd Lane / Florence Wyle Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "20348881",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632803.493,
+          4835523.229
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Florence Wyle Lane",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30003472",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633059.991,
+          4834693.169
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Lower Don River Trl",
+        "CLASSIFICATION": "LSRML",
+        "CLASSIFICATION_DESC": "Lesser-Multi Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30003475",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633057.517,
+          4834697.184
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Lower Don River Trl / C N R",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30003484",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632795.769,
+          4835040.29
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Eastern Ave Diversion / Lower Don River Trl",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30003487",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632771.919,
+          4835068.543
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Dvp S Eastern Av W Ramp / Lower Don River Trl",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30003493",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632679.2,
+          4835185.823
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E / Lower Don River Trl",
+        "CLASSIFICATION": "LSRML",
+        "CLASSIFICATION_DESC": "Lesser-Multi Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30005432",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632701.217,
+          4835151.343
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Lower Don River Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30012854",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632759.743,
+          4835505.03
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Carroll St / Doris Anderson Crt",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30017286",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632045.753,
+          4834577.701
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Derby St",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30017348",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633153.878,
+          4835382.302
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Grant St",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30018033",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632778.45,
+          4835520.37
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Frances Loring Lane",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30023957",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632884.904,
+          4835338.394
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Thompson St / Munro St / Joel Weeks Park Trl",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30023966",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632882.539,
+          4835446.681
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Kintyre Ave / Ln W Hamilton N Thompson",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30023969",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632914.058,
+          4835348.226
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Thompson St / Ln W Hamilton N Thompson",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30025385",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632088.466,
+          4835454.988
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Dundas St E / Regent Park Blvd",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30026352",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632277.864,
+          4835232.17
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sumach St / Shuter St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30026458",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632131.748,
+          4835318.827
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Blvd / St David St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30026465",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632035.699,
+          4835286.054
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "St David St / Sackville St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30026558",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632238.451,
+          4835354.837
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "St David St / Sumach St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30028565",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632789.079,
+          4835000.681
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Bayview Ave / Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30029393",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632484.418,
+          4834405.452
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Tank House Lane / Cherry St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30033283",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632649.521,
+          4834951.528
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Eastern Ave Diversion / Lower River St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30033294",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632662.313,
+          4834935.179
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Adelaide St E / Lower River St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30033761",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632741.198,
+          4835289.13
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Queen St E Dvp N Ramp / Thompson St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30034315",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632636.603,
+          4834966.342
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Trolley Cres / Lower River St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30034318",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632776.239,
+          4834896.458
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Bayview Ave / Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30034365",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632765.798,
+          4834871.794
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Bayview Ave / Lawren Harris Sq",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30034385",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632753.118,
+          4834834.488
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Bayview Ave / Lawren Harris Sq",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30037988",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632580.811,
+          4835038.619
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Trolley Cres / Lower River St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30043785",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632665.104,
+          4834683.671
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Tannery Rd / Front St E",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30043791",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632556.909,
+          4834492.177
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Cooperage St / Mill St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30043794",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632634.331,
+          4834518.213
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Rolling Mills Rd / Mill St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30043797",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632508.234,
+          4834637.427
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Front St E / Cooperage St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30043800",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632587.596,
+          4834657.394
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Rolling Mills Rd / Front St E",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30043803",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632535.149,
+          4834813.532
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Rolling Mills Rd / Old Foundry Rd",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30043806",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632676.466,
+          4834861.512
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Old Foundry Rd / Lawren Harris Sq",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30043809",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632566.303,
+          4834924.675
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Trolley Cres / St Lawrence St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30043812",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632758.826,
+          4834715.934
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Front St E / Bayview Ave / Corktown Common Trl",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30043925",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632639.946,
+          4834754.605
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Tannery Rd / Palace St",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30043927",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632485.243,
+          4834701.88
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Palace St / Cooperage St",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30043929",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632562.574,
+          4834729.343
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Rolling Mills Rd / Palace St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30043936",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632688.766,
+          4834899.895
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Lawren Harris Sq / Lower River St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30043964",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632708.232,
+          4834556.559
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Tannery Rd / Mill St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30043969",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632810.302,
+          4834635.394
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Bayview Ave / Mill St",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30055132",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          633001.489,
+          4834734.337
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl / Lower Don River Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060812",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632976.921,
+          4834734.488
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl / C N R",
+        "CLASSIFICATION": "SEUML",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Overpass/Underpass"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060839",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632759.926,
+          4834854.362
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Bayview Ave / Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060869",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632746.304,
+          4834771.498
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Bayview Ave / Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060895",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632958.948,
+          4834734.956
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060899",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632908.255,
+          4834736.536
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060901",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632908.136,
+          4834724.905
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060903",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632898.893,
+          4834699.982
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060905",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632889.894,
+          4834713.286
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060908",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632875.393,
+          4834723.79
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060927",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632877.228,
+          4834809.051
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060931",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632856.273,
+          4834838.202
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060933",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632843.554,
+          4834826.085
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060935",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632864.213,
+          4834799.592
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060938",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632851.839,
+          4834802.649
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060943",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632810.354,
+          4834840.774
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060945",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632840.742,
+          4834848.072
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060949",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632816.361,
+          4834844.164
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060968",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632814.247,
+          4834867.971
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060977",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632786.794,
+          4834890.926
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060980",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632782.18,
+          4834845.79
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060986",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632785.844,
+          4834712.703
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060988",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632852.127,
+          4834728.441
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060990",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632857.07,
+          4834713.993
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30060998",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632814.055,
+          4834765.235
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30061000",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632817.966,
+          4834775.766
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30061002",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632827.866,
+          4834785.915
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30061004",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632829.018,
+          4834797.112
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30061046",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632799.209,
+          4834794.257
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30061050",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632796.347,
+          4834755.756
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30063255",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632402.621,
+          4835487.275
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Wyatt Ave / River St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30063654",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632310.736,
+          4835455.665
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Tubman Ave / Wyatt Ave",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30063657",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632288.639,
+          4835523.458
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Dundas St E / Tubman Ave",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30072975",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632850.629,
+          4834686.57
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30074732",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632364.183,
+          4834832.711
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Cherry St / Virgin Pl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30079334",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632864.03,
+          4834916.785
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30082839",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632805.363,
+          4834645.131
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Bayview Ave / Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30082845",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632812.133,
+          4834650.049
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30088478",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632398.106,
+          4835484.128
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Wyatt Walk",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30088481",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632216.792,
+          4835423.965
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Wyatt Ave / Sumach St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30088490",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632151.972,
+          4835471.66
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Belshaw Pl",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30089352",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632340.558,
+          4835465.399
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Nicholas Ave / Wyatt Ave",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30089357",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632387.965,
+          4835324.158
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Nicholas Ave / Shuter St",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30097582",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632763.034,
+          4835392.929
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln W Carroll N Thompson / Joel Weeks Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30097585",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632773.611,
+          4835367.001
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Ln W Carroll N Thompson / Joel Weeks Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30097588",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632812.107,
+          4835378.346
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Joel Weeks Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30097591",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632827.59,
+          4835356.88
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Joel Weeks Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30097599",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632788.59,
+          4835372.623
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Joel Weeks Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30105981",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632889.471,
+          4834812.461
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Corktown Common Trl",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30108728",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632281.934,
+          4834995.623
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Bright St / Bright Street Playground Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30108731",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632250.184,
+          4834986.975
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Henry Box Brown Lane / Bright Street Playground Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111537",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632043.181,
+          4835440.261
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Dundas St E / Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111540",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632008.243,
+          4835585.247
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Oak St / Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111546",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632016.552,
+          4835558.56
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111548",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632005.976,
+          4835555.084
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111550",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632027.737,
+          4835487.606
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111552",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632018.351,
+          4835516.115
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111557",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631955.857,
+          4835539.111
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sackville St / Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111569",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632099.304,
+          4835585.842
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111577",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632096.996,
+          4835593.212
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111580",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632087.09,
+          4835581.815
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111583",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632011.953,
+          4835557.048
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111586",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632008.655,
+          4835546.645
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111589",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632024.802,
+          4835496.521
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111592",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631975.353,
+          4835545.324
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111595",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631970.188,
+          4835543.678
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111601",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          631966.507,
+          4835555.576
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111604",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632131.275,
+          4835596.329
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111607",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632034.103,
+          4835489.6
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111610",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632058.793,
+          4835497.547
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111612",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632065.745,
+          4835475.737
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30111614",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632121.163,
+          4835518.395
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Regent Park Trl",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30114467",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632822.625,
+          4835136.098
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Baseball Pl / East Don Roadway",
+        "CLASSIFICATION": "MNRSL",
+        "CLASSIFICATION_DESC": "Minor-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30115032",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632489.06,
+          4835313.523
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Raffeix Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30115035",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632507.855,
+          4835319.603
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Raffeix Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30115038",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632525.466,
+          4835325.223
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Raffeix Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30115043",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632516.225,
+          4835352.351
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Raffeix Lane",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30115045",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632498.12,
+          4835346.908
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Raffeix Lane",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30115047",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632479.951,
+          4835340.456
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Raffeix Lane",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30115049",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632493.615,
+          4835299.262
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Raffeix Lane",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30123366",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632265.141,
+          4835596.544
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Tubman Ave / Ratna Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30123369",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632171.281,
+          4835566.308
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Sumach St / Ratna Lane",
+        "CLASSIFICATION": "LSRSL",
+        "CLASSIFICATION_DESC": "Lesser-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30143308",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632852.688,
+          4835327.481
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Thompson St",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30143311",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632872.032,
+          4835334.072
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Thompson St",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "30155014",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632249.194,
+          4834991.849
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Henry Box Brown Lane / North Star Way",
+        "CLASSIFICATION": "SEUSL",
+        "CLASSIFICATION_DESC": "Pseudo Intersection-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "60013401",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632975.017,
+          4834592.145
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "C N R",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "60070877",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          632968.816,
+          4835344.43
+        ]
+      },
+      "properties": {
+        "INTERSECTION_DESC": "Thompson Street Parkette Trl",
+        "CLASSIFICATION": "CDSSL",
+        "CLASSIFICATION_DESC": "Cul de Sac-Single Level"
+      }
+    }
+  ]
+}

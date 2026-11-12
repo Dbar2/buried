@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 import shapely
 from pyproj import Transformer
-from shapely.geometry import Point, Polygon, box
+from shapely.geometry import MultiPoint, Point, Polygon, box
 
 from buried_pipeline.errors import PipelineError
 from buried_pipeline.present import clip
@@ -149,7 +149,59 @@ def test_dataset_table_has_intersections_first_and_four_layers() -> None:
     assert get_dataset("present_toronto_property_boundaries_2026").package_id == "property-boundaries"
     with pytest.raises(PipelineError):
         get_dataset("present_toronto_nope_2026")
-    assert not any(d.fields_confirmed for d in DATASETS)  # nothing is guessed before task 10.4
+
+
+def test_only_the_intersections_fields_are_confirmed_so_far() -> None:
+    # Task 10.4 confirmed the intersections file; the other three wait for task 10.5.
+    confirmed = [d.source_id for d in DATASETS if d.fields_confirmed]
+    assert confirmed == ["present_toronto_intersections_2026"]
+    intersections = get_dataset("present_toronto_intersections_2026")
+    assert intersections.id_field == "INTERSECTION_ID"
+    assert intersections.kept_fields == (
+        "INTERSECTION_DESC", "CLASSIFICATION", "CLASSIFICATION_DESC"
+    )  # fmt: skip
+    assert intersections.resource_name == "Centreline Intersection - 2952.gpkg"
+
+
+def test_one_point_multipoint_becomes_a_point() -> None:
+    # The City's intersections file stores every point as a one-point MultiPoint.
+    e, n = 630000.0, 4834000.0
+    feats = [RawFeature(MultiPoint([(e, n)]), {"ID": 1, "NAME": "x"})]
+    out = clip_features(feats, BOUNDS, "EPSG:26917", "ID", ["NAME"], ["Point"])
+    assert out[0]["geometry"] == {"type": "Point", "coordinates": [e, n]}
+
+
+def test_multipoint_with_several_points_is_not_reduced() -> None:
+    feats = [RawFeature(MultiPoint([(630000.0, 4834000.0), (630001.0, 4834000.0)]), {"ID": 1})]
+    with pytest.raises(PipelineError, match="holds 2 points"):
+        clip_features(feats, BOUNDS, "EPSG:26917", "ID", [], ["Point"])
+
+
+def test_multipoint_stays_when_the_dataset_expects_multipoints() -> None:
+    feats = [RawFeature(MultiPoint([(630000.0, 4834000.0)]), {"ID": 1})]
+    out = clip_features(feats, BOUNDS, "EPSG:26917", "ID", [], ["MultiPoint"])
+    assert out[0]["geometry"]["type"] == "MultiPoint"
+
+
+def test_rows_for_the_same_place_collapse_to_one_feature() -> None:
+    # A multi-level intersection has one row per elevation, all at the same point.
+    row = {"ID": 7, "NAME": "Queen St E / Don River"}
+    feats = [
+        RawFeature(MultiPoint([(630000.0, 4834000.0)]), dict(row, ELEV=1)),
+        RawFeature(MultiPoint([(630000.0, 4834000.0)]), dict(row, ELEV=2)),
+        RawFeature(MultiPoint([(630100.0, 4834000.0)]), {"ID": 8, "NAME": "other"}),
+    ]
+    out = clip_features(feats, BOUNDS, "EPSG:26917", "ID", ["NAME"], ["Point"])
+    assert [f["id"] for f in out] == ["7", "8"]
+
+
+def test_rows_with_one_id_but_different_fields_stop() -> None:
+    feats = [
+        RawFeature(Point(630000.0, 4834000.0), {"ID": 7, "NAME": "a"}),
+        RawFeature(Point(630000.0, 4834000.0), {"ID": 7, "NAME": "b"}),
+    ]
+    with pytest.raises(PipelineError, match="Duplicate feature id"):
+        clip_features(feats, BOUNDS, "EPSG:26917", "ID", ["NAME"], ["Point"])
 
 
 def test_to_native_never_returns_nonfinite() -> None:

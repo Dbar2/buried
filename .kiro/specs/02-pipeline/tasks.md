@@ -299,14 +299,17 @@ Task numbers are stable, so the run order is not numeric:
     Files: `pipeline/buried_pipeline/present/run.py`, `pipeline/buried_pipeline/cli.py`,
     `pipeline/tests/present/test_run.py`, `data/sources.json`.
     Requirements: 12.1 to 12.10.
-  - [ ] 10.4 Run `uv run buried present present_toronto_intersections_2026` (maintainer, after
+  - [x] 10.4 Run `uv run buried present present_toronto_intersections_2026` (maintainer, after
     `inspect` on the four plates). Confirm the id field and kept fields from the downloaded file,
     record them in design.md's dataset table, set the source's `year_from` from the CKAN metadata,
     and commit `data/present/present_toronto_intersections_2026.geojson`. Record
     `uv run buried present [SOURCE_ID ...]` in `.kiro/steering/tech.md`.
+    Done in session 006: resource `Centreline Intersection - 2952.gpkg`, id `INTERSECTION_ID`,
+    kept `INTERSECTION_DESC`, `CLASSIFICATION`, `CLASSIFICATION_DESC`, `year_from` 2026, 363
+    intersections inside the bounds. Needed two clip rules (requirements 12.11 and 12.12).
     Files: `.kiro/specs/02-pipeline/design.md`, `data/sources.json`,
     `data/present/present_toronto_intersections_2026.geojson`, `.kiro/steering/tech.md`.
-    Requirements: 1.8, 12.4, 12.6, 11.1.
+    Requirements: 1.8, 12.4, 12.6, 11.1, 12.11, 12.12.
   - [ ] 10.5 Run `buried present` for the building outlines, property boundaries and address points
     layers in the same way: confirm fields, record them, set `year_from`, commit the files.
     Files: `.kiro/specs/02-pipeline/design.md`, `data/sources.json`, `data/present/*.geojson`.

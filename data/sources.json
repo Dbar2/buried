@@ -96,7 +96,7 @@
       "id": "present_toronto_intersections_2026",
       "type": "present_day_reference",
       "title": "City of Toronto Open Data: intersection file",
-      "year_from": null,
+      "year_from": 2026,
       "year_to": 2026,
       "url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/api/3/action/package_show?id=intersection-file-city-of-toronto",
       "licence_note": "Open Government Licence - Toronto",
