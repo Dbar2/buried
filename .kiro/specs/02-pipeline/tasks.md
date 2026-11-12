@@ -68,7 +68,7 @@ Task numbers are stable, so the run order is not numeric:
     Files: `.kiro/steering/tech.md`.
     Requirements: 1.8.
 
-- [ ] 3. Measure alignment error (completes the gate)
+- [x] 3. Measure alignment error (completes the gate)
   - [x] 3.1 Implement pure affine maths: fit by least squares, apply, invert, stability check
     (`s_min / s_max < 0.05`).
     Files: `pipeline/buried_pipeline/align/__init__.py`, `pipeline/buried_pipeline/align/affine.py`,
@@ -115,7 +115,7 @@ Task numbers are stable, so the run order is not numeric:
   - [x] 3.11 Record `uv run buried align-check <SOURCE_ID>` in `.kiro/steering/tech.md`.
     Files: `.kiro/steering/tech.md`.
     Requirements: 1.8.
-  - [ ] 3.12 Gate run (maintainer). Prerequisites: tasks 10.1 to 10.4 done, so
+  - [x] 3.12 Gate run (maintainer). Prerequisites: tasks 10.1 to 10.4 done, so
     `data/present/present_toronto_intersections_2026.geojson` exists; then a control file
     `data/control/fip_v3_1911_229.json` (or `fip_v3_1935_229`) with at least 4 points spread across
     the plate, read by a person, each pairing a street centreline crossing on the plate with an

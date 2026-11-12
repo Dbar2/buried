@@ -7,6 +7,7 @@ from buried_pipeline.align.affine import (
     UnstableFit,
     apply_affine,
     fit_affine,
+    fit_local_affine,
     invert_affine,
     is_stable,
     stability_ratio,
@@ -79,3 +80,11 @@ def test_least_squares_averages_noise() -> None:
         (apply_affine(fitted, x, y)[0] - e) for (x, y), (e, _n) in zip(SPREAD, noisy, strict=True)
     ]
     assert abs(sum(resid)) < 1e-6  # least squares residuals sum to zero with an intercept
+
+
+def test_local_affine_matches_the_six_coefficient_form() -> None:
+    targets = [apply_affine(T, x, y) for x, y in SPREAD]
+    local = fit_local_affine(SPREAD, targets)
+    assert local.to_affine6() == pytest.approx(T, abs=1e-9)
+    for (x, y), q in zip(SPREAD, targets, strict=True):
+        assert local.apply(x, y) == pytest.approx(q, abs=1e-8)

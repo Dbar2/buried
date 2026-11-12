@@ -6,7 +6,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from buried_pipeline.align.affine import Affine6, Point, UnstableFit, apply_affine, fit_affine
+from buried_pipeline.align.affine import Affine6, Point, UnstableFit, fit_local_affine
 from buried_pipeline.align.residuals import (
     ERROR_FLOOR_M,
     ERROR_MULTIPLIER,
@@ -16,6 +16,7 @@ from buried_pipeline.align.residuals import (
     choose_transform,
     error_basis,
     leave_one_out,
+    local_residuals_for,
     max_residual,
     outlier_ids,
     published_error,
@@ -86,13 +87,11 @@ def compute_alignment(
         skipped = f"refined fit needs {MIN_POINTS_REFINED} or more points, got {len(ordered)}"
     else:
         try:
-            affine = fit_affine(pixels, refs)
-            in_res = residuals_for(
-                ids, pixels, refs, lambda x, y, t=affine: apply_affine(t, x, y)
-            )
+            local = fit_local_affine(pixels, refs)
+            in_res = local_residuals_for(ids, pixels, refs, local)
             loo_res = leave_one_out(ids, pixels, refs)
             refined = RefinedResult(
-                affine=affine,
+                affine=local.to_affine6(),
                 residuals=in_res,
                 rmse_in_sample_m=rmse(in_res),
                 rmse_loo_m=rmse(loo_res),

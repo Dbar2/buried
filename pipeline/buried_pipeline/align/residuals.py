@@ -10,7 +10,7 @@ import statistics
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
-from buried_pipeline.align.affine import Point, apply_affine, fit_affine
+from buried_pipeline.align.affine import LocalAffine, Point, fit_local_affine
 
 ERROR_MULTIPLIER = 2.0
 ERROR_FLOOR_M = 2.0
@@ -32,6 +32,24 @@ def make_residual(point_id: str, predicted: Point, reference: Point) -> Residual
     dx = predicted[0] - reference[0]
     dy = predicted[1] - reference[1]
     return Residual(point_id, dx, dy, math.hypot(dx, dy))
+
+
+def local_residual(point_id: str, local: LocalAffine, pixel: Point, reference: Point) -> Residual:
+    """Residual of a locally-held affine, formed without adding to a large coordinate."""
+    dx, dy = local.residual_components(pixel, reference)
+    return Residual(point_id, dx, dy, math.hypot(dx, dy))
+
+
+def local_residuals_for(
+    ids: Sequence[str],
+    pixels: Sequence[Point],
+    references: Sequence[Point],
+    local: LocalAffine,
+) -> list[Residual]:
+    return [
+        local_residual(i, local, px, q)
+        for i, px, q in zip(ids, pixels, references, strict=True)
+    ]
 
 
 def residuals_for(
@@ -67,8 +85,8 @@ def leave_one_out(
     for i in range(len(ids)):
         rest_p = [p for j, p in enumerate(pixels) if j != i]
         rest_q = [q for j, q in enumerate(references) if j != i]
-        t = fit_affine(rest_p, rest_q)
-        out.append(make_residual(ids[i], apply_affine(t, *pixels[i]), references[i]))
+        t = fit_local_affine(rest_p, rest_q)
+        out.append(local_residual(ids[i], t, pixels[i], references[i]))
     return out
 
 

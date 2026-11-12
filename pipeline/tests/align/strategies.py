@@ -7,6 +7,7 @@ inside UTM 17N near Toronto. Control points lie inside a 20000 x 20000 px raster
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -34,6 +35,22 @@ def affines(draw: st.DrawFn) -> Affine6:
 
 
 pixels = st.tuples(st.floats(0.0, RASTER_PX), st.floats(0.0, RASTER_PX))
+
+EPS = 2.220446049250313e-16  # double-precision machine epsilon
+
+
+def coordinate_tolerance(values: Sequence[float]) -> float:
+    """Metres below which two quantities built from these coordinates cannot be told apart.
+
+    A double near 4.8e6 resolves to about 1e-9; the tolerance is 4 units in the last place of the
+    largest coordinate involved, so it grows with coordinate magnitude instead of being fixed.
+    """
+    return 4.0 * EPS * max(abs(v) for v in values)
+
+
+unit_vectors = st.tuples(st.floats(-1.0, 1.0), st.floats(-1.0, 1.0)).filter(
+    lambda v: math.hypot(*v) <= 1.0
+)
 
 
 def _min_gap(pts: list[tuple[float, float]]) -> float:

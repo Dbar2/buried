@@ -7,6 +7,7 @@ An affine is (a, b, c, d, e, f) with E = a*x + b*y + c and N = d*x + e*y + f, fr
 from __future__ import annotations
 
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -41,10 +42,49 @@ def is_stable(pixels: Sequence[Point]) -> bool:
     return len(pixels) >= 3 and stability_ratio(pixels) >= STABILITY_MIN
 
 
-def fit_affine(pixels: Sequence[Point], targets: Sequence[Point]) -> Affine6:
-    """Least-squares affine from pixels to targets. Needs 3 or more stable points.
+@dataclass(frozen=True)
+class LocalAffine:
+    """An affine held relative to a local origin.
 
-    Both sides are centred before solving, so large UTM coordinates do not cost precision.
+    q = q0 + L (p - p0), where p0 is the centroid of the fitted pixels, q0 the centroid of the
+    fitted targets and L the linear part [[a, b], [d, e]]. Evaluating this form never adds a
+    small number to a coordinate near 4.8e6 m, so residuals keep their precision. `to_affine6`
+    folds the origin back into the translation terms for output.
+    """
+
+    a: float
+    b: float
+    d: float
+    e: float
+    p0: Point
+    q0: Point
+
+    def offset(self, x: float, y: float) -> Point:
+        """L (p - p0): the predicted position relative to q0."""
+        dx = x - self.p0[0]
+        dy = y - self.p0[1]
+        return (self.a * dx + self.b * dy, self.d * dx + self.e * dy)
+
+    def apply(self, x: float, y: float) -> Point:
+        ox, oy = self.offset(x, y)
+        return (self.q0[0] + ox, self.q0[1] + oy)
+
+    def residual_components(self, pixel: Point, reference: Point) -> Point:
+        """(dE, dN) = T(p) - q, formed as L (p - p0) - (q - q0) so no large number is added."""
+        ox, oy = self.offset(*pixel)
+        return (ox - (reference[0] - self.q0[0]), oy - (reference[1] - self.q0[1]))
+
+    def to_affine6(self) -> Affine6:
+        c = self.q0[0] - self.a * self.p0[0] - self.b * self.p0[1]
+        f = self.q0[1] - self.d * self.p0[0] - self.e * self.p0[1]
+        return (self.a, self.b, c, self.d, self.e, f)
+
+
+def fit_local_affine(pixels: Sequence[Point], targets: Sequence[Point]) -> LocalAffine:
+    """Least-squares affine from pixels to targets, relative to the two centroids.
+
+    Needs 3 or more stable points. Both sides are centred in double precision before the normal
+    equations are formed.
     """
     if len(pixels) != len(targets):
         raise ValueError("pixels and targets differ in length")
@@ -62,9 +102,19 @@ def fit_affine(pixels: Sequence[Point], targets: Sequence[Point]) -> Affine6:
     coeffs, *_ = np.linalg.lstsq(p - p_mean, q - q_mean, rcond=None)  # 2x2: columns E, N
     a, d = coeffs[0]
     b, e = coeffs[1]
-    c = q_mean[0] - a * p_mean[0] - b * p_mean[1]
-    f = q_mean[1] - d * p_mean[0] - e * p_mean[1]
-    return (float(a), float(b), float(c), float(d), float(e), float(f))
+    return LocalAffine(
+        float(a),
+        float(b),
+        float(d),
+        float(e),
+        (float(p_mean[0]), float(p_mean[1])),
+        (float(q_mean[0]), float(q_mean[1])),
+    )
+
+
+def fit_affine(pixels: Sequence[Point], targets: Sequence[Point]) -> Affine6:
+    """Least-squares affine from pixels to targets, as the six coefficients."""
+    return fit_local_affine(pixels, targets).to_affine6()
 
 
 def apply_affine(t: Affine6, x: float, y: float) -> Point:

@@ -9,19 +9,26 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
-from hypothesis import assume, given, settings
+from hypothesis import assume, example, given, settings
 from hypothesis import strategies as st
 
 from buried_pipeline.align.affine import (
     UnstableFit,
     apply_affine,
     fit_affine,
+    fit_local_affine,
     invert_affine,
 )
 from buried_pipeline.align.compute import ControlPoint, build_record, compute_alignment
 from buried_pipeline.align.control import parse_control_file
 from buried_pipeline.align.references import check_references
-from buried_pipeline.align.residuals import leave_one_out, published_error, residuals_for, rmse
+from buried_pipeline.align.residuals import (
+    leave_one_out,
+    local_residuals_for,
+    published_error,
+    residuals_for,
+    rmse,
+)
 from buried_pipeline.align.run import run_align_check
 from buried_pipeline.errors import PipelineError
 from buried_pipeline.io.registry import load_registry
@@ -31,10 +38,12 @@ from tests.align.strategies import (
     RUN_WIDTH,
     affines,
     control_scenarios,
+    coordinate_tolerance,
     noise_vectors,
     pixels,
     reference_scenarios,
     stable_pixel_sets,
+    unit_vectors,
 )
 from tests.conftest import make_root
 from tests.helpers.rasters import write_geotiff
@@ -108,21 +117,47 @@ def test_a3_in_sample_rmse_never_exceeds_the_noise_bound(t, pts, delta, data) ->
 
 
 @settings(max_examples=150)
-@given(t=affines(), pts=stable_pixel_sets(), delta=st.floats(0.001, 5.0), data=st.data())
-def test_a4_leave_one_out_is_never_optimistic(t, pts, delta, data) -> None:
-    noise = data.draw(noise_vectors(len(pts), delta))
+@given(
+    t=affines(),
+    pts=stable_pixel_sets(),
+    delta=st.floats(0.001, 5.0),
+    unit=st.lists(unit_vectors, min_size=10, max_size=10),
+)
+# Regression: the counterexample Hypothesis found when the check used a fixed 1e-9 tolerance and
+# evaluated the fit at absolute northings near 4.8e6 m (residuals there resolve to about 2e-9 m).
+@example(
+    t=(
+        0.18726617664095008,
+        -0.006240693917274389,
+        600000.0,
+        0.009361040875911584,
+        -0.12484411776063338,
+        4800000.297975873,
+    ),
+    pts=[
+        (0.0, 0.0),
+        (29.0, 15325.5546875),
+        (2.29296875, 3741.25),
+        (6014.8125, 1.0),
+        (9853.125, 87.0),
+    ],
+    delta=1.0,
+    unit=[(0.0, 0.0)] * 10,
+)
+def test_a4_leave_one_out_is_never_optimistic(t, pts, delta, unit) -> None:
     targets = [
-        (apply_affine(t, x, y)[0] + nx, apply_affine(t, x, y)[1] + ny)
-        for (x, y), (nx, ny) in zip(pts, noise, strict=True)
+        (apply_affine(t, x, y)[0] + delta * nx, apply_affine(t, x, y)[1] + delta * ny)
+        for (x, y), (nx, ny) in zip(pts, unit, strict=False)
     ]
     ids = [f"p{i}" for i in range(len(pts))]
-    fitted = fit_affine(pts, targets)
-    in_sample = rmse(residuals_for(ids, pts, targets, lambda x, y: apply_affine(fitted, x, y)))
+    local = fit_local_affine(pts, targets)
+    in_sample = rmse(local_residuals_for(ids, pts, targets, local))
     try:
         loo = rmse(leave_one_out(ids, pts, targets))
     except UnstableFit:
         assume(False)
-    assert loo >= in_sample - 1e-9
+    # The tolerance is the resolution of the coordinates involved, not a fixed number of metres.
+    assert loo >= in_sample - coordinate_tolerance([e for e, _n in targets] + [n for _e, n in targets])
 
 
 # A5 -------------------------------------------------------------------------------------------
@@ -147,11 +182,12 @@ def test_a5_transform_reproduces_the_stored_residuals(scenario) -> None:
 
     by_id = {p.id: p for p in points}
     squares = []
+    tol = coordinate_tolerance([c for p in points for c in p.reference])
     for res in stored:
         p = by_id[res["id"]]
         e, n = apply_affine(transform, *p.pixel)
-        assert abs((e - p.reference[0]) - res["dx_m"]) < 1e-9
-        assert abs((n - p.reference[1]) - res["dy_m"]) < 1e-9
+        assert abs((e - p.reference[0]) - res["dx_m"]) < max(1e-9, tol)
+        assert abs((n - p.reference[1]) - res["dy_m"]) < max(1e-9, tol)
         assert res["r_m"] <= max_res + 1e-12
         squares.append(res["dx_m"] ** 2 + res["dy_m"] ** 2)
     assert abs(math.sqrt(math.fsum(squares) / len(squares)) - in_sample_rmse) < 1e-9
