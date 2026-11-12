@@ -25,11 +25,37 @@ SOURCE = "fip_v3_1911_229"
 TRANSFORM = (0.05, 0.0, 632000.0, 0.0, -0.05, 4835000.0)
 
 
-def build(tmp_path: Path, width: int = 6000, height: int = 3000, transform=TRANSFORM) -> Paths:
+def full_extent(width: int, height: int) -> list[list[int]]:
+    return [[0, 0], [width, 0], [width, height], [0, height]]
+
+
+def write_map_area(paths: Paths, polygon: list[list[int]], source: str = SOURCE) -> None:
+    """A person's map area file (written here by the test, as a person would)."""
+    paths.map_area_dir.mkdir(parents=True, exist_ok=True)
+    doc = {
+        "schema_version": "1.1.0",
+        "source": source,
+        "pixel_convention": "gdal_corner",
+        "pixel_polygon": polygon,
+        "excluded": "margin, title block (synthetic)",
+        "confirmed_by": "test reviewer",
+        "confirmed_at": "2026-11-12T10:00:00Z",
+    }
+    paths.map_area_file(source).write_text(json.dumps(doc), encoding="utf-8")
+
+
+def build(
+    tmp_path: Path,
+    width: int = 6000,
+    height: int = 3000,
+    transform=TRANSFORM,
+    polygon: list[list[int]] | None = None,
+) -> Paths:
     paths = make_root(tmp_path)
     write_geotiff(paths.raw / SOURCE / "plate.tif", transform, width=width, height=height)
     paths.alignment_dir.mkdir(parents=True)
     paths.alignment_record(SOURCE).write_text(json.dumps(alignment(SOURCE)), encoding="utf-8")
+    write_map_area(paths, polygon or full_extent(width, height))
     return paths
 
 
@@ -158,6 +184,7 @@ def test_a_curved_georeferencing_fails_the_bilinear_check_and_writes_nothing(
     )
     paths.alignment_dir.mkdir(parents=True)
     paths.alignment_record(SOURCE).write_text(json.dumps(alignment(SOURCE)), encoding="utf-8")
+    write_map_area(paths, full_extent(100, 100))
     with pytest.raises(PipelineError, match="bilinear interpolation"):
         tile(paths)
     assert not (paths.data / "tiles").exists()
@@ -174,18 +201,32 @@ def test_default_run_tiles_plates_with_records_and_names_the_others(
     assert (paths.data / "tiles" / f"{SOURCE}.jpg").is_file()
 
 
+def test_default_run_names_plates_that_have_a_record_but_no_map_area(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    paths = build(tmp_path, width=300, height=200)
+    other = "fip_v3_1935_229"
+    write_geotiff(paths.raw / other / "plate.tif", TRANSFORM, width=300, height=200)
+    paths.alignment_record(other).write_text(json.dumps(alignment(other)), encoding="utf-8")
+    assert main(["--root", str(paths.root), "tile"]) == 0
+    out = capsys.readouterr().out
+    assert f"{other}: skipped, no map area (data/control/map_area/{other}.json)" in out
+    assert not (paths.data / "tiles" / f"{other}.jpg").exists()
+
+
 def test_default_run_with_no_records_fails(tmp_path: Path) -> None:
     paths = make_root(tmp_path)
-    with pytest.raises(PipelineError, match="No plate has an alignment record"):
+    with pytest.raises(PipelineError, match="No plate has both an alignment record and a map"):
         run_tile(paths, load_registry(paths.sources_json), [], lambda _m: None)
 
 
 def test_second_run_gives_identical_files(tmp_path: Path) -> None:
     paths = build(tmp_path, width=500, height=300)
+    names = (f"{SOURCE}.jpg", f"{SOURCE}_full.jpg", f"{SOURCE}.json")
     tile(paths)
-    first = [(paths.data / "tiles" / f"{SOURCE}{s}").read_bytes() for s in (".jpg", ".json")]
+    first = [(paths.data / "tiles" / n).read_bytes() for n in names]
     tile(paths)
-    second = [(paths.data / "tiles" / f"{SOURCE}{s}").read_bytes() for s in (".jpg", ".json")]
+    second = [(paths.data / "tiles" / n).read_bytes() for n in names]
     assert first == second
 
 
@@ -195,6 +236,7 @@ def test_a_jpeg_plate_with_a_pam_sidecar_is_tiled(tmp_path: Path) -> None:
     write_pam(jpg, TRANSFORM, esri_wkt())
     paths.alignment_dir.mkdir(parents=True)
     paths.alignment_record(SOURCE).write_text(json.dumps(alignment(SOURCE)), encoding="utf-8")
+    write_map_area(paths, full_extent(400, 300))
     tile(paths)
     assert sidecar(paths)["corners"]["top_left"] == pytest.approx([632000.0, 4835000.0])
 

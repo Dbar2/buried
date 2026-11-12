@@ -77,3 +77,21 @@ def test_hull_matches_tolerance_is_one_centimetre() -> None:
 def test_hull_matches_is_false_for_a_degenerate_reference_set() -> None:
     hull = control_hull(shifted(SQUARE))
     assert not hull_matches(hull, shifted([(0.0, 0.0), (1.0, 1.0), (2.0, 2.0)]))
+
+
+def test_share_of_ground_inside_the_hull() -> None:
+    from buried_pipeline.align.hull import hull_share_of_ground
+
+    hull = control_hull(shifted(SQUARE))  # 100 m x 100 m
+    inside = {"type": "Polygon", "coordinates": [[[632010.0, 4834510.0], [632060.0, 4834510.0],
+                                                  [632060.0, 4834560.0], [632010.0, 4834560.0],
+                                                  [632010.0, 4834510.0]]]}
+    half = {"type": "Polygon", "coordinates": [[[632050.0, 4834500.0], [632150.0, 4834500.0],
+                                                [632150.0, 4834600.0], [632050.0, 4834600.0],
+                                                [632050.0, 4834500.0]]]}
+    away = {"type": "Polygon", "coordinates": [[[633000.0, 4834500.0], [633100.0, 4834500.0],
+                                                [633100.0, 4834600.0], [633000.0, 4834600.0],
+                                                [633000.0, 4834500.0]]]}
+    assert hull_share_of_ground(hull, inside) == pytest.approx(1.0)
+    assert hull_share_of_ground(hull, half) == pytest.approx(0.5)
+    assert hull_share_of_ground(hull, away) == 0.0

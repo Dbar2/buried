@@ -142,17 +142,21 @@ invent commands; when one is added, record it here.
   - Clip the present-day City of Toronto layers into `data/present/`:
     `uv run buried present [SOURCE_ID ...]` (`--recheck` downloads again and compares).
   - Measure a raster's alignment error from `data/control/<id>.json`:
-    `uv run buried align-check <SOURCE_ID>`.
+    `uv run buried align-check <SOURCE_ID>`. The record also states the control hull; with a map
+    area file the summary shows the share of the map area inside it.
   - Write PNG crops around each City intersection inside a plate, for picking control points by
     eye (output in `data/work/control/<id>/`, writes no control file):
     `uv run buried control-crops <SOURCE_ID>`.
   - Check every contract file under `data/` against the Schema and the cross-file rules:
     `uv run buried validate [PATH ...]` (exit 1 on any error; with paths, reports only those
     files but judges them against the whole `data/` tree).
-  - Write each plate as a JPEG (long edge at most 4096 px) plus a sidecar with exact EPSG:26917
-    corners into `data/tiles/`: `uv run buried tile [SOURCE_ID ...]`. Needs the plate's alignment
-    record; plates only until aerials are registered. With no ids it tiles every plate that has
-    a record and names the ones it skipped.
+  - Write each plate's map-area tile as a JPEG (long edge at most 4096 px) plus a sidecar with
+    exact EPSG:26917 corners, `crop_px` and `map_area`, and its whole photograph as
+    `<id>_full.jpg` (long edge at most 2048 px, for the Sources page), into `data/tiles/`:
+    `uv run buried tile [SOURCE_ID ...]`. Needs the plate's alignment record and its map area
+    file `data/control/map_area/<id>.json` (written by a person; no command writes it); plates
+    only until aerials are registered. With no ids it tiles every plate that has both and names
+    the ones it skipped.
   - `extract`, `publish` and `match` are registered and exit 2 with "not
     implemented yet" until their tasks land.
 - Unity (spec 03), run from the repository root with `tools/unity.sh` (headless Unity 6000.3.26f1;

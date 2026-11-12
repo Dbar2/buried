@@ -61,6 +61,13 @@ class Paths:
     def alignment_dir(self) -> Path:
         return self.data / "alignment"
 
+    @property
+    def map_area_dir(self) -> Path:
+        return self.control_dir / "map_area"
+
+    def map_area_file(self, source_id: str) -> Path:
+        return self.map_area_dir / f"{source_id}.json"
+
     def raw_source_dir(self, source_id: str) -> Path:
         return self.raw / source_id
 

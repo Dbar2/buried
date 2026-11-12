@@ -227,3 +227,53 @@ def test_align_check_opens_a_jpeg_plate_with_a_pam_sidecar(tmp_path: Path) -> No
 
     assert result.supplied.rmse_m == pytest.approx(expected.supplied.rmse_m, abs=1e-9)
     assert result.alignment_error_m == expected.alignment_error_m
+
+
+# --- control hull (spec 02 task 15.1, requirement 18) -----------------------------------------------
+
+
+def test_the_record_states_the_control_hull_of_the_references(tmp_path: Path) -> None:
+    from buried_pipeline.align.hull import control_hull, hull_area_m2
+
+    paths = build(tmp_path)
+    run(paths)
+    record = json.loads(paths.alignment_record(SOURCE).read_text())
+    control = json.loads(paths.control_file(SOURCE).read_text())
+    expected = control_hull([(p["reference"][0], p["reference"][1]) for p in control["points"]])
+    assert record["schema_version"] == "1.1.0"
+    assert record["control_hull"] == expected
+    assert record["control_hull_area_m2"] == hull_area_m2(expected)
+
+
+def test_the_summary_says_the_hull_area_and_that_there_is_no_map_area_yet(tmp_path: Path) -> None:
+    paths = build(tmp_path)
+    _, text = run(paths)
+    assert "control hull:" in text and "m2" in text
+    assert "no map area file yet" in text
+
+
+def test_the_summary_gives_the_share_of_the_map_area_inside_the_hull(tmp_path: Path) -> None:
+    paths = build(tmp_path)
+    paths.map_area_dir.mkdir(parents=True)
+    paths.map_area_file(SOURCE).write_text(
+        json.dumps({
+            "schema_version": "1.1.0", "source": SOURCE, "pixel_convention": "gdal_corner",
+            "pixel_polygon": [[0, 0], [1000, 0], [1000, 750], [0, 750]],
+            "excluded": "margin (synthetic)", "confirmed_by": "test reviewer",
+            "confirmed_at": "2026-11-12T10:00:00Z",
+        }),
+        encoding="utf-8",
+    )
+    _, text = run(paths)
+    hull_line = next(line for line in text.splitlines() if line.startswith("control hull:"))
+    assert "% of the map area's ground footprint inside it" in hull_line
+    assert "no map area" not in hull_line
+
+
+def test_the_summary_still_runs_when_the_map_area_cannot_be_used(tmp_path: Path) -> None:
+    paths = build(tmp_path)
+    paths.map_area_dir.mkdir(parents=True)
+    paths.map_area_file(SOURCE).write_text("{ not json", encoding="utf-8")
+    _, text = run(paths)  # the alignment itself does not depend on the map area
+    assert "the map area could not be used" in text
+    assert paths.alignment_record(SOURCE).is_file()

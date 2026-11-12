@@ -45,6 +45,16 @@ def hull_area_m2(hull: dict[str, Any]) -> float:
     return round(Polygon(hull["coordinates"][0]).area, HULL_DECIMALS)
 
 
+def hull_share_of_ground(hull: dict[str, Any], ground: dict[str, Any]) -> float:
+    """The share of `ground` (a Polygon, for example a map area through the chosen transform)
+    that lies inside `hull`: area(hull ∩ ground) / area(ground), between 0 and 1. Pure."""
+    h = Polygon(hull["coordinates"][0])
+    g = Polygon(ground["coordinates"][0])
+    if g.area <= 0.0:
+        raise PipelineError("The map area has no ground area, so no share can be computed")
+    return float(min(1.0, max(0.0, h.intersection(g).area / g.area)))
+
+
 def hull_matches(
     stored: dict[str, Any],
     references: Sequence[tuple[float, float]],

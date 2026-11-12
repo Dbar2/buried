@@ -32,15 +32,21 @@ def tile_size(width: int, height: int, max_long_edge: int = MAX_LONG_EDGE_PX) ->
     return (max(1, round(width * scale)), max(1, round(height * scale)))
 
 
-def pixel_corners(width: int, height: int) -> list[Point]:
-    """Top-left, top-right, bottom-right, bottom-left corners of the full-resolution raster in
-    pixel coordinates (GDAL convention: (0, 0) is the top-left corner of the top-left pixel)."""
-    return [(0.0, 0.0), (float(width), 0.0), (float(width), float(height)), (0.0, float(height))]
+def pixel_corners(width: int, height: int, origin: Point = (0.0, 0.0)) -> list[Point]:
+    """Top-left, top-right, bottom-right, bottom-left corners of a pixel window in the
+    full-resolution raster (GDAL convention: (0, 0) is the top-left corner of the top-left
+    pixel). The window starts at `origin` and is `width` x `height`; the default is the whole
+    raster."""
+    x0, y0 = origin
+    return [(x0, y0), (x0 + width, y0), (x0 + width, y0 + height), (x0, y0 + height)]
 
 
-def tile_corners(mapping: Mapping, width: int, height: int) -> list[Point]:
-    """The chosen transform applied to the full-resolution pixel corners (requirement 7.4)."""
-    return [mapping(x, y) for x, y in pixel_corners(width, height)]
+def tile_corners(
+    mapping: Mapping, width: int, height: int, origin: Point = (0.0, 0.0)
+) -> list[Point]:
+    """The chosen transform applied to the full-resolution pixel corners of the tiled window
+    (requirements 7.4 and 19.3)."""
+    return [mapping(x, y) for x, y in pixel_corners(width, height, origin)]
 
 
 def check_fractions() -> list[Point]:
@@ -57,12 +63,18 @@ def bilinear(corners: Sequence[Point], u: float, v: float) -> Point:
     return (top[0] + v * (bottom[0] - top[0]), top[1] + v * (bottom[1] - top[1]))
 
 
-def bilinear_error_m(mapping: Mapping, corners: Sequence[Point], width: int, height: int) -> float:
+def bilinear_error_m(
+    mapping: Mapping,
+    corners: Sequence[Point],
+    width: int,
+    height: int,
+    origin: Point = (0.0, 0.0),
+) -> float:
     """Largest distance between the chosen transform and bilinear interpolation of the corners
-    at the nine check points."""
+    at the nine check points of the window that starts at `origin`."""
     worst = 0.0
     for u, v in check_fractions():
-        exact = mapping(u * width, v * height)
+        exact = mapping(origin[0] + u * width, origin[1] + v * height)
         approx = bilinear(corners, u, v)
         worst = max(worst, math.dist(exact, approx))
     return worst

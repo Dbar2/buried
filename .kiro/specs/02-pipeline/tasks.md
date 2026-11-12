@@ -419,19 +419,19 @@ task 16), 7, 8, 16, 11, 9.
     Requirements: 1.8.
 
 - [ ] 14. Map areas, map-area tiles and the full photograph (session 007; needs spec 01 task 16)
-  - [ ] 14.1 Implement `extract/maparea.py`: read `data/control/map_area/<source id>.json`, check it
+  - [x] 14.1 Implement `extract/maparea.py`: read `data/control/map_area/<source id>.json`, check it
     against the Schema, the source id and the raster's pixel extent; one reader for tile, extract
     and publish. Refusal messages name the file to write.
     Files: `pipeline/buried_pipeline/extract/maparea.py`, `pipeline/tests/extract/test_maparea.py`.
     Requirements: 16.1 to 16.5.
-  - [ ] 14.2 Change `buried tile`: refuse a plate without a map area; tile the map area's bounding
+  - [x] 14.2 Change `buried tile`: refuse a plate without a map area; tile the map area's bounding
     box (`crop_px`) with no other pixel change; corners from the window's corners; sidecar
     `crop_px` and `map_area`; also write `<source id>_full.jpg` (long edge at most 2048 px) and the
     sidecar's `full_image` fields. Extend T1 to crop windows.
     Files: `pipeline/buried_pipeline/tile/run.py`, `pipeline/buried_pipeline/tile/corners.py`,
     `pipeline/tests/tile/test_run.py`, `pipeline/tests/tile/test_tile_properties.py`.
     Requirements: 7.3, 7.4, 16.3, 19.1 to 19.3.
-  - [ ] 14.3 **[PBT] T2** The tile shows the map area and nothing is recoloured.
+  - [x] 14.3 **[PBT] T2** The tile shows the map area and nothing is recoloured.
     Files: `pipeline/tests/tile/test_tile_properties.py`.
     Requirements: 7.3, 19.1, 19.2.
   - [ ] 14.4 Maintainer: write `data/control/map_area/fip_v3_1911_229.json` and
@@ -443,13 +443,13 @@ task 16), 7, 8, 16, 11, 9.
     is not affected). Do not write a map area for `fip_v3_1935_232`; it is made live in the Studio.
     Files: `data/control/map_area/*.json`, `data/tiles/*`.
     Requirements: 16.1, 19.1, 19.2.
-  - [ ] 14.5 Update the `buried tile` line in `.kiro/steering/tech.md` (map area required; full
+  - [x] 14.5 Update the `buried tile` line in `.kiro/steering/tech.md` (map area required; full
     image written).
     Files: `.kiro/steering/tech.md`.
     Requirements: 1.8.
 
-- [ ] 15. Control hull in alignment records (session 007; needs spec 01 task 16)
-  - [ ] 15.1 Implement `align/hull.py` (pure) and write `control_hull` and `control_hull_area_m2`
+- [x] 15. Control hull in alignment records (session 007; needs spec 01 task 16)
+  - [x] 15.1 Implement `align/hull.py` (pure) and write `control_hull` and `control_hull_area_m2`
     from `align-check`; print the hull area and, with a map area, the share of it inside the hull.
     Files: `pipeline/buried_pipeline/align/hull.py`, `pipeline/buried_pipeline/align/run.py`,
     `pipeline/tests/align/test_hull.py`.
@@ -466,12 +466,18 @@ task 16), 7, 8, 16, 11, 9.
 - [ ] 16. Greyscale extraction checks (session 007; with task 7)
   - [ ] 16.1 **[PBT] X6** Nothing outside the map area; no material from a tone; a map area vertex
     outside the raster makes extract, tile and publish refuse.
+    Session 011: the vertex-outside-raster part is done and tested at the shared reader
+    (`tests/extract/test_maparea.py`, which `tile` uses; `extract` and `publish` will use the same
+    function). "Nothing outside the map area" and "no material from a tone" wait for task 7.
     Files: `pipeline/tests/extract/test_extract_properties.py`.
     Requirements: 8.7, 16.2, 16.3, 17.3.
   - [ ] 16.2 Extend the held-out guard to `data/control/map_area/`: no map area file for
     `fip_v3_1935_232` may be committed before the demo. Tuning fixtures carry the person's tone
     class per expected polygon, and the fixture regression test also reports tone-class agreement
     (not gated).
+    Session 011: the map area half is done in `tests/extract/test_maparea_held_out.py` (a
+    committed-files guard and planted-file tests). It moves into `test_held_out.py` with task 7.2;
+    the tone-class half waits for task 7.
     Files: `pipeline/tests/extract/test_held_out.py`, `pipeline/tests/extract/test_fixtures.py`.
     Requirements: 9.3, 17.2.
 

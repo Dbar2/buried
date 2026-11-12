@@ -55,3 +55,38 @@ def test_t1_tile_size_never_enlarges_and_respects_the_limit(size, limit) -> None
         # The aspect ratio survives to within one pixel of rounding.
         assert abs(tile_w - width * limit / max(width, height)) <= 1
         assert abs(tile_h - height * limit / max(width, height)) <= 1
+
+
+@st.composite
+def windows(draw: st.DrawFn):
+    """A raster size and a pixel window (the bounding box of a map area) inside it."""
+    width = draw(st.integers(2, 30000))
+    height = draw(st.integers(2, 30000))
+    x = draw(st.integers(0, width - 1))
+    y = draw(st.integers(0, height - 1))
+    w = draw(st.integers(1, width - x))
+    h = draw(st.integers(1, height - y))
+    return width, height, (x, y, w, h)
+
+
+@settings(max_examples=200)
+@given(t=affines(), win=windows(), limit=limits)
+def test_t1_window_corners_are_exact_and_independent_of_the_downsample_factor(
+    t, win, limit
+) -> None:
+    """T1 for a map-area tile (requirement 19.3): the corners are the transform of the window's
+    full-resolution pixel corners, whatever the shrink factor and wherever the window sits."""
+    _width, _height, (x, y, w, h) = win
+    mapping = lambda px, py: apply_affine(t, px, py)  # noqa: E731
+
+    corners = tile_corners(mapping, w, h, (float(x), float(y)))
+    assert corners == [
+        apply_affine(t, px, py) for px, py in ((x, y), (x + w, y), (x + w, y + h), (x, y + h))
+    ]
+    assert bilinear_error_m(mapping, corners, w, h, (float(x), float(y))) < 1e-6
+
+    tile_w, tile_h = tile_size(w, h, limit)
+    for i, j in ((0, 0), (tile_w, tile_h), (tile_w // 2, tile_h // 3), (tile_w, 0), (0, tile_h)):
+        expected = mapping(x + i * w / tile_w, y + j * h / tile_h)
+        got = bilinear(corners, i / tile_w, j / tile_h)
+        assert math.dist(expected, got) < 1e-6

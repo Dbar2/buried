@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import Any
 
 from buried_pipeline import __version__
+from buried_pipeline.align.affine import apply_affine
 from buried_pipeline.align.compute import (
     AlignmentResult,
     ControlPoint,
@@ -15,9 +16,11 @@ from buried_pipeline.align.compute import (
     compute_alignment,
 )
 from buried_pipeline.align.control import ControlFile, parse_control_file
+from buried_pipeline.align.hull import hull_share_of_ground
 from buried_pipeline.align.references import check_references
 from buried_pipeline.align.supplied import supplied_mapping
 from buried_pipeline.errors import PipelineError
+from buried_pipeline.extract.maparea import ground_polygon, load_map_area
 from buried_pipeline.fetch.manifest import sha256_file
 from buried_pipeline.inspect.georef import find_raster, read_raster_info, to_proj_for
 from buried_pipeline.inspect.report import build_report
@@ -112,6 +115,41 @@ def format_summary(
     return "\n".join(lines)
 
 
+def hull_line(
+    paths: Paths,
+    schema: SchemaSet,
+    source_id: str,
+    record: dict[str, Any],
+    chosen: str,
+    mapping: Any,
+    info: Any,
+) -> str:
+    """The printed control hull line (requirement 18.2). With a map area file it adds the share
+    of the map area's ground footprint inside the hull. The share is not stored in the record,
+    because it depends on the map area, which can be set later."""
+    line = (
+        f"control hull: {record['control_hull_area_m2']:.1f} m2 "
+        "(the error figure is measured inside it)"
+    )
+    if not paths.map_area_file(source_id).is_file():
+        return line + "; no map area file yet, so no share of the map area is shown"
+    try:
+        map_area = load_map_area(paths, schema, source_id, info.width, info.height)
+    except PipelineError as exc:
+        return line + f"; the map area could not be used ({exc})"
+    if chosen == "refined":
+        affine = tuple(record["refined"]["affine"])
+        predict: Any = lambda x, y: apply_affine(affine, x, y)  # noqa: E731
+    else:
+        predict = mapping.predict
+    ground = ground_polygon(predict, map_area.pixel_polygon)
+    share = hull_share_of_ground(record["control_hull"], ground)
+    return (
+        f"control hull: {record['control_hull_area_m2']:.1f} m2, {share * 100:.0f}% of the map "
+        "area's ground footprint inside it (the error figure is measured inside the hull)"
+    )
+
+
 def run_align_check(
     paths: Paths,
     registry: Registry,
@@ -155,10 +193,7 @@ def run_align_check(
         control_references=[p.reference for p in control.points],
     )
     out(format_summary(source_id, control, result, result.refined_skipped))
-    out(
-        f"control hull: {record['control_hull_area_m2']:.1f} m2 "
-        "(the error figure is measured inside it)"
-    )
+    out(hull_line(paths, schema, source_id, record, result.chosen, mapping, info))
     # The record is checked against the Schema before it is written; a failing record is a bug
     # in this tool, never something to write and fix later.
     problems = schema_problems(schema, "alignmentRecord", record, "alignment record")
