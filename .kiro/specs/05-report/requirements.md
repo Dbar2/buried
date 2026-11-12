@@ -75,8 +75,8 @@ as in the old map.
 2.1 THE Report SHALL take the lot geometry from the property boundaries layer in EPSG:26917.
 
 2.2 THE Report SHALL give every lot from `present_toronto_property_boundaries_2026` a position error
-of 1.0 m, unless the dataset states its own accuracy, and SHALL record the value and its reason in
-design.md "Lot position error".
+of 2.0 m, unless the dataset states its own accuracy, and SHALL record the value and its reason in
+design.md "Lot position error". The reason: the parcel layer is a mapping product, not a survey.
 
 2.3 THE lot position error SHALL be defined in one place in the Shell and passed to spec 01's
 `lotRelation` as the lot's `positionErrorM`.
@@ -190,9 +190,11 @@ coverage wording in design.md.
 7.3 THE Report SHALL say "Nothing found in these records" for a group only when every plate source
 it lists as clear has the lot inside its reviewed areas at that group's radius.
 
-7.4 UNTIL spec 01's Schema can record that a source was reviewed for water, THE Water history
-group SHALL never say "Nothing found in these records"; with no water finding it SHALL say
-"Not covered" and give the reason in design.md.
+7.4 THE Water history group SHALL say "Nothing found in these records" only when every plate source
+it lists as clear has the lot inside reviewed areas whose `covers` include `water` (spec 01
+requirement 28) at the water radius. Otherwise, with no water finding, it SHALL say "Not covered"
+and give the reason in design.md. Until spec 01 task 19.2 is done, it SHALL never say "Nothing
+found in these records".
 
 ## Requirement 8: What these records cannot tell you
 
@@ -204,8 +206,10 @@ group SHALL never say "Nothing found in these records"; with no water finding it
 structural condition; anything outside the years the records cover, naming those years for this
 lot; or underground utilities.
 
-8.2 THE section SHALL say that history before colonial maps is outside what these records cover,
-and SHALL include the land acknowledgement and link in design.md "Fixed copy".
+8.2 THE section SHALL say that history before colonial maps is outside what these records cover and
+that the records Buried uses begin with colonial-era mapping, and SHALL link to the City of
+Toronto's published land acknowledgement. Buried SHALL NOT write its own land acknowledgement. The
+maintainer approves the final wording before submission.
 
 ## Requirement 9: Before you dig
 
@@ -215,7 +219,8 @@ and where to request locates.
 ### Acceptance criteria
 
 9.1 THE section SHALL say "Buried's maps are not utility locates." and "Request locates through
-Ontario Dig Authority before you dig.", with a link to Ontario Dig Authority.
+Ontario Dig Authority before you dig.", with a link to Ontario Dig Authority at
+`https://ontariodigauthority.ca/`.
 
 ## Requirement 10: Sources
 
@@ -361,3 +366,20 @@ committed under `web/src/report/testing/`.
 
 17.3 WHEN a task adds a command, THE same change SHALL record it under "Commands" in
 `.kiro/steering/tech.md`.
+
+## Requirement 18: Land-use areas and source years (session 007)
+
+**User story:** As a buyer, I want past land use to include yards and lots lettered on the plates,
+and every source's years shown as the plate states them.
+
+### Acceptance criteria
+
+18.1 THE Past land use group SHALL include published `land_use` features (spec 04 requirement 24)
+by the same rules as buildings with a recorded `use`, worded as "an area" or "N areas".
+
+18.2 THE Report SHALL show a source's years, wherever it names a source for a reader, with spec
+01's `sourceYearsText` (for example "1931, revised to 1935"), and every number in that text SHALL be
+in the sentence's fact pack.
+
+18.3 THE Report SHALL NOT show a material, or anything derived from a proposal's tone class, unless
+the feature has an attribute read for it (spec 01 requirement 25).

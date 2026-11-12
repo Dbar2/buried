@@ -67,6 +67,7 @@ pipeline/
       residuals.py          # pure: residuals, RMSE, LOO, outliers, choice, error rule
       supplied.py           # pure given a transform spec: pixel -> CRS -> EPSG:26917
       references.py         # pure: look up and check control point references in a present layer
+      hull.py               # pure: convex hull of control point references, share of map area inside
       run.py                # I/O: read control file + raster + present layers, write record
     controlcrops/
       pixels.py             # pure: predicted pixel, crop window, crosshair
@@ -77,11 +78,12 @@ pipeline/
     extract/
       params/v1.json        # the one parameter set
       params.py             # load + check params (tuned_on guard)
-      colour.py             # pure (numpy): Lab conversion, class assignment
+      maparea.py            # read + check data/control/map_area/<id>.json (shared by tile, extract, publish)
+      tone.py               # pure (numpy): grey band, local-contrast normalisation, tone class, hatch measure
       outline.py            # pure (numpy/OpenCV on arrays): outline mask, closing
       regions.py            # pure: labelling, hole fill, area filter
       polygons.py           # pure: contour -> polygon, simplify, validity, pixel -> 26917
-      score.py              # pure: quality components
+      score.py              # pure: quality components and weakness flags
       run.py                # I/O: read raster, write proposals
     publish/
       build.py              # pure: proposals + decisions + record -> features, coverage areas
@@ -343,9 +345,29 @@ refined    RMSE in-sample 0.00 m   leave-one-out 0.00 m   max 0.00 m
 chosen: refined   basis (leave-one-out RMSE): 0.00 m
 published alignment error: 0.0 m   (max(2.0, 2 x basis), rounded up to 0.1 m)
 possible outliers: none
+control hull: 0 m2, 0% of the map area's ground footprint inside it
 ```
 
 (Zeros stand in for real values; no result is assumed here.)
+
+### Control hull (requirement 18)
+
+`align/hull.py` takes the control points' `reference` positions and returns shapely's
+`convex_hull`, rounded to 3 decimals, and its area. With a map area file it also reports
+`area(hull ∩ map_area_ground) / area(map_area_ground)`, where `map_area_ground` is the map area
+through the chosen transform. The record stores the hull; the printed share is not stored, because
+it depends on the map area, which can be set later.
+
+### Measured results (for the record)
+
+| Source | Points | Supplied RMSE | Published `alignment_error_m` | Note |
+|---|---|---|---|---|
+| `fip_v3_1911_229` | 6 City intersections | 2.140 m (max 3.504 m) | 4.3 m | Session 008 |
+| `fip_v3_1935_229` | 6 City intersections | 1.504 m | 3.1 m | Reported in session 007 |
+
+On both editions of plate 229 the six points lie in the northern two-thirds of the plate, because
+the southern street crossings drawn on the plates no longer exist. The figures are measured there.
+Requirement 18 records the hull so the Studio can warn about features in the southern third.
 
 ### Inverse
 
@@ -381,17 +403,27 @@ puts each City intersection near the right place on the plate.
 ## tile
 
 - Refuses without an alignment record or with `attribution_status: to_be_confirmed`
-  (requirement 7.2). The 1947 aerial attribution line was confirmed on 2026-11-12, so registered
-  aerials can be tiled once they have an alignment record.
+  (requirement 7.2), and refuses a plate without a map area file (requirement 16.3). The 1947
+  aerial attribution line was confirmed on 2026-11-12, so registered aerials can be tiled once they
+  have an alignment record. Aerials have no map area file; their tile is the whole photo.
+- Map-area tile (requirement 19.2): `crop_px` is the axis-aligned bounding box of the map area's
+  pixel polygon, clamped to the raster. The tile is that window, decimated as below. Pixels inside
+  the box are not changed, even outside the polygon; the sidecar carries `crop_px` and `map_area`
+  (the polygon through the chosen transform) so the Explorer can clip the drape to the polygon.
+  Masking in the JPEG would need a fill colour, which would put a colour on the evidence.
+- Full image (requirement 19.1): the whole raster, decimated to a long edge of at most 2048 px,
+  JPEG quality 85, written as `<source id>_full.jpg` and named in the sidecar's `full_image`. It is
+  for the Sources page and is never draped.
 - Reads the raster decimated by rasterio with `out_shape` and `Resampling.average`, long edge at
   most 4096 px. Palette rasters are expanded to RGB using their own colour table. No other change
   to pixel values (`design.md`: rasters are evidence).
 - JPEG quality 85 via OpenCV. WebP is not produced: Unity's `Texture2D.LoadImage` decodes PNG and
   JPEG only, and one format serves both the shell and Unity. 4096 px is the largest texture size
   that WebGL 2 implementations commonly support.
-- Corners (`tile/corners.py`): the chosen transform applied to full-resolution pixel corners
-  `(0,0)` top-left, `(W,0)` top-right, `(W,H)` bottom-right, `(0,H)` bottom-left. Downsampling does
-  not move corners.
+- Corners (`tile/corners.py`): the chosen transform applied to the full-resolution pixel corners of
+  the tiled window: `(x0,y0)` top-left, `(x1,y0)` top-right, `(x1,y1)` bottom-right, `(x0,y1)`
+  bottom-left, where the window is `crop_px` for a plate and `(0,0)`–`(W,H)` for an aerial.
+  Downsampling does not move corners.
 - Bilinear check: at the nine check points, compare bilinear interpolation of the four corners with
   the chosen transform. Affine transforms pass exactly. A supplied transform in another CRS bends
   slightly after reprojection; over one plate the bend is expected to be far below 0.01 m, and the
@@ -410,8 +442,10 @@ puts each City intersection near the right place on the plate.
   "id": "v1",
   "tuned_on": ["fip_v3_1911_229", "fip_v3_1935_229"],
   "working_pixel_size_m": 0.0,
-  "classes": [ { "name": "<legend class>", "lab": [0, 0, 0], "delta_e": 0.0 } ],
-  "outline": { "max_l": 0.0, "closing_kernel_m": 0.0 },
+  "normalise": { "window_m": 0.0, "clip_limit": 0.0 },
+  "outline": { "max_grey": 0.0, "closing_kernel_m": 0.0 },
+  "tone": { "light_min": 0.0, "dark_max": 0.0, "hatch_min": 0.0, "mixed_spread": 0.0 },
+  "text": { "max_mark_area_m2": 0.0 },
   "regions": { "min_area_m2": 0.0, "hole_fill_m2": 0.0 },
   "simplify_tolerance_m": 0.0,
   "fixture_baseline": { "<fixture id>": { "mean_iou": 0.0, "matched_fraction": 0.0 } }
@@ -419,53 +453,73 @@ puts each City intersection near the right place on the plate.
 ```
 
 Zeros are placeholders. Every value is set during tuning on the tuning fixtures, in metres where it
-is a size, so the same set applies to any plate whatever its pixel size. Class names are the
-material classes printed on the Goad legend for Volume 3 (brick, frame, stone and so on, as the
-legend words them). Colour centres are sampled from the tuning fixtures, never from the held-out
-plate.
+is a size, so the same set applies to any plate whatever its pixel size. Grey thresholds are on the
+normalised 0 to 1 scale after step 2, so the two editions (a scan and a photograph, with different
+exposure) share one set. Values are sampled from the tuning fixtures, never from the held-out plate.
+
+The plates are greyscale (session 007). There are no colour classes and no material classes. A grey
+tone does not identify a construction material on these copies.
 
 ### Steps
 
-All on in-memory arrays at `working_pixel_size_m`:
+All on in-memory arrays at `working_pixel_size_m`, inside the map area only (pixels outside it are
+set to "no data" before step 2, so the margin, archive labels and ruler never affect a threshold):
 
-1. **Resample** the plate to the working pixel size (area averaging).
-2. **Colour classes.** Convert to CIELAB. Each pixel takes the nearest class centre if within that
-   class's ΔE (CIE76) tolerance, else no class.
-3. **Outlines.** Pixels with L* below `outline.max_l` form the outline mask. Morphological closing
-   with a kernel of `closing_kernel_m` bridges small gaps in printed lines.
-4. **Regions.** For each class, subtract the outline mask, fill holes smaller than `hole_fill_m2`
-   (labels and numbers printed inside buildings), label 4-connected regions, drop regions below
-   `min_area_m2`. Dilate each region by half the local outline width, limited to the outline mask,
-   so adjacent buildings meet on the centre of their shared line instead of leaving a gap.
+1. **Resample** the plate to the working pixel size (area averaging) and convert to one grey band
+   (the 1911 scans are single band; a three-band file is averaged).
+2. **Normalise local contrast** with CLAHE over `normalise.window_m` tiles at
+   `normalise.clip_limit`, then scale to 0 to 1. This evens out the photograph's exposure and paper
+   tone.
+3. **Outlines.** Pixels with normalised grey below `outline.max_grey` form the outline mask.
+   Morphological closing with a kernel of `closing_kernel_m` bridges small gaps in printed lines.
+4. **Regions.** Subtract the outline mask, fill holes smaller than `hole_fill_m2` (labels and
+   numbers printed inside buildings), label 4-connected regions, drop regions below `min_area_m2`
+   and regions whose centroid is outside the map area. Dilate each region by half the local outline
+   width, limited to the outline mask, so adjacent buildings meet on the centre of their shared line
+   instead of leaving a gap. Regions with no closed outline (yards, lumber piles drawn as hatching)
+   fail `outline_closure` and are not proposed below its floor; a person traces them as land use in
+   the Studio.
 5. **Polygons.** Trace the outer contour (OpenCV `findContours`, external), simplify with
    Douglas–Peucker at `simplify_tolerance_m`, convert to working pixels then to full-resolution
    pixels, check validity with shapely. An invalid polygon is repaired with `make_valid`; if that
    yields more than one polygon, the proposal keeps the largest and is scored with
    `shape_fidelity` against the original region, so the loss shows in its score.
 6. **Georeference.** Apply the chosen transform to every full-resolution pixel vertex.
-7. **Score** (all in [0, 1]):
-   - `class_purity`: share of region pixels within the class tolerance before closing;
+7. **Tone class** (`tone.py`, requirement 17.2): over the region's interior pixels (eroded by one
+   outline width), the median normalised grey `m`, the spread `s` (interquartile range) and a hatch
+   measure `h` (share of energy in a narrow band of diagonal orientations from a gradient
+   histogram). `hatched` if `h >= tone.hatch_min`; else `mixed` if `s >= tone.mixed_spread`; else
+   `light` if `m >= tone.light_min`, `dark` if `m <= tone.dark_max`, otherwise `mid`.
+8. **Score** (all in [0, 1], requirement 17.4):
    - `outline_closure`: share of the polygon boundary that lies within one outline width of an
      outline pixel;
+   - `fill_uniformity`: `1 - min(1, s / tone.mixed_spread)`, and `min(that, 1 - h)`, so hatching
+     and mixed fills score low;
+   - `text_clear`: `1 -` the share of the region covered by dark connected marks smaller than
+     `text.max_mark_area_m2` (lettering, numbers, an X or skylight mark);
+   - `edge_clear`: 0 if the polygon touches the map area boundary (within one outline width) or a
+     `fold_lines` polyline from the map area file, else 1;
    - `shape_fidelity`: IoU between the simplified polygon rasterised at working resolution and the
      region mask;
-   - `score = min(class_purity, outline_closure, shape_fidelity)`, so one weak component cannot be
-     hidden by two strong ones.
-8. **Ids.** `proposal_id = "<source id>_p_" + first 12 hex chars of SHA-256 over
+   - `score = min(...)`, so one weak component cannot be hidden by strong ones.
+   - `weaknesses`: `open_outline` if `outline_closure < 0.9`, `hatched_fill` if the tone class is
+     `hatched`, `text_overlap` if `text_clear < 0.9`, `touches_edge` and `touches_fold` from
+     `edge_clear`. The 0.9 cut is a design value for display, not tuned.
+9. **Ids.** `proposal_id = "<source id>_p_" + first 12 hex chars of SHA-256 over
    (source id, params id, alignment record SHA-256, full-resolution pixel polygon as integers)`.
    Same inputs, same id. Proposals are sorted by id; JSON is written with sorted keys and fixed
    float formatting (6 decimals for metres) so output is byte-identical (requirement 8.3).
 
-Neatline: plates have margins, titles and a legend outside the mapped area. A region whose centroid
-is outside the largest rectangular outline contour on the plate is discarded. If no such contour is
-found, all regions are kept and every proposal gets `neatline: "not_found"`, which the reviewer sees.
+Map area: read from `data/control/map_area/<source id>.json` by `extract/maparea.py`, which also
+checks it against the raster's pixel extent (requirement 16.2). `tile`, `extract` and `publish` all
+use this one reader. No step detects a neatline. The 1935 photographs carry archive labels and a
+ruler outside the plate; only a person can say where the map ends, and says it once.
 
 ### Proposal file
 
 GeoJSON FeatureCollection with `crs: "EPSG:26917"`, `source`, `params_id`, `params_sha256`,
-`alignment_record_sha256`, `neatline` (`"found"` or `"not_found"`), `neatline_px` and
-`neatline_geometry` (EPSG:26917, the chosen transform applied to `neatline_px`) when found, and
-features:
+`alignment_record_sha256`, `map_area_sha256`, `map_area_px` and `map_area_geometry` (EPSG:26917,
+the chosen transform applied to `map_area_px`), and features:
 
 ```json
 {
@@ -473,22 +527,25 @@ features:
   "id": "fip_v3_1911_229_p_0123456789ab",
   "geometry": { "type": "Polygon", "coordinates": [[[0, 0], "..."]] },
   "properties": {
-    "material_class": "<legend class>" ,
+    "tone_class": "mid",
     "pixel_polygon": [[0, 0], "..."],
     "crop_px": { "x": 0, "y": 0, "width": 1, "height": 1 },
     "area_m2": 0.0,
-    "quality": { "score": 0.0, "class_purity": 0.0, "outline_closure": 0.0, "shape_fidelity": 0.0 },
-    "neatline": "found"
+    "quality": { "score": 0.0, "outline_closure": 0.0, "fill_uniformity": 0.0,
+                 "text_clear": 0.0, "edge_clear": 0.0, "shape_fidelity": 0.0 },
+    "weaknesses": ["text_overlap"]
   }
 }
 ```
 
-Pipeline-internal; lives in `data/work/`. The Studio spec may promote it to a contract shape.
+Pipeline-internal; lives in `data/work/`. Spec 04 promotes it to the Service API Schema
+(requirement 20.2).
 
 ### Tuning fixtures and the held-out guard
 
 - Fixtures: `pipeline/tests/fixtures/extract/<fixture id>/` with `crop.png` (at most 1024×1024 px,
-  cut from a tuning plate), `expected.json` (hand-drawn pixel polygons and classes) and
+  cut from a tuning plate, inside its map area), `expected.json` (hand-drawn pixel polygons and
+  the person's tone class for each) and
   `fixture.json` (`source`, `crop_px`, `drawn_by`, `drawn_on`). Small crops of out-of-copyright
   plates; credited in `fixture.json` with the plate's attribution line.
 - `TUNING_SOURCES = ("fip_v3_1911_229", "fip_v3_1935_229")` is defined once in
@@ -522,6 +579,10 @@ Pipeline-internal; lives in `data/work/`. The Studio spec may promote it to a co
       "confirmed_at": "2026-11-15T10:00:00-05:00",
       "pixel_polygon": [[0, 0], "..."],
       "attributes": { "storeys": 2, "use": "<as printed>" },
+      "attribute_reads": [
+        { "attribute": "storeys", "crop_px": { "x": 0, "y": 0, "width": 1, "height": 1 },
+          "read_by": "person" }
+      ],
       "confidence": "documented",
       "confidence_reason": "<why>",
       "position_error_m": 0.0
@@ -529,10 +590,14 @@ Pipeline-internal; lives in `data/work/`. The Studio spec may promote it to a co
   ],
   "reviewed_areas": [
     { "pixel_polygon": [[0, 0], "..."], "confirmed_by": "<name>",
-      "confirmed_at": "2026-11-15T10:30:00-05:00" }
+      "confirmed_at": "2026-11-15T10:30:00-05:00", "covers": ["building"] }
   ]
 }
 ```
+
+`attribute_reads` is optional; each read takes `confirmed_by` and `confirmed_at` from its decision.
+`covers` on a reviewed area is optional and means `["building"]` when absent (spec 01
+requirement 28).
 
 Only `proposal_id`, `decision`, `confirmed_by` and `confirmed_at` are required. `pixel_polygon`
 replaces the proposal's polygon when the reviewer moved vertices. `attributes` holds only what the
@@ -547,7 +612,10 @@ For each accepted decision whose proposal id is not already in the file:
 - geometry: the decision's `pixel_polygon` through the chosen transform if given, else the
   proposal geometry;
 - `kind: building`, id `bld_<source id>_<NNNN>` (requirement 10.6);
-- attributes: `material` = proposal's class unless `unclassified`; plus the reviewer's attributes;
+- attributes: only the reviewer's attributes. Extraction gives no attribute: `tone_class` goes to
+  `provenance.tone_class`, never to `material` (requirement 17.3). A `material` (or any attribute)
+  the reviewer read is written with its crop as `provenance.attribute_reads` (requirement 20.3);
+  a decision that sets `material` without a read is refused;
 - observations: one, `{ source: <source id>, present: true, visibility: clear, method: origin }`;
 - confidence: the decision's, else `estimated` with reason
   "Footprint read from <source id>; storeys not recorded";
@@ -560,8 +628,8 @@ For each accepted decision whose proposal id is not already in the file:
 - `status: published`.
 
 Existing features are copied unchanged. The collection gets `schema_version`, `crs`,
-`origin_source`, `mapped_area` (the proposal file's `neatline_geometry` with `method: neatline`, or
-the chosen transform applied to the raster's pixel corners with `method: raster_footprint`), and
+`origin_source`, `mapped_area` (the proposal file's `map_area_geometry` with `method: map_area`,
+requirement 10.10), and
 `reviewed_areas`: the existing ones unchanged, plus each new one from the decisions file through the
 chosen transform with `method: person`. A reviewed area identical to an existing one is skipped.
 
@@ -697,6 +765,9 @@ requirement 17.4).
 | Collinear points | Supplied result only, refined skipped with reason. |
 | Bilinear check fails in tile | That source fails; others continue; exit 1 at the end. |
 | Params `tuned_on` invalid | extract refuses to start. |
+| Plate has no map area file | tile, extract and publish refuse and name the file to write. |
+| Map area vertex outside the raster | tile, extract and publish refuse and name the vertex. |
+| Decision sets `material` without a read | publish refuses that decision. |
 | Stale proposals (alignment changed) | publish refuses, says to rerun extract. |
 | Validator errors at publish | Nothing written; errors printed. |
 | Control point reference missing or moved | align-check refuses and names the point. |
@@ -751,9 +822,18 @@ LOO RMSE to match; and `alignment_error_m == ceil_0.1(max(2.0, 2.0 × error_basi
 point's `reference` differs from its cited feature's coordinate by more than 0.001 m, or cites a
 missing feature, `align-check` refuses; otherwise it runs.
 
-**T1. Tile corners are exact.** For every affine chosen transform and raster size, the sidecar
-corners equal the transform at the full-resolution pixel corners within 1e-6 m, independent of the
-downsample factor, and the bilinear check passes.
+**T1. Tile corners are exact.** For every affine chosen transform, raster size and crop window, the
+sidecar corners equal the transform at the window's full-resolution pixel corners within 1e-6 m,
+independent of the downsample factor, and the bilinear check passes.
+
+**T2. The tile shows the map area and nothing is recoloured.** For every synthetic plate and map
+area, `crop_px` is the bounding box of the map area clamped to the raster, every tile pixel equals
+the area-averaged source pixel at that place (no tint, no fill), and the full image covers the whole
+raster. *(req 7.3, 19.1, 19.2)*
+
+**A10. The control hull is the convex hull.** For every generated control file with 3 or more
+non-collinear points, the record's `control_hull` contains every reference position, every hull
+vertex is a reference position, and the hull is convex. *(req 18.1)*
 
 **X1. Proposals are valid polygons.** For every synthetic plate, every proposal polygon is valid,
 non-empty and has `area_m2 >= min_area_m2`.
@@ -763,14 +843,21 @@ non-empty and has `area_m2 >= min_area_m2`.
 **X3. Geometry follows the chosen transform.** For every proposal, its geometry equals the chosen
 transform applied to its pixel polygon within 1e-6 m.
 
-**X4. Scores are bounded.** Every quality component and the score lie in [0, 1], and the score
-equals the minimum component.
+**X4. Scores are bounded.** Every quality component and the score lie in [0, 1], the score equals
+the minimum component, and every weakness flag matches its component (for example `open_outline`
+exactly when `outline_closure < 0.9`).
 
-**X5. Synthetic recovery.** For every synthetic plate made of non-overlapping axis-aligned
-rectangles filled with class colours, outlined in black, at least 2 m on a side, on a background
-colour outside every class tolerance: each rectangle is matched by exactly one proposal of its
-class with IoU >= 0.9, and there are no other proposals. Class colours for this test are synthetic
-values, not the tuned ones, so it says nothing about any real plate.
+**X5. Synthetic recovery.** For every synthetic greyscale plate made of non-overlapping axis-aligned
+rectangles filled with one of three grey tones, outlined in black, at least 2 m on a side, on a
+light background, with some rectangles carrying a small dark mark inside: each rectangle is matched
+by exactly one proposal with IoU >= 0.9 and the tone class it was drawn with, and there are no other
+proposals. Hatched rectangles without an outline give no proposal. The tones and marks are
+synthetic values, not the tuned ones, so the test says nothing about any real plate.
+
+**X6. Nothing outside the map area, no material from a tone.** For every synthetic plate and map
+area, every proposal's centroid lies inside the map area, no proposal or published feature has a
+`material` that did not come from a reviewer's read, and moving a map area vertex outside the
+raster makes `extract`, `tile` and `publish` refuse. *(req 8.7, 16.2, 16.3, 17.3)*
 
 **U1. Published files validate.** For every generated set of proposals, decisions and alignment
 record, `publish` either writes a file that passes the Validator or writes nothing.

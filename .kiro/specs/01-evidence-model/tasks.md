@@ -204,9 +204,9 @@ alignment gate is not blocked by it.
     Files: `data/project.json`.
     Requirements: 7.1 to 7.4, 7.6.
 
-- [ ] 11. Final check (run after tasks 12 to 15 as well)
+- [ ] 11. Final check (run after tasks 12 to 19 as well)
   - [ ] 11.1 Run `npm test` and `npm run typecheck` in `web/`, and `uv run pytest` and
-    `uv run buried validate` in `pipeline/`. All pass. Confirm every property P1 to P21 has a
+    `uv run buried validate` in `pipeline/`. All pass. Confirm every property P1 to P23 has a
     passing test.
     Files: none.
     Requirements: 15.1.
@@ -285,3 +285,89 @@ alignment gate is not blocked by it.
     Files: `web/src/evidence/text.ts`, `web/src/evidence/text.test.ts`,
     `web/src/evidence/findings.property.test.ts`.
     Requirements: 14.4, 14.5.
+
+- [ ] 16. Schema 1.1.0 (sessions 005 and 007)
+  - [ ] 16.1 Extend `data/schema/evidence.schema.json` per design.md "Schema 1.1.0 additions":
+    `years_label` and `holding` on `source`; `street_number`; `attribute_reads` and `tone_class` on
+    `provenance`; `covers` on reviewed areas; `map_area` as a `mapped_area` method; `supplied`
+    optional when `chosen` is `refined`; `control_hull`; the tile sidecar crop and full-image
+    fields; and a new `$defs` entry `mapArea`. Set `schema_version` to `1.1.0`.
+    Files: `data/schema/evidence.schema.json`.
+    Requirements: 2.5, 23.1, 23.2, 24.1, 24.4, 25.1, 25.4, 26.1, 28.1, 29.1, 29.3, 30.1, 31.1, 31.2.
+  - [ ] 16.2 Add a valid and an invalid conformance fixture for each new rule (material without a
+    read, label-assist read without `model_id`, empty `covers`, `covers` with an unknown kind,
+    refined record without `supplied` that is valid, supplied record without `supplied`, map area
+    with 3 vertices, map area without `excluded`). Synthetic geometry only.
+    Files: `data/schema/fixtures/valid/<def>/*.json`, `data/schema/fixtures/invalid/<def>/*.json`.
+    Requirements: 23.3.
+  - [ ] 16.3 Regenerate `web/src/evidence/types.generated.ts` (`npm run gen:types`) and fix any
+    type errors in `web/src/evidence/`. Coordinate with whoever is working in `web/` at the time:
+    this changes a file the Explorer imports.
+    Files: `web/src/evidence/types.generated.ts`.
+    Requirements: 9.1.
+  - [ ] 16.4 Bump `schema_version` to `1.1.0` in every committed contract file in the same change
+    (`data/sources.json`, `data/project.json`, `data/control/*.json`, `data/alignment/*.json`,
+    `data/tiles/*.json`, `data/present/*.geojson`, `data/evidence/*.geojson`), and make the
+    pipeline writers emit `1.1.0`. Run `uv run buried validate`.
+    Files: those files; the pipeline modules that write them.
+    Requirements: 1.5, 23.1.
+
+- [ ] 17. Validator checks for schema 1.1.0 (needs task 16)
+  - [ ] 17.1 Add to `checks.py`: the `years_label` year check; material needs a read, one read per
+    attribute, no orphaned read; refined-only records use `refined_loo_rmse`; the aerial origin
+    exception to 16.5; the `control_hull` check (required unless the record is 1.0.0); map area
+    files (registered source, file name, valid polygon) and the `mapped_area` method rule; the tile
+    sidecar corners from `crop_px`. Map `data/control/map_area/*.json` to `mapArea` and keep it out
+    of the `controlPoints` glob.
+    Files: `pipeline/buried_pipeline/validate/checks.py`, `pipeline/buried_pipeline/validate/schema.py`.
+    Requirements: 16.5, 24.2, 25.2, 25.3, 26.2, 27.1, 27.2, 29.2, 29.4, 30.2, 30.3, 31.3.
+  - [ ] 17.2 Example tests for each new check in the fake `data/` tree.
+    Files: `pipeline/tests/validate/test_checks.py`, `pipeline/tests/validate/builders.py`.
+    Requirements: as 17.1.
+  - [ ] 17.3 **[PBT] P22** Labels and reads never claim more than the record.
+    Files: `pipeline/tests/validate/test_properties.py`, `pipeline/tests/validate/strategies.py`.
+    Requirements: 24.2, 25.2, 25.3.
+  - [ ] 17.4 **[PBT] P23** The control hull is exact.
+    Files: `pipeline/tests/validate/test_properties.py`, `pipeline/tests/validate/strategies.py`.
+    Requirements: 30.2.
+  - [ ] 17.5 Rerun **[PBT] P19** with the aerial origin exception: an aerial origin presence on a
+    feature whose origin source is that aerial is accepted; every other non-person clear or
+    obscured aerial observation is still rejected.
+    Files: `pipeline/tests/validate/test_properties.py`.
+    Requirements: 16.5, 27.1, 27.2.
+
+- [ ] 18. The 1931-35 edition in the registry and the project file (reviewed hand edit, needs task 16)
+  - [ ] 18.1 In `data/sources.json`: set `fip_v3_1935_229` and `fip_v3_1935_232` to
+    `year_from: 1931`, `year_to: 1935`, title "Goad fire insurance plan, Vol 3, plate <n>, January
+    1931 revised to May 1935" (keep "(held out)" on 232), the 1935 licence note and attribution line
+    from `sources.md` "The 1935 edition", `years_label: "1931, revised to 1935"` and the `holding`
+    value in requirement 24.4; set `years_label: "1911, revised to 1914"` on the two 1911 plates.
+    In `data/project.json`: era `1935` to `year_from: 1931`, label unchanged. The origin and bounds
+    do not change.
+    Files: `data/sources.json`, `data/project.json`.
+    Requirements: 6.7, 7.4, 24.3, 24.4.
+  - [ ] 18.2 Check every test and fixture that assumed the 1935 plates are 1935 to 1935. Example
+    tests whose expected text follows from the registry change: a feature seen only on a 1935 plate
+    now gives "Built by 1935" and "Last seen 1931"; a 1911 + 1935 feature with an obscured 1947
+    observation gives "Last seen 1931". Tests that build their own synthetic registry keep their own
+    years. Do not weaken any property.
+    Files: `web/src/evidence/*.test.ts`, `pipeline/tests/**`.
+    Requirements: 10.2, 10.5, 12.1.
+  - [ ] 18.3 Rerun the tile sidecars and Explorer gate data that copy attribution lines
+    (`buried tile` for both editions of plate 229 after spec 02 task 14), so the 1935 tiles carry the
+    new attribution line.
+    Files: `data/tiles/fip_v3_1935_229.json`.
+    Requirements: 6.7.
+
+- [ ] 19. Evidence Library for schema 1.1.0 (needs task 16)
+  - [ ] 19.1 Add `sourceYearsText(source)` to the Evidence Library: `years_label` when present, else
+    `1911–1914` or `1947`. It is the one place source years are worded for display (spec 03 card,
+    spec 04 Studio, spec 05 Report). Example tests.
+    Files: `web/src/evidence/sources.ts`, `web/src/evidence/sources.test.ts`,
+    `web/src/evidence/index.ts`.
+    Requirements: 24.1.
+  - [ ] 19.2 Add `reviewedAreaCovers(area): Kind[]` returning `covers` or `["building"]`, exported
+    for spec 05. Example tests.
+    Files: `web/src/evidence/coverage.ts`, `web/src/evidence/coverage.test.ts`,
+    `web/src/evidence/index.ts`.
+    Requirements: 28.2.

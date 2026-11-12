@@ -11,11 +11,14 @@ Dependencies:
 - Spec 03: tasks 1.2 (data plugin), 9.1 (search, lots, coverage), 11.1 (`edge.ts`, `MapView2D`),
   12.1 (`applyEvidenceUpdate`), and group 2 (full bridge catalogue).
 - Spec 05: task 6.1 (the Explorer deep link `/?era=&lot=`), for "View in Explorer" in task 13.4.
+- Session 007: spec 01 tasks 16 to 19 (schema 1.1.0) and spec 02 tasks 14 and 15 (map areas,
+  control hull) before task 2 and tasks 19 to 22 here.
 
 Do not open, crop, sample or commit anything for the held-out plate `fip_v3_1935_232` in any task.
 It goes through the Studio live, in the demo, and nowhere else.
 
-Run order: 1, 2, 3, 4, 5, 6, 7, 8 (Service), then 9 to 16 (Studio), then 17 and 18.
+Run order: 1, 2, 3, 4, 5, 6, 7, 8 (Service), then 9 to 16 (Studio) with 19 to 22 alongside the
+steps they extend, then 17 and 18.
 
 - [ ] 1. The Service API Schema and the data version
   - [ ] 1.1 Write `data/schema/studio_api.schema.json` (draft 2020-12): request and response bodies
@@ -43,14 +46,16 @@ Run order: 1, 2, 3, 4, 5, 6, 7, 8 (Service), then 9 to 16 (Studio), then 17 and 
 - [ ] 2. Extend spec 02's publish and extract
   - [ ] 2.1 Implement `publish/decisions_v2.py` (parse v2 and spec 02's v1 file, review item ids,
     one-decision-per-proposal check) and extend `publish/build.py`: merge, split, trace, water
-    features (`wtr_`), the shared sequence across kinds, material and `crop_px` rules, the confidence
-    defaults, `mapped_area` intersected with the project bounds, and the undecided-proposal check for
+    features (`wtr_`), land-use features (`use_`, task 19), the shared sequence across kinds,
+    `tone_class` and attribute-read rules (no material without a read), `crop_px` rules, the
+    confidence defaults, `mapped_area` from the map area intersected with the project bounds,
+    reviewed-area `covers`, and the undecided-proposal check for
     reviewed areas. Make `buried publish` read a v2 file when present. Example tests for each
     decision type, both file versions and every refusal.
     Files: `pipeline/buried_pipeline/publish/decisions_v2.py`, `pipeline/buried_pipeline/publish/build.py`,
     `pipeline/buried_pipeline/publish/run.py`, `pipeline/tests/publish/test_decisions_v2.py`,
     `pipeline/tests/publish/test_build_v2.py`.
-    Requirements: 9.8, 13.3, 23.1 to 23.4, 23.6, 23.7.
+    Requirements: 9.8, 13.3, 23.1 to 23.4, 23.6, 23.7, 24.1, 24.2, 27.2.
   - [ ] 2.2 **[PBT] S1** Publish never emits a feature the validator rejects (extend spec 02's
     publish strategies with v2 decisions, water and lines).
     Files: `pipeline/tests/publish/test_publish_v2_properties.py`, `pipeline/tests/publish/strategies.py`.
@@ -61,13 +66,12 @@ Run order: 1, 2, 3, 4, 5, 6, 7, 8 (Service), then 9 to 16 (Studio), then 17 and 
   - [ ] 2.4 **[PBT] S11** Mapped areas stay inside the bounds.
     Files: `pipeline/tests/publish/test_publish_v2_properties.py`.
     Requirements: 23.4.
-  - [ ] 2.5 Implement `extract/region.py`: region crop at the working pixel size, border drop, and
-    the coarse whole-plate neatline; add `neatline_pixel_size_m` to `params/v1.json` (set during
-    tuning on the tuning plates only, as spec 02 task 7.10 requires). The held-out guard (spec 02
-    task 7.2) must still pass.
-    Files: `pipeline/buried_pipeline/extract/region.py`, `pipeline/buried_pipeline/extract/params/v1.json`,
-    `pipeline/buried_pipeline/extract/params.py`, `pipeline/tests/extract/test_region.py`.
-    Requirements: 8.2, 23.5.
+  - [ ] 2.5 Implement `extract/region.py`: region crop at the working pixel size and border drop,
+    inside the map area (spec 02 task 14.1's reader). No neatline detection and no
+    `neatline_pixel_size_m` (session 007: the map area is set by a person). The held-out guard
+    (spec 02 task 7.2) must still pass.
+    Files: `pipeline/buried_pipeline/extract/region.py`, `pipeline/tests/extract/test_region.py`.
+    Requirements: 8.2, 23.5, 25.1.
   - [ ] 2.6 **[PBT] S10** Regions do not change interior proposals (synthetic plates).
     Files: `pipeline/tests/extract/test_region_properties.py`.
     Requirements: 8.5, 23.5.
@@ -360,6 +364,57 @@ Run order: 1, 2, 3, 4, 5, 6, 7, 8 (Service), then 9 to 16 (Studio), then 17 and 
 - [ ] 18. Final check
   - [ ] 18.1 Run `uv run ruff check .` and `uv run pytest` in `pipeline/`, and `npm test`,
     `npm run typecheck` and `npm run test:e2e:studio` in `web/`. All pass. Confirm every property S1
-    to S13 has a passing test and both held-out tests pass.
+    to S14 has a passing test and both held-out tests pass.
     Files: none.
     Requirements: 22.1 to 22.3.
+
+- [ ] 19. Land-use areas (session 007)
+  - [ ] 19.1 Add `land_use` to the trace tool, the review model, the decisions file v2 and the
+    Service API Schema; require a `use` with an attribute read (crop over the lettering); default
+    confidence per design.md; banned-word warning. Example tests, including refusal without a use
+    or without a crop.
+    Files: `web/src/studio/TraceTool.tsx`, `web/src/studio/reviewModel.ts`,
+    `data/schema/studio_api.schema.json`, `pipeline/buried_pipeline/publish/decisions_v2.py`,
+    `pipeline/buried_pipeline/publish/build.py`, `web/src/studio/reviewModel.test.ts`,
+    `pipeline/tests/publish/test_build_v2.py`.
+    Requirements: 24.1 to 24.5.
+
+- [ ] 20. The map area step (session 007; needs spec 02 task 14.1)
+  - [ ] 20.1 Implement `MapAreaStep.tsx`: canon map area read-only when present; otherwise the
+    starting rectangle as a suggestion, vertex editing by mouse and keys, `excluded` text, fold
+    lines, reviewer name; store a `mapArea` in the workspace; dim outside it by opacity; send it
+    with extract, dry-run and publish; include it in the export bundle. The Service checks it with
+    spec 02's reader and refuses extract and publish without one.
+    Files: `web/src/studio/MapAreaStep.tsx`, `web/src/studio/MapAreaStep.test.tsx`,
+    `web/src/workspace/exportBundle.ts`, `pipeline/buried_pipeline/service/extract.py`,
+    `pipeline/buried_pipeline/service/publish.py`, `pipeline/tests/service/test_map_area.py`.
+    Requirements: 25.1 to 25.5, 16.1.
+
+- [ ] 21. Control hull, covers and the 1931-35 edition (session 007; needs spec 02 task 15.1)
+  - [ ] 21.1 Return `control_hull`, `control_hull_area_m2` and `map_area_inside_hull` from the align
+    endpoint and `outside_control_hull` per item from extract and dry run; draw the hull on both
+    panes; show the warning per item and in the list; suggest more points when the share is low.
+    Files: `pipeline/buried_pipeline/service/align.py`, `pipeline/buried_pipeline/service/extract.py`,
+    `data/schema/studio_api.schema.json`, `web/src/studio/AlignView.tsx`,
+    `web/src/studio/ReviewList.tsx`, `pipeline/tests/service/test_align.py`.
+    Requirements: 26.1 to 26.3.
+  - [ ] 21.2 Add the `covers` statements to the reviewed-area dialog and the decisions file v2.
+    Files: `web/src/studio/PublishView.tsx`, `data/schema/studio_api.schema.json`.
+    Requirements: 27.1 to 27.3.
+  - [ ] 21.3 Set the edition years, `years_label` and the 1935 licence note and attribution line in
+    `studioSources.ts`, and extend its test that the Volume 3 constants equal the canon records
+    (separately for the 1911 and 1935 editions).
+    Files: `web/src/studio/studioSources.ts`, `web/src/studio/studioSources.test.ts`.
+    Requirements: 28.1.
+  - [ ] 21.4 Show tone class and weakness flags as text in the review list, labelled "Tone on the
+    scan"; no colour per tone. Document `BURIED_LABEL_MODEL_ID` in `pipeline/.env.example` and the
+    Service README.
+    Files: `web/src/studio/ReviewList.tsx`, `pipeline/.env.example`,
+    `pipeline/buried_pipeline/service/README.md`.
+    Requirements: 9.7, 28.2, 28.3.
+
+- [ ] 22. Session 007 property
+  - [ ] 22.1 **[PBT] S14** Attributes come from reads, never from tones; land use always has a use;
+    nothing outside the map area.
+    Files: `pipeline/tests/publish/test_publish_v2_properties.py`.
+    Requirements: 9.4, 24.1, 24.2, 25.1.

@@ -95,8 +95,9 @@ features, and `Polygon`, `MultiPolygon`, `LineString` and `MultiLineString` for 
 
 2.4 THE Schema SHALL require `position_error_m` to be a number greater than 0.
 
-2.5 THE Schema SHALL allow only the optional attributes `use` (string), `material` (string) and
-`storeys` (integer, at least 1), and SHALL reject any other attribute key.
+2.5 THE Schema SHALL allow only the optional attributes `use` (string), `material` (string),
+`storeys` (integer, at least 1) and, from schema 1.1.0, `street_number` (string, as printed), and
+SHALL reject any other attribute key.
 
 2.6 THE Schema SHALL restrict `status` to `published`, `rejected` and `merged`; WHEN `status` is
 `merged`, THE Schema SHALL require `merged_into` (a feature id); WHEN `status` is `rejected`,
@@ -197,7 +198,9 @@ This is checked by review, not by code, because code does not read steering docs
 
 6.7 THE registry SHALL record `rights_checked_on` as 2026-11-10 for the four showcase plates and
 2026-11-12 for each 1947 aerial and each present-day source, with the licence notes and
-attribution lines in `sources.md`, and `attribution_status: confirmed` for all of them.
+attribution lines in `sources.md`, and `attribution_status: confirmed` for all of them. The two
+1935 plates SHALL carry the 1935 attribution line and licence note from `sources.md` ("The 1935
+edition"), and `year_from: 1931`, `year_to: 1935`.
 
 6.8 THE registry SHALL hold the four present-day sources named in `sources.md` with type
 `present_day_reference`; their `year_from` is the year of the dataset's last refresh and their
@@ -222,7 +225,8 @@ and SHALL be recorded with that derivation in the file's `origin_note`.
 spec.
 
 7.4 THE eras at submission SHALL be `1911` (label "1911 (revised to 1914)", 1911 to 1914), `1935`
-(1935 to 1935), `1947` (1947 to 1947) and `today`.
+(label "1935", 1931 to 1935, because the plates read "January 1931, revised to May 1935"),
+`1947` (1947 to 1947) and `today`.
 
 7.5 THE Validator SHALL reject a contract file with any coordinate outside the project `bounds`,
 except present layers (requirement 21.4).
@@ -434,7 +438,8 @@ feature's origin source, and a feature whose origin-source observation does not 
 `method: origin`.
 
 16.5 THE Validator SHALL reject an observation from an `aerial_photograph` source with visibility
-`clear` or `obscured` unless its `method` is `person`.
+`clear` or `obscured` unless its `method` is `person`, or unless it is the origin observation of a
+feature a person traced from that aerial (requirement 27).
 
 16.6 THE Validator SHALL reject a `match_auto` presence whose `matched_feature` does not exist, is
 not published, is not in this feature's `same_as`, or has an origin source different from the
@@ -582,3 +587,170 @@ is more than 0.001 m from the cited intersection point or building vertex.
 22.3 THE Validator SHALL reject a control point whose `reference_source` is not listed for its
 `reference_kind` in the reference table in design.md (intersections layers for `intersection`,
 building outline layers for `building_corner`).
+
+## Requirement 23: Schema 1.1.0
+
+**User story:** As the maintainer, I want the changes from Kiro sessions 005 and 007 made as one
+reviewed schema version, so that every contract file says which rules it follows.
+
+The real plates showed three things the 1.0.0 schema did not allow for: greyscale scans (no colour
+classes, so a material can only come from lettering), a 1935 edition that is really 1931 revised to
+1935 and held by a second archive, and plate photographs whose margins hold archive labels and a
+ruler. Session 005 also listed changes the Studio needs.
+
+### Acceptance criteria
+
+23.1 THE Schema SHALL move to `schema_version` `1.1.0`, and THE same change SHALL set `1.1.0` in
+every committed contract file (requirement 1.5).
+
+23.2 Every addition in requirements 24 to 31 SHALL be optional or have a stated default, so that a
+1.0.0 file differs from a valid 1.1.0 file only in its `schema_version`, except where a
+requirement below says otherwise.
+
+23.3 THE conformance fixtures SHALL gain a valid and an invalid file for each rule added in
+requirements 24 to 31, and both validators SHALL give the same verdict on them (requirement 9.3).
+
+## Requirement 24: Source years for display, and the 1935 edition
+
+**User story:** As a viewer, I want the evidence card to say "1931, revised to 1935" where a plate
+says so, while the era is still called "1935".
+
+### Acceptance criteria
+
+24.1 THE Schema SHALL allow an optional `years_label` string on a `source`, used for display only.
+THE date logic SHALL NOT read it.
+
+24.2 THE Validator SHALL reject a `years_label` that does not contain both `year_from` and
+`year_to` as four-digit numbers (one of them when they are equal), so the label can never state a
+year the record does not.
+
+24.3 THE registry SHALL record `fip_v3_1911_229` and `fip_v3_1911_232` with
+`years_label: "1911, revised to 1914"`, and `fip_v3_1935_229` and `fip_v3_1935_232` with
+`year_from: 1931`, `year_to: 1935` and `years_label: "1931, revised to 1935"`.
+
+24.4 THE Schema SHALL allow an optional `holding` string on a `source` naming the institution that
+holds the original when it differs from the distributor. THE 1935 plates SHALL have
+`holding: "Library and Archives Canada, National Map Collection, NMC-0013999"`.
+
+## Requirement 25: Attributes read from a source, with their crop
+
+**User story:** As a reviewer, I want every material, storey count, use and street number to say
+where on the plate it was read and by whom, so that a grey tone is never passed off as a material.
+
+### Acceptance criteria
+
+25.1 THE Schema SHALL allow on `provenance` an optional `attribute_reads` array. Each read SHALL
+have `attribute` (`use`, `material`, `storeys` or `street_number`), `crop_px` (integer pixel
+rectangle on the origin source), `read_by` (`person` or `label_assist`), `confirmed_by` and
+`confirmed_at`; and, when `read_by` is `label_assist`, `provider` and `model_id`.
+
+25.2 THE Validator SHALL reject a feature that has `attributes.material` and no `attribute_reads`
+entry for `material`, and a feature with more than one read for the same attribute.
+
+25.3 THE Validator SHALL reject an `attribute_reads` entry for an attribute the feature does not
+have.
+
+25.4 THE Schema SHALL allow on `provenance` an optional `tone_class` (`light`, `mid`, `dark`,
+`hatched` or `mixed`): the fill tone extraction observed on the scan. It is a fact about the
+image, not an attribute, and no consumer SHALL present it as a material.
+
+## Requirement 26: Alignment records without supplied georeferencing
+
+**User story:** As a Studio visitor with an un-georeferenced scan, I want an alignment record from my
+own control points alone.
+
+### Acceptance criteria
+
+26.1 THE Schema SHALL make `alignmentRecord.supplied` optional WHEN `chosen` is `refined`, and
+SHALL require it WHEN `chosen` is `supplied`.
+
+26.2 WHEN `supplied` is absent, THE Validator SHALL require `error_basis: refined_loo_rmse`.
+
+## Requirement 27: Features a person traced from an aerial photograph
+
+**User story:** As a reviewer, I want to trace a building that only the 1947 aerial shows.
+
+### Acceptance criteria
+
+27.1 THE Validator SHALL accept an observation with `method: origin`, `present: true` and
+`visibility: clear` from an `aerial_photograph` source WHEN that source is the feature's origin
+source.
+
+27.2 THE Schema SHALL NOT allow `method: origin` with `present: false`, and THE Validator SHALL
+keep rejecting `match_auto` aerial observations other than `not_covered`.
+
+## Requirement 28: What a reviewed area attests
+
+**User story:** As the Report, I want to know when a person has checked an area for water as well as
+for buildings, so that "Nothing found" can be said for water where it is true.
+
+### Acceptance criteria
+
+28.1 THE Schema SHALL allow an optional `covers` array on a reviewed area, with unique items from
+`building`, `water` and `land_use`, at least one item.
+
+28.2 A reviewed area without `covers` SHALL mean `["building"]`, and every consumer SHALL read it
+that way.
+
+28.3 A reviewed area with `covers` containing a kind SHALL mean that the person named attests that
+every feature of that kind the origin source draws inside it is published in this file.
+
+## Requirement 29: Map area of a plate
+
+**User story:** As the maintainer, I want the part of each plate image that is map content set once
+by a person, so that margins, title blocks, archive labels and rulers never become buildings,
+tiles or coverage.
+
+### Acceptance criteria
+
+29.1 THE Schema SHALL define `mapArea` for `data/control/map_area/<source id>.json`: `schema_version`,
+`source`, `pixel_convention` (`gdal_corner`), `pixel_polygon` (integer vertices, at least 4, one
+simple polygon), `excluded` (a non-empty description of what lies outside it, for example "margin,
+title block, archive labels, ruler"), an optional `fold_lines` array (integer pixel polylines a
+person marked where the paper was folded), `confirmed_by` and `confirmed_at`.
+
+29.2 THE Validator SHALL map `data/control/map_area/*.json` to `mapArea`, and SHALL reject a map
+area whose source is not registered, whose file name is not its source id, or whose polygon is
+invalid. (Whether the polygon lies inside the raster is checked by the pipeline, which has the
+raster; requirement 16 of spec 02.)
+
+29.3 THE Schema SHALL add `map_area` to the `method` values of `mapped_area`. A `mapped_area` with
+`method: map_area` is the map area polygon through the source's chosen transform.
+
+29.4 WHEN a plate has a map area file, THE Validator SHALL reject that plate's evidence file if its
+`mapped_area` method is not `map_area`.
+
+## Requirement 30: Where the alignment was measured
+
+**User story:** As a reviewer, I want to know where on a plate its error figure was measured, so
+that I am warned when a building lies where no control point reached.
+
+### Acceptance criteria
+
+30.1 THE Schema SHALL allow on `alignmentRecord` an optional `control_hull`: a `Polygon` in
+EPSG:26917, the convex hull of the control points' `reference` positions, with
+`control_hull_area_m2`.
+
+30.2 THE Validator SHALL reject a `control_hull` that is not the convex hull of the record's
+control points within 0.01 m.
+
+30.3 `control_hull` SHALL be required in every alignment record written by `align-check` after this
+change; the Validator SHALL accept a record without it only while its `schema_version` is `1.0.0`.
+
+## Requirement 31: Tiles that show the map area, and the full photograph
+
+**User story:** As a viewer, I want the draped plate to show map content only, and the Sources page
+to show the whole photograph with its archive labels, so that nothing about its origin is hidden.
+
+### Acceptance criteria
+
+31.1 THE Schema SHALL allow on `tileSidecar` an optional `crop_px` (the full-resolution pixel
+rectangle the tile covers) and `map_area` (the map area polygon in EPSG:26917); both SHALL be
+present when the source has a map area file.
+
+31.2 THE Schema SHALL allow on `tileSidecar` an optional `full_image` (file name next to the
+sidecar) with `full_width_px` and `full_height_px`: a downsampled copy of the whole raster for the
+Sources page, never draped.
+
+31.3 THE Validator SHALL reject a sidecar whose corners are not the chosen transform applied to the
+corners of `crop_px` (within 0.01 m) when `crop_px` is present.

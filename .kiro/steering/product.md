@@ -38,9 +38,13 @@ submission). Tagline: "Forgotten maps, rebuilt with proof."
 ## Showcase area and eras
 
 - Eastern Avenue at the Don River, Toronto.
-- Eras at submission: **today, 1947, 1935, 1911 (revised to 1914)**.
+- Eras at submission: **today, 1947, 1935, 1911 (revised to 1914)**. The 1935 era is labelled
+  "1935" and covers 1931 to 1935, because the plates read "January 1931, revised to May 1935".
 - Sources: Goad fire insurance plan Volume 3, plates 229 and 232, editions 1911 (rev. 1914) and
-  1935; the 1947 aerial photographs. See `sources.md`.
+  1931 (rev. 1935, which U of T calls the 1935 edition); the 1947 aerial photographs. See
+  `sources.md`.
+- The plate scans are greyscale photographic copies. A grey tone on a scan is not a construction
+  material. Material is recorded only when it is read from the plate's lettering or legend.
 - **Plate 232 (1935) is the held-out plate.** It is never used to tune extraction. It is the plate
   processed live in the demo.
 - An earlier layer is a stretch goal. It needs its own sources before any work starts.
@@ -89,7 +93,11 @@ Outside the coverage area, say "Not reconstructed yet." Nothing else.
 8. **The AI proposes and a person confirms.** No extracted footprint is published without a
    person accepting it. The write-up says so plainly.
 9. **Code does the maths.** Geometry, coordinates, distances, overlaps, intervals and dates are
-   computed in code. An LLM only writes sentences from facts it is given.
+   computed in code. An LLM only writes sentences from facts it is given, with one exception:
+   in the Studio, a vision model may propose the text of a label printed on a source (storeys, a
+   use, a street number, or a material as lettered or in the legend) for a person to confirm or
+   correct. The proposal keeps the crop it was
+   read from. The model never touches geometry, coordinates, dates or confidence.
 10. **Generated sentences are checked before display:** no banned words, no numbers absent from
     the evidence, no sources absent from the evidence pack.
 11. **No invented exact years.** Use "Built by", "Gone by", "Last seen", never "Built in" unless a
@@ -100,5 +108,7 @@ Outside the coverage area, say "Not reconstructed yet." Nothing else.
 - Plain language for non-specialists. Specific numbers with units and sources.
 - The Explorer can be atmospheric. The Report is sober and printable, because it may go to an
   inspector or a lawyer.
-- History before colonial maps is outside what these records cover. Say so plainly, include a
-  respectful land acknowledgement, and link to authoritative sources. Never invent.
+- History before colonial maps is outside what these records cover. Say so plainly: the records
+  Buried uses begin with colonial-era mapping. Buried does not write its own land
+  acknowledgement; it links to the City of Toronto's published land acknowledgement. The
+  maintainer approves the final wording before submission. Never invent.

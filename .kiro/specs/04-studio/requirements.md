@@ -197,8 +197,8 @@ type, title, `year_from`, `year_to`, licence note, attribution line, the date th
 its rights, and the visitor's statement that they may use the image this way.
 
 5.3 IF an upload has no georeferencing, THEN THE Studio SHALL require at least 4 control points and
-use only the refined fit, and SHALL NOT allow publishing from it until spec 01's Schema allows an
-alignment record without supplied georeferencing (design.md "Dependencies on other documents").
+use only the refined fit, and SHALL NOT allow publishing from it until spec 01's Schema 1.1.0 is in
+place (spec 01 task 16, requirement 26).
 
 5.4 THE Studio SHALL tell the visitor, before upload, that the image is held by the Studio service
 for at most 2 hours and is never published by Buried, and that a display copy stays in their
@@ -313,16 +313,20 @@ state SHALL also be named in text in the review list.
 9.3 THE Studio SHALL edit geometry only in full-resolution plate pixels with integer vertices, and
 SHALL refuse an edit that makes the polygon invalid.
 
-9.4 THE Studio SHALL let the visitor set storeys, use and material for an item, and confidence with
-a reason, with the defaults in design.md "Confidence on accept".
+9.4 THE Studio SHALL let the visitor set storeys, use, street number and material for an item, and
+confidence with a reason, with the defaults in design.md "Confidence on accept". Every attribute
+SHALL be recorded with the crop it was read from (spec 01 requirement 25). THE Studio SHALL NOT
+offer `material` without a crop of the plate's lettering or legend that shows it, and SHALL NOT
+fill any attribute from the proposal's tone class.
 
 9.5 THE Studio SHALL record each decision in the decisions file v2 in the workspace with the
 reviewer name and the time of the decision.
 
 9.6 THE Studio SHALL let the visitor undo and redo review actions.
 
-9.7 THE Studio SHALL list every review item in a DOM list with its id, state, material class, area,
-score and recorded attributes, in the same order as keyboard navigation.
+9.7 THE Studio SHALL list every review item in a DOM list with its id, state, kind, tone class,
+area, score, weakness flags (spec 02 requirement 17.5) and recorded attributes, in the same order as
+keyboard navigation. The tone class SHALL be labelled "Tone on the scan", never "Material".
 
 9.8 THE Studio SHALL NOT let one proposal be used by more than one decision.
 
@@ -344,8 +348,9 @@ publish path as a proposal, with kind `water` or `building`.
 10.4 THE `use` attribute of a water feature SHALL hold only a label printed on the source (for
 example a river name), entered or confirmed by the person.
 
-10.5 THE Studio SHALL NOT offer tracing on an aerial photograph until spec 01 allows an origin
-observation from an aerial photograph (design.md "Dependencies on other documents").
+10.5 THE Studio SHALL NOT offer tracing on an aerial photograph until spec 01's Schema 1.1.0 and its
+Validator checks are in place (spec 01 tasks 16 and 17, requirement 27); after that, a traced
+aerial feature has its origin observation from the aerial with `method: origin`.
 
 ## Requirement 11: Label assist
 
@@ -357,9 +362,10 @@ deciding anything.
 11.1 THE Service SHALL read labels only through the label provider interface, and the first provider
 SHALL be Amazon Bedrock.
 
-11.2 WHEN the visitor asks for a label read on an item and field (storeys, use or street number),
-THE Studio SHALL send the plate ref and a crop rectangle, and THE Service SHALL return proposed text
-for that field with the provider name, model id and crop rectangle, or "not legible".
+11.2 WHEN the visitor asks for a label read on an item and field (storeys, use, street number or
+material), THE Studio SHALL send the plate ref and a crop rectangle, and THE Service SHALL return
+proposed text for that field with the provider name, model id and crop rectangle, or "not legible".
+For material, the crop SHALL be of lettering or a legend entry on the plate.
 
 11.3 THE proposed text SHALL become an attribute only when the person confirms or edits it, and THE
 Studio SHALL record the label read (field, crop, provider, model id, proposed text, confirmed text,
@@ -378,8 +384,9 @@ sent to Amazon Bedrock and SHALL require their consent for that upload.
 11.7 THE Studio SHALL show each proposed text as plain text, never as markup, and SHALL warn when it
 contains a banned word as found by `findBannedWords`.
 
-11.8 Street numbers SHALL be kept with the review item in the workspace and the decisions file v2
-only, and SHALL NOT be written to evidence until spec 01's Schema has a field for them.
+11.8 Street numbers SHALL be kept with the review item in the workspace and the decisions file v2,
+and SHALL be written to evidence as `attributes.street_number` with its attribute read once spec
+01's Schema 1.1.0 is in place (spec 01 task 16); until then, not written to evidence.
 
 ## Requirement 12: Aerial observations
 
@@ -637,15 +644,15 @@ items in exactly the same way.
 trace) as well as spec 02's decisions file, and SHALL give every feature the review item id in
 design.md "Review item ids" as `provenance.proposal_id`.
 
-23.2 THE `publish` build functions SHALL build water features with id `wtr_<source id>_<NNNN>` and
-buildings with `bld_<source id>_<NNNN>`, where NNNN is one more than the highest sequence of any
-feature in the file in any status.
+23.2 THE `publish` build functions SHALL build water features with id `wtr_<source id>_<NNNN>`,
+land-use areas with `use_<source id>_<NNNN>` and buildings with `bld_<source id>_<NNNN>`, where NNNN
+is one more than the highest sequence of any feature in the file in any status.
 
 23.3 IF a decisions file v2 uses one proposal in more than one decision, or merges proposals into a
 geometry that is not one valid polygon, THEN `publish` SHALL refuse it and name the decisions.
 
-23.4 THE `publish` build functions SHALL write `mapped_area` as the neatline (or raster footprint)
-intersected with the project bounds.
+23.4 THE `publish` build functions SHALL write `mapped_area` as the map area (spec 02 requirement 16)
+through the chosen transform, intersected with the project bounds.
 
 23.5 THE `extract` functions SHALL accept an optional pixel region and drop every region that
 touches its border.
@@ -655,3 +662,113 @@ touches its border.
 
 23.7 THE `publish` build functions SHALL refuse a decisions file whose reviewed area contains the
 centroid of an undecided proposal, and SHALL name those proposals.
+
+## Requirement 24: Land-use areas
+
+**User story:** As a reviewer, I want to outline a yard or a factory lot and record its use as the
+plate letters it, so that the Report's "past land use" group can say what the records show about
+the ground around a building, not only about buildings.
+
+The showcase plates letter uses on yards and lots as well as on buildings (session 007 read some of
+them, for scoping only). Yards and lumber piles are hatched areas without a solid outline, so
+extraction does not propose them (spec 02 requirement 17.6). No use is written into evidence, story
+text, fixtures or tests from that reading: each enters only through the Studio, read from the plate
+with its crop.
+
+### Acceptance criteria
+
+24.1 THE Studio SHALL let the visitor trace a land-use area on a plate as a polygon, in
+full-resolution plate pixels, through the same trace tool, review actions, decisions file v2 and
+publish path as a traced building, with kind `land_use`.
+
+24.2 A land-use area SHALL require a `use` attribute holding the use as lettered on the plate, with
+an attribute read whose crop shows that lettering (spec 01 requirement 25). THE Studio SHALL NOT
+publish a land-use area without one.
+
+24.3 THE Studio SHALL NOT propose land-use geometry automatically, and SHALL NOT classify a use (for
+example as "industrial"); it records the plate's words.
+
+24.4 THE default confidence of a land-use area SHALL be `documented` with the reason "Area and use
+traced by a person from <source id>", and the reviewer may lower it.
+
+24.5 THE Studio SHALL warn, as for any attribute, when the lettered use contains a banned word, and
+say that the Report will refer to the source and crop instead of quoting it (spec 05 design "Uses
+that cannot be printed").
+
+## Requirement 25: The map area step
+
+**User story:** As a reviewer, I want to mark once where the map content is on a plate, so that
+margins, archive labels and the ruler never become proposals, tiles or coverage.
+
+### Acceptance criteria
+
+25.1 BEFORE Extract, THE Studio SHALL require a map area for the plate: the canon file
+`data/control/map_area/<source id>.json` when it exists, else one the visitor draws as a pixel
+polygon, with a description of what lies outside it and their reviewer name.
+
+25.2 THE Studio MAY offer a starting rectangle (the image minus a margin), and SHALL show it as a
+suggestion the visitor must move or confirm. THE Studio and the Service SHALL NOT detect a map area
+or neatline automatically.
+
+25.3 THE visitor MAY mark fold lines on the plate; proposals touching them are flagged
+(spec 02 requirement 17.4).
+
+25.4 THE map area SHALL be stored in the workspace in spec 01's `mapArea` shape, sent with extract
+and publish requests, and included in the export bundle at `data/control/map_area/<source id>.json`.
+
+25.5 THE Studio SHALL show the whole image, including what lies outside the map area, while the
+map area is drawn, and SHALL dim (by opacity only) what lies outside it afterwards.
+
+## Requirement 26: Where the alignment was measured
+
+**User story:** As a reviewer, I want to see where my control points are and be warned about
+buildings outside them, because the error figure was measured inside them.
+
+### Acceptance criteria
+
+26.1 THE Studio SHALL draw the alignment record's `control_hull` (spec 01 requirement 30) on both
+the plate and today's map, labelled "Area measured by control points".
+
+26.2 WHEN a review item lies partly or wholly outside the control hull, THE Studio SHALL show, next
+to it and in the review list, "Outside the area the control points cover; the position figure was
+measured elsewhere on this plate." THE warning SHALL NOT block publishing.
+
+26.3 THE Align step SHALL show the share of the map area inside the hull, and SHALL suggest adding
+control points where the share is low. (The figure comes from the Service; the Studio computes
+nothing.)
+
+## Requirement 27: What a reviewed area covers
+
+**User story:** As a reviewer, I want to say that I checked an area for water and land use as well
+as buildings, so that the Report can say "Nothing found" for those where it is true.
+
+### Acceptance criteria
+
+27.1 WHEN the visitor draws a reviewed area, THE Studio SHALL ask which kinds it attests: buildings
+(always), and optionally water and land use, each with its own statement ("Every water feature this
+plate draws inside this area has been traced.").
+
+27.2 THE Studio SHALL write the answer as the reviewed area's `covers` (spec 01 requirement 28).
+
+27.3 IF a reviewed area covers a kind and the plate draws an untraced feature of that kind inside
+it, THEN that is the reviewer's error; THE Studio SHALL show the statement in full before the
+reviewer confirms it.
+
+## Requirement 28: The 1931-35 edition and greyscale plates in the Studio
+
+**User story:** As a reviewer, I want the Studio to show each plate's real years and credit, and
+the scan as it is.
+
+### Acceptance criteria
+
+28.1 THE Studio SHALL give an unregistered index plate from the `vol3_1935` layer `year_from: 1931`,
+`year_to: 1935`, `years_label: "1931, revised to 1935"` and the 1935 licence note and attribution
+line from `sources.md`; and one from the `vol3_19111914` layer 1911 to 1914 with
+`years_label: "1911, revised to 1914"`.
+
+28.2 THE Studio SHALL show plates in their original grey tones, changing only opacity, and SHALL
+NOT show a tone class as a colour.
+
+28.3 THE Service's documentation and `pipeline/.env.example` SHALL say that `BURIED_LABEL_MODEL_ID`
+must be a vision-capable Anthropic Claude model enabled in the account's Bedrock region, and THE
+Service SHALL have no default model id.

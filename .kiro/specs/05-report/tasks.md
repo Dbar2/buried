@@ -112,11 +112,14 @@ Examples and fixtures use synthetic geometry. No test or fixture states what sto
     parsing) and add the route to `App.tsx`.
     Files: `web/src/report/ReportRoute.tsx`, `web/src/App.tsx`, `web/src/report/ReportRoute.test.tsx`.
     Requirements: 1.1, 1.2, 14.2, 14.3.
-  - [ ] 5.3 Supply the land acknowledgement text and its authoritative link, and confirm
-    `ONTARIO_DIG_AUTHORITY_URL` and `CITY_FLOOD_SUBSIDY_URL` (maintainer). Then add a test that all
-    three are non-empty and that the acknowledgement passes `findBannedWords`. The builder does not
-    write the acknowledgement; the maintainer supplies it.
-    Files: `web/src/report/copy.ts`, `web/src/report/copy.test.ts`.
+  - [ ] 5.3 Look up and link-check the City of Toronto's land acknowledgement page and its basement
+    flooding protection subsidy page (do not guess either URL), record both in `sources.md`'s
+    link-only rows, and set `CITY_LAND_ACKNOWLEDGEMENT_URL` and `CITY_FLOOD_SUBSIDY_URL`; set
+    `ONTARIO_DIG_AUTHORITY_URL` to `https://ontariodigauthority.ca/`. The maintainer approves the
+    wording of `BEFORE_COLONIAL` and `LAND_ACKNOWLEDGEMENT_LINK` before submission. Then add a test
+    that all three URLs are non-empty `https` URLs and that every string passes `findBannedWords`.
+    Buried does not write a land acknowledgement.
+    Files: `web/src/report/copy.ts`, `web/src/report/copy.test.ts`, `.kiro/steering/sources.md`.
     Requirements: 8.2, 9.1.
   - [ ] 5.4 WCAG contrast test on the Report tokens (4.5:1 text, 3:1 large text and rules). If a pair
     fails, report it; do not change a token without the maintainer.
@@ -177,3 +180,22 @@ Examples and fixtures use synthetic geometry. No test or fixture states what sto
     covers the Report.
     Files: none.
     Requirements: 17.1.
+
+- [ ] 11. Session 007 changes (needs spec 01 tasks 16, 18 and 19)
+  - [ ] 11.1 Set `LOT_POSITION_ERROR_M = 2.0` with its reason (or the dataset's figure by the rule in
+    design.md "Lot position error", never below 2.0 m), and update the coverage and radii tests
+    that assumed 1.0 m.
+    Files: `web/src/report/lotError.ts`, `web/src/report/coverage.test.ts`.
+    Requirements: 2.2.
+  - [ ] 11.2 Use `reviewedAreaCovers` in `coverage.ts` and `findings.ts`: water "Nothing found" only
+    where every clear source's reviewed areas at the lot cover water; the same for land-use areas.
+    Update **[PBT] R5** to the new rule.
+    Files: `web/src/report/coverage.ts`, `web/src/report/findings.ts`,
+    `web/src/report/findings.property.test.ts`.
+    Requirements: 7.3, 7.4.
+  - [ ] 11.3 Include `land_use` features in the Past land use group ("an area", "N areas"), word
+    source years with `sourceYearsText` through the `years` slot, and never show a material without
+    an attribute read. Example tests with a synthetic land-use area and a 1931-35 source.
+    Files: `web/src/report/findings.ts`, `web/src/report/sentence.ts`,
+    `web/src/report/findings.test.ts`.
+    Requirements: 18.1 to 18.3.

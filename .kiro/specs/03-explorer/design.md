@@ -308,7 +308,8 @@ existing entries gets `scene/addFeatures` with the new entries; any other differ
 - storeys or "Storeys: not recorded";
 - per source checked (presences, absences, conflicts and not-counted from `entry.dates`, each source
   once): `<source id> (<years>): present`, `absent (clear)`, or `not readable (obscured)` /
-  `not covered`;
+  `not covered`, where `<years>` is spec 01's `sourceYearsText(source)` once it exists (spec 01
+  task 19.1): the source's `years_label`, such as "1931, revised to 1935", else the range;
 - "Read from <title>" and the attribution line of the drawn member's origin source;
 - "Confirmed by <confirmed_by> on <date>" from that member's provenance;
 - the feature id, and `linkedIds` when there is more than one.
@@ -785,3 +786,30 @@ and registry, every string `cardModel` and `FeatureList` produce has no match in
   `buried publish` before any demo, and `npm run check:demo` enforces that.
 - **Water comes from the Studio** (session 005). A person traces it; nothing extracts water
   automatically.
+
+## Changes from session 007 (tasks to be added after task group 1)
+
+Session 007 recorded facts about the real plates that reach the Explorer. They do not change task
+group 1 (the gate), which is being built now. Tasks for them are added to `tasks.md` at the end,
+after group 1 is done, so the builder's file is not edited mid-task.
+
+- **The 1935 era covers 1931 to 1935** (spec 01 requirement 7.4). The era id and label stay
+  `1935` and "1935". `eraOrder` sorts by `year_to`, so the order is unchanged. `drapesForEra` still
+  picks the 1935 plates for the 1935 era, since their range equals the era's. No year crosses the
+  bridge, so the Player is unaffected.
+- **Evidence card years.** The card shows each source's years through `sourceYearsText`
+  ("1931, revised to 1935"), not a computed range (see "Evidence card").
+- **Map-area tiles** (spec 02 requirements 16 and 19). Plate tiles now cover the bounding box of the
+  plate's map area, and the sidecar carries `crop_px` and `map_area`. The corners in the sidecar
+  still describe the tile exactly, so draping is unchanged. The Player clips a plate drape to the
+  `map_area` polygon (a stencil or a per-pixel mask from the polygon in drape UV space) so that
+  pixels inside the box but outside the polygon are not shown. This needs one optional field on the
+  drape payload (`clip`: the polygon in local metres), so the bridge goes to a minor version with
+  it. Opacity is the only change to the raster; the clip removes non-map pixels, it does not
+  recolour any.
+- **Sources page.** Each plate's entry shows its full uncropped photograph (`full_image` from the
+  sidecar, spec 01 requirement 31.2), archive labels included, with its title, `years_label`,
+  `holding`, licence note and attribution line. The 1935 plates show the Library and Archives
+  Canada credit line.
+- **Greyscale drapes.** The plates are single-band; the Player loads them as they are. Nothing
+  tints them.

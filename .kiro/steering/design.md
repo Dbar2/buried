@@ -19,21 +19,34 @@ locking them, and record the results here.
 | `fog` | `#1B2129` | Panels, ground haze |
 | `present` | `#2E3742` | Today's buildings |
 | `ink` | `#E8DFC8` | Ghosts, archival lines |
-| `lantern` | `#F2A541` | Focus, selection, pinned lot, primary actions |
+| `lantern` | `#F2A541` | Pinned lot, primary actions |
 | `water` | `#5FB3B3` | Documented water, shorelines |
 | `text` | `#EDEAE3` | Body text |
 | `muted` | `#9AA3AD` | Secondary text |
 
 - The present is cold, the past is warm. Do not mix them: no warm tint on today's buildings, no
   blue tint on ghosts.
-- `lantern` marks one thing at a time: the current focus. Never use it for decoration.
+- `lantern` marks the pinned lot and primary actions only. Never use it for decoration, and never
+  for selection. A selected feature or review item has a brighter, thicker `ink` outline plus its
+  DOM label. The Studio has no pinned lot, so it uses no `lantern` on its maps.
 - `water` is only for documented water features. Never for links, info or generic accents.
 - Body text is `text` on `night` or `fog`. Text must meet 4.5:1; large text and UI outlines 3:1.
 - Define tokens once (CSS custom properties in `web/`, one C# palette asset in `unity/`). No raw
   hex values in components or materials.
 
-Report theme (light paper) uses its own tokens, defined next to the Report. It is near-monochrome:
-dark ink on off-white, with grey rules. It does not use `lantern`, `water` or `fog`.
+Report theme (light paper) uses its own tokens, defined next to the Report
+(`web/src/report/report.tokens.css`, spec 05). It is near-monochrome: dark ink on off-white, with
+grey rules. It does not use `lantern`, `water` or `fog`. Starting values:
+
+| Token | Hex | Use |
+|---|---|---|
+| `--report-paper` | `#FBFAF7` | Background |
+| `--report-ink` | `#1A1A18` | Text, solid badges |
+| `--report-ink-soft` | `#4D4C48` | Secondary text |
+| `--report-rule` | `#8E8D88` | Rules, outlines |
+
+Contrast results: not measured yet. Spec 05 task 5.4 measures them and records them here; a token
+that fails is changed only with the maintainer.
 
 ## Type
 
@@ -41,7 +54,9 @@ dark ink on off-white, with grey rules. It does not use `lantern`, `water` or `f
 - UI and body: Inter.
 - Dates, plate numbers, source ids, coordinates, error margins: IBM Plex Mono.
 - Self-host the font files with the shell; do not load them from a CDN at runtime.
-- Body size at least 16 px. Numbers with units always carry the unit: `about 4.0 m`, `1947`.
+- Body size at least 16 px on screen. The printed Report uses the smaller point sizes in spec 05
+  "Print" (body 9.5 pt) so that it fits one page; this is the only exception.
+  Numbers with units always carry the unit: `about 4.0 m`, `1947`.
 - Position error is always worded "Positioned within about X m", never `±` or any wording that
   reads as an absolute bound. The text comes from the Evidence Library, not from components.
 
@@ -99,11 +114,14 @@ and labels appear in the scene, the evidence card, the list view and the Report.
 - **The past.** Ghosts are drawn like ink on paper: thin `ink` edges, a translucent pale fill,
   slight self-illumination. They glow faintly; they do not bloom or flicker.
 - **The pinned lot.** Outlined in `lantern` on the ground in every era. One small warm light near
-  it. That is the only warm light in the scene.
+  it. That is the only warm light in the scene. A selected ghost uses the brighter, thicker `ink`
+  outline, not `lantern`.
 - **Water.** Documented water renders as faint `water` light on the ground under today's streets.
   Never as animated waves.
-- **Draped rasters.** Plates and aerials are shown with their original colours. Do not tint,
-  sharpen or stylise a source raster; it is evidence. Fade its opacity only.
+- **Draped rasters.** Plates and aerials are shown with their original colours (the plates are
+  greyscale). Do not tint, sharpen or stylise a source raster; it is evidence. Fade its opacity
+  only. A plate drape shows its map area only; the full photograph, with archive labels, is on the
+  Sources page.
 - **Show Evidence.** The selected ghost goes transparent and the source raster appears beneath it.
 - **Restraint.** No particles, lens flares, chromatic aberration, film grain or camera shake.
   Post-processing is limited to tone mapping and subtle bloom on `ink` and `lantern` only.

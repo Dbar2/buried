@@ -46,15 +46,15 @@ ReportModel ──► ReportView.tsx  (route /report, panel beside Explorer or 2
 
 ## Lot position error
 
-`LOT_POSITION_ERROR_M = 1.0`.
+`LOT_POSITION_ERROR_M = 2.0`.
 
-Reason, recorded with the constant: the task brief sets 1.0 m for City of Toronto property
-boundaries unless the dataset states otherwise. When this spec was written, no accuracy statement
-had been recorded from the `property-boundaries` package. Task 1.1 reads the package page, its
-metadata and any readme on the CKAN portal at the time of spec 02 task 10.5's retrieval. If they
-state a positional accuracy, the constant becomes that value rounded up to the next 0.1 m (and never
-below 1.0 m), and this section records the statement, where it was found and the date. If they
-state none, the value stays 1.0 m and this section records that none was found.
+Reason, recorded with the constant (session 007): the City's property boundaries layer is a mapping
+product, not a survey, so its lines are not survey-accurate; 2.0 m matches the floor Buried uses
+for a plate's alignment error. Task 1.1 reads the package page, its metadata and any readme on the
+CKAN portal at the time of spec 02 task 10.5's retrieval. If they state a positional accuracy, the
+constant becomes that value rounded up to the next 0.1 m (and never below 2.0 m), and this section
+records the statement, where it was found and the date. If they state none, the value stays 2.0 m
+and this section records that none was found.
 
 The value is added to every feature's `position_error_m` inside spec 01's `lotRelation`
 (`e = feature error + lot error`), so a larger lot error only ever moves findings from "on this lot"
@@ -242,10 +242,13 @@ with its years and coverage.
 |---|---|---|
 | Fill and old structures | If R is non-empty: `nothing_found`, "No building is drawn at this lot or within 10 m in these records." If M is non-empty: `not_covered`, "<M sources> show this lot, but not every building they draw here has been checked." | If M is non-empty, the same `not_covered` finding is added. |
 | Past land use | If any building or land-use feature is in range without a `use`: `not_covered`, "Uses are not recorded for N buildings drawn at this lot or within 30 m of it." Else if R is non-empty: `nothing_found`, "No building or land use is drawn at this lot or within 30 m in these records." If M is non-empty: the M `not_covered` finding. | The "uses not recorded" and M findings are added when they apply. |
-| Water history | Always `not_covered`: "No record Buried has read has been checked for water at this lot. Water is traced by hand, and a record can show water that has not been traced." | None added. |
+| Water history | `nothing_found`, "No water is drawn at this lot or within 100 m in these records.", only when every plate source in R has the lot inside reviewed areas whose `covers` include `water` at 100 m (spec 01 `reviewedAreaCovers`). Otherwise `not_covered`: "No record Buried has read has been checked for water at this lot. Water is traced by hand, and a record can show water that has not been traced." | None added. |
 
-Water never says "Nothing found" (requirement 7.4), because a reviewed area attests buildings only
-(spec 01 requirement 19.3). The wording uses "at this lot", never "on this lot", because it makes no
+Water says "Nothing found" only where a person attested water as well as buildings (requirement
+7.4), because a reviewed area without `water` in `covers` attests buildings only (spec 01
+requirement 28). The same rule applies to land-use areas in the Past land use group: an area with
+no land-use feature counts toward "Nothing found" only where `covers` includes `land_use`; buildings
+with uses count as before. The wording uses "at this lot", never "on this lot", because it makes no
 relation claim.
 
 ## Core sample
@@ -279,7 +282,7 @@ One band per era in spec 03's era order:
 | Slot | Renders | Adds to the pack |
 |---|---|---|
 | `num(n)` | integer as decimal | `numbers` |
-| `years(source)` | `1911–1914` or `1935` from the registry | both years to `numbers`, the id to `ids` |
+| `years(source)` | `sourceYearsText(source)` from the registry: `1911, revised to 1914`, `1931, revised to 1935`, or `1947` | both years to `numbers`, the id to `ids` |
 | `id(x)` | a source or feature id | `ids` |
 | `quote(text)` | `'text'` | `verbatim` |
 | `dates(summary)` | `datePhrases(summary)` joined by " · " | the summary's `builtBy`, `lastSeen`, `goneBy`, `notYetBuiltAt` to `numbers` |
@@ -314,7 +317,9 @@ wording is ever added. `buildReport` runs it on every sentence; a failure makes 
 
 If a `use` (or a water label) contains a banned word, the Report does not quote it. The finding
 says: "A use printed on <source id> is recorded for a building {on this lot | near this lot
-(within X m)}. Its wording is not reproduced in this report; see the source." Such uses are grouped
+(within X m)}. Its wording is not reproduced in this report; see the source." When the feature has
+an attribute read for `use`, the sentence also names the crop (`crop <x>,<y> <width>×<height> px`,
+all numbers in the pack). Such uses are grouped
 per source, not per text. The Studio warns the reviewer when this will happen (spec 04).
 
 ## Fixed copy
@@ -331,19 +336,21 @@ per source, not per text. The Studio warns the reviewer when this will happen (s
 | `CANNOT_CONDITION` | These records cannot tell you about present-day soil, water or structural condition. |
 | `CANNOT_YEARS` (template) | They cover only the years of these records: <year ranges>. They say nothing about this place in other years. |
 | `CANNOT_UTILITIES` | They do not show underground utilities. |
-| `BEFORE_COLONIAL` | History before colonial maps is outside what these records cover. |
-| `LAND_ACKNOWLEDGEMENT` | Supplied by the maintainer from an authoritative source, with its link (task 5.3). Not written by Buried. |
+| `BEFORE_COLONIAL` | History before colonial maps is outside what these records cover. The records Buried uses begin with colonial-era mapping. |
+| `LAND_ACKNOWLEDGEMENT_LINK` | "Read the City of Toronto's land acknowledgement" with `CITY_LAND_ACKNOWLEDGEMENT_URL`. Buried does not write its own acknowledgement (session 007). The maintainer approves the final wording before submission (task 5.3). |
+| `CITY_LAND_ACKNOWLEDGEMENT_URL` | The City's published page, looked up and link-checked by task 5.3 and recorded in `sources.md`. Not guessed. |
 | `DIG_NOT_LOCATES` | Buried's maps are not utility locates. |
 | `DIG_REQUEST` | Request locates through Ontario Dig Authority before you dig. |
-| `ONTARIO_DIG_AUTHORITY_URL` | Confirmed by the maintainer (task 5.3). |
+| `ONTARIO_DIG_AUTHORITY_URL` | `https://ontariodigauthority.ca/` (session 007; recorded in `sources.md`). |
 | `NEXT_WATER` | Ask your inspector to look for signs of past water, and ask the seller about basement water. The City of Toronto offers basement flooding protection subsidies. |
-| `CITY_FLOOD_SUBSIDY_URL` | Confirmed by the maintainer (task 5.3). |
+| `CITY_FLOOD_SUBSIDY_URL` | The City's basement flooding protection subsidy page, looked up and link-checked by task 5.3 and recorded in `sources.md`. Not guessed. |
 | `NEXT_LAND_USE` | If any of these uses was industrial or fuel-related, ask whether an environmental review exists before you dig. |
 | `NEXT_STRUCTURES` | Mention these records to your structural engineer before underpinning or extending. |
 | `WORKSPACE_LINE` | These findings come from work saved in this browser. They are not part of Buried's published records, and the share link does not include them. |
 
 `<year ranges>` is the merged year ranges of the plate sources whose lot coverage is `reviewed` or
-`mapped`, plus the aerials that cover the lot, written as `1911–1914, 1935, 1947`.
+`mapped`, plus the aerials that cover the lot, written as `1911–1914, 1931–1935, 1947`. (Merged
+ranges are numeric; `years_label` is used where a single source is named.)
 
 ## Sources section
 
@@ -458,7 +465,8 @@ req 7.2)*
 
 **R5. "Nothing found" only where every clear record was checked.** For every input, a group has a
 `nothing_found` finding only if every source listed as clear has `reviewed` coverage at that
-group's radius; and the water group never has one. *(req 7.3, 7.4)*
+group's radius; and the water group has one only if every such source's reviewed areas at the lot
+include `water` in `covers`. *(req 7.3, 7.4)*
 
 **R6. Outside coverage there is nothing else.** For every lot that does not intersect the coverage
 area with positive area, and every lot id not in the layer, the model is exactly
@@ -475,7 +483,7 @@ inserted that its pack does not hold, `checkSentence` fails. *(product rule 10; 
 **R9. Required parts, in order.** For every input inside coverage, the model's first sentence is
 `SCREENS_LINE`, the sections appear in the order of requirement 4.1, `cannotTell` contains the
 condition, years and utilities sentences and `BEFORE_COLONIAL`, and `beforeYouDig` contains both
-dig sentences. *(product rules 6 and 7; req 4.1 to 4.3, 8.1, 9.1)*
+dig sentences, and `cannotTell` also contains the land acknowledgement link. *(product rules 6 and 7; req 4.1 to 4.3, 8.1, 8.2, 9.1)*
 
 **R10. The workspace never reaches canon parts.** For every canon and workspace input, the core
 sample, the canon groups, the share link and the canon source entries contain no workspace feature
@@ -495,7 +503,8 @@ when n exceeds the limit, with the count `n − PRINT_FINDINGS_PER_GROUP`. *(req
 - Unit tests next to each pure module: lot coverage cases (each row of the table), radii edges
   (exactly at the radius), each template, each fixed string, the empty-group table, ordering.
 - Example reports on synthetic fixtures: a lot with a 1911 and 1935 linked building gone by 1947
-  (person-set aerial absence); one "Last seen 1935"; a conflicted set; water near the lot; water then
+  (person-set aerial absence); one "Last seen 1931" (a building on a 1935 plate, whose years are
+  1931 to 1935); a conflicted set; water near the lot; water then
   a building on the lot; a use containing a banned word; a lot covered only by a workspace plate; a
   lot outside coverage. Source ids are the real plate ids; geometry is synthetic; no example states
   what stood on a real lot.
@@ -509,14 +518,14 @@ when n exceeds the limit, with the count `n − PRINT_FINDINGS_PER_GROUP`. *(req
 
 ## Dependencies on other documents
 
-| Document | Change needed | Effect until then |
+| Document | Change needed | Status (session 007) |
 |---|---|---|
-| `tech.md` | PDF rendering decided: the browser's print-to-PDF from a print stylesheet; no server. | Nothing blocked. |
-| `design.md` | The 16 px minimum body size applies on screen; print uses the sizes in "Print" so the Report fits one page. Record the Report tokens and their contrast results. | Print sizes here depart from `design.md` as written. |
-| `sources.md` | A link-only row for the City of Toronto basement flooding protection subsidy page, like the Ontario Dig Authority row. | `CITY_FLOOD_SUBSIDY_URL` cannot be shown until it exists. |
-| Spec 01 | A way to record that a reviewed area covers water as well as buildings (for example a `covers` list on `coverageArea`, schema 1.1.0). | Water history never says "Nothing found" (requirement 7.4). |
-| Spec 03 | The Explorer reads `?lot=&era=` (task 6.1 here) and hosts the Report panel. | Code changes are tasks here. |
-| Spec 04 | `mergeForDisplay` and `originOf`. | The workspace section waits for spec 04 task 9.2. |
+| `tech.md` | PDF rendering decided: the browser's print-to-PDF from a print stylesheet; no server. | Done. |
+| `design.md` | The 16 px minimum body size applies on screen; print uses the sizes in "Print" so the Report fits one page. Record the Report tokens and their contrast results. | Done; contrast results to be recorded by task 5.4. |
+| `sources.md` | A link-only row for the City of Toronto basement flooding protection subsidy page, like the Ontario Dig Authority row. | Done; the URL is filled in by task 5.3. A row for the City's land acknowledgement page was added too. |
+| Spec 01 | A way to record that a reviewed area covers water as well as buildings (for example a `covers` list on `coverageArea`, schema 1.1.0). | Spec 01 requirement 28, tasks 16 and 19.2; task 11 here. |
+| Spec 03 | The Explorer reads `?lot=&era=` (task 6.1 here) and hosts the Report panel. | Unchanged; code changes are tasks here. |
+| Spec 04 | `mergeForDisplay` and `originOf`. | Unchanged; the workspace section waits for spec 04 task 9.2. |
 
 ## Decisions and reasons
 
@@ -533,11 +542,15 @@ when n exceeds the limit, with the count `n − PRINT_FINDINGS_PER_GROUP`. *(req
   `design.md` asks, read conservatively.
 - **Uses listed as printed, not classified.** Code deciding that a use was "industrial" would be a
   judgement the records do not make. The next step asks the reader and their professional to judge.
-- **Water never "Nothing found".** A reviewed area attests buildings only, so the absence of a
-  traced creek is not evidence of no creek.
+- **Water "Nothing found" only where water was attested.** A reviewed area attests buildings unless
+  its `covers` says more, so the absence of a traced creek is evidence of no creek only where a
+  person said they traced all water there.
 - **Water then building is stated as two records.** "Fill" is an inference; the Report states what
   each record shows and puts it in the group whose next step asks a structural engineer.
 - **Canon parts built before the workspace is read.** Separation by construction, so property R10
   holds by design and the share link always reproduces what a recipient will see.
-- **Lot error 1.0 m by default.** From the brief. It may be optimistic for a parcel fabric; see the
-  open question in the session reply.
+- **Lot error 2.0 m by default** (session 007). The parcel layer is a mapping product, not a survey;
+  1.0 m, the earlier value, was likely optimistic. A larger lot error only moves findings from "on
+  this lot" to "near this lot".
+- **No land acknowledgement written by Buried** (session 007). The Report links to the City of
+  Toronto's published acknowledgement and says the records begin with colonial-era mapping.

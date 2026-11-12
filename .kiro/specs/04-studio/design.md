@@ -81,7 +81,7 @@ Decided in this spec because the Service is the first part of Buried that needs 
 | `pipeline/buried_pipeline/service/labels/prompt.py` | The fixed prompt per field. |
 | `pipeline/buried_pipeline/publish/decisions_v2.py` | Pure: decisions file v2 to the items `publish/build.py` builds; review item ids. |
 | `pipeline/buried_pipeline/publish/build.py` | Extended (requirement 23). |
-| `pipeline/buried_pipeline/extract/region.py` | Pure: region crop, border drop, coarse neatline on the whole plate. |
+| `pipeline/buried_pipeline/extract/region.py` | Pure: region crop and border drop, inside the map area. |
 | `pipeline/Dockerfile`, `pipeline/.dockerignore` | Service image. |
 | `pipeline/.env.example` | Variable names only. |
 | `pipeline/tests/service/**` | Service tests, fakes for HTTP and the label provider. |
@@ -209,9 +209,10 @@ refuses to publish proposals made under a different alignment record.
   steps 2 to 7 on it, and drop every region whose pixels touch the crop border. Proposal ids use
   full-resolution pixel polygons, so an interior proposal has the same id, geometry and score as in
   a whole-plate run (property S13).
-- Neatline: found on the whole plate read at a coarse pixel size (`neatline_pixel_size_m` in the
-  parameter set, added by this spec with a value set during tuning on the tuning plates only), so
-  the proposal file header has the plate's neatline even when the region does not include it.
+- Map area: the request carries the plate's map area (canon file or workspace, requirement 25), and
+  extraction works inside it on the whole plate and on a region alike. There is no neatline
+  detection (spec 02 requirement 16.5), so the proposal file header carries the map area even when
+  the region does not reach it.
 - Proposals not inside the project bounds are dropped and counted.
 
 ### Raster cache
@@ -273,7 +274,7 @@ and expire within the hour.
 | `BURIED_CACHE_DIR`, `BURIED_CACHE_MAX_BYTES` | Raster cache. |
 | `BURIED_MAX_UPLOAD_BYTES`, `BURIED_MAX_PIXELS` | Upload limits. |
 | `BURIED_LABEL_PROVIDER` | `bedrock` or `none` (default `none`). |
-| `BURIED_LABEL_MODEL_ID` | Bedrock model id. No default: the maintainer sets it. |
+| `BURIED_LABEL_MODEL_ID` | Bedrock model id. Must be a vision-capable Anthropic Claude model enabled in the account's Bedrock region. No default: the maintainer sets it. |
 | `BURIED_LABEL_DAILY_CAP` | Daily label cap. |
 | `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | Bedrock credentials, as Railway secrets. |
 | `BURIED_TEST_MODE`, `BURIED_TEST_PLATES_DIR` | End-to-end tests only: serve synthetic plates from a local directory instead of U of T. Refused at startup unless `BURIED_TEST_MODE=1`, and the health body then says `test_mode: true`. |
@@ -409,13 +410,16 @@ and split, and absent for trace.
 As spec 02 "Building features", with these changes:
 
 - geometry: the decision's pixel geometry (or the proposal's) through the chosen transform;
-- `kind`: `building`, or `water` for a water trace; id prefix `bld_` or `wtr_`; the sequence is one
-  more than the highest sequence of any feature in the file in any status;
-- `material`: the proposal's class for accept and split; for merge, the class only when every
-  merged proposal has the same class; none for trace;
+- `kind`: `building`, `water` for a water trace, or `land_use` for a land-use trace; id prefix
+  `bld_`, `wtr_` or `use_`; the sequence is one more than the highest sequence of any feature in
+  the file in any status;
+- `material`: only from the decision's attributes with an attribute read (spec 02 requirement
+  20.3); never from the proposal. The proposal's `tone_class` goes to `provenance.tone_class` for
+  accept and split, and for merge only when every merged proposal has the same tone class;
 - `crop_px`: the bounding box of the pixel geometry;
 - confidence: the decision's, else the defaults in "Confidence on accept";
-- `mapped_area`: the neatline (or raster footprint) intersected with the project bounds, so that a
+- `mapped_area`: the map area through the chosen transform (`method: map_area`), intersected with
+  the project bounds, so that a
   plate reaching past the bounds still passes spec 01 requirement 7.5. Spec 02 never meets this
   case, because the bounds contain the four showcase plates.
 
@@ -428,6 +432,7 @@ Defaults the Studio fills in and the reviewer may change:
 | Building with confirmed storeys | `documented` | "Footprint and storeys read from <source id>" plus, when label assist proposed the storeys, "; storeys from a machine-read label confirmed by a person" |
 | Building without storeys | `estimated` | "Footprint read from <source id>; storeys not recorded" (spec 02's default) |
 | Water trace | `documented` | "Traced by a person from the water drawn on <source id>" |
+| Land-use trace | `documented` | "Area and use traced by a person from <source id>" (requirement 24.4) |
 
 These strings are fixed templates in `reviewModel.ts` and pass `findBannedWords`.
 
@@ -442,7 +447,9 @@ These strings are fixed templates in `reviewModel.ts` and pass `findBannedWords`
   <download URL from the pattern>, licence_note: <the Volume 3 note in sources.md>,
   attribution_line: <the Volume 3 line in sources.md>, attribution_status: "confirmed",
   rights_checked_on: null, held_out: false }`. Edition years: the `vol3_19111914` layer gives 1911
-  to 1914, `vol3_1935` gives 1935 to 1935. `rights_checked_on` stays null because no person has
+  to 1914 (`years_label` "1911, revised to 1914"), `vol3_1935` gives 1931 to 1935 (`years_label`
+  "1931, revised to 1935", the 1935 licence note and attribution line; requirement 28.1).
+  `rights_checked_on` stays null because no person has
   checked that item's rights statement; the Sources page says "Rights not checked for this item;
   U of T labels the Volume 3 plates out of copyright (collection checked 2026-11-10)."
 - **Upload**: `{ id: "ws_upload_<12 hex>", type, title, year_from, year_to, url: "upload:<plate
@@ -790,6 +797,12 @@ the upload id rewrite. *(req 16.2, 16.3)*
 state and match decisions: the canon files after `workspace_match` are byte-identical to before;
 no workspace feature links to a canon feature; and the overlay validates. *(req 12.3, 12.4)*
 
+**S14. Attributes come from reads, never from tones (Python).** For every generated proposal file,
+decisions file v2 and map area: every published `material`, and every land-use `use`, has an
+attribute read with a crop; no published attribute equals or derives from a proposal's
+`tone_class`; every land-use feature has a `use`; and no proposal or feature has its centroid outside
+the map area. *(req 9.4, 24.1, 24.2, 25.1)*
+
 ## Testing strategy
 
 - **Service**: FastAPI `TestClient`; spec 02's HTTP fake for U of T and ArcGIS; a fake label
@@ -812,21 +825,67 @@ no workspace feature links to a canon feature; and the overlay validates. *(req 
 
 ## Dependencies on other documents
 
-This spec needs changes that this session could not make. They are listed in the session reply
-for a later session. Until they are made, the parts that depend on them stay disabled as stated.
+This spec needed changes that session 005 could not make. Session 007 applied them; the table
+records where each one went. The Studio parts that waited for them are enabled once the named task
+is done.
 
-| Document | Change needed | What waits for it |
+| Document | Change needed | Status (session 007) |
 |---|---|---|
-| `product.md` rule 9 | Allow a vision model to propose the text of a printed label for a person to confirm. | Label assist (requirement 11) conflicts with rule 9 as written. |
-| `tech.md` | Record: hosting (Pages, Railway), the Service as an API server, Bedrock as the label provider, no third-party basemap; the pipeline also runs as a service; FastAPI in the stack; new commands. | Nothing is blocked, but the steering doc is out of date. |
-| `structure.md` | Add `studio_api.schema.json` and its fixtures to `data/schema/`; the `ws_upload_<hex>` workspace id form; the workspace as a place that is not `data/`. | Nothing is blocked. |
-| `sources.md` | A rule for workspace sources (unregistered Volume 3 plates and uploads shown only to the visitor who brought them, on the Sources page "Your workspace" section). | Requirement 6 conflicts with "no source enters the shell until it has a row here" as written. |
-| `design.md` | `lantern` marks the pinned lot and primary actions only; selection is a brighter, thicker `ink` outline. | Nothing is blocked; the Studio already follows the session 005 answer. |
-| Spec 01 | `alignmentRecord.supplied` optional when `chosen` is `refined` (uploads without georeferencing). | Publishing from such uploads (requirement 5.3). |
-| Spec 01 | Allow `method: origin` on an `aerial_photograph` observation for a feature a person traced from that aerial (requirement 16.5 rejects it today). | Tracing on aerials (requirement 10.5). |
-| Spec 01 | An attribute for street numbers. | Street numbers in evidence (requirement 11.8). |
-| Spec 02 | Requirement 1.5 scoped to the CLI commands, with the Service's label provider as the one place a model is called; requirement 2.2 noting the Service's own download rule; the decisions file v2, review item ids, water features, shared sequence, region extraction, coarse neatline and `mapped_area` ∩ bounds (requirement 23); the proposal file shape promoted to the Service API Schema. | Nothing is blocked; the code changes are tasks in this spec. |
-| Spec 03 | Bridge version `1.1.0` with `blob:` drape URLs; `MapView2D` using `presentLayers.ts`; view models taking `originOf`. | Workspace drapes and labels; the changes are tasks in this spec. |
+| `product.md` rule 9 | Allow a vision model to propose the text of a printed label for a person to confirm. | Done. |
+| `tech.md` | Record: hosting (Pages, Railway), the Service as an API server, Bedrock as the label provider, no third-party basemap; the pipeline also runs as a service; FastAPI in the stack; new commands. | Done. Commands are recorded by the tasks that add them. |
+| `structure.md` | Add `studio_api.schema.json` and its fixtures to `data/schema/`; the `ws_upload_<hex>` workspace id form; the workspace as a place that is not `data/`. | Done. |
+| `sources.md` | A rule for workspace sources (unregistered Volume 3 plates and uploads shown only to the visitor who brought them, on the Sources page "Your workspace" section). | Done ("Workspace sources (Studio)"). |
+| `design.md` | `lantern` marks the pinned lot and primary actions only; selection is a brighter, thicker `ink` outline. | Done. |
+| Spec 01 | `alignmentRecord.supplied` optional when `chosen` is `refined` (uploads without georeferencing). | Spec 01 requirement 26, task 16. Requirement 5.3 here waits for it. |
+| Spec 01 | Allow `method: origin` on an `aerial_photograph` observation for a feature a person traced from that aerial (requirement 16.5 rejects it today). | Spec 01 requirement 27, tasks 16 and 17. Requirement 10.5 here waits for them. |
+| Spec 01 | An attribute for street numbers. | Spec 01 requirement 2.5 (`street_number`), task 16. |
+| Spec 02 | Requirement 1.5 scoped to the CLI commands, with the Service's label provider as the one place a model is called; requirement 2.2 noting the Service's own download rule; the decisions file v2, review item ids, water features, shared sequence, region extraction, coarse neatline and `mapped_area` ∩ bounds (requirement 23); the proposal file shape promoted to the Service API Schema. | Done: spec 02 requirements 1.5, 2.2 and 20. The coarse neatline is replaced by the person-set map area (spec 02 requirement 16). |
+| Spec 03 | Bridge version `1.1.0` with `blob:` drape URLs; `MapView2D` using `presentLayers.ts`; view models taking `originOf`. | Unchanged: the code changes are tasks in this spec. Spec 03 also gains an optional drape `clip` (map area) in a later minor version; the two minor versions are combined when the second is written. |
+
+Session 007 adds land-use areas (requirement 24), the map area step (25), the control hull warning
+(26), reviewed-area `covers` (27) and the 1931-35 edition (28). See "Session 007 additions".
+
+## Session 007 additions
+
+### Map area step (requirement 25)
+
+A sub-step at the start of Extract, shown once per plate. If canon has
+`data/control/map_area/<source id>.json`, the Studio shows it read-only. Otherwise the plate pane
+shows the whole image (labels, ruler and margin included) with a starting rectangle inset 3% from
+each edge, labelled "Suggested start: move the corners to the edge of the map". The visitor moves,
+adds or removes vertices (same keys as vertex editing), types what lies outside ("margin, title
+block, archive labels, ruler"), optionally draws fold lines, and confirms under their reviewer name.
+The result is a `mapArea` (spec 01) in the workspace. Extract and publish requests carry it; the
+Service checks it with spec 02's `extract/maparea.py` checks. Outside the confirmed polygon the
+plate is drawn at lower opacity. For the held-out plate this happens live, like every other step.
+
+### Land-use areas (requirement 24)
+
+The trace tool gains a third kind. A land-use trace is a polygon; on finishing it the Studio asks
+for the use as lettered, with a crop rectangle the visitor drags over the lettering (label assist
+may propose the text for that crop). The review list labels it "Land use: '<use>'". Publish builds
+`use_<source id>_<NNNN>` features with the land-use default confidence. Matching across sources
+(`buried match`) considers buildings only; land-use areas carry their origin observation alone, so
+the Report dates them from their own plate.
+
+### Control hull (requirement 26)
+
+The align response includes `control_hull`, `control_hull_area_m2` and `map_area_inside_hull`
+(a share in [0, 1] computed by spec 02's `align/hull.py`). The Studio draws the hull as a dashed
+`muted` outline on both panes. For each review item, the Service's extract and dry-run responses
+include `outside_control_hull: bool` computed in EPSG:26917, so the Studio does no geometry.
+
+### Reviewed areas with `covers` (requirement 27)
+
+The reviewed-area dialog has three statements with checkboxes: buildings (checked, cannot be
+cleared), water, land use. The decisions file v2 carries `covers`; publish writes it.
+
+### Greyscale plates and tone class (requirement 28, spec 02 requirement 17)
+
+The plate pane draws the image in its own grey tones. The review list shows "Tone on the scan:
+light | mid | dark | hatched | mixed" and the weakness flags as text ("Outline not closed",
+"Hatched fill", "Text over the shape", "Touches the map edge", "Touches a fold"). Nothing in the
+Studio maps a tone to a colour or a material.
 
 ## Decisions and reasons
 
@@ -855,9 +914,11 @@ for a later session. Until they are made, the parts that depend on them stay dis
 - **Review item ids in `proposal_id`.** Merges, splits and traces need stable ids for idempotent
   publishing. Deriving them from proposal ids and pixel geometry keeps them stable without a schema
   change.
-- **Label reads kept in the decisions file, not in evidence.** Spec 01's Schema has no field for
-  attribute provenance. The confidence reason says when a label was machine-read, and the full
-  record travels in the export.
+- **Label reads kept in the decisions file, and from schema 1.1.0 also in evidence.** Spec 01
+  schema 1.0.0 had no field for attribute provenance. Schema 1.1.0 adds
+  `provenance.attribute_reads`, so each published attribute carries its crop, whether a person or
+  label assist read it, and the model id. The confidence reason still says when a label was
+  machine-read, and the full label read record travels in the export.
 - **`rights_checked_on: null` for unregistered Volume 3 plates.** No person has checked that item.
   The collection-level statement is shown, and the per-item check happens when the plate enters
   canon.

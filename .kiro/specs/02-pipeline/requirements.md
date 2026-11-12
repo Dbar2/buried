@@ -48,6 +48,10 @@ Rules come from `.kiro/steering/` (`tech.md`, `structure.md`, `sources.md`, `evi
 - **Chosen transform**: the transform an alignment record selects (`supplied` or `refined`). Tile,
   extract and publish all use it.
 - **Proposal**: a candidate footprint written by `extract` to `data/work/proposals/`.
+- **Map area**: `data/control/map_area/<source id>.json` (spec 01 `mapArea`), the pixel polygon of
+  a plate image that is map content, set once by a person.
+- **Tone class**: the fill tone extraction observed inside a proposal on the greyscale scan
+  (`light`, `mid`, `dark`, `hatched`, `mixed`). A fact about the image, never a material.
 - **Decisions file**: `data/work/review/<source id>.json`, a person's accept or reject for each
   proposal, with name and time.
 
@@ -70,8 +74,10 @@ directory that contains `.kiro/`, and SHALL accept `--root PATH` to override it.
 1.4 THE Pipeline SHALL keep transform, residual, polygon and scoring maths in modules that perform
 no file or network I/O.
 
-1.5 THE Pipeline SHALL NOT call any language or vision model, and SHALL compute all geometry,
-coordinates and dates in code.
+1.5 THE Pipeline's CLI commands SHALL NOT call any language or vision model, and SHALL compute all
+geometry, coordinates and dates in code. The one place in the package that calls a model is the
+Studio service's label provider (spec 04 requirement 11), which proposes label text for a person to
+confirm and never touches geometry, coordinates or dates.
 
 1.6 WHEN a command fails, THE Pipeline SHALL print what failed and why, exit with a non-zero
 status, and leave no partly written output file (writes go to a temporary file in the same
@@ -95,7 +101,9 @@ source of type `fire_insurance_plan` and every registered `aerial_photograph` so
 source ids, it SHALL download only those.
 
 2.2 THE Pipeline SHALL download only sources present in the Registry, and SHALL refuse a fire
-insurance plan URL that does not match one of the two download patterns in `sources.md`.
+insurance plan URL that does not match one of the two download patterns in `sources.md`. (The
+Studio service also downloads Volume 3 index plates that are not in the Registry, by its own rule
+in spec 04 requirement 3.1, using the same URL function and the same two patterns.)
 
 2.3 IF a source's `rights_checked_on` is null, THEN THE Pipeline SHALL refuse to download it and
 SHALL tell the user to check the item's rights statement and record the date in the Registry.
@@ -250,7 +258,8 @@ and `data/tiles/<source id>.json` (spec 01 `tileSidecar`) for each source.
 Pipeline SHALL refuse to tile it.
 
 7.3 THE Pipeline SHALL downsample with area averaging so the long edge is at most 4096 pixels, write
-JPEG at quality 85, and SHALL NOT tint, sharpen, colour-correct or crop the image.
+JPEG at quality 85, and SHALL NOT tint, sharpen or colour-correct the image. It SHALL crop a plate
+only to its map area (requirement 16) and SHALL NOT crop it in any other way.
 
 7.4 THE Pipeline SHALL compute the four corners by applying the chosen transform to the
 full-resolution raster's pixel corners.
@@ -269,14 +278,15 @@ processing, so that I only have to confirm or fix them.
 ### Acceptance criteria
 
 8.1 WHEN `buried extract <SOURCE_ID>` runs, THE Pipeline SHALL propose building footprints using
-deterministic image processing only: colour classification against the material classes of the
-plate legend, black outline detection and closing, region labelling, contour tracing and polygon
-simplification.
+deterministic image processing only, on tone and line work: local-contrast normalisation, black
+outline detection and closing, grey-fill regions bounded by outlines, region labelling, contour
+tracing and polygon simplification (requirement 17). The plates are greyscale; it SHALL NOT use
+colour classes.
 
 8.2 THE Pipeline SHALL write proposals to `data/work/proposals/<source id>.geojson` in EPSG:26917,
-each with a proposal id, material class (or `unclassified`), pixel polygon, pixel crop rectangle,
+each with a proposal id, `tone_class` (requirement 17.2), pixel polygon, pixel crop rectangle,
 area in square metres, quality score with its components, parameter set id, and the SHA-256 of the
-alignment record used.
+alignment record and of the map area file used.
 
 8.3 THE Pipeline SHALL produce byte-identical output for the same raster, parameter set and
 alignment record.
@@ -288,8 +298,11 @@ contain plate-specific thresholds.
 
 8.6 THE Pipeline SHALL NOT read labels, storey counts, uses or addresses in this step.
 
-8.7 THE Pipeline SHALL write the plate's neatline to the proposal file header as a pixel polygon
-and as an EPSG:26917 polygon through the chosen transform, or `neatline: "not_found"`.
+8.7 THE Pipeline SHALL work only inside the plate's map area (requirement 16): IF the source has no
+map area file, THEN THE Pipeline SHALL refuse to extract; it SHALL drop every region whose centroid
+lies outside the map area, and SHALL write the map area to the proposal file header as a pixel
+polygon and as an EPSG:26917 polygon through the chosen transform. It SHALL NOT detect a neatline
+or map area by itself.
 
 ## Requirement 9: Held-out plate
 
@@ -350,10 +363,10 @@ fails, THEN THE Pipeline SHALL write nothing and print the errors.
 10.9 IF the source is not registered or its `attribution_status` is `to_be_confirmed`, THEN THE
 Pipeline SHALL refuse to publish.
 
-10.10 THE Pipeline SHALL write the evidence file's `mapped_area` from the proposal file's neatline,
-or from the raster footprint under the chosen transform when the neatline was not found, and SHALL
-add each reviewed area in the decisions file (pixel polygon, `confirmed_by`, `confirmed_at`)
-through the chosen transform. It SHALL never remove or change an existing reviewed area.
+10.10 THE Pipeline SHALL write the evidence file's `mapped_area` as the map area through the chosen
+transform with `method: map_area` (requirement 16), and SHALL add each reviewed area in the
+decisions file (pixel polygon, `confirmed_by`, `confirmed_at`, and `covers` when given) through the
+chosen transform. It SHALL never remove or change an existing reviewed area.
 
 10.11 THE Pipeline SHALL write every new feature's origin observation with `method: origin`.
 
@@ -574,3 +587,118 @@ functions.
 
 15.6 THE Pipeline SHALL NOT write a control file, and SHALL NOT use a predicted pixel as a control
 point. A person records the pixel they judge to be the crossing.
+
+## Requirement 16: Map area of a plate
+
+**User story:** As the maintainer, I want each plate's map content marked once by a person, so that
+margins, the title block, the scale bar, the north arrow, archive labels and the ruler in the 1935
+photographs never become proposals, tiles or coverage.
+
+### Acceptance criteria
+
+16.1 THE map area of a plate SHALL be read from `data/control/map_area/<source id>.json` (spec 01
+`mapArea`). A person writes it, by hand or through the Studio (spec 04). No command SHALL write or
+change it.
+
+16.2 THE Pipeline SHALL refuse a map area whose polygon has a vertex outside the raster's pixel
+extent, that is not a single valid polygon, or whose `source` is not the file's source id.
+
+16.3 `tile`, `extract` and `publish` SHALL refuse a fire insurance plan with no map area file, and
+SHALL name the file to write.
+
+16.4 THE Pipeline SHALL apply the map area the same way in every command: the full-resolution pixel
+polygon, mapped through the chosen transform when a coordinate is needed.
+
+16.5 THE Pipeline SHALL NOT detect a neatline, a map area or a margin by itself, and SHALL NOT
+suggest one silently. (The Studio may draw a person's starting rectangle; a person confirms it.)
+
+## Requirement 17: Greyscale proposals
+
+**User story:** As a reviewer, I want proposals that say what the scan shows (a grey tone, an open
+outline, hatching, text over the shape) and never a material the scan cannot show.
+
+The scans are single-band greyscale photographic copies. Buildings are grey-filled shapes with black
+outlines in a small number of grey tones; some carry diagonal hatching, an X (stable or shed) or a
+skylight mark; yards and lumber piles are hatched areas without a solid outline.
+
+### Acceptance criteria
+
+17.1 THE extraction steps SHALL be: convert to one grey band; local-contrast normalisation; outline
+mask by dark-line detection and morphological closing; fill regions bounded by the outline mask;
+region labelling, hole filling and area filter; contour tracing and simplification; all at the
+parameter set's working pixel size and thresholds.
+
+17.2 THE Pipeline SHALL give each proposal a `tone_class` from the normalised grey values and the
+hatch measure inside the region (`light`, `mid`, `dark`, `hatched` or `mixed`), by thresholds in the
+parameter set.
+
+17.3 THE Pipeline SHALL NOT write `material` on a proposal or derive any attribute from a tone. THE
+publish step SHALL NOT copy `tone_class` into `attributes`; it SHALL copy it into
+`provenance.tone_class`.
+
+17.4 THE quality score SHALL keep the rule `score = min(components)` and SHALL include these
+components, each in [0, 1]: `outline_closure` (share of the boundary on an outline), `fill_uniformity`
+(1 for a uniform fill, low for hatching or mixed tones), `text_clear` (1 minus the share of the region
+covered by small dark connected marks such as lettering), `edge_clear` (0 when the region touches the
+map area boundary or a fold line marked in the map area file, else 1) and `shape_fidelity`.
+
+17.5 THE Pipeline SHALL list with each proposal the weakness flags that pulled its score down
+(`open_outline`, `hatched_fill`, `text_overlap`, `touches_edge`, `touches_fold`), so the reviewer
+sees why it is weak.
+
+17.6 Hatched areas without a solid outline (yards, lumber piles) SHALL NOT be proposed as buildings.
+A person may trace them as land-use areas in the Studio (spec 04 requirement 24).
+
+## Requirement 18: Where the alignment was measured
+
+**User story:** As a reviewer, I want each alignment record to say where its control points are, so
+that features outside that area are flagged.
+
+### Acceptance criteria
+
+18.1 `align-check` SHALL write `control_hull` (the convex hull of the control points' reference
+positions, EPSG:26917, 3 decimals) and `control_hull_area_m2` into the alignment record (spec 01
+requirement 30).
+
+18.2 THE printed summary SHALL show the hull area and the share of the map area's ground footprint
+that lies inside the hull, when the plate has a map area.
+
+18.3 THE hull SHALL be computed by a pure function.
+
+## Requirement 19: The full photograph for the Sources page
+
+**User story:** As a reader, I want to see the whole photograph of each plate, archive labels and
+ruler included, so that nothing about its origin is hidden.
+
+### Acceptance criteria
+
+19.1 `buried tile` SHALL also write `data/tiles/<source id>_full.jpg`: the whole raster, uncropped,
+area-averaged so the long edge is at most 2048 pixels, JPEG quality 85, no other change; and SHALL
+name it in the sidecar's `full_image` with its size.
+
+19.2 THE map-area tile SHALL cover the axis-aligned pixel bounding box of the map area. Pixels inside
+that box SHALL be written unchanged; the sidecar SHALL carry `crop_px` and `map_area` so the
+Explorer can clip the drape to the polygon (spec 03).
+
+19.3 THE sidecar corners SHALL be the chosen transform applied to the corners of `crop_px`, and the
+bilinear check (7.5) SHALL run on that box.
+
+## Requirement 20: Studio extensions
+
+**User story:** As the maintainer, I want the changes spec 04 makes to this pipeline recorded here, so
+that the CLI and the Studio share one implementation.
+
+### Acceptance criteria
+
+20.1 THE publish and extract functions SHALL implement spec 04 requirement 23 (decisions file v2 with
+accept, reject, merge, split and trace; review item ids as `provenance.proposal_id`; water and
+land-use features; one sequence across kinds; region extraction; `mapped_area` intersected with the
+project bounds; the undecided-proposal check for reviewed areas). Where spec 04 says "neatline", the
+map area of requirement 16 applies.
+
+20.2 THE proposal file shape SHALL be defined in spec 04's Service API Schema, and the CLI SHALL write
+files that validate against it.
+
+20.3 THE decisions file v2 SHALL carry label reads and attribute reads with their crops, and publish
+SHALL write them as `provenance.attribute_reads` (spec 01 requirement 25). A decision that sets
+`material` without a read SHALL be refused.

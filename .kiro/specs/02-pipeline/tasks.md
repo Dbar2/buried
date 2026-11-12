@@ -8,7 +8,8 @@ clip the intersections layer, and report the plate's alignment error in metres.*
 depend on spec 01. Use `fip_v3_1911_229` or `fip_v3_1935_229` for the gate, not the held-out plate.
 
 Task numbers are stable, so the run order is not numeric:
-1, 2, 10.1 to 10.4 (present layers, intersections first), 3, 4, 5, 10.5, 6, 7, 8, 11, 9.
+1, 2, 10.1 to 10.4 (present layers, intersections first), 3, 4, 5, 10.5, 6, 15, 14 (needs spec 01
+task 16), 7, 8, 16, 11, 9.
 
 - [x] 1. Create the package and fetch the showcase plates
   - [x] 1.1 Create the uv project: Python 3.12, package `buried_pipeline`, console script `buried`,
@@ -191,13 +192,14 @@ Task numbers are stable, so the run order is not numeric:
     temp dir by the test itself.
     Files: `pipeline/tests/extract/test_held_out.py`.
     Requirements: 9.1, 9.2, 9.3.
-  - [ ] 7.3 Implement the pure steps: colour classes, outlines, regions, polygons, scores, proposal
-    ids.
-    Files: `pipeline/buried_pipeline/extract/colour.py`, `pipeline/buried_pipeline/extract/outline.py`,
+  - [ ] 7.3 Implement the pure steps for greyscale plates (design.md "Steps", requirement 17): grey
+    band, local-contrast normalisation, outlines, regions, polygons, tone class, scores with
+    weakness flags, proposal ids. No colour classes and no material.
+    Files: `pipeline/buried_pipeline/extract/tone.py`, `pipeline/buried_pipeline/extract/outline.py`,
     `pipeline/buried_pipeline/extract/regions.py`, `pipeline/buried_pipeline/extract/polygons.py`,
     `pipeline/buried_pipeline/extract/score.py`, `pipeline/tests/extract/test_steps.py`,
     `pipeline/tests/helpers/synthetic_plate.py`.
-    Requirements: 1.4, 1.5, 8.1, 8.6.
+    Requirements: 1.4, 1.5, 8.1, 8.6, 17.1 to 17.5.
   - [ ] 7.4 **[PBT] X1** Proposals are valid polygons above the minimum area.
     Files: `pipeline/tests/extract/test_extract_properties.py`.
     Requirements: 8.1.
@@ -207,15 +209,16 @@ Task numbers are stable, so the run order is not numeric:
   - [ ] 7.6 **[PBT] X4** Scores are bounded and equal the minimum component.
     Files: `pipeline/tests/extract/test_extract_properties.py`.
     Requirements: 8.2.
-  - [ ] 7.7 **[PBT] X5** Synthetic rectangles are recovered with IoU at least 0.9 and no extras.
+  - [ ] 7.7 **[PBT] X5** Synthetic greyscale rectangles are recovered with IoU at least 0.9 and
+    their tone class, with no extras.
     Files: `pipeline/tests/extract/test_extract_properties.py`.
     Requirements: 8.1.
-  - [ ] 7.8 Implement `buried extract <SOURCE_ID>`: refuse without an alignment record, neatline
-    rule, write the proposal file with sorted output and the neatline header (`neatline`,
-    `neatline_px`, `neatline_geometry`).
+  - [ ] 7.8 Implement `buried extract <SOURCE_ID>`: refuse without an alignment record or a map
+    area file (task 14.1), work inside the map area, write the proposal file with sorted output and
+    the map area header (`map_area_sha256`, `map_area_px`, `map_area_geometry`).
     Files: `pipeline/buried_pipeline/extract/run.py`, `pipeline/buried_pipeline/cli.py`,
     `pipeline/tests/extract/test_run.py`.
-    Requirements: 8.2, 8.3, 8.5, 8.7, 9.4.
+    Requirements: 8.2, 8.3, 8.5, 8.7, 9.4, 16.3.
   - [ ] 7.9 **[PBT] X2** Determinism: two runs give byte-identical files.
     Files: `pipeline/tests/extract/test_extract_properties.py`.
     Requirements: 8.3.
@@ -235,10 +238,12 @@ Task numbers are stable, so the run order is not numeric:
 - [ ] 8. Publish accepted proposals (needs spec 01 task 4)
   - [ ] 8.1 Implement `publish/build.py` (pure): decisions to features per design.md, id
     allocation, skip already-published proposal ids, digitising term and position error rule,
-    origin observation with `method: origin`, confidence rule, `mapped_area` and reviewed areas.
+    origin observation with `method: origin`, confidence rule, `mapped_area` from the map area,
+    reviewed areas with `covers`, `tone_class` into provenance, attribute reads with their crops,
+    and refusal of `material` without a read.
     Files: `pipeline/buried_pipeline/publish/__init__.py`, `pipeline/buried_pipeline/publish/build.py`,
     `pipeline/tests/publish/test_build.py`.
-    Requirements: 10.2, 10.4 to 10.7, 10.10, 10.11.
+    Requirements: 10.2, 10.4 to 10.7, 10.10, 10.11, 17.3, 20.3.
   - [ ] 8.2 Implement `buried publish <SOURCE_ID>`: refusals (unregistered, attribution not
     confirmed, stale alignment), in-process validation of the would-be `data/` state, atomic write,
     printed counts.
@@ -270,10 +275,10 @@ Task numbers are stable, so the run order is not numeric:
     Files: `pipeline/tests/publish/test_publish_properties.py`.
     Requirements: 10.10.
 
-- [ ] 9. Final check (run last, after task 11)
+- [ ] 9. Final check (run last, after tasks 11 and 14 to 16)
   - [ ] 9.1 Run `uv run ruff check .`, `uv run pytest` and `uv run buried validate` from
-    `pipeline/`. All pass. Confirm every property A1 to A9, T1, X1 to X5, U1 to U6, F1, R1, R2 and
-    M1 to M7 has a passing test, and the held-out guard passes.
+    `pipeline/`. All pass. Confirm every property A1 to A10, T1, T2, X1 to X6, U1 to U6, F1, R1, R2
+    and M1 to M7 has a passing test, and the held-out guard passes.
     Files: none.
     Requirements: 1.4 to 1.7, 9.3.
 
@@ -412,3 +417,60 @@ Task numbers are stable, so the run order is not numeric:
     `fip_v3_1911_229` and `fip_v3_1935_229` (session 006: 39 and 62 intersections inside).
     Files: `.kiro/steering/tech.md`.
     Requirements: 1.8.
+
+- [ ] 14. Map areas, map-area tiles and the full photograph (session 007; needs spec 01 task 16)
+  - [ ] 14.1 Implement `extract/maparea.py`: read `data/control/map_area/<source id>.json`, check it
+    against the Schema, the source id and the raster's pixel extent; one reader for tile, extract
+    and publish. Refusal messages name the file to write.
+    Files: `pipeline/buried_pipeline/extract/maparea.py`, `pipeline/tests/extract/test_maparea.py`.
+    Requirements: 16.1 to 16.5.
+  - [ ] 14.2 Change `buried tile`: refuse a plate without a map area; tile the map area's bounding
+    box (`crop_px`) with no other pixel change; corners from the window's corners; sidecar
+    `crop_px` and `map_area`; also write `<source id>_full.jpg` (long edge at most 2048 px) and the
+    sidecar's `full_image` fields. Extend T1 to crop windows.
+    Files: `pipeline/buried_pipeline/tile/run.py`, `pipeline/buried_pipeline/tile/corners.py`,
+    `pipeline/tests/tile/test_run.py`, `pipeline/tests/tile/test_tile_properties.py`.
+    Requirements: 7.3, 7.4, 16.3, 19.1 to 19.3.
+  - [ ] 14.3 **[PBT] T2** The tile shows the map area and nothing is recoloured.
+    Files: `pipeline/tests/tile/test_tile_properties.py`.
+    Requirements: 7.3, 19.1, 19.2.
+  - [ ] 14.4 Maintainer: write `data/control/map_area/fip_v3_1911_229.json` and
+    `data/control/map_area/fip_v3_1935_229.json` by eye (excluding margin, title block, scale bar,
+    north arrow, and on the 1935 photograph the archive labels and the ruler), with `excluded`
+    saying what was left out. Then rerun `uv run buried tile fip_v3_1911_229 fip_v3_1935_229` and
+    commit the new tiles, full images and sidecars. Tell whoever is working on the Explorer that the
+    tile corners changed (the gate test projects control points from reference coordinates, so it
+    is not affected). Do not write a map area for `fip_v3_1935_232`; it is made live in the Studio.
+    Files: `data/control/map_area/*.json`, `data/tiles/*`.
+    Requirements: 16.1, 19.1, 19.2.
+  - [ ] 14.5 Update the `buried tile` line in `.kiro/steering/tech.md` (map area required; full
+    image written).
+    Files: `.kiro/steering/tech.md`.
+    Requirements: 1.8.
+
+- [ ] 15. Control hull in alignment records (session 007; needs spec 01 task 16)
+  - [ ] 15.1 Implement `align/hull.py` (pure) and write `control_hull` and `control_hull_area_m2`
+    from `align-check`; print the hull area and, with a map area, the share of it inside the hull.
+    Files: `pipeline/buried_pipeline/align/hull.py`, `pipeline/buried_pipeline/align/run.py`,
+    `pipeline/tests/align/test_hull.py`.
+    Requirements: 18.1 to 18.3.
+  - [ ] 15.2 **[PBT] A10** The control hull is the convex hull.
+    Files: `pipeline/tests/align/test_align_properties.py`.
+    Requirements: 18.1.
+  - [ ] 15.3 Maintainer: rerun `uv run buried align-check fip_v3_1911_229` and
+    `uv run buried align-check fip_v3_1935_229` so both records carry the hull; the error figures
+    must not change (4.3 m and 3.1 m). If one changes, stop and report.
+    Files: `data/alignment/*.json`.
+    Requirements: 18.1.
+
+- [ ] 16. Greyscale extraction checks (session 007; with task 7)
+  - [ ] 16.1 **[PBT] X6** Nothing outside the map area; no material from a tone; a map area vertex
+    outside the raster makes extract, tile and publish refuse.
+    Files: `pipeline/tests/extract/test_extract_properties.py`.
+    Requirements: 8.7, 16.2, 16.3, 17.3.
+  - [ ] 16.2 Extend the held-out guard to `data/control/map_area/`: no map area file for
+    `fip_v3_1935_232` may be committed before the demo. Tuning fixtures carry the person's tone
+    class per expected polygon, and the fixture regression test also reports tone-class agreement
+    (not gated).
+    Files: `pipeline/tests/extract/test_held_out.py`, `pipeline/tests/extract/test_fixtures.py`.
+    Requirements: 9.3, 17.2.

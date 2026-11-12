@@ -194,9 +194,12 @@ source = {
 
 The four plates are entered with the values in `sources.md`: `fip_v3_1911_229` and
 `fip_v3_1911_232` with `year_from: 1911, year_to: 1914`; `fip_v3_1935_229` and `fip_v3_1935_232`
-with 1935 to 1935; attribution "Digitized and georeferenced by the University of Toronto Map & Data
-Library."; `attribution_status: confirmed`; `rights_checked_on: 2026-11-10`; `held_out: true` only
-on `fip_v3_1935_232`. URLs follow the download patterns in `sources.md`.
+with 1931 to 1935 (the plates read "January 1931, revised to May 1935"; schema 1.1.0, requirement
+24); attribution "Digitized and georeferenced by the University of Toronto Map & Data Library." for
+the 1911 plates and "Library and Archives Canada, National Map Collection (NMC-0013999). Digitized
+and georeferenced by the University of Toronto Map & Data Library." for the 1935 plates;
+`attribution_status: confirmed`; `rights_checked_on: 2026-11-10`; `held_out: true` only on
+`fip_v3_1935_232`. URLs follow the download patterns in `sources.md`.
 
 1947 aerial records are added one by one, each only after its id is listed under "1947 aerial
 records in use" in `sources.md`: type `aerial_photograph`, 1947 to 1947, `url` = the record's
@@ -238,13 +241,18 @@ not match what it sees.
 | id | label | year_from | year_to |
 |---|---|---|---|
 | `1911` | 1911 (revised to 1914) | 1911 | 1914 |
-| `1935` | 1935 | 1935 | 1935 |
+| `1935` | 1935 | 1931 | 1935 |
 | `1947` | 1947 | 1947 | 1947 |
 | `today` | Today | 2026 | 2026 |
 
   `today` uses 2026, the retrieval year of the present-day layers. Today's buildings come from
   the building outlines present layer and are drawn as context by the Explorer, not through the
   date logic. Nothing is drawn in `today` from evidence unless a feature's window reaches 2026.
+
+  The `1935` era covers 1931 to 1935 (session 007), the same range as its plates. Two
+  consequences follow from the date rules and are intended: a building seen only on a 1935 plate
+  is drawn in the `1935` era (its window is 1931 to 1935), and its phrases are "Built by 1935" and
+  "Last seen 1931", because the plate shows the place at some point in that range.
 
 ### controlPoints
 
@@ -334,6 +342,70 @@ presentFeature = {
 
 Present layers are reference data, not evidence. Which fields each layer keeps is set in spec 02.
 
+### Schema 1.1.0 additions (sessions 005 and 007)
+
+Requirements 23 to 31. Every addition is optional, so the 1.0.0 shapes above stay valid apart from
+`schema_version`.
+
+```
+source += {
+  "years_label"?: string,     // display only, e.g. "1931, revised to 1935"; contains the years
+  "holding"?: string          // institution holding the original, when not the distributor
+}
+
+feature.properties.attributes += { "street_number"?: string }   // as printed
+
+provenance += {
+  "attribute_reads"?: [ {
+      "attribute": "use" | "material" | "storeys" | "street_number",
+      "crop_px": { x, y, width, height },          // origin-source pixels
+      "read_by": "person" | "label_assist",
+      "provider"?: string, "model_id"?: string,    // required when label_assist
+      "confirmed_by": string, "confirmed_at": dateTime } ],
+  "tone_class"?: "light" | "mid" | "dark" | "hatched" | "mixed"
+}
+
+coverageArea (reviewed areas only) += { "covers"?: [ "building" | "water" | "land_use", ... ] }
+coverageArea.method += "map_area"                  // mapped_area only
+
+alignmentRecord:
+  "supplied" optional when "chosen" is "refined"
+  += { "control_hull"?: Polygon (EPSG:26917), "control_hull_area_m2"?: number }
+
+tileSidecar += {
+  "crop_px"?: { x, y, width, height },             // full-resolution pixels the tile covers
+  "map_area"?: Polygon (EPSG:26917),
+  "full_image"?: string, "full_width_px"?: int, "full_height_px"?: int
+}
+
+mapArea = {                                        // data/control/map_area/<source id>.json
+  "schema_version": "1.1.0",
+  "source": sourceId,
+  "pixel_convention": "gdal_corner",
+  "pixel_polygon": [[x, y], ...],                  // integers, >= 4 vertices, one simple ring
+  "excluded": string,                              // what lies outside: margin, labels, ruler
+  "fold_lines"?: [ [[x, y], ...], ... ],           // integer pixel polylines, marked by the person
+  "confirmed_by": string, "confirmed_at": dateTime
+}
+```
+
+- `material` needs a matching `attribute_reads` entry; the other attributes may have one. The
+  greyscale plates give no colour to classify, so a material comes only from lettering or the
+  legend, read by a person or by label assist that a person confirmed. `tone_class` records what
+  extraction saw on the scan and is never shown as a material.
+- `covers` absent means `["building"]`. Spec 05 reads `water` in it to allow "Nothing found" for
+  water history.
+- `control_hull` is the convex hull of the control points' `reference` positions (shapely
+  `convex_hull`, 3 decimals). The Studio warns when a feature lies outside it (spec 04).
+- `mapArea` is a person's statement of where map content is on the image. It is a contract file
+  because tiles, extraction and `mapped_area` all depend on it, and a reviewer must be able to see
+  it. The Studio writes the same shape into the workspace.
+- Requirement 24.2's check: the label must contain `str(year_from)` and `str(year_to)` as whole
+  four-digit numbers, and no other four-digit number.
+
+The bridge schema (spec 03) is not changed by this version. Its `EraFeature` mirror ignores the new
+optional provenance fields.
+
 ### tileSidecar
 
 ```
@@ -384,7 +456,7 @@ buffers and distances assume degrees. Every coordinate stays in EPSG:26917.
 | `types.generated.ts` | Types from the Schema via `json-schema-to-typescript`. Never hand-edited. |
 | `schema.ts` | Ajv 2020 instance with `ajv-formats`; `validate(defName, value)`. |
 | `load.ts` | `parseEvidenceFile`, `parseSourceRegistry`, `parseProject`: JSON text in, validated typed value out, or an `EvidenceLoadError` with Ajv errors. |
-| `sources.ts` | `indexSources(registry): SourceIndex` (map by id; throws on duplicates). |
+| `sources.ts` | `indexSources(registry): SourceIndex` (map by id; throws on duplicates); `sourceYearsText(source)` (schema 1.1.0: `years_label` when present, else `1911–1914` or `1947`; the one place source years are worded). |
 | `dates.ts` | `summariseDates(feature, sources): DateSummary`; `summariseSet(set, sources): DateSummary`; `datePhrases(summary): string[]`. |
 | `links.ts` | `linkedSets(collections): LinkedSet[]` (published features only, connected components over `same_as`, members sorted by id, sets sorted by first member id). |
 | `eras.ts` | `isDrawnInEra(summary, era)`; `drawnMember(set, era, sources)`; `featuresForEra(collections, sources, era): EraFeatureList`. |
@@ -664,6 +736,16 @@ Validator accepts it only if `alignment_error_m == ceil_0.1(max(2.0, 2.0 × erro
 `error_basis_m` is the chosen transform's out-of-sample RMSE; and every accepted value is at least
 2.0 m and at least `error_basis_m`. *(req 20.1, 20.2)*
 
+**P22. Labels and reads never claim more than the record (Python, Hypothesis).** For every valid
+source and feature: a `years_label` containing any four-digit number other than `year_from` and
+`year_to`, or missing either, is rejected; a feature with `attributes.material` and no `material`
+read is rejected; and removing any attribute that has a read makes the Validator report the
+orphaned read. *(req 24.2, 25.2, 25.3)*
+
+**P23. The control hull is exact (Python, Hypothesis).** For every generated alignment record with
+3 or more non-collinear control points, the Validator accepts `control_hull` exactly when it equals
+the convex hull of the `reference` positions within 0.01 m. *(req 30.2)*
+
 The tech.md property "An alignment transform round-trips control points within the reported error"
 belongs to the alignment maths and is specified in spec 02 (property A5, with A1 to A7 around it).
 
@@ -720,3 +802,15 @@ belongs to the alignment maths and is specified in spec 02 (property A5, with A1
   serves as both the validation bounds and the present-layer clip.
 - **Schema version stays 1.0.0:** no contract file has been written yet, so the additions in
   session 002b are part of the first version, not a change to it.
+- **Schema 1.1.0 for sessions 005 and 007:** contract files now exist (control files, alignment
+  records, tiles, the registry, the project file), so these additions are a version bump. They are
+  all optional so that no existing file changes meaning.
+- **`years_label` instead of computing "revised to":** the wording belongs to the plate, and a
+  computed phrase would be wrong for sources that are a range for other reasons. The Validator ties
+  the label to the stored years so it cannot state a year the record does not.
+- **The 1935 era covers 1931 to 1935:** the plates are lettered "January 1931, revised to May
+  1935". Dating them 1935 alone would claim that every building on them stood in 1935, when an
+  unrevised part may show 1931.
+- **Map area set by a person, as a contract file:** detecting the neatline automatically would
+  decide silently what counts as map content. On the 1935 photographs the archive labels and a
+  ruler sit beside the plate, and a wrong guess would put them into tiles and coverage.

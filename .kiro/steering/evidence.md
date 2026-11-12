@@ -13,10 +13,15 @@ This file states the rules the schema and the code must follow.
 - **Source.** One archival item, registered once with: `id` (see `structure.md`), type, title,
   `year_from`, `year_to`, download URL, licence note, attribution line. A single-year source has
   `year_from == year_to`. The 1911 edition revised to 1914 has `year_from: 1911`, `year_to: 1914`.
+  The 1935 edition (the plates read "January 1931, revised to May 1935") has `year_from: 1931`,
+  `year_to: 1935`. A source may carry a `years_label` for display ("1931, revised to 1935").
 - **Feature.** One building (`bld`), water feature (`wtr`) or land-use area (`use`), with:
   - geometry in **EPSG:26917 metres**, never lon/lat;
   - `position_error_m` (required, greater than 0);
-  - attributes read from the source (use, material, storeys), each optional, never guessed;
+  - attributes read from the source (use, material, storeys, street number), each optional, never
+    guessed. `material` is set only when a person, or label reading confirmed by a person, reads
+    it from the plate's lettering or legend, and the feature then records the crop it was read
+    from. A grey tone on a greyscale scan is never a material;
   - observations (at least one);
   - confidence (`documented`, `estimated`, `unknown`) and `confidence_reason`;
   - provenance: origin source, crop rectangle in source pixels, alignment error of that source,
@@ -29,7 +34,13 @@ This file states the rules the schema and the code must follow.
   `confirmed_by` and `confirmed_at`).
 - **Coverage of an evidence file.** Its `mapped_area` (where the source draws the ground) and its
   `reviewed_areas` (where a person attests that every building the source draws is published).
-  Absence can only be read inside a reviewed area.
+  Absence can only be read inside a reviewed area. A reviewed area says which kinds it attests
+  (`covers`: buildings, and optionally water and land use); without `covers` it attests buildings
+  only.
+- **Map area of a plate.** The part of a plate image that is map content, as a pixel polygon set
+  once by a person (in the Studio or in `data/control/map_area/<source id>.json`). Margins, title
+  blocks, scale bars, north arrows, archive labels and rulers are outside it. Extraction, tiling
+  and `mapped_area` work inside it. Code never detects it silently.
 
 A feature with no observation, no source or no position error is invalid. The validator rejects it.
 
@@ -48,7 +59,9 @@ A feature with no observation, no source or no position error is invalid. The va
   Report can list what was checked.
 - Code never decides presence or readability from a photograph. For a 1947 aerial, the pipeline
   may only write `not_covered` (the photo's footprint misses the spot). `clear` and `obscured`
-  aerial observations are always `method: person`.
+  aerial observations are always `method: person`. The one exception is a feature a person traced
+  from an aerial in the Studio: its origin observation is from that aerial with `method: origin`,
+  and its provenance names the person who traced it.
 
 ## Date logic
 
@@ -102,6 +115,10 @@ Combined:
   with a plate is not a measurement.
 - A source's alignment record stores its control points, the in-sample and leave-one-out RMSE,
   the basis B and the rule constants, so every number can be recomputed.
+- The alignment record also states the convex hull of its control points in EPSG:26917. The error
+  figure is measured inside that hull. Outside it the figure is an extrapolation, so the Studio
+  warns when a feature lies outside the hull. (On plate 229 all six points lie in the northern
+  two-thirds, because the southern street crossings no longer exist.)
 
 ## Matching across sources
 
@@ -140,12 +157,16 @@ Computed in EPSG:26917. Let `e` = the feature's `position_error_m` plus the lot'
 - Otherwise, **near this lot (within X m)**, where X = distance from feature to lot plus `e`,
   rounded up to the next whole metre.
 - If the shrunk lot is empty (the lot is smaller than its error allows), nothing is "on this lot".
+- A lot from the City property boundaries layer has a position error of 2.0 m unless the dataset
+  states its own figure. The parcel layer is a mapping product, not a survey.
 
 ## Findings
 
 - Each finding has a status: Documented, Estimated, Nothing found in these records, Not covered.
 - Each finding lists its source ids. "Nothing found" lists every source and year range checked,
   including `obscured` and `not_covered` ones, with their visibility.
+- If text printed on a source contains a banned word, the Report does not quote it. It names the
+  source and the crop instead.
 
 ## Plate 232 (1935)
 

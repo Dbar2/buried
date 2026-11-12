@@ -13,6 +13,7 @@ inclusion: always
 | Explorer 3D | Unity 6 (6000.3.26f1), URP, WebGL build, embedded in the web shell |
 | Hero props, video stills | Blender, exported as GLB. Never the source of building geometry. |
 | Pipeline | Python 3.12: rasterio/GDAL, OpenCV, shapely, pyproj, pyogrio. Run from the terminal via Kiro CLI. |
+| Studio service | FastAPI app in `pipeline/buried_pipeline/service/`, same package and functions as the CLI (spec 04) |
 | Evidence store | Versioned JSON/GeoJSON files under `data/evidence/`, validated by one JSON Schema |
 | Tests | Vitest + fast-check (TS), pytest + Hypothesis (Python), Unity EditMode tests (C#) |
 
@@ -31,19 +32,34 @@ the contract between the pipeline, the shell and Unity, whatever comes later.
   login.
 - **Present-day heights:** optional, from City of Toronto 3D massing once its licence is
   confirmed; otherwise a fixed storey height. The Explorer spec sets the value.
+- **Hosting** (spec 04): the static site (shell, Unity build, fonts, `data/` contract files,
+  tiles) on Cloudflare Pages; the Studio service on Railway from a Dockerfile in `pipeline/`.
+  Reason: the site has no server-side code, and the service needs GDAL in a container. Both are
+  swappable. The Explorer, the Report and the Sources page work with the service down.
+- **API server** (spec 04): one, the Studio service. It is stateless and exposes the pipeline's own
+  pure functions (inspect, align, extract, match, publish with validation) plus label assist. It
+  never computes dates, lot relations or confidence wording. Nothing else is a server.
+- **Runtime AI provider** (spec 04): Amazon Bedrock, behind a label provider interface in the
+  service, for label assist only (product rule 9). The model id comes from
+  `BURIED_LABEL_MODEL_ID` and must be a vision-capable Anthropic Claude model enabled in the
+  account's Bedrock region. There is no default model id in code. Without credentials the provider
+  is `none` and the Studio falls back to manual entry. No model writes Report text.
+- **Basemap** (spec 04): none from a third party. Today's map is drawn from Buried's own
+  `data/present/` layers, styled with the palette tokens. No tile provider, no API key.
+- **PDF rendering** (spec 05): the browser's print-to-PDF from a print stylesheet. No server.
 
 ### Not decided yet
 
-Hosting, any API server, PDF rendering, the runtime AI provider (Amazon Bedrock or a direct API)
-and the basemap provider are open. Do not pick them in passing. The spec that needs one decides it
-and records why.
+Anything not listed under "Decided" is open. Do not pick it in passing. The spec that needs it
+decides it and records why.
 
 ## Responsibilities
 
 - **Web shell** owns all DOM UI: search, depth gauge, evidence card, Report, and the whole Studio.
 - **Unity** renders the 3D Explorer scene. It draws what it is given. It does not decide dates,
   confidence or "on this lot"; those results arrive over the bridge, computed elsewhere.
-- **Pipeline** fetches plates, checks alignment, segments footprints and writes evidence.
+- **Pipeline** fetches plates, checks alignment, segments footprints and writes evidence. The same
+  package also runs as the Studio service, which calls the same functions.
 - Date logic and honesty rules have a single implementation. Do not copy them into a second
   language.
 
@@ -133,6 +149,10 @@ invent commands; when one is added, record it here.
   - `extract`, `publish` and `match` are registered and exit 2 with "not
     implemented yet" until their tasks land.
 - Unity WebGL build and EditMode test run: to be added by the spec that creates them.
+- Studio service (spec 04), run from `pipeline/`: dev server, service tests, Docker build and
+  deploy steps are added by spec 04 tasks 3 and 15.2 (spec 04 requirement 22.4). Studio end-to-end tests
+  (`npm run test:e2e:studio`) by spec 04 task 16.2. Report print tests
+  (`npm run test:e2e:report`) by spec 05 task 7.3.
 
 ## Model use in Kiro
 
