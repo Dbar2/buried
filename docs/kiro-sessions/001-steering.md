@@ -79,3 +79,20 @@ Write each as Markdown with Kiro steering front matter (`inclusion: always`, or
 - Do not state facts about the showcase blocks (what stood where) that the brief does not contain.
 - When you are done, reply with a short list of the files written and any conflict you found
   between the brief and the decisions.
+
+## Follow-up after the first run
+
+The first run read the docs and reported seven conflicts but could not write (the write tool was
+not trusted). Resolutions:
+
+1. 3D engine: Unity, as decided.
+2. Hosting, API and PDF rendering are not decided yet. Say so in `tech.md` and leave them to the
+   spec that needs them. The evidence files are the contract either way.
+3. Eras at submission: today, 1947, 1935 and 1911 (revised to 1914). An earlier layer is a stretch
+   goal that needs its own sources.
+4. Revised editions: adopt the conservative rule you proposed. A source may carry a year range
+   (`year_from`, `year_to`). A presence supports "built by `year_to`" and "last seen `year_from`".
+   A clear absence supports "gone by `year_to`". Write this into `evidence.md`.
+5. Keep the brief's placeholder plate examples out of the steering docs.
+6. Sources without a confirmed attribution line are marked "to be confirmed before use".
+7. Coordinates: as decided.
