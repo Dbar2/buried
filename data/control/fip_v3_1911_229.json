@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0.0",
+  "source": "fip_v3_1911_229",
+  "pixel_convention": "gdal_corner",
+  "points": [
+    {
+      "id": "cp_13465571",
+      "description": "Queen St E at Sumach St: crossing of the two street centrelines, each taken midway between the street lines drawn on the plate. Picked by eye from a 60 m crop; draft, to be re-picked in the Studio.",
+      "pixel": [
+        582,
+        1146
+      ],
+      "reference": [
+        632328.353,
+        4835068.6
+      ],
+      "reference_source": "present_toronto_intersections_2026",
+      "reference_kind": "intersection",
+      "reference_feature_id": "13465571"
+    },
+    {
+      "id": "cp_13465478",
+      "description": "Queen St E at River St: crossing of the two street centrelines, each taken midway between the street lines drawn on the plate. Picked by eye from a 60 m crop; draft, to be re-picked in the Studio.",
+      "pixel": [
+        4071,
+        1138
+      ],
+      "reference": [
+        632520.683,
+        4835131.258
+      ],
+      "reference_source": "present_toronto_intersections_2026",
+      "reference_kind": "intersection",
+      "reference_feature_id": "13465478"
+    },
+    {
+      "id": "cp_13465645",
+      "description": "King St E at St Lawrence St: crossing of the two street centrelines, each taken midway between the street lines drawn on the plate. Picked by eye from a 60 m crop; draft, to be re-picked in the Studio.",
+      "pixel": [
+        2932,
+        2743
+      ],
+      "reference": [
+        632486.142,
+        4835021.647
+      ],
+      "reference_source": "present_toronto_intersections_2026",
+      "reference_kind": "intersection",
+      "reference_feature_id": "13465645"
+    },
+    {
+      "id": "cp_13465784",
+      "description": "King St E at Sumach St: crossing of the two street centrelines, each taken midway between the street lines drawn on the plate. Picked by eye from a 60 m crop; draft, to be re-picked in the Studio.",
+      "pixel": [
+        591,
+        3729
+      ],
+      "reference": [
+        632372.983,
+        4834926.923
+      ],
+      "reference_source": "present_toronto_intersections_2026",
+      "reference_kind": "intersection",
+      "reference_feature_id": "13465784"
+    },
+    {
+      "id": "cp_13465760",
+      "description": "King St E at Percy St: crossing of the two street centrelines, each taken midway between the street lines drawn on the plate. Picked by eye from a 60 m crop; draft, to be re-picked in the Studio.",
+      "pixel": [
+        1173,
+        3483
+      ],
+      "reference": [
+        632403.109,
+        4834951.655
+      ],
+      "reference_source": "present_toronto_intersections_2026",
+      "reference_kind": "intersection",
+      "reference_feature_id": "13465760"
+    },
+    {
+      "id": "cp_13465711",
+      "description": "King St E at Ashby Pl: crossing of the two street centrelines, each taken midway between the street lines drawn on the plate. Picked by eye from a 60 m crop; draft, to be re-picked in the Studio.",
+      "pixel": [
+        1855,
+        3200
+      ],
+      "reference": [
+        632434.191,
+        4834977.912
+      ],
+      "reference_source": "present_toronto_intersections_2026",
+      "reference_kind": "intersection",
+      "reference_feature_id": "13465711"
+    }
+  ]
+}
