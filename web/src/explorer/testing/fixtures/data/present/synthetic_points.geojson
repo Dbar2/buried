@@ -1,0 +1,23 @@
+{
+  "type": "FeatureCollection",
+  "schema_version": "1.0.0",
+  "crs": "EPSG:26917",
+  "source": "present_toronto_intersections_2026",
+  "ckan_package_id": "synthetic",
+  "ckan_resource_id": "synthetic",
+  "resource_url": "https://example.invalid/intersections.gpkg",
+  "retrieved_at": "2026-11-12T10:00:00Z",
+  "last_refreshed": "2026-11-01",
+  "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "id_field": "INTERSECTION_ID",
+  "clip_bounds": { "min_e": 631900, "min_n": 4834400, "max_e": 633200, "max_n": 4835600 },
+  "attribution_line": "Synthetic attribution for the present-day layer.",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "13465571",
+      "geometry": { "type": "Point", "coordinates": [632328.353, 4835068.6] },
+      "properties": { "INTERSECTION_DESC": "Synthetic St / Synthetic Ave" }
+    }
+  ]
+}

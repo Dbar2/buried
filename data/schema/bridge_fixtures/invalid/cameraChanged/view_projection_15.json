@@ -1,0 +1,10 @@
+{
+  "type": "cameraChanged",
+  "payload": {
+    "eye": { "easting": 632500, "northing": 4834700, "heightM": 900 },
+    "target": { "easting": 632500, "northing": 4835000, "heightM": 0 },
+    "fovDeg": 40,
+    "viewProjection": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+    "canvas": { "widthPx": 1280, "heightPx": 720 }
+  }
+}

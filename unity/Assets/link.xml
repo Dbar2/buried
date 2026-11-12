@@ -1,0 +1,5 @@
+<linker>
+  <!-- The bridge reads messages with Newtonsoft JToken types by hand. Keep them under managed stripping. -->
+  <assembly fullname="Newtonsoft.Json" preserve="all"/>
+  <assembly fullname="Buried.Runtime" preserve="all"/>
+</linker>

@@ -1,0 +1,33 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "1911",
+    "features": [],
+    "drapes": [
+      {
+        "sourceId": "fip_v3_1911_229",
+        "url": "/data/tiles/fip_v3_1911_229.jpg",
+        "corners": {
+          "topLeft": [632273.9, 4835125.0],
+          "topRight": [632592.4, 4835225.6],
+          "bottomRight": [632714.8, 4834837.7],
+          "bottomLeft": [632396.4, 4834737.1]
+        },
+        "widthPx": 3428,
+        "heightPx": 4096
+      },
+      {
+        "sourceId": "fip_v3_1911_229",
+        "url": "/data/tiles/fip_v3_1911_229.jpg",
+        "corners": {
+          "topLeft": [632273.9, 4835125.0],
+          "topRight": [632592.4, 4835225.6],
+          "bottomRight": [632714.8, 4834837.7],
+          "bottomLeft": [632396.4, 4834737.1]
+        },
+        "widthPx": 3428,
+        "heightPx": 4096
+      }
+    ]
+  }
+}

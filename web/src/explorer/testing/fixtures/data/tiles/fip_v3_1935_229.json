@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "source": "fip_v3_1935_229",
+  "image": "fip_v3_1935_229.jpg",
+  "width_px": 2000,
+  "height_px": 2800,
+  "corners": {
+    "top_left": [632270.0, 4835120.0],
+    "top_right": [632590.0, 4835220.0],
+    "bottom_right": [632710.0, 4834830.0],
+    "bottom_left": [632390.0, 4834730.0]
+  },
+  "transform": "supplied",
+  "alignment_error_m": 3.1,
+  "source_pixel_size_m": 0.1,
+  "tile_pixel_size_m": 0.15,
+  "attribution_line": "Synthetic attribution for the 1935 plate."
+}

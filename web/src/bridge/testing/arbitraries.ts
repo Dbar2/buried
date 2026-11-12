@@ -1,0 +1,165 @@
+/**
+ * fast-check generators for every bridge message in the gate subset. They produce messages that are
+ * valid under the Bridge Schema and the semantic rules (closed rings, unique ids, era indexes 0 to
+ * n-1). The same generators, with a fixed seed, write data/schema/bridge_fixtures/generated/ for the
+ * Player's EditMode tests (web/scripts/genBridgeSamples.ts), so both sides parse the same messages.
+ *
+ * Numbers are whole multiples of 0.001 so they survive a JSON round trip exactly in both languages,
+ * and never -0.
+ */
+import fc from 'fast-check';
+import { ALL_MESSAGE_TYPES, BRIDGE_VERSION } from '../bridge';
+import type { MessageType } from '../bridge';
+import type { BridgeMessage } from '../types.generated';
+
+type Arb<T> = fc.Arbitrary<T>;
+
+const milli = (min: number, max: number): Arb<number> =>
+  fc.integer({ min: Math.round(min * 1000), max: Math.round(max * 1000) }).map((i) => (i === 0 ? 0 : i / 1000));
+
+const easting = milli(166000, 834000);
+const northing = milli(0, 9400000);
+const positionArb: Arb<[number, number]> = fc.tuple(easting, northing);
+
+const idPart = fc.stringMatching(/^[a-z0-9]{1,6}$/);
+/** A source id or era id: lowercase snake_case. */
+export const sourceIdArb: Arb<string> = fc.array(idPart, { minLength: 1, maxLength: 4 }).map((parts) => parts.join('_'));
+export const eraIdArb = sourceIdArb;
+export const featureIdArb: Arb<string> = fc
+  .tuple(fc.constantFrom('bld', 'wtr', 'use'), sourceIdArb, fc.integer({ min: 0, max: 9999 }))
+  .map(([kind, source, n]) => `${kind}_${source}_${String(n).padStart(4, '0')}`);
+
+const heightArb = milli(0.001, 1000);
+const ringArb: Arb<[number, number][]> = fc
+  .array(positionArb, { minLength: 3, maxLength: 6 })
+  .map((points) => [...points, points[0] as [number, number]]);
+const polygonCoordinates = fc.array(ringArb, { minLength: 1, maxLength: 2 });
+const lineArb = fc.array(positionArb, { minLength: 2, maxLength: 5 });
+
+const polygonGeometry = polygonCoordinates.map((coordinates) => ({ type: 'Polygon', coordinates }));
+const multiPolygonGeometry = fc
+  .array(polygonCoordinates, { minLength: 1, maxLength: 2 })
+  .map((coordinates) => ({ type: 'MultiPolygon', coordinates }));
+const lineStringGeometry = lineArb.map((coordinates) => ({ type: 'LineString', coordinates }));
+const multiLineStringGeometry = fc
+  .array(lineArb, { minLength: 1, maxLength: 2 })
+  .map((coordinates) => ({ type: 'MultiLineString', coordinates }));
+
+const polygonalGeometry = fc.oneof(polygonGeometry, multiPolygonGeometry);
+const anyGeometry = fc.oneof(polygonGeometry, multiPolygonGeometry, lineStringGeometry, multiLineStringGeometry);
+
+const confidenceArb = fc.constantFrom('documented', 'estimated', 'unknown');
+
+const sceneFeatureArb = fc.oneof(
+  fc.record({ id: featureIdArb, kind: fc.constant('building'), geometry: polygonalGeometry, confidence: confidenceArb, heightM: heightArb }),
+  fc.record({ id: featureIdArb, kind: fc.constant('water'), geometry: anyGeometry, confidence: confidenceArb, heightM: heightArb }),
+);
+
+const tileUrl = sourceIdArb.map((id) => `/data/tiles/${id}.jpg`);
+const drapeArb = fc.record({
+  sourceId: sourceIdArb,
+  url: tileUrl,
+  corners: fc.record({
+    topLeft: positionArb,
+    topRight: positionArb,
+    bottomRight: positionArb,
+    bottomLeft: positionArb,
+  }),
+  widthPx: fc.integer({ min: 1, max: 16384 }),
+  heightPx: fc.integer({ min: 1, max: 16384 }),
+});
+
+const eraRefsArb = fc.integer({ min: 1, max: 6 }).chain((n) =>
+  fc
+    .tuple(
+      fc.uniqueArray(eraIdArb, { minLength: n, maxLength: n }),
+      fc.shuffledSubarray(Array.from({ length: n }, (_, i) => i), { minLength: n, maxLength: n }),
+    )
+    .map(([ids, indexes]) => ids.map((id, i) => ({ id, index: indexes[i] as number }))),
+);
+
+const presentBuildingArb = fc.record({
+  id: fc.stringMatching(/^[a-z0-9_]{1,12}$/),
+  geometry: polygonalGeometry,
+  heightM: heightArb,
+});
+
+const message = (type: MessageType, payload: Arb<unknown>): Arb<BridgeMessage> =>
+  payload.map((p) => ({ type, payload: p }) as unknown as BridgeMessage);
+
+export const messageArbitraries: Readonly<Record<MessageType, Arb<BridgeMessage>>> = {
+  'scene/init': message(
+    'scene/init',
+    fc.record({
+      bridgeVersion: fc.constant(BRIDGE_VERSION),
+      origin: fc.record({ easting, northing }),
+      bounds: fc.record({ minE: easting, minN: northing, maxE: easting, maxN: northing }),
+      eras: eraRefsArb,
+      present: fc.uniqueArray(presentBuildingArb, { selector: (b) => b.id, maxLength: 3 }),
+      reducedMotion: fc.boolean(),
+      debug: fc.boolean(),
+    }),
+  ),
+  'scene/loadEra': message(
+    'scene/loadEra',
+    fc.record({
+      eraId: eraIdArb,
+      features: fc.uniqueArray(sceneFeatureArb, { selector: (f) => f.id, maxLength: 4 }),
+      drapes: fc.uniqueArray(drapeArb, { selector: (d) => d.sourceId, maxLength: 2 }),
+    }),
+  ),
+  'scene/setDepth': message('scene/setDepth', fc.record({ depth: milli(0, 64) })),
+  'debug/markers': message(
+    'debug/markers',
+    fc.record({
+      markers: fc.uniqueArray(
+        fc.record({ id: fc.stringMatching(/^[a-z0-9_]{1,10}$/), position: positionArb }),
+        { selector: (m) => m.id, maxLength: 16 },
+      ),
+    }),
+  ),
+  ready: message(
+    'ready',
+    fc.record({ bridgeVersion: fc.constant(BRIDGE_VERSION), unityVersion: fc.stringMatching(/^[0-9a-z.]{1,12}$/) }),
+  ),
+  eraLoaded: message(
+    'eraLoaded',
+    fc.record({
+      eraId: eraIdArb,
+      featureCount: fc.integer({ min: 0, max: 5000 }),
+      drapeCount: fc.integer({ min: 0, max: 20 }),
+      failedDrapes: fc.array(sourceIdArb, { maxLength: 3 }),
+    }),
+  ),
+  featureClicked: message('featureClicked', fc.record({ featureId: featureIdArb, eraId: eraIdArb })),
+  cameraChanged: message(
+    'cameraChanged',
+    fc.record({
+      eye: fc.record({ easting, northing, heightM: milli(-1000, 100000) }),
+      target: fc.record({ easting, northing, heightM: milli(-1000, 100000) }),
+      fovDeg: milli(0.001, 179.999),
+      viewProjection: fc.array(milli(-10000, 10000), { minLength: 16, maxLength: 16 }),
+      canvas: fc.record({ widthPx: fc.integer({ min: 1, max: 16384 }), heightPx: fc.integer({ min: 1, max: 16384 }) }),
+    }),
+  ),
+  error: message(
+    'error',
+    fc.record({
+      code: fc.constantFrom(
+        'invalid_message',
+        'unknown_type',
+        'bridge_version_mismatch',
+        'bounds_too_far',
+        'era_not_initialised',
+        'texture_load_failed',
+        'mesh_build_failed',
+        'debug_disabled',
+      ),
+      message: fc.stringMatching(/^[ -~]{0,40}$/),
+      messageType: fc.option(fc.constantFrom(...ALL_MESSAGE_TYPES), { nil: null }),
+    }),
+  ),
+};
+
+/** Any message of any type. */
+export const anyMessage: Arb<BridgeMessage> = fc.oneof(...Object.values(messageArbitraries));

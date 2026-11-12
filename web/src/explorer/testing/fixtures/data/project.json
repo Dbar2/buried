@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "crs": "EPSG:26917",
+  "origin": { "easting": 632500, "northing": 4835000 },
+  "origin_note": "Synthetic test fixture. Not the project origin.",
+  "bounds": { "min_e": 631900, "min_n": 4834400, "max_e": 633200, "max_n": 4835600 },
+  "eras": [
+    { "id": "1911", "label": "1911 (revised to 1914)", "year_from": 1911, "year_to": 1914 },
+    { "id": "1935", "label": "1935", "year_from": 1935, "year_to": 1935 },
+    { "id": "1947", "label": "1947", "year_from": 1947, "year_to": 1947 },
+    { "id": "today", "label": "Today", "year_from": 2026, "year_to": 2026 }
+  ]
+}

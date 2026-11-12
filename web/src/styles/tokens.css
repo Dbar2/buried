@@ -1,0 +1,24 @@
+/*
+ * Palette tokens (.kiro/steering/design.md). The only hex values in web/src/. The Unity palette
+ * asset is written from this file by Buried.Editor.Setup and compared with it by an EditMode test.
+ * The WCAG contrast check is task 4.4; until it runs these are the starting values.
+ */
+:root {
+  --night: #0e1116;
+  --fog: #1b2129;
+  --present: #2e3742;
+  --ink: #e8dfc8;
+  --lantern: #f2a541;
+  --water: #5fb3b3;
+  --text: #edeae3;
+  --muted: #9aa3ad;
+
+  --font-heading: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+}

@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "id": "fip_v3_1911_229",
+      "type": "fire_insurance_plan",
+      "title": "Synthetic plate 229, 1911 edition",
+      "year_from": 1911,
+      "year_to": 1914,
+      "url": "https://example.invalid/v3-1911-229.zip",
+      "licence_note": "Synthetic.",
+      "attribution_line": "Synthetic attribution for the 1911 plate.",
+      "attribution_status": "confirmed",
+      "rights_checked_on": "2026-11-10",
+      "held_out": false
+    },
+    {
+      "id": "fip_v3_1935_229",
+      "type": "fire_insurance_plan",
+      "title": "Synthetic plate 229, 1935 edition",
+      "year_from": 1935,
+      "year_to": 1935,
+      "url": "https://example.invalid/v3-1935-229.zip",
+      "licence_note": "Synthetic.",
+      "attribution_line": "Synthetic attribution for the 1935 plate.",
+      "attribution_status": "confirmed",
+      "rights_checked_on": "2026-11-10",
+      "held_out": false
+    },
+    {
+      "id": "fip_v3_1911_232",
+      "type": "fire_insurance_plan",
+      "title": "Synthetic plate 232, 1911 edition, rights not confirmed",
+      "year_from": 1911,
+      "year_to": 1914,
+      "url": "https://example.invalid/v3-1911-232.zip",
+      "licence_note": "Synthetic.",
+      "attribution_line": "Synthetic attribution.",
+      "attribution_status": "to_be_confirmed",
+      "rights_checked_on": null,
+      "held_out": false
+    },
+    {
+      "id": "present_toronto_intersections_2026",
+      "type": "present_day_reference",
+      "title": "Synthetic present-day intersections",
+      "year_from": 2026,
+      "year_to": 2026,
+      "url": "https://example.invalid/intersections",
+      "licence_note": "Synthetic.",
+      "attribution_line": "Synthetic attribution for the present-day layer.",
+      "attribution_status": "confirmed",
+      "rights_checked_on": "2026-11-12",
+      "held_out": false
+    }
+  ]
+}

@@ -1,0 +1,430 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buried.invalid/schema/bridge.schema.json",
+  "title": "Buried bridge messages",
+  "description": "Every message between the web shell and the Unity Player, bridge version 0.1.0 (the gate subset of .kiro/specs/03-explorer). A message is { type, payload }. All positions are EPSG:26917 metres, easting first. No property is named like a year or a date: the Player draws what it is told and never dates anything. Rules JSON Schema cannot express are checked by both parsers (web/src/bridge/bridge.ts and unity/Assets/Buried/Runtime/Bridge/BridgeParser.cs) and covered by the same invalid fixtures: every polygon ring is closed (first position equals last); scene/init eras have unique ids and indexes that are exactly 0 to n-1; scene/init present building ids, scene/loadEra feature ids, scene/loadEra drape source ids and debug/markers ids are each unique. Every change to this file changes the bridge version.",
+  "$ref": "#/$defs/bridgeMessage",
+  "$defs": {
+    "bridgeMessage": {
+      "description": "The Envelope: exactly one of the message definitions below.",
+      "oneOf": [
+        { "$ref": "#/$defs/sceneInitMessage" },
+        { "$ref": "#/$defs/sceneLoadEraMessage" },
+        { "$ref": "#/$defs/sceneSetDepthMessage" },
+        { "$ref": "#/$defs/debugMarkersMessage" },
+        { "$ref": "#/$defs/readyMessage" },
+        { "$ref": "#/$defs/eraLoadedMessage" },
+        { "$ref": "#/$defs/featureClickedMessage" },
+        { "$ref": "#/$defs/cameraChangedMessage" },
+        { "$ref": "#/$defs/errorMessage" }
+      ]
+    },
+
+    "sceneInitMessage": {
+      "description": "Shell to Player. Always the first message.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "scene/init" },
+        "payload": { "$ref": "#/$defs/sceneInitPayload" }
+      }
+    },
+    "sceneLoadEraMessage": {
+      "description": "Shell to Player. Replaces one era's content.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "scene/loadEra" },
+        "payload": { "$ref": "#/$defs/sceneLoadEraPayload" }
+      }
+    },
+    "sceneSetDepthMessage": {
+      "description": "Shell to Player. Which era is shown.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "scene/setDepth" },
+        "payload": { "$ref": "#/$defs/sceneSetDepthPayload" }
+      }
+    },
+    "debugMarkersMessage": {
+      "description": "Shell to Player. Only honoured when scene/init had debug: true.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "debug/markers" },
+        "payload": { "$ref": "#/$defs/debugMarkersPayload" }
+      }
+    },
+    "readyMessage": {
+      "description": "Player to Shell. Sent once, after the first rendered frame.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "ready" },
+        "payload": { "$ref": "#/$defs/readyPayload" }
+      }
+    },
+    "eraLoadedMessage": {
+      "description": "Player to Shell. An era's meshes are built and its drape textures have loaded or failed.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "eraLoaded" },
+        "payload": { "$ref": "#/$defs/eraLoadedPayload" }
+      }
+    },
+    "featureClickedMessage": {
+      "description": "Player to Shell. A click on a drawn feature.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "featureClicked" },
+        "payload": { "$ref": "#/$defs/featureClickedPayload" }
+      }
+    },
+    "cameraChangedMessage": {
+      "description": "Player to Shell. The camera pose, at most 10 times a second while it moves, once when it stops, after scene/init, and after every scene/setDepth.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "cameraChanged" },
+        "payload": { "$ref": "#/$defs/cameraChangedPayload" }
+      }
+    },
+    "errorMessage": {
+      "description": "Player to Shell. A refusal or a failure.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "error" },
+        "payload": { "$ref": "#/$defs/errorPayload" }
+      }
+    },
+
+    "sceneInitPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bridgeVersion", "origin", "bounds", "eras", "present", "reducedMotion", "debug"],
+      "properties": {
+        "bridgeVersion": { "const": "0.1.0" },
+        "origin": { "$ref": "#/$defs/originPoint" },
+        "bounds": { "$ref": "#/$defs/sceneBounds" },
+        "eras": {
+          "description": "At least one era. Indexes are exactly 0 to n-1, each once; 0 is Today.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": { "$ref": "#/$defs/eraRef" }
+        },
+        "present": {
+          "description": "Today's buildings, each with a fixed display height.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/presentBuilding" }
+        },
+        "reducedMotion": { "type": "boolean" },
+        "debug": { "type": "boolean" }
+      }
+    },
+    "sceneLoadEraPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eraId", "features", "drapes"],
+      "properties": {
+        "eraId": { "type": "string", "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$" },
+        "features": { "type": "array", "items": { "$ref": "#/$defs/sceneFeature" } },
+        "drapes": { "type": "array", "items": { "$ref": "#/$defs/drape" } }
+      }
+    },
+    "sceneSetDepthPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["depth"],
+      "properties": {
+        "depth": {
+          "description": "0 is Today. An integer is an era; a fraction is a transition. The Player also refuses a depth past the last era it was told about.",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 64
+        }
+      }
+    },
+    "debugMarkersPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["markers"],
+      "properties": {
+        "markers": { "type": "array", "maxItems": 16, "items": { "$ref": "#/$defs/markerEntry" } }
+      }
+    },
+    "readyPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bridgeVersion", "unityVersion"],
+      "properties": {
+        "bridgeVersion": { "const": "0.1.0" },
+        "unityVersion": { "type": "string", "minLength": 1, "maxLength": 64 }
+      }
+    },
+    "eraLoadedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eraId", "featureCount", "drapeCount", "failedDrapes"],
+      "properties": {
+        "eraId": { "type": "string", "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$" },
+        "featureCount": { "type": "integer", "minimum": 0 },
+        "drapeCount": { "type": "integer", "minimum": 0 },
+        "failedDrapes": {
+          "type": "array",
+          "items": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/sourceId" }
+        }
+      }
+    },
+    "featureClickedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["featureId", "eraId"],
+      "properties": {
+        "featureId": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/featureId" },
+        "eraId": { "type": "string", "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$" }
+      }
+    },
+    "cameraChangedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eye", "target", "fovDeg", "viewProjection", "canvas"],
+      "properties": {
+        "eye": { "$ref": "#/$defs/cameraPoint" },
+        "target": { "$ref": "#/$defs/cameraPoint" },
+        "fovDeg": { "description": "Vertical field of view in degrees.", "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 180 },
+        "viewProjection": {
+          "description": "Projection times view, 16 numbers, column-major: element (row r, column c) is at index c * 4 + r. Unity world space (x east, y up, z north), OpenGL clip conventions: x and y of clip / w run from -1 (left, bottom) to 1 (right, top).",
+          "type": "array",
+          "minItems": 16,
+          "maxItems": 16,
+          "items": { "type": "number" }
+        },
+        "canvas": { "$ref": "#/$defs/canvasSize" }
+      }
+    },
+    "errorPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message", "messageType"],
+      "properties": {
+        "code": {
+          "enum": [
+            "invalid_message",
+            "unknown_type",
+            "bridge_version_mismatch",
+            "bounds_too_far",
+            "era_not_initialised",
+            "texture_load_failed",
+            "mesh_build_failed",
+            "debug_disabled"
+          ]
+        },
+        "message": { "type": "string", "maxLength": 2000 },
+        "messageType": { "type": ["string", "null"] }
+      }
+    },
+
+    "originPoint": {
+      "description": "The project origin (E0, N0) in EPSG:26917 metres, read by the Shell from data/project.json.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["easting", "northing"],
+      "properties": {
+        "easting": { "type": "number", "minimum": 166000, "maximum": 834000 },
+        "northing": { "type": "number", "minimum": 0, "maximum": 9400000 }
+      }
+    },
+    "sceneBounds": {
+      "description": "The project bounds in EPSG:26917 metres. Each corner must be within 4000 m of the origin.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minE", "minN", "maxE", "maxN"],
+      "properties": {
+        "minE": { "type": "number", "minimum": 166000, "maximum": 834000 },
+        "minN": { "type": "number", "minimum": 0, "maximum": 9400000 },
+        "maxE": { "type": "number", "minimum": 166000, "maximum": 834000 },
+        "maxN": { "type": "number", "minimum": 0, "maximum": 9400000 }
+      }
+    },
+    "eraRef": {
+      "description": "An era by id and index only. The Player never sees what years an era covers.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "index"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$" },
+        "index": { "type": "integer", "minimum": 0, "maximum": 63 }
+      }
+    },
+    "presentBuilding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "geometry", "heightM"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "geometry": { "$ref": "#/$defs/polygonalGeometry" },
+        "heightM": { "type": "number", "exclusiveMinimum": 0, "maximum": 1000 }
+      }
+    },
+    "sceneFeature": {
+      "description": "What the Player needs to draw one feature of an era. A building has polygon geometry; water may be any of the four geometry types.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "geometry", "confidence", "heightM"],
+      "properties": {
+        "id": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/featureId" },
+        "kind": { "enum": ["building", "water"] },
+        "geometry": { "$ref": "#/$defs/geometry" },
+        "confidence": { "enum": ["documented", "estimated", "unknown"] },
+        "heightM": { "type": "number", "exclusiveMinimum": 0, "maximum": 1000 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "building" } }, "required": ["kind"] },
+          "then": { "properties": { "geometry": { "$ref": "#/$defs/polygonalGeometry" } } }
+        }
+      ]
+    },
+    "drape": {
+      "description": "A tile from data/tiles/ placed on the ground by its four corners.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceId", "url", "corners", "widthPx", "heightPx"],
+      "properties": {
+        "sourceId": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/sourceId" },
+        "url": { "type": "string", "pattern": "^/data/tiles/[a-z0-9_]+\\.(jpg|png)$" },
+        "corners": { "$ref": "#/$defs/drapeCorners" },
+        "widthPx": { "type": "integer", "minimum": 1, "maximum": 16384 },
+        "heightPx": { "type": "integer", "minimum": 1, "maximum": 16384 }
+      }
+    },
+    "drapeCorners": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["topLeft", "topRight", "bottomRight", "bottomLeft"],
+      "properties": {
+        "topLeft": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/position" },
+        "topRight": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/position" },
+        "bottomRight": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/position" },
+        "bottomLeft": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/position" }
+      }
+    },
+    "markerEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "position"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "position": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/position" }
+      }
+    },
+    "cameraPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["easting", "northing", "heightM"],
+      "properties": {
+        "easting": { "type": "number", "minimum": 166000, "maximum": 834000 },
+        "northing": { "type": "number", "minimum": 0, "maximum": 9400000 },
+        "heightM": { "type": "number", "minimum": -1000, "maximum": 100000 }
+      }
+    },
+    "canvasSize": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["widthPx", "heightPx"],
+      "properties": {
+        "widthPx": { "type": "integer", "minimum": 1, "maximum": 16384 },
+        "heightPx": { "type": "integer", "minimum": 1, "maximum": 16384 }
+      }
+    },
+
+    "ring": {
+      "description": "A ring of at least four positions whose first and last positions are equal (checked by both parsers).",
+      "type": "array",
+      "minItems": 4,
+      "items": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/position" }
+    },
+    "polygonGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": { "const": "Polygon" },
+        "coordinates": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/ring" } }
+      }
+    },
+    "multiPolygonGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": { "const": "MultiPolygon" },
+        "coordinates": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/ring" } }
+        }
+      }
+    },
+    "lineStringGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": { "const": "LineString" },
+        "coordinates": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/position" }
+        }
+      }
+    },
+    "multiLineStringGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": { "const": "MultiLineString" },
+        "coordinates": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/position" }
+          }
+        }
+      }
+    },
+    "polygonalGeometry": {
+      "description": "Polygon or MultiPolygon.",
+      "oneOf": [
+        { "$ref": "#/$defs/polygonGeometry" },
+        { "$ref": "#/$defs/multiPolygonGeometry" }
+      ]
+    },
+    "geometry": {
+      "description": "Polygon, MultiPolygon, LineString or MultiLineString, positions only, in EPSG:26917 metres.",
+      "oneOf": [
+        { "$ref": "#/$defs/polygonGeometry" },
+        { "$ref": "#/$defs/multiPolygonGeometry" },
+        { "$ref": "#/$defs/lineStringGeometry" },
+        { "$ref": "#/$defs/multiLineStringGeometry" }
+      ]
+    }
+  }
+}

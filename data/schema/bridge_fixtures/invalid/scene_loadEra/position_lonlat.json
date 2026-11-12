@@ -1,0 +1,16 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "1911",
+    "features": [
+      {
+        "id": "bld_fip_v3_1911_229_0001",
+        "kind": "building",
+        "geometry": { "type": "Polygon", "coordinates": [[[-79.35, 43.65], [-79.34, 43.65], [-79.34, 43.66], [-79.35, 43.66], [-79.35, 43.65]]] },
+        "confidence": "documented",
+        "heightM": 7
+      }
+    ],
+    "drapes": []
+  }
+}

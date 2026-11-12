@@ -1,0 +1,4 @@
+{
+  "type": "scene/loadEra",
+  "payload": { "eraId": "today", "features": [], "drapes": [] }
+}

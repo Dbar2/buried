@@ -1,0 +1,9 @@
+{
+  "type": "debug/markers",
+  "payload": {
+    "markers": [
+      { "id": "m01", "position": [632300, 4835000] },
+      { "id": "m01", "position": [632301, 4835000] }
+    ]
+  }
+}

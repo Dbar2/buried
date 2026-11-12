@@ -1,0 +1,12 @@
+{
+  "type": "scene/init",
+  "payload": {
+    "bridgeVersion": "0.1.0",
+    "origin": { "easting": -79.35, "northing": 43.65 },
+    "bounds": { "minE": 631900, "minN": 4834400, "maxE": 633200, "maxN": 4835600 },
+    "eras": [{ "id": "today", "index": 0 }],
+    "present": [],
+    "reducedMotion": false,
+    "debug": false
+  }
+}

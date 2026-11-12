@@ -1,0 +1,83 @@
+{
+  "type": "FeatureCollection",
+  "schema_version": "1.0.0",
+  "crs": "EPSG:26917",
+  "origin_source": "fip_v3_1911_229",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "bld_fip_v3_1911_229_0001",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[632440, 4834980], [632452, 4834980], [632452, 4834990], [632440, 4834990], [632440, 4834980]]]
+      },
+      "properties": {
+        "kind": "building",
+        "position_error_m": 4.5,
+        "attributes": { "use": "dwelling", "storeys": 2 },
+        "observations": [{ "source": "fip_v3_1911_229", "present": true, "visibility": "clear", "method": "origin" }],
+        "confidence": "documented",
+        "confidence_reason": "Synthetic: outline and storeys read from the synthetic plate.",
+        "provenance": {
+          "origin_source": "fip_v3_1911_229",
+          "crop_px": { "x": 100, "y": 100, "width": 200, "height": 150 },
+          "alignment_error_m": 4.3,
+          "digitising_error_m": 1.0,
+          "confirmed_by": "Synthetic Reviewer",
+          "confirmed_at": "2026-11-13T10:00:00Z"
+        },
+        "status": "published"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "bld_fip_v3_1911_229_0002",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[632460, 4834980], [632470, 4834980], [632470, 4834988], [632460, 4834988], [632460, 4834980]]]
+      },
+      "properties": {
+        "kind": "building",
+        "position_error_m": 4.5,
+        "attributes": {},
+        "observations": [{ "source": "fip_v3_1911_229", "present": true, "visibility": "clear", "method": "origin" }],
+        "confidence": "estimated",
+        "confidence_reason": "Synthetic: the outline is partly hidden by a label.",
+        "provenance": {
+          "origin_source": "fip_v3_1911_229",
+          "crop_px": { "x": 400, "y": 100, "width": 150, "height": 120 },
+          "alignment_error_m": 4.3,
+          "digitising_error_m": 1.0,
+          "confirmed_by": "Synthetic Reviewer",
+          "confirmed_at": "2026-11-13T10:05:00Z"
+        },
+        "status": "published"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "wtr_fip_v3_1911_229_0001",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[632300, 4834900], [632350, 4834950], [632400.5, 4835000.25]]
+      },
+      "properties": {
+        "kind": "water",
+        "position_error_m": 4.5,
+        "attributes": {},
+        "observations": [{ "source": "fip_v3_1911_229", "present": true, "visibility": "clear", "method": "origin" }],
+        "confidence": "estimated",
+        "confidence_reason": "Synthetic: a drawn channel.",
+        "provenance": {
+          "origin_source": "fip_v3_1911_229",
+          "crop_px": { "x": 50, "y": 600, "width": 600, "height": 80 },
+          "alignment_error_m": 4.3,
+          "digitising_error_m": 1.0,
+          "confirmed_by": "Synthetic Reviewer",
+          "confirmed_at": "2026-11-13T10:10:00Z"
+        },
+        "status": "published"
+      }
+    }
+  ]
+}

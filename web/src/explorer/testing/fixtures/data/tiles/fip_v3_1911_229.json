@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "source": "fip_v3_1911_229",
+  "image": "fip_v3_1911_229.jpg",
+  "width_px": 3428,
+  "height_px": 4096,
+  "corners": {
+    "top_left": [632273.9227376722, 4835125.009481436],
+    "top_right": [632592.4023848702, 4835225.600777758],
+    "bottom_right": [632714.8438886629, 4834837.70468001],
+    "bottom_left": [632396.3642414649, 4834737.113383687]
+  },
+  "transform": "supplied",
+  "alignment_error_m": 4.3,
+  "source_pixel_size_m": 0.05919982119286117,
+  "tile_pixel_size_m": 0.09931685288218921,
+  "attribution_line": "Synthetic attribution for the 1911 plate."
+}

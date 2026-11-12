@@ -1,0 +1,16 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "1911",
+    "features": [
+      {
+        "id": "bld_fip_v3_1911_229_0001",
+        "kind": "building",
+        "geometry": { "type": "LineString", "coordinates": [[632440, 4834980], [632452, 4834980]] },
+        "confidence": "documented",
+        "heightM": 7
+      }
+    ],
+    "drapes": []
+  }
+}

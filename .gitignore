@@ -29,6 +29,16 @@ unity/[Bb]uilds/
 unity/*.csproj
 unity/*.sln
 unity/*.slnx
+unity/TestResults/
+unity/[Mm]emoryCaptures/
+
+# The Unity WebGL build is output, rebuilt with `tools/unity.sh build`
+web/public/unity/
+
+# Playwright output (screenshots for the gate check, reports, traces)
+web/e2e/output/
+web/test-results/
+web/playwright-report/
 
 # Raw archival downloads are fetched by the pipeline, never committed in bulk
 data/raw/
