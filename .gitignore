@@ -40,3 +40,6 @@ data/work/
 !.env.example
 
 # NOTE: .kiro/ is part of the project and must never be ignored.
+
+# Local assistant/editor settings, never part of the project
+.claude/
