@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "source": "fip_v3_1935_229",
   "image": "fip_v3_1935_229.jpg",
   "width_px": 3855,
@@ -26,5 +26,5 @@
   "alignment_error_m": 3.1,
   "source_pixel_size_m": 0.12249068232516311,
   "tile_pixel_size_m": 0.12249068232516311,
-  "attribution_line": "Digitized and georeferenced by the University of Toronto Map & Data Library."
+  "attribution_line": "Library and Archives Canada, National Map Collection (NMC-0013999). Digitized and georeferenced by the University of Toronto Map & Data Library."
 }

@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.1.0",
+  "source": "fip_v3_1911_229",
+  "pixel_convention": "gdal_corner",
+  "pixel_polygon": [
+    [
+      100,
+      150
+    ],
+    [
+      4100,
+      150
+    ],
+    [
+      4100,
+      3050
+    ],
+    [
+      2000,
+      3100
+    ],
+    [
+      100,
+      3050
+    ]
+  ],
+  "excluded": "margin, title block, scale bar (synthetic fixture)",
+  "confirmed_by": "fixture reviewer",
+  "confirmed_at": "2026-11-12T10:00:00Z",
+  "fold_lines": [
+    [
+      [
+        2000,
+        150
+      ],
+      [
+        2000,
+        3050
+      ]
+    ],
+    [
+      [
+        100,
+        1600
+      ],
+      [
+        4100,
+        1650
+      ]
+    ]
+  ]
+}

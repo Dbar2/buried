@@ -12,6 +12,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from buried_pipeline.align.hull import control_hull, hull_area_m2
 from buried_pipeline.validate.dataset import LoadedFile, Report, validate_files
 from buried_pipeline.validate.errors import ValidationError
 from buried_pipeline.validate.schema import SchemaSet, def_for_path, load_schema
@@ -83,6 +84,7 @@ def project() -> dict[str, Any]:
 
 
 def alignment(sid: str) -> dict[str, Any]:
+    """A schema 1.0.0 record: it has no control hull, which only 1.0.0 may omit."""
     residuals = [{"id": f"cp_{i}", "dx_m": 1.0, "dy_m": -1.0, "r_m": 1.4142} for i in range(3)]
     return {
         "schema_version": "1.0.0",
@@ -103,6 +105,16 @@ def alignment(sid: str) -> dict[str, Any]:
         "alignment_error_m": 4.3,
         "outliers": [],
     }
+
+
+def alignment_with_hull(sid: str, control: dict[str, Any]) -> dict[str, Any]:
+    """A schema 1.1.0 record whose control hull is that of `control`'s reference positions."""
+    rec = alignment(sid)
+    rec["schema_version"] = "1.1.0"
+    hull = control_hull([(p["reference"][0], p["reference"][1]) for p in control["points"]])
+    rec["control_hull"] = hull
+    rec["control_hull_area_m2"] = hull_area_m2(hull)
+    return rec
 
 
 def present_feature(fid: str, geometry: dict[str, Any]) -> dict[str, Any]:
@@ -233,7 +245,7 @@ def base_dataset() -> dict[str, Any]:
     return {
         "data/sources.json": registry(),
         "data/project.json": project(),
-        f"data/alignment/{P1911}.json": alignment(P1911),
+        f"data/alignment/{P1911}.json": alignment_with_hull(P1911, control_points()),
         f"data/alignment/{P1935}.json": alignment(P1935),
         f"data/control/{P1911}.json": control_points(),
         f"data/present/{INTERSECTIONS}.geojson": intersections_layer(),

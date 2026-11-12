@@ -39,6 +39,8 @@ class Source:
     attribution_status: str
     rights_checked_on: str | None
     held_out: bool
+    years_label: str | None = None
+    holding: str | None = None
 
 
 @dataclass(frozen=True)
@@ -70,8 +72,9 @@ def _parse_source(index: int, raw: Any) -> Source:
         "id", "type", "title", "year_from", "year_to", "url", "licence_note",
         "attribution_line", "attribution_status", "rights_checked_on", "held_out",
     }  # fmt: skip
+    optional = {"years_label", "holding"}
     missing = sorted(expected - raw.keys())
-    extra = sorted(raw.keys() - expected)
+    extra = sorted(raw.keys() - expected - optional)
     if missing:
         raise _fail(index, source_id, f"missing fields {missing}")
     if extra:
@@ -100,6 +103,9 @@ def _parse_source(index: int, raw: Any) -> Source:
         raise _fail(index, source_id, "rights_checked_on must be an ISO date or null")
     if not isinstance(raw["held_out"], bool):
         raise _fail(index, source_id, "held_out must be true or false")
+    for key in sorted(optional & raw.keys()):
+        if not isinstance(raw[key], str) or not raw[key]:
+            raise _fail(index, source_id, f"{key} must be a non-empty string when present")
     return Source(
         id=source_id,
         type=raw["type"],
@@ -112,6 +118,8 @@ def _parse_source(index: int, raw: Any) -> Source:
         attribution_status=raw["attribution_status"],
         rights_checked_on=checked,
         held_out=raw["held_out"],
+        years_label=raw.get("years_label"),
+        holding=raw.get("holding"),
     )
 
 

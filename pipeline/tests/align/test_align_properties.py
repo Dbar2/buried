@@ -65,6 +65,7 @@ def record_for(supplied, points):
         supplied_crs="EPSG:26917",
         supplied_operation="noop",
         result=result,
+        control_references=[p.reference for p in points],
     )
     return result, json.loads(json.dumps(record))  # the record survives being written as JSON
 

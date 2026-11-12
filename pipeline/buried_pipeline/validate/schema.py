@@ -48,6 +48,13 @@ def def_for_path(path: Path, data_dir: Path) -> str | None:
     parts = rel.parts
     if len(parts) == 1:
         return DEF_BY_FILE_NAME.get(parts[0])
+    if (
+        len(parts) == 3
+        and parts[0] == "control"
+        and parts[1] == "map_area"
+        and rel.suffix == ".json"
+    ):
+        return "mapArea"
     if len(parts) == 2 and parts[0] in DEF_BY_DIRECTORY:
         suffix = ".geojson" if parts[0] in ("evidence", "present") else ".json"
         if rel.suffix == suffix:

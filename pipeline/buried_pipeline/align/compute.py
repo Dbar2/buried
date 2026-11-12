@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from buried_pipeline.align.affine import Affine6, Point, UnstableFit, fit_local_affine
+from buried_pipeline.align.hull import control_hull, hull_area_m2
 from buried_pipeline.align.residuals import (
     ERROR_FLOOR_M,
     ERROR_MULTIPLIER,
@@ -24,6 +25,7 @@ from buried_pipeline.align.residuals import (
     rmse,
 )
 from buried_pipeline.errors import PipelineError
+from buried_pipeline.schema_version import SCHEMA_VERSION
 
 MIN_POINTS = 3
 
@@ -139,10 +141,13 @@ def build_record(
     supplied_crs: str,
     supplied_operation: str,
     result: AlignmentResult,
+    control_references: Sequence[tuple[float, float]],
 ) -> dict[str, Any]:
-    """The `alignmentRecord` document (spec 01 design)."""
+    """The `alignmentRecord` document (spec 01 design). `control_references` are the control
+    points' reference positions; the record states their convex hull (spec 01 requirement 30)."""
+    hull = control_hull(control_references)
     record: dict[str, Any] = {
-        "schema_version": "1.0.0",
+        "schema_version": SCHEMA_VERSION,
         "source": source_id,
         "reference_sources": sorted(set(reference_sources)),
         "control_file": control_file,
@@ -179,6 +184,8 @@ def build_record(
             },
             "alignment_error_m": result.alignment_error_m,
             "outliers": result.outliers,
+            "control_hull": hull,
+            "control_hull_area_m2": hull_area_m2(hull),
         }
     )
     return record

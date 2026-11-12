@@ -152,8 +152,13 @@ def run_align_check(
         supplied_crs=mapping.crs,
         supplied_operation=mapping.operation,
         result=result,
+        control_references=[p.reference for p in control.points],
     )
     out(format_summary(source_id, control, result, result.refined_skipped))
+    out(
+        f"control hull: {record['control_hull_area_m2']:.1f} m2 "
+        "(the error figure is measured inside it)"
+    )
     # The record is checked against the Schema before it is written; a failing record is a bug
     # in this tool, never something to write and fix later.
     problems = schema_problems(schema, "alignmentRecord", record, "alignment record")

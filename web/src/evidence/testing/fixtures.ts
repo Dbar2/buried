@@ -40,13 +40,17 @@ export function makeSource(id: string, yearFrom: number, yearTo: number, over: P
   };
 }
 
-/** The four showcase eras with the plates and aerial that feed them. */
+/** The four showcase eras with the plates and aerial that feed them. The 1935 edition reads
+ * "January 1931, revised to May 1935", so its range is 1931 to 1935 (spec 01 requirement 24). */
 export function showcaseRegistry(): SourceRegistry {
   return {
-    schema_version: '1.0.0',
+    schema_version: '1.1.0',
     sources: [
-      makeSource(P1911, 1911, 1914),
-      makeSource(P1935, 1935, 1935),
+      makeSource(P1911, 1911, 1914, { years_label: '1911, revised to 1914' }),
+      makeSource(P1935, 1931, 1935, {
+        years_label: '1931, revised to 1935',
+        holding: 'Library and Archives Canada, National Map Collection, NMC-0013999',
+      }),
       makeSource(AERIAL, 1947, 1947, { type: 'aerial_photograph' }),
     ],
   };
@@ -58,6 +62,12 @@ export function showcaseSources(): SourceIndex {
 
 export const ERA_1911: Era = { id: '1911', label: '1911 (revised to 1914)', year_from: 1911, year_to: 1914 };
 export const ERA_1935: Era = { id: '1935', label: '1935', year_from: 1935, year_to: 1935 };
+/**
+ * The 1935 era as data/project.json defines it since schema 1.1.0: 1931 to 1935, the range of the
+ * plates ("January 1931, revised to May 1935"). `ERA_1935` above is the older single-year era,
+ * kept because tests outside the Evidence Library still import it.
+ */
+export const ERA_1935_EDITION: Era = { id: '1935', label: '1935', year_from: 1931, year_to: 1935 };
 export const ERA_1947: Era = { id: '1947', label: '1947', year_from: 1947, year_to: 1947 };
 export const ERA_TODAY: Era = { id: 'today', label: 'Today', year_from: 2026, year_to: 2026 };
 

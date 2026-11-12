@@ -1,0 +1,44 @@
+{
+  "origin_source": "fip_v3_1911_229",
+  "crop_px": {
+    "x": 100,
+    "y": 200,
+    "width": 300,
+    "height": 250
+  },
+  "alignment_error_m": 4.3,
+  "digitising_error_m": 1.0,
+  "confirmed_by": "fixture reviewer",
+  "confirmed_at": "2026-11-12T10:00:00Z",
+  "proposal_id": "prop_0001",
+  "extraction_params_id": "v1",
+  "attribute_reads": [
+    {
+      "attribute": "material",
+      "crop_px": {
+        "x": 120,
+        "y": 210,
+        "width": 0,
+        "height": 40
+      },
+      "read_by": "person",
+      "confirmed_by": "fixture reviewer",
+      "confirmed_at": "2026-11-12T10:00:00Z"
+    },
+    {
+      "attribute": "storeys",
+      "crop_px": {
+        "x": 130,
+        "y": 220,
+        "width": 30,
+        "height": 20
+      },
+      "read_by": "label_assist",
+      "provider": "synthetic_provider",
+      "model_id": "synthetic-model-id",
+      "confirmed_by": "fixture reviewer",
+      "confirmed_at": "2026-11-12T10:05:00Z"
+    }
+  ],
+  "tone_class": "hatched"
+}

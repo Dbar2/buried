@@ -11,7 +11,9 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
+from hypothesis import assume
 from hypothesis import strategies as st
+from shapely.geometry import MultiPoint
 
 from buried_pipeline.align.affine import Affine6, is_stable
 from buried_pipeline.align.compute import ControlPoint
@@ -204,9 +206,11 @@ def reference_scenarios(draw: st.DrawFn) -> ReferenceScenario:
         point["reference_vertex"] = {"polygon": 0, "vertex": (vertex + 1) % 4}
         bad = "c_b0"
     control = {
-        "schema_version": "1.0.0",
+        "schema_version": "1.1.0",
         "source": "fip_v3_1911_229",
         "pixel_convention": "gdal_corner",
         "points": points,
     }
+    # align-check also states the control hull, so the references must enclose an area.
+    assume(MultiPoint([tuple(p["reference"]) for p in points]).convex_hull.geom_type == "Polygon")
     return ReferenceScenario(layers, control, bad is None, bad, mode)

@@ -85,5 +85,31 @@ def to_shape(geometry: dict[str, Any]) -> BaseGeometry:
     return shape(geometry)
 
 
+def pixel_polygon_problem(vertices: list[list[int]]) -> str | None:
+    """Why a pixel polygon (open ring of integer [x, y] vertices) is not one simple polygon, or
+    None. Used for map area files by the Validator and by the pipeline's map area reader.
+
+    The first vertex must not be repeated at the end, there must be at least 4 distinct vertices,
+    and the ring must be valid (no self-crossing, no zero area).
+    """
+    if len(vertices) < 4:
+        return f"has {len(vertices)} vertices, needs at least 4"
+    if vertices[0] == vertices[-1]:
+        return "repeats its first vertex at the end; list each vertex once"
+    if len({(v[0], v[1]) for v in vertices}) != len(vertices):
+        return "lists the same vertex twice"
+    try:
+        polygon = shape({"type": "Polygon", "coordinates": [[*vertices, vertices[0]]]})
+    except (ShapelyError, ValueError, TypeError) as exc:
+        return f"cannot be read as a polygon: {exc}"
+    if polygon.is_empty:
+        return "is empty"
+    if not polygon.is_valid:
+        return f"is not a single valid polygon: {explain_validity(polygon)}"
+    if polygon.area <= 0.0:
+        return "has zero area"
+    return None
+
+
 def bounds_box(bounds: dict[str, float]) -> BaseGeometry:
     return box(bounds["min_e"], bounds["min_n"], bounds["max_e"], bounds["max_n"])

@@ -6,7 +6,7 @@ import { indexSources } from './sources';
 import {
   AERIAL,
   ERA_1911,
-  ERA_1935,
+  ERA_1935_EDITION as ERA_1935, // the project's 1935 era: 1931 to 1935
   ERA_1947,
   ERA_TODAY,
   P1911,
@@ -69,11 +69,19 @@ describe('the four-era table', () => {
     expect(ids(list(ERA_TODAY))).toEqual([]);
   });
 
+  it('draws a feature seen only on a 1931-to-1935 plate in the 1935 era and nowhere else', () => {
+    // Its window is 1931 to 1935, the same range as the era (requirement 12.1).
+    const phrases = list(ERA_1935).features.find((f) => f.id === only1935.id)?.phrases;
+    expect(phrases).toEqual(['Built by 1935', 'Last seen 1931']);
+    expect(ids(list(ERA_1911))).not.toContain(only1935.id);
+    expect(ids(list(ERA_1947))).not.toContain(only1935.id);
+  });
+
   it('carries the date phrases', () => {
     const byId = new Map(list(ERA_1911).features.map((f) => [f.id, f]));
     expect(byId.get(only1911.id)?.phrases).toEqual(['Built by 1914', 'Last seen 1911']);
     expect(byId.get(gone1947.id)?.phrases).toEqual(['Built by 1914', 'Gone by 1947']);
-    expect(byId.get(lastSeen1935.id)?.phrases).toEqual(['Built by 1914', 'Last seen 1935']);
+    expect(byId.get(lastSeen1935.id)?.phrases).toEqual(['Built by 1914', 'Last seen 1931']);
   });
 
   it('is sorted by id and carries the geometry, position error and confidence unchanged', () => {
@@ -161,7 +169,7 @@ describe('linked sets (requirements 17 and 18)', () => {
     const [set] = linkedSets(collectionsOf(a, b));
     expect(set?.memberIds).toEqual([a.id, b.id].sort());
     const e = featuresForEra(collectionsOf(a, b), sources, ERA_1935).features[0];
-    expect(e?.phrases).toEqual(['Built by 1914', 'Last seen 1935']);
+    expect(e?.phrases).toEqual(['Built by 1914', 'Last seen 1931']);
   });
 
   it('the same pair with a person-set clear 1947 absence on the 1935 member: gone by 1947', () => {

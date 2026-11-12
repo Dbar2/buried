@@ -19,6 +19,7 @@ from buried_pipeline.validate.schema import SchemaSet, def_for_path, load_schema
 CONTRACT_DIRECTORIES = (
     ("evidence", "*.geojson"),
     ("control", "*.json"),
+    ("control/map_area", "*.json"),
     ("alignment", "*.json"),
     ("tiles", "*.json"),
     ("present", "*.geojson"),

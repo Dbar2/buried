@@ -22,18 +22,18 @@ describe('summariseDates: the cases in design.md', () => {
     expect(datePhrases(s)).toEqual(['Built by 1914', 'Last seen 1911']);
   });
 
-  it('a feature seen only on the 1935 plate: built by 1935, last seen 1935', () => {
+  it('a feature seen only on the 1935 plate (1931 to 1935): built by 1935, last seen 1931', () => {
     const s = summariseDates(makeFeature(P1935, [obs(P1935, true, 'clear', 'origin')]), sources);
-    expect(datePhrases(s)).toEqual(['Built by 1935', 'Last seen 1935']);
+    expect(datePhrases(s)).toEqual(['Built by 1935', 'Last seen 1931']);
   });
 
-  it('1911 and 1935 plates, nothing later: window 1911 to 1935, last seen 1935', () => {
+  it('1911 and 1935 plates, nothing later: window 1911 to 1935, last seen 1931', () => {
     const f = makeFeature(P1911, [obs(P1911, true, 'clear', 'origin'), obs(P1935, true)]);
     const s = dated(summariseDates(f, sources));
     expect(s.window).toEqual({ from: 1911, to: 1935 });
     expect(s.builtBy).toBe(1914);
-    expect(s.lastSeen).toBe(1935);
-    expect(datePhrases(s)).toEqual(['Built by 1914', 'Last seen 1935']);
+    expect(s.lastSeen).toBe(1931);
+    expect(datePhrases(s)).toEqual(['Built by 1914', 'Last seen 1931']);
   });
 
   it('1911 and 1935 plates with a clear 1947 absence: gone by 1947', () => {
@@ -48,7 +48,7 @@ describe('summariseDates: the cases in design.md', () => {
     expect(datePhrases(s)).toEqual(['Built by 1914', 'Gone by 1947']);
   });
 
-  it('the same with an obscured 1947 observation: only "Last seen 1935"', () => {
+  it('the same with an obscured 1947 observation: only "Last seen 1931"', () => {
     const f = makeFeature(P1911, [
       obs(P1911, true, 'clear', 'origin'),
       obs(P1935, true),
@@ -57,7 +57,7 @@ describe('summariseDates: the cases in design.md', () => {
     const s = dated(summariseDates(f, sources));
     expect(s.goneBy).toBeNull();
     expect(s.notCounted.map((r) => r.source)).toEqual([AERIAL]);
-    expect(datePhrases(s)).toEqual(['Built by 1914', 'Last seen 1935']);
+    expect(datePhrases(s)).toEqual(['Built by 1914', 'Last seen 1931']);
   });
 
   it('a not-covered 1947 observation never closes the window either', () => {
@@ -70,7 +70,7 @@ describe('summariseDates: the cases in design.md', () => {
     const s = dated(summariseDates(f, sources));
     expect(s.notYetBuiltAt).toBe(1911);
     expect(s.beforeAbsences).toHaveLength(1);
-    expect(datePhrases(s)).toEqual(['Not yet built at 1911', 'Built by 1935', 'Last seen 1935']);
+    expect(datePhrases(s)).toEqual(['Not yet built at 1911', 'Built by 1935', 'Last seen 1931']);
   });
 
   it('a clear absence overlapping the window is a conflict and changes no date', () => {

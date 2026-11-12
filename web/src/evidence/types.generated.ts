@@ -27,6 +27,15 @@ export type SourceId = string;
  */
 export type IsoDateTime = string;
 /**
+ * A closed ring of EPSG:26917 positions (at least four, first equal to last is checked by the Validator).
+ *
+ * @minItems 4
+ *
+ * This interface was referenced by `ContractFiles`'s JSON-Schema
+ * via the `definition` "linearRing".
+ */
+export type LinearRing = [Position, Position, Position, Position, ...Position[]];
+/**
  * One position in EPSG:26917 metres: [easting, northing]. Never longitude/latitude: a pair such as [-79.35, 43.65] fails the easting minimum. Exactly two numbers.
  *
  * @minItems 2
@@ -42,16 +51,7 @@ export type Position = [number, number];
  * This interface was referenced by `ContractFiles`'s JSON-Schema
  * via the `definition` "polygonalGeometry".
  */
-export type PolygonalGeometry = PolygonGeometry | MultiPolygonGeometry;
-/**
- * A closed ring of EPSG:26917 positions (at least four, first equal to last is checked by the Validator).
- *
- * @minItems 4
- *
- * This interface was referenced by `ContractFiles`'s JSON-Schema
- * via the `definition` "linearRing".
- */
-export type LinearRing = [Position, Position, Position, Position, ...Position[]];
+export type PolygonalGeometry = PolygonGeometry1 | MultiPolygonGeometry;
 /**
  * An ISO 8601 calendar date.
  *
@@ -73,18 +73,30 @@ export type FeatureId = string;
  * via the `definition` "featureGeometry".
  */
 export type FeatureGeometry =
-  PolygonGeometry | MultiPolygonGeometry | LineStringGeometry | MultiLineStringGeometry;
+  PolygonGeometry1 | MultiPolygonGeometry | LineStringGeometry | MultiLineStringGeometry;
+/**
+ * [x, y] integer pixel vertex on a source raster (GDAL convention: (0, 0) is the top-left corner of the top-left pixel).
+ *
+ * @minItems 2
+ * @maxItems 2
+ *
+ * This interface was referenced by `ContractFiles`'s JSON-Schema
+ * via the `definition` "pixelPoint".
+ */
+export type PixelPoint = [number, number];
 
 /**
  * One property per contract file shape in the Schema.
  */
 export interface ContractFiles {
   alignmentRecord?: AlignmentRecord;
+  attributeRead?: AttributeRead;
   attributes?: Attributes;
   bounds?: Bounds;
   controlPoint?: ControlPoint;
   controlPoints?: ControlPoints;
   coverageArea?: CoverageArea;
+  cropPx?: CropPx;
   date?: IsoDate;
   dateTime?: IsoDateTime;
   era?: Era;
@@ -95,11 +107,13 @@ export interface ContractFiles {
   lineStringGeometry?: LineStringGeometry;
   linearRing?: LinearRing;
   link?: Link;
+  mapArea?: MapArea;
   multiLineStringGeometry?: MultiLineStringGeometry;
   multiPolygonGeometry?: MultiPolygonGeometry;
   observation?: Observation;
+  pixelPoint?: PixelPoint;
   pointGeometry?: PointGeometry;
-  polygonGeometry?: PolygonGeometry;
+  polygonGeometry?: PolygonGeometry1;
   polygonalGeometry?: PolygonalGeometry;
   position?: Position;
   presentFeature?: PresentFeature;
@@ -132,7 +146,7 @@ export interface AlignmentRecord {
   tool_version: string;
   status: 'measured';
   source_pixel_size_m: number;
-  supplied: {
+  supplied?: {
     crs: string;
     operation: string;
     /**
@@ -168,6 +182,8 @@ export interface AlignmentRecord {
   };
   alignment_error_m: number;
   outliers: string[];
+  control_hull?: PolygonGeometry;
+  control_hull_area_m2?: number;
 }
 /**
  * This interface was referenced by `ContractFiles`'s JSON-Schema
@@ -180,7 +196,44 @@ export interface Residual {
   r_m: number;
 }
 /**
- * Attributes read from the source. Each is optional and never guessed.
+ * The convex hull of the control points' reference positions, EPSG:26917 metres, 3 decimals. The error figure is measured inside it. Required of records written after schema 1.1.0 (checked by the Validator, which accepts a record without it only at schema_version 1.0.0).
+ */
+export interface PolygonGeometry {
+  type: 'Polygon';
+  /**
+   * @minItems 1
+   */
+  coordinates: [LinearRing, ...LinearRing[]];
+}
+/**
+ * Where on the origin source one attribute was read, and by whom. A read by label_assist names the provider and model that proposed the text; a person confirmed it.
+ *
+ * This interface was referenced by `ContractFiles`'s JSON-Schema
+ * via the `definition` "attributeRead".
+ */
+export interface AttributeRead {
+  attribute: 'use' | 'material' | 'storeys' | 'street_number';
+  crop_px: CropPx;
+  read_by: 'person' | 'label_assist';
+  provider?: string;
+  model_id?: string;
+  confirmed_by: string;
+  confirmed_at: IsoDateTime;
+}
+/**
+ * An integer pixel rectangle on a source raster at full resolution (GDAL convention).
+ *
+ * This interface was referenced by `ContractFiles`'s JSON-Schema
+ * via the `definition` "cropPx".
+ */
+export interface CropPx {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+/**
+ * Attributes read from the source. Each is optional and never guessed. material is set only from lettering or the legend, and then provenance.attribute_reads has its read.
  *
  * This interface was referenced by `ContractFiles`'s JSON-Schema
  * via the `definition` "attributes".
@@ -189,6 +242,10 @@ export interface Attributes {
   use?: string;
   material?: string;
   storeys?: number;
+  /**
+   * The street number as printed on the source.
+   */
+  street_number?: string;
 }
 /**
  * A rectangle in EPSG:26917 metres.
@@ -243,14 +300,20 @@ export interface ControlPoints {
   points: [ControlPoint, ControlPoint, ControlPoint, ...ControlPoint[]];
 }
 /**
- * A Polygon or MultiPolygon in EPSG:26917 metres with the method that produced it. A reviewed area (method person) is a person's statement that every building the origin source draws inside it is published in the file.
+ * A Polygon or MultiPolygon in EPSG:26917 metres with the method that produced it. A reviewed area (method person) is a person's statement that every feature of the kinds it covers (buildings when covers is absent) that the origin source draws inside it is published in the file. method map_area is the plate's map area polygon through the chosen transform (mapped_area only).
  *
  * This interface was referenced by `ContractFiles`'s JSON-Schema
  * via the `definition` "coverageArea".
  */
 export interface CoverageArea {
   geometry: PolygonalGeometry;
-  method: 'neatline' | 'raster_footprint' | 'person';
+  method: 'neatline' | 'raster_footprint' | 'map_area' | 'person';
+  /**
+   * Reviewed areas only. The kinds of feature the person attests are all published inside the area. Absent means ["building"].
+   *
+   * @minItems 1
+   */
+  covers?: ['building' | 'water' | 'land_use', ...('building' | 'water' | 'land_use')[]];
   /**
    * Integer pixel vertices on the origin source (GDAL convention).
    *
@@ -264,7 +327,7 @@ export interface CoverageArea {
  * This interface was referenced by `ContractFiles`'s JSON-Schema
  * via the `definition` "polygonGeometry".
  */
-export interface PolygonGeometry {
+export interface PolygonGeometry1 {
   type: 'Polygon';
   /**
    * @minItems 1
@@ -368,18 +431,21 @@ export interface Observation {
  */
 export interface Provenance {
   origin_source: SourceId;
-  crop_px: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  };
+  crop_px: CropPx;
   alignment_error_m: number;
   digitising_error_m: number;
   confirmed_by: string;
   confirmed_at: IsoDateTime;
   proposal_id?: string;
   extraction_params_id?: string;
+  /**
+   * One entry per attribute read from lettering or the legend on the origin source, with the crop it was read from. A material needs one.
+   */
+  attribute_reads?: AttributeRead[];
+  /**
+   * The fill tone extraction observed on the scan. A fact about the image, not an attribute: no consumer presents it as a material.
+   */
+  tone_class?: 'light' | 'mid' | 'dark' | 'hatched' | 'mixed';
 }
 /**
  * A link to a feature from another source that shows the same thing. Linking is not merging.
@@ -405,18 +471,45 @@ export interface FeatureCollection {
   crs: 'EPSG:26917';
   origin_source: SourceId;
   /**
-   * Where the origin source draws the ground: its neatline, or the raster footprint under the chosen transform.
+   * Where the origin source draws the ground: the plate's map area through the chosen transform, its neatline, or the raster footprint under the chosen transform.
    */
   mapped_area?: CoverageArea & {
-    method?: 'neatline' | 'raster_footprint';
+    method?: 'neatline' | 'raster_footprint' | 'map_area';
   };
   /**
-   * Areas where a person attests that every building the origin source draws is published.
+   * Areas where a person attests that every feature of the kinds in covers (buildings when covers is absent) that the origin source draws is published.
    */
   reviewed_areas?: (CoverageArea & {
     method?: 'person';
   })[];
   features: Feature[];
+}
+/**
+ * data/control/map_area/<source id>.json: a person's statement of where map content is on a plate image. Margins, title blocks, scale bars, north arrows, archive labels and rulers lie outside it. Code never detects it silently.
+ *
+ * This interface was referenced by `ContractFiles`'s JSON-Schema
+ * via the `definition` "mapArea".
+ */
+export interface MapArea {
+  schema_version: SchemaVersion;
+  source: SourceId;
+  pixel_convention: 'gdal_corner';
+  /**
+   * Integer pixel vertices of one simple polygon in full-resolution pixels, at least four, the first vertex not repeated at the end.
+   *
+   * @minItems 4
+   */
+  pixel_polygon: [PixelPoint, PixelPoint, PixelPoint, PixelPoint, ...PixelPoint[]];
+  /**
+   * What lies outside the polygon, for example "margin, title block, archive labels, ruler".
+   */
+  excluded: string;
+  /**
+   * Integer pixel polylines a person marked where the paper was folded.
+   */
+  fold_lines?: [PixelPoint, PixelPoint, ...PixelPoint[]][];
+  confirmed_by: string;
+  confirmed_at: IsoDateTime;
 }
 /**
  * This interface was referenced by `ContractFiles`'s JSON-Schema
@@ -435,7 +528,7 @@ export interface PointGeometry {
 export interface PresentFeature {
   type: 'Feature';
   id: string;
-  geometry: PointGeometry | PolygonGeometry | MultiPolygonGeometry;
+  geometry: PointGeometry | PolygonGeometry1 | MultiPolygonGeometry;
   properties: {
     [k: string]: string | number | boolean | null;
   };
@@ -503,6 +596,14 @@ export interface Source {
   attribution_status: 'confirmed' | 'to_be_confirmed';
   rights_checked_on: IsoDate | null;
   held_out: boolean;
+  /**
+   * Display only, for example "1931, revised to 1935". The date logic never reads it. The Validator checks it states exactly year_from and year_to and no other year.
+   */
+  years_label?: string;
+  /**
+   * The institution that holds the original, when it differs from the distributor.
+   */
+  holding?: string;
 }
 /**
  * data/sources.json.
@@ -537,4 +638,31 @@ export interface TileSidecar {
   source_pixel_size_m: number;
   tile_pixel_size_m: number;
   attribution_line: string;
+  crop_px?: CropPx1;
+  map_area?: PolygonGeometry2;
+  /**
+   * File name next to the sidecar of a downsampled copy of the whole raster, for the Sources page. Never draped.
+   */
+  full_image?: string;
+  full_width_px?: number;
+  full_height_px?: number;
+}
+/**
+ * An integer pixel rectangle on a source raster at full resolution (GDAL convention).
+ */
+export interface CropPx1 {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+/**
+ * The plate's map area polygon in EPSG:26917 metres (its pixel polygon through the chosen transform), so the Explorer can clip the drape to it.
+ */
+export interface PolygonGeometry2 {
+  type: 'Polygon';
+  /**
+   * @minItems 1
+   */
+  coordinates: [LinearRing, ...LinearRing[]];
 }

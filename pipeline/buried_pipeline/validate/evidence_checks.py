@@ -93,6 +93,13 @@ def _check_file(d: Doc, ctx: Context) -> list[ValidationError]:
 
     mapped = d.doc.get("mapped_area")
     reviewed = d.doc.get("reviewed_areas", [])
+    has_map_area_file = origin in ctx.map_areas
+    if has_map_area_file and mapped is not None and mapped["method"] != "map_area":
+        out.append(err(d.path, "/mapped_area/method", f"{origin} has a map area file, so "
+                       "mapped_area must have method map_area"))
+    if mapped is not None and mapped["method"] == "map_area" and not has_map_area_file:
+        out.append(err(d.path, "/mapped_area/method", "method map_area needs "
+                       f"data/control/map_area/{origin}.json, which does not exist"))
     if mapped is not None:
         for suffix, reason in geometry_problems(mapped["geometry"]):
             out.append(err(d.path, f"/mapped_area/geometry{suffix}", reason))
@@ -146,6 +153,45 @@ def _check_geometry(ref: FeatureRef, ctx: Context) -> list[ValidationError]:
     return out
 
 
+def _is_traced_aerial_origin(o: dict[str, Any], ref: FeatureRef) -> bool:
+    """Requirement 27.1: the origin observation of a feature a person traced from this aerial.
+    It is a clear presence from the feature's own origin source; the person who traced it is
+    named in the feature's provenance (confirmed_by is required there)."""
+    return (
+        o["method"] == "origin"
+        and o["source"] == ref.origin
+        and o["present"]
+        and o["visibility"] == "clear"
+    )
+
+
+def _check_attribute_reads(ref: FeatureRef, ctx: Context) -> list[ValidationError]:
+    """Requirements 25.2 and 25.3: a material has a read, one read per attribute, no orphan."""
+    out: list[ValidationError] = []
+    p = ref.doc.path
+    attributes = ref.props["attributes"]
+    prov = ref.props["provenance"]
+    reads = prov.get("attribute_reads", [])
+    base = f"{ref.pointer}/properties/provenance/attribute_reads"
+    seen: dict[str, int] = {}
+    for k, r in enumerate(reads):
+        name = r["attribute"]
+        if name in seen:
+            out.append(err(p, f"{base}/{k}/attribute", f"second read for {name} (first at index "
+                           f"{seen[name]})", ref.id))
+        seen.setdefault(name, k)
+        if name not in attributes:
+            out.append(err(p, f"{base}/{k}/attribute", f"read for {name}, but the feature has no "
+                           f"{name} attribute", ref.id))
+        if parse_time(r["confirmed_at"]) > ctx.now:
+            out.append(err(p, f"{base}/{k}/confirmed_at", "is in the future", ref.id))
+    if "material" in attributes and "material" not in seen:
+        out.append(err(p, f"{ref.pointer}/properties/attributes/material", "a material needs a "
+                       "provenance.attribute_reads entry for material: it comes only from "
+                       "lettering or the legend, never from a grey tone", ref.id))
+    return out
+
+
 def _check_observations(
     ref: FeatureRef, ctx: Context, all_features: dict[str, FeatureRef]
 ) -> list[ValidationError]:
@@ -171,6 +217,7 @@ def _check_observations(
                 src["type"] == "aerial_photograph"
                 and o["visibility"] in ("clear", "obscured")
                 and o["method"] != "person"
+                and not _is_traced_aerial_origin(o, ref)
             ):
                 out.append(err(p, f"{ptr}/method", "a clear or obscured aerial observation must "
                                "be set by a person; code never reads a photograph", ref.id))
@@ -337,6 +384,7 @@ def check_evidence(docs: Sequence[Doc], ctx: Context) -> list[ValidationError]:
         out.extend(_check_identity(ref))
         out.extend(_check_geometry(ref, ctx))
         out.extend(_check_observations(ref, ctx, all_features))
+        out.extend(_check_attribute_reads(ref, ctx))
         out.extend(_check_error_budget(ref, ctx))
         out.extend(_check_status_links(ref, all_features))
         out.extend(_check_link_times(ref, ctx))

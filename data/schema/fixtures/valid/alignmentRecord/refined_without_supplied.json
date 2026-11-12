@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.1.0",
+  "source": "fip_v3_1911_229",
+  "reference_sources": [
+    "present_toronto_intersections_2026"
+  ],
+  "control_file": "data/control/fip_v3_1911_229.json",
+  "control_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "measured_at": "2026-11-12T10:00:00Z",
+  "tool_version": "0.1.0",
+  "status": "measured",
+  "source_pixel_size_m": 0.0592,
+  "chosen": "refined",
+  "error_basis": "refined_loo_rmse",
+  "error_basis_m": 1.2,
+  "error_rule": {
+    "multiplier": 2.0,
+    "floor_m": 2.0,
+    "round_up_to_m": 0.1
+  },
+  "alignment_error_m": 2.4,
+  "outliers": [],
+  "refined": {
+    "affine": [
+      0.05,
+      0.0,
+      500000.0,
+      0.0,
+      -0.05,
+      4000000.0
+    ],
+    "residuals": [
+      {
+        "id": "cp_1",
+        "dx_m": 0.5,
+        "dy_m": -0.5,
+        "r_m": 0.7071
+      },
+      {
+        "id": "cp_2",
+        "dx_m": 0.5,
+        "dy_m": -0.5,
+        "r_m": 0.7071
+      },
+      {
+        "id": "cp_3",
+        "dx_m": 0.5,
+        "dy_m": -0.5,
+        "r_m": 0.7071
+      },
+      {
+        "id": "cp_4",
+        "dx_m": 0.5,
+        "dy_m": -0.5,
+        "r_m": 0.7071
+      }
+    ],
+    "rmse_in_sample_m": 0.3,
+    "rmse_loo_m": 1.2,
+    "max_residual_m": 0.7071
+  },
+  "control_hull": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          500000.0,
+          4000000.0
+        ],
+        [
+          500100.0,
+          4000000.0
+        ],
+        [
+          500100.0,
+          4000080.0
+        ],
+        [
+          500000.0,
+          4000080.0
+        ],
+        [
+          500000.0,
+          4000000.0
+        ]
+      ]
+    ]
+  },
+  "control_hull_area_m2": 8000.0
+}

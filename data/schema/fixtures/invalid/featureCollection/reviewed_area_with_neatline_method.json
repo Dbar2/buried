@@ -147,7 +147,21 @@
           "confirmed_by": "fixture reviewer",
           "confirmed_at": "2026-11-12T10:00:00Z",
           "proposal_id": "prop_0001",
-          "extraction_params_id": "v1"
+          "extraction_params_id": "v1",
+          "attribute_reads": [
+            {
+              "attribute": "material",
+              "crop_px": {
+                "x": 120,
+                "y": 210,
+                "width": 60,
+                "height": 40
+              },
+              "read_by": "person",
+              "confirmed_by": "fixture reviewer",
+              "confirmed_at": "2026-11-12T10:00:00Z"
+            }
+          ]
         },
         "status": "published"
       }

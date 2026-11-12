@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://buried.invalid/schema/evidence.schema.json",
   "title": "Buried contract files",
-  "description": "The one schema for every Buried contract file under data/. All coordinates are EPSG:26917 (NAD83 / UTM zone 17N) metres, easting first then northing, and never longitude/latitude. The root validates a featureCollection (an evidence file); every other contract file is validated against its own entry under $defs. schema_version is 1.0.0.",
+  "description": "The one schema for every Buried contract file under data/. All coordinates are EPSG:26917 (NAD83 / UTM zone 17N) metres, easting first then northing, and never longitude/latitude. The root validates a featureCollection (an evidence file); every other contract file is validated against its own entry under $defs. schema_version is 1.1.0.",
   "$ref": "#/$defs/featureCollection",
   "$defs": {
     "schemaVersion": {
@@ -127,14 +127,40 @@
         { "$ref": "#/$defs/multiLineStringGeometry" }
       ]
     },
+    "pixelPoint": {
+      "description": "[x, y] integer pixel vertex on a source raster (GDAL convention: (0, 0) is the top-left corner of the top-left pixel).",
+      "type": "array",
+      "prefixItems": [{ "type": "integer", "minimum": 0 }, { "type": "integer", "minimum": 0 }],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "cropPx": {
+      "description": "An integer pixel rectangle on a source raster at full resolution (GDAL convention).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "width", "height"],
+      "properties": {
+        "x": { "type": "integer", "minimum": 0 },
+        "y": { "type": "integer", "minimum": 0 },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 }
+      }
+    },
     "coverageArea": {
-      "description": "A Polygon or MultiPolygon in EPSG:26917 metres with the method that produced it. A reviewed area (method person) is a person's statement that every building the origin source draws inside it is published in the file.",
+      "description": "A Polygon or MultiPolygon in EPSG:26917 metres with the method that produced it. A reviewed area (method person) is a person's statement that every feature of the kinds it covers (buildings when covers is absent) that the origin source draws inside it is published in the file. method map_area is the plate's map area polygon through the chosen transform (mapped_area only).",
       "type": "object",
       "additionalProperties": false,
       "required": ["geometry", "method"],
       "properties": {
         "geometry": { "$ref": "#/$defs/polygonalGeometry" },
-        "method": { "enum": ["neatline", "raster_footprint", "person"] },
+        "method": { "enum": ["neatline", "raster_footprint", "map_area", "person"] },
+        "covers": {
+          "description": "Reviewed areas only. The kinds of feature the person attests are all published inside the area. Absent means [\"building\"].",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["building", "water", "land_use"] }
+        },
         "pixel_polygon": {
           "description": "Integer pixel vertices on the origin source (GDAL convention).",
           "type": "array",
@@ -187,6 +213,11 @@
           "then": { "required": ["confirmed_by", "confirmed_at"] }
         },
         {
+          "description": "An origin observation says the feature was read from this source, so it is a presence (requirement 27.2).",
+          "if": { "properties": { "method": { "const": "origin" } }, "required": ["method"] },
+          "then": { "properties": { "present": { "const": true } } }
+        },
+        {
           "if": {
             "properties": { "method": { "const": "match_auto" }, "present": { "const": true } },
             "required": ["method", "present"]
@@ -194,6 +225,23 @@
           "then": { "required": ["matched_feature"] }
         }
       ]
+    },
+    "attributeRead": {
+      "description": "Where on the origin source one attribute was read, and by whom. A read by label_assist names the provider and model that proposed the text; a person confirmed it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attribute", "crop_px", "read_by", "confirmed_by", "confirmed_at"],
+      "properties": {
+        "attribute": { "enum": ["use", "material", "storeys", "street_number"] },
+        "crop_px": { "$ref": "#/$defs/cropPx" },
+        "read_by": { "enum": ["person", "label_assist"] },
+        "provider": { "type": "string", "minLength": 1 },
+        "model_id": { "type": "string", "minLength": 1 },
+        "confirmed_by": { "type": "string", "minLength": 1 },
+        "confirmed_at": { "$ref": "#/$defs/dateTime" }
+      },
+      "if": { "properties": { "read_by": { "const": "label_assist" } }, "required": ["read_by"] },
+      "then": { "required": ["provider", "model_id"] }
     },
     "provenance": {
       "description": "Where a feature came from, who confirmed it and how far off its outline may be. Pixel coordinates use the GDAL convention: (0, 0) is the top-left corner of the top-left pixel of the full-resolution source raster.",
@@ -209,33 +257,33 @@
       ],
       "properties": {
         "origin_source": { "$ref": "#/$defs/sourceId" },
-        "crop_px": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["x", "y", "width", "height"],
-          "properties": {
-            "x": { "type": "integer", "minimum": 0 },
-            "y": { "type": "integer", "minimum": 0 },
-            "width": { "type": "integer", "minimum": 1 },
-            "height": { "type": "integer", "minimum": 1 }
-          }
-        },
+        "crop_px": { "$ref": "#/$defs/cropPx" },
         "alignment_error_m": { "type": "number", "exclusiveMinimum": 0 },
         "digitising_error_m": { "type": "number", "exclusiveMinimum": 0 },
         "confirmed_by": { "type": "string", "minLength": 1 },
         "confirmed_at": { "$ref": "#/$defs/dateTime" },
         "proposal_id": { "type": "string" },
-        "extraction_params_id": { "type": "string" }
+        "extraction_params_id": { "type": "string" },
+        "attribute_reads": {
+          "description": "One entry per attribute read from lettering or the legend on the origin source, with the crop it was read from. A material needs one.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/attributeRead" }
+        },
+        "tone_class": {
+          "description": "The fill tone extraction observed on the scan. A fact about the image, not an attribute: no consumer presents it as a material.",
+          "enum": ["light", "mid", "dark", "hatched", "mixed"]
+        }
       }
     },
     "attributes": {
-      "description": "Attributes read from the source. Each is optional and never guessed.",
+      "description": "Attributes read from the source. Each is optional and never guessed. material is set only from lettering or the legend, and then provenance.attribute_reads has its read.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "use": { "type": "string" },
         "material": { "type": "string" },
-        "storeys": { "type": "integer", "minimum": 1 }
+        "storeys": { "type": "integer", "minimum": 1 },
+        "street_number": { "description": "The street number as printed on the source.", "type": "string" }
       }
     },
     "feature": {
@@ -292,6 +340,28 @@
             {
               "if": { "properties": { "status": { "const": "rejected" } }, "required": ["status"] },
               "then": { "required": ["status_reason"] }
+            },
+            {
+              "description": "A material comes only from lettering or the legend, so it needs a recorded read (requirement 25.2).",
+              "if": {
+                "properties": { "attributes": { "required": ["material"] } },
+                "required": ["attributes"]
+              },
+              "then": {
+                "properties": {
+                  "provenance": {
+                    "required": ["attribute_reads"],
+                    "properties": {
+                      "attribute_reads": {
+                        "contains": {
+                          "properties": { "attribute": { "const": "material" } },
+                          "required": ["attribute"]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           ]
         }
@@ -322,14 +392,17 @@
         "crs": { "const": "EPSG:26917" },
         "origin_source": { "$ref": "#/$defs/sourceId" },
         "mapped_area": {
-          "description": "Where the origin source draws the ground: its neatline, or the raster footprint under the chosen transform.",
+          "description": "Where the origin source draws the ground: the plate's map area through the chosen transform, its neatline, or the raster footprint under the chosen transform.",
           "allOf": [
             { "$ref": "#/$defs/coverageArea" },
-            { "properties": { "method": { "enum": ["neatline", "raster_footprint"] } } }
+            {
+              "properties": { "method": { "enum": ["neatline", "raster_footprint", "map_area"] } },
+              "not": { "required": ["covers"] }
+            }
           ]
         },
         "reviewed_areas": {
-          "description": "Areas where a person attests that every building the origin source draws is published.",
+          "description": "Areas where a person attests that every feature of the kinds in covers (buildings when covers is absent) that the origin source draws is published.",
           "type": "array",
           "items": {
             "allOf": [
@@ -369,7 +442,17 @@
         "attribution_line": { "type": "string", "minLength": 1 },
         "attribution_status": { "enum": ["confirmed", "to_be_confirmed"] },
         "rights_checked_on": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
-        "held_out": { "type": "boolean" }
+        "held_out": { "type": "boolean" },
+        "years_label": {
+          "description": "Display only, for example \"1931, revised to 1935\". The date logic never reads it. The Validator checks it states exactly year_from and year_to and no other year.",
+          "type": "string",
+          "minLength": 1
+        },
+        "holding": {
+          "description": "The institution that holds the original, when it differs from the distributor.",
+          "type": "string",
+          "minLength": 1
+        }
       },
       "if": { "properties": { "type": { "const": "present_day_reference" } }, "required": ["type"] },
       "else": { "properties": { "year_from": { "type": "integer" } } }
@@ -495,7 +578,6 @@
         "tool_version",
         "status",
         "source_pixel_size_m",
-        "supplied",
         "chosen",
         "error_basis",
         "error_basis_m",
@@ -557,13 +639,19 @@
           }
         },
         "alignment_error_m": { "type": "number", "minimum": 2.0 },
-        "outliers": { "type": "array", "items": { "type": "string" } }
+        "outliers": { "type": "array", "items": { "type": "string" } },
+        "control_hull": {
+          "description": "The convex hull of the control points' reference positions, EPSG:26917 metres, 3 decimals. The error figure is measured inside it. Required of records written after schema 1.1.0 (checked by the Validator, which accepts a record without it only at schema_version 1.0.0).",
+          "$ref": "#/$defs/polygonGeometry"
+        },
+        "control_hull_area_m2": { "type": "number", "minimum": 0 }
       },
       "allOf": [
         {
+          "description": "supplied is optional when the refined fit was chosen, required when the supplied georeferencing was (requirement 26.1).",
           "if": { "properties": { "chosen": { "const": "refined" } }, "required": ["chosen"] },
           "then": { "required": ["refined"], "properties": { "error_basis": { "const": "refined_loo_rmse" } } },
-          "else": { "properties": { "error_basis": { "const": "supplied_rmse" } } }
+          "else": { "required": ["supplied"], "properties": { "error_basis": { "const": "supplied_rmse" } } }
         }
       ]
     },
@@ -605,7 +693,66 @@
         "alignment_error_m": { "type": "number", "exclusiveMinimum": 0 },
         "source_pixel_size_m": { "type": "number", "exclusiveMinimum": 0 },
         "tile_pixel_size_m": { "type": "number", "exclusiveMinimum": 0 },
-        "attribution_line": { "type": "string", "minLength": 1 }
+        "attribution_line": { "type": "string", "minLength": 1 },
+        "crop_px": {
+          "description": "The full-resolution pixel rectangle the tile covers: the bounding box of the plate's map area.",
+          "$ref": "#/$defs/cropPx"
+        },
+        "map_area": {
+          "description": "The plate's map area polygon in EPSG:26917 metres (its pixel polygon through the chosen transform), so the Explorer can clip the drape to it.",
+          "$ref": "#/$defs/polygonGeometry"
+        },
+        "full_image": {
+          "description": "File name next to the sidecar of a downsampled copy of the whole raster, for the Sources page. Never draped.",
+          "type": "string",
+          "pattern": "^[a-z0-9_]+\\.jpg$"
+        },
+        "full_width_px": { "type": "integer", "minimum": 1 },
+        "full_height_px": { "type": "integer", "minimum": 1 }
+      },
+      "dependentRequired": {
+        "crop_px": ["map_area"],
+        "map_area": ["crop_px"],
+        "full_image": ["full_width_px", "full_height_px"],
+        "full_width_px": ["full_image"],
+        "full_height_px": ["full_image"]
+      }
+    },
+    "mapArea": {
+      "description": "data/control/map_area/<source id>.json: a person's statement of where map content is on a plate image. Margins, title blocks, scale bars, north arrows, archive labels and rulers lie outside it. Code never detects it silently.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "source",
+        "pixel_convention",
+        "pixel_polygon",
+        "excluded",
+        "confirmed_by",
+        "confirmed_at"
+      ],
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/schemaVersion" },
+        "source": { "$ref": "#/$defs/sourceId" },
+        "pixel_convention": { "const": "gdal_corner" },
+        "pixel_polygon": {
+          "description": "Integer pixel vertices of one simple polygon in full-resolution pixels, at least four, the first vertex not repeated at the end.",
+          "type": "array",
+          "minItems": 4,
+          "items": { "$ref": "#/$defs/pixelPoint" }
+        },
+        "excluded": {
+          "description": "What lies outside the polygon, for example \"margin, title block, archive labels, ruler\".",
+          "type": "string",
+          "minLength": 1
+        },
+        "fold_lines": {
+          "description": "Integer pixel polylines a person marked where the paper was folded.",
+          "type": "array",
+          "items": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/pixelPoint" } }
+        },
+        "confirmed_by": { "type": "string", "minLength": 1 },
+        "confirmed_at": { "$ref": "#/$defs/dateTime" }
       }
     },
     "presentFeature": {

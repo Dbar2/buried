@@ -27,6 +27,9 @@ class Context:
     project: dict[str, Any] | None = None
     alignment: dict[str, dict[str, Any]] = field(default_factory=dict)
     present: dict[str, dict[str, Any]] = field(default_factory=dict)
+    # Control files by file stem, and map area files by source id (schema-valid ones only).
+    control: dict[str, dict[str, Any]] = field(default_factory=dict)
+    map_areas: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     @property
     def bounds(self) -> dict[str, float] | None:

@@ -14,6 +14,7 @@ from typing import Any
 from buried_pipeline.validate.checks import (
     check_alignment_record,
     check_control_points,
+    check_map_area,
     check_present_layer,
     check_project,
     check_registry,
@@ -88,6 +89,10 @@ def validate_files(files: Sequence[LoadedFile], schema: SchemaSet, now: datetime
         ctx.alignment[d.doc["source"]] = d.doc
     for d in ok.get("presentLayer", []):
         ctx.present[d.doc["source"]] = d.doc
+    for d in ok.get("controlPoints", []):
+        ctx.control[d.name] = d.doc
+    for d in ok.get("mapArea", []):
+        ctx.map_areas[d.name] = d.doc
 
     for d in ok.get("sourceRegistry", []):
         errors.extend(check_registry(d.doc, d.path))
@@ -99,6 +104,8 @@ def validate_files(files: Sequence[LoadedFile], schema: SchemaSet, now: datetime
         errors.extend(check_control_points(d.doc, d.path, d.name, ctx))
     for d in ok.get("presentLayer", []):
         errors.extend(check_present_layer(d.doc, d.path, d.name, ctx))
+    for d in ok.get("mapArea", []):
+        errors.extend(check_map_area(d.doc, d.path, d.name, ctx))
     for d in ok.get("tileSidecar", []):
         errors.extend(check_tile_sidecar(d.doc, d.path, d.name, ctx))
     errors.extend(check_evidence(ok.get("featureCollection", []), ctx))

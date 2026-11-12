@@ -26,6 +26,7 @@ from buried_pipeline.inspect.georef import find_raster, read_raster_info
 from buried_pipeline.io.atomic import atomic_write_bytes, atomic_write_json
 from buried_pipeline.io.registry import Registry, Source
 from buried_pipeline.paths import Paths
+from buried_pipeline.schema_version import SCHEMA_VERSION
 from buried_pipeline.tile.corners import (
     BILINEAR_TOLERANCE_M,
     CORNER_NAMES,
@@ -166,7 +167,7 @@ def tile_source(
     jpeg = encode_jpeg(downsample(pixels, tile_w, tile_h))
 
     sidecar: dict[str, Any] = {
-        "schema_version": "1.0.0",
+        "schema_version": SCHEMA_VERSION,
         "source": source_id,
         "image": f"{source_id}.jpg",
         "width_px": tile_w,

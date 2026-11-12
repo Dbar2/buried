@@ -174,6 +174,7 @@ def test_record_shape_and_constants() -> None:
         supplied_crs="EPSG:26917",
         supplied_operation="noop",
         result=result,
+        control_references=[p.reference for p in pts],
     )
     assert record["reference_sources"] == ["a_src", "b_src"]
     assert record["status"] == "measured"

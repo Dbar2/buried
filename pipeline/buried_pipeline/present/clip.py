@@ -21,6 +21,7 @@ from shapely.geometry.base import BaseGeometry
 
 from buried_pipeline.errors import PipelineError
 from buried_pipeline.inspect.report import Bounds
+from buried_pipeline.schema_version import SCHEMA_VERSION
 
 TARGET_CRS = "EPSG:26917"
 MAX_FEATURES = 20000
@@ -211,7 +212,7 @@ def build_layer(
     """The `presentLayer` document (spec 01 design)."""
     return {
         "type": "FeatureCollection",
-        "schema_version": "1.0.0",
+        "schema_version": SCHEMA_VERSION,
         "crs": TARGET_CRS,
         "source": source_id,
         "ckan_package_id": package_id,

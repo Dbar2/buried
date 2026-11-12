@@ -9,6 +9,7 @@ import pytest
 from buried_pipeline.errors import PipelineError
 from buried_pipeline.io.registry import load_registry, parse_registry
 from buried_pipeline.paths import find_repo_root
+from buried_pipeline.schema_version import SCHEMA_VERSION
 from tests.conftest import SOURCES_DOC
 
 
@@ -79,4 +80,4 @@ def test_committed_registry_is_valid_and_consistent() -> None:
     assert all(p.rights_checked_on == "2026-11-12" for p in present)
     assert all(p.year_to == 2026 for p in present)
     raw = json.loads((root / "data" / "sources.json").read_text(encoding="utf-8"))
-    assert raw["schema_version"] == "1.0.0"
+    assert raw["schema_version"] == SCHEMA_VERSION

@@ -454,10 +454,10 @@ task 16), 7, 8, 16, 11, 9.
     Files: `pipeline/buried_pipeline/align/hull.py`, `pipeline/buried_pipeline/align/run.py`,
     `pipeline/tests/align/test_hull.py`.
     Requirements: 18.1 to 18.3.
-  - [ ] 15.2 **[PBT] A10** The control hull is the convex hull.
+  - [x] 15.2 **[PBT] A10** The control hull is the convex hull.
     Files: `pipeline/tests/align/test_align_properties.py`.
     Requirements: 18.1.
-  - [ ] 15.3 Maintainer: rerun `uv run buried align-check fip_v3_1911_229` and
+  - [x] 15.3 Maintainer: rerun `uv run buried align-check fip_v3_1911_229` and
     `uv run buried align-check fip_v3_1935_229` so both records carry the hull; the error figures
     must not change (4.3 m and 3.1 m). If one changes, stop and report.
     Files: `data/alignment/*.json`.
@@ -474,3 +474,38 @@ task 16), 7, 8, 16, 11, 9.
     (not gated).
     Files: `pipeline/tests/extract/test_held_out.py`, `pipeline/tests/extract/test_fixtures.py`.
     Requirements: 9.3, 17.2.
+
+- [ ] 17. Held-out write guard for the Kiro hook (session 012; needs task 7.1)
+  - [ ] 17.1 Move the held-out text patterns (`fip_v3_1935_232`, `1935_232`, `1935-232`) into one
+    constant, `HELD_OUT_PATTERNS`, in `extract/params.py` next to `TUNING_SOURCES`, and make
+    `tests/extract/test_held_out.py` read them from there. No behaviour change.
+    Files: `pipeline/buried_pipeline/extract/params.py`, `pipeline/tests/extract/test_held_out.py`.
+    Requirements: 9.2, 9.3.
+  - [ ] 17.2 Implement `pipeline/buried_pipeline/hooks/held_out_write.py`, run by the `PreToolUse`
+    hook in `.kiro/hooks/held-out.json` as
+    `uv --directory pipeline run python -m buried_pipeline.hooks.held_out_write`. It reads the hook
+    event as JSON on standard input and:
+    - takes the tool input's target path from the first of `path`, `file_path`, `targetFile`, and
+      the text being written from every one of `text`, `content`, `file_text`, `newStr`, `new_str`
+      that is present;
+    - resolves the path against the repository root (the nearest parent directory that holds
+      `.kiro/`), not against its own working directory, which is `pipeline/`;
+    - if the path is under `pipeline/buried_pipeline/extract/params/` or
+      `pipeline/tests/fixtures/extract/`, and the path or any of the text matches one of
+      `HELD_OUT_PATTERNS` (case-insensitive), writes to standard error
+      "Blocked: <path> is an extraction tuning file and this write mentions the held-out plate
+      fip_v3_1935_232. Plate 232 (1935) is never used to tune extraction (product.md, evidence.md)."
+      and exits 2;
+    - otherwise exits 0 and writes nothing;
+    - if standard input is not JSON or has no recognisable path, writes one warning line to
+      standard error and exits 0. The pytest guard (`test_held_out.py`) is the backstop for writes
+      this hook cannot see, such as writes made by shell commands.
+    Pure decision function separate from the stdin and exit handling. Example tests for: a blocked
+    params write, a blocked fixture write by path only, a blocked `newStr` edit, an allowed write
+    in those folders that does not mention plate 232, an allowed write elsewhere that does
+    mention it (for example `data/sources.json`), a relative path given from `pipeline/`, and
+    unreadable input. Record the hook command under "Commands" in `.kiro/steering/tech.md`.
+    Files: `pipeline/buried_pipeline/hooks/__init__.py`,
+    `pipeline/buried_pipeline/hooks/held_out_write.py`, `pipeline/tests/hooks/test_held_out_write.py`,
+    `.kiro/steering/tech.md`.
+    Requirements: 9.2, 9.3.

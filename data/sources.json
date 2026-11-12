@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "sources": [
     {
       "id": "fip_v3_1911_229",
@@ -12,7 +12,8 @@
       "attribution_line": "Digitized and georeferenced by the University of Toronto Map & Data Library.",
       "attribution_status": "confirmed",
       "rights_checked_on": "2026-11-10",
-      "held_out": false
+      "held_out": false,
+      "years_label": "1911, revised to 1914"
     },
     {
       "id": "fip_v3_1911_232",
@@ -25,33 +26,38 @@
       "attribution_line": "Digitized and georeferenced by the University of Toronto Map & Data Library.",
       "attribution_status": "confirmed",
       "rights_checked_on": "2026-11-10",
-      "held_out": false
+      "held_out": false,
+      "years_label": "1911, revised to 1914"
     },
     {
       "id": "fip_v3_1935_229",
       "type": "fire_insurance_plan",
-      "title": "Goad fire insurance plan, Vol 3, plate 229, 1935 edition",
-      "year_from": 1935,
+      "title": "Goad fire insurance plan, Vol 3, plate 229, January 1931 revised to May 1935",
+      "year_from": 1931,
       "year_to": 1935,
       "url": "https://maps.library.utoronto.ca/datapub/FIP/vol3_1935/Georeferenced/v3-1935-229.zip",
-      "licence_note": "U of T labels it out of copyright. No licence or terms attached. Credit anyway.",
-      "attribution_line": "Digitized and georeferenced by the University of Toronto Map & Data Library.",
+      "licence_note": "The plates are photographs of the copy held by the Public Archives of Canada, now Library and Archives Canada, National Map Collection (NMC-0013999). U of T's Map & Data Library distributes the files publicly and lists the plans as out of copyright. The archive's reproduction notice on its own copy is not a licence attached to U of T's files. Low risk; credit both institutions. The maintainer confirms this before submission.",
+      "attribution_line": "Library and Archives Canada, National Map Collection (NMC-0013999). Digitized and georeferenced by the University of Toronto Map & Data Library.",
       "attribution_status": "confirmed",
       "rights_checked_on": "2026-11-10",
-      "held_out": false
+      "held_out": false,
+      "years_label": "1931, revised to 1935",
+      "holding": "Library and Archives Canada, National Map Collection, NMC-0013999"
     },
     {
       "id": "fip_v3_1935_232",
       "type": "fire_insurance_plan",
-      "title": "Goad fire insurance plan, Vol 3, plate 232, 1935 edition (held out)",
-      "year_from": 1935,
+      "title": "Goad fire insurance plan, Vol 3, plate 232, January 1931 revised to May 1935 (held out)",
+      "year_from": 1931,
       "year_to": 1935,
       "url": "https://maps.library.utoronto.ca/datapub/FIP/vol3_1935/Georeferenced/v3-1935-232.zip",
-      "licence_note": "U of T labels it out of copyright. No licence or terms attached. Credit anyway.",
-      "attribution_line": "Digitized and georeferenced by the University of Toronto Map & Data Library.",
+      "licence_note": "The plates are photographs of the copy held by the Public Archives of Canada, now Library and Archives Canada, National Map Collection (NMC-0013999). U of T's Map & Data Library distributes the files publicly and lists the plans as out of copyright. The archive's reproduction notice on its own copy is not a licence attached to U of T's files. Low risk; credit both institutions. The maintainer confirms this before submission.",
+      "attribution_line": "Library and Archives Canada, National Map Collection (NMC-0013999). Digitized and georeferenced by the University of Toronto Map & Data Library.",
       "attribution_status": "confirmed",
       "rights_checked_on": "2026-11-10",
-      "held_out": true
+      "held_out": true,
+      "years_label": "1931, revised to 1935",
+      "holding": "Library and Archives Canada, National Map Collection, NMC-0013999"
     },
     {
       "id": "present_toronto_building_outlines_2026",

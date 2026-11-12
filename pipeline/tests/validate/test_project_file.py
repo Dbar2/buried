@@ -29,8 +29,10 @@ def test_bounds_are_rounded_outward_to_100_m() -> None:
 
 def test_eras_are_the_four_at_submission() -> None:
     eras = {e["id"]: (e["year_from"], e["year_to"]) for e in PROJECT["eras"]}
-    assert eras == {"1911": (1911, 1914), "1935": (1935, 1935), "1947": (1947, 1947),
+    # The 1935 era covers 1931 to 1935, the range of its plates (requirement 7.4, schema 1.1.0).
+    assert eras == {"1911": (1911, 1914), "1935": (1931, 1935), "1947": (1947, 1947),
                     "today": (2026, 2026)}
+    assert next(e for e in PROJECT["eras"] if e["id"] == "1935")["label"] == "1935"
     assert next(e for e in PROJECT["eras"] if e["id"] == "1911")["label"] == (
         "1911 (revised to 1914)"
     )

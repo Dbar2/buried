@@ -15,6 +15,19 @@ export function indexSources(registry: SourceRegistry): SourceIndex {
   return index;
 }
 
+/**
+ * The one place source years are worded for display (spec 03 card, spec 04 Studio, spec 05
+ * Report; spec 01 requirement 24.1). A `years_label` wins ("1931, revised to 1935"); otherwise
+ * the range with an en dash ("1911–1914") or the single year ("1947"). A source with no start
+ * year yet (a present-day layer awaiting its CKAN refresh year) shows its end year alone. The
+ * date logic never calls this: it reads `year_from` and `year_to`.
+ */
+export function sourceYearsText(source: Pick<Source, 'year_from' | 'year_to' | 'years_label'>): string {
+  if (source.years_label !== undefined && source.years_label !== '') return source.years_label;
+  if (source.year_from === null || source.year_from === source.year_to) return String(source.year_to);
+  return `${source.year_from}–${source.year_to}`;
+}
+
 /** A source's year range, for the date logic. Throws if the source is unknown or has no start year yet. */
 export function yearRange(index: SourceIndex, sourceId: string): { yearFrom: number; yearTo: number } {
   const source = index.get(sourceId);

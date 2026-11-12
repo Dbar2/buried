@@ -216,7 +216,9 @@ def test_origin_source_needs_a_clear_presence() -> None:
     f["properties"]["observations"][0]["visibility"] = "obscured"
     assert reasons(errors_for(ds), "no clear presence from the origin source", EV_1911)
     f["properties"]["observations"][0].update(visibility="clear", present=False)
-    assert reasons(errors_for(ds), "no clear presence from the origin source", EV_1911)
+    # Since schema 1.1.0 an origin observation cannot be an absence at all (requirement 27.2),
+    # so the Schema rejects this before the cross-file check can.
+    assert [e for e in errors_for(ds) if e.path == EV_1911 and e.feature_id == f["id"]]
 
 
 def test_origin_source_observation_missing() -> None:
@@ -232,7 +234,7 @@ def test_method_origin_only_for_the_origin_source() -> None:
     ds = base_dataset()
     f = feature_of(ds, P1911, 2)
     f["properties"]["observations"].append(
-        {"source": P1935, "present": False, "visibility": "not_covered", "method": "origin"}
+        {"source": P1935, "present": True, "visibility": "clear", "method": "origin"}
     )
     assert reasons(errors_for(ds), "method origin is only for the origin source", EV_1911)
 
