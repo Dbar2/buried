@@ -25,11 +25,18 @@ from buried_pipeline.io.atomic import atomic_write_json
 from buried_pipeline.io.registry import Registry
 from buried_pipeline.paths import Paths
 from buried_pipeline.timeutil import rfc3339
+from buried_pipeline.validate.schema import SchemaSet, load_schema
 
 RASTER_TYPES = ("fire_insurance_plan", "aerial_photograph")
 
 
-def load_control_file(paths: Paths, source_id: str) -> tuple[ControlFile, str]:
+def schema_problems(schema: SchemaSet, def_name: str, doc: Any, label: str) -> list[str]:
+    return [f"{label} {i.pointer}: {i.message}" for i in schema.issues(def_name, doc)]
+
+
+def load_control_file(
+    paths: Paths, source_id: str, schema: SchemaSet
+) -> tuple[ControlFile, str]:
     path = paths.control_file(source_id)
     if not path.exists():
         raise PipelineError(
@@ -39,6 +46,12 @@ def load_control_file(paths: Paths, source_id: str) -> tuple[ControlFile, str]:
         doc = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         raise PipelineError(f"Control file is not valid JSON: {path}: {exc}") from exc
+    problems = schema_problems(schema, "controlPoints", doc, path.name)
+    if problems:
+        raise PipelineError(
+            "The control file does not match the Schema (controlPoints); no alignment record "
+            "was written:\n  " + "\n  ".join(problems)
+        )
     return parse_control_file(doc, source_id), sha256_file(path)
 
 
@@ -105,12 +118,14 @@ def run_align_check(
     source_id: str,
     now: datetime,
     out: Callable[[str], None] = print,
+    schema: SchemaSet | None = None,
 ) -> AlignmentResult:
     source = registry.get(source_id)
     if source.type not in RASTER_TYPES:
         raise PipelineError(f"{source_id} is not a raster source")
 
-    control, control_sha = load_control_file(paths, source_id)
+    schema = schema or load_schema(paths.root)
+    control, control_sha = load_control_file(paths, source_id, schema)
     layers = load_reference_layers(paths, registry, control)
     problems = check_references(control.points, layers)
     if problems:
@@ -139,6 +154,14 @@ def run_align_check(
         result=result,
     )
     out(format_summary(source_id, control, result, result.refined_skipped))
+    # The record is checked against the Schema before it is written; a failing record is a bug
+    # in this tool, never something to write and fix later.
+    problems = schema_problems(schema, "alignmentRecord", record, "alignment record")
+    if problems:
+        raise PipelineError(
+            "The alignment record does not match the Schema (alignmentRecord); nothing was "
+            "written:\n  " + "\n  ".join(problems)
+        )
     atomic_write_json(paths.alignment_record(source_id), record)
     out(f"alignment record written to {paths.alignment_record(source_id).relative_to(paths.root)}")
     return result

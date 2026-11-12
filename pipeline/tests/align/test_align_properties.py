@@ -32,6 +32,7 @@ from buried_pipeline.align.residuals import (
 from buried_pipeline.align.run import run_align_check
 from buried_pipeline.errors import PipelineError
 from buried_pipeline.io.registry import load_registry
+from buried_pipeline.validate.schema import load_schema
 from tests.align.strategies import (
     RUN_HEIGHT,
     RUN_TRANSFORM,
@@ -241,6 +242,17 @@ def test_a7_choice_rule_basis_and_published_error(scenario) -> None:
 
 
 # A8 -------------------------------------------------------------------------------------------
+
+SCHEMA = load_schema(Path(__file__).resolve().parents[3])
+
+
+@settings(max_examples=150)
+@given(scenario=control_scenarios())
+def test_a7_every_record_satisfies_the_schema(scenario) -> None:
+    supplied, _true, points = scenario
+    _result, record = record_for(supplied, points)
+    assert SCHEMA.issues("alignmentRecord", record) == []
+
 
 
 def check_a8(error: float, basis: float) -> None:

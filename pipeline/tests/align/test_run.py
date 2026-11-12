@@ -132,7 +132,7 @@ def test_fewer_than_three_points_refused_and_nothing_written(tmp_path: Path) -> 
     doc = json.loads(paths.control_file(SOURCE).read_text())
     doc["points"] = doc["points"][:2]
     paths.control_file(SOURCE).write_text(json.dumps(doc))
-    with pytest.raises(PipelineError, match="at least 3"):
+    with pytest.raises(PipelineError, match="needs at least 3"):
         run(paths)
     assert not paths.alignment_record(SOURCE).exists()
 
@@ -146,6 +146,35 @@ def test_exactly_three_points_gives_supplied_only(tmp_path: Path) -> None:
     assert result.refined is None and result.chosen == "supplied"
     assert "refined    not computed" in text
     assert "refined" not in json.loads(paths.alignment_record(SOURCE).read_text())
+
+
+def test_a_record_that_fails_the_schema_is_never_written(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import buried_pipeline.align.run as align_run
+
+    paths = build(tmp_path)
+    real = align_run.build_record
+
+    def broken(**kwargs):
+        record = real(**kwargs)
+        record["error_rule"]["multiplier"] = 1.5  # a different rule from the Schema's constant
+        return record
+
+    monkeypatch.setattr(align_run, "build_record", broken)
+    with pytest.raises(PipelineError, match="alignment record does not match the Schema"):
+        run(paths)
+    assert not paths.alignment_record(SOURCE).exists()
+
+
+def test_a_control_file_that_fails_the_schema_is_refused(tmp_path: Path) -> None:
+    paths = build(tmp_path)
+    doc = json.loads(paths.control_file(SOURCE).read_text())
+    doc["points"][0]["reference"] = [-79.35, 43.65]  # lon/lat
+    paths.control_file(SOURCE).write_text(json.dumps(doc))
+    with pytest.raises(PipelineError, match="does not match the Schema"):
+        run(paths)
+    assert not paths.alignment_record(SOURCE).exists()
 
 
 def test_missing_control_file(tmp_path: Path) -> None:

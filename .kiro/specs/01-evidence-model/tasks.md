@@ -72,13 +72,13 @@ alignment gate is not blocked by it.
     Files: `.kiro/steering/tech.md`.
     Requirements: 15.3.
 
-- [ ] 4. Build the Python Validator (needs spec 02 task 1)
-  - [ ] 4.1 Implement `schema.py`: load the Schema once, one `Draft202012Validator` per `$defs`
+- [x] 4. Build the Python Validator (needs spec 02 task 1)
+  - [x] 4.1 Implement `schema.py`: load the Schema once, one `Draft202012Validator` per `$defs`
     entry with `FormatChecker`, and the path-to-definition map.
     Files: `pipeline/buried_pipeline/validate/__init__.py`,
     `pipeline/buried_pipeline/validate/schema.py`.
     Requirements: 8.2.
-  - [ ] 4.2 Implement `checks.py` as pure functions over parsed data: registry (duplicate ids, id
+  - [x] 4.2 Implement `checks.py` as pure functions over parsed data: registry (duplicate ids, id
     form, year order), origin source and id match, observation sources registered, origin clear
     presence, one observation per source, alignment record present and measured, position error
     floor, `confirmed_at` not in the future (time passed in, not read from the clock inside the
@@ -86,29 +86,30 @@ alignment gate is not blocked by it.
     validity with shapely, `merged_into` exists.
     Files: `pipeline/buried_pipeline/validate/checks.py`.
     Requirements: 2.7, 3.3, 3.4, 3.5, 5.2, 5.3, 5.4, 5.5, 6.2, 6.3, 7.5, 8.3, 8.4, 8.7.
-  - [ ] 4.3 Implement `run.py` and register `buried validate [PATH ...]` in the CLI. Print one line
+  - [x] 4.3 Implement `run.py` and register `buried validate [PATH ...]` in the CLI. Print one line
     per error (path, feature id, JSON pointer, reason) and a summary; exit 1 on any error.
     Files: `pipeline/buried_pipeline/validate/run.py`, `pipeline/buried_pipeline/cli.py`.
     Requirements: 8.1, 8.5, 8.6.
-  - [ ] 4.4 Example tests for each cross-file check, using fixtures under `pipeline/tests/fixtures/validate/`
-    (a small fake `data/` tree).
+  - [x] 4.4 Example tests for each cross-file check, using fixtures under `pipeline/tests/fixtures/validate/`
+    (a small fake `data/` tree). Done as an in-memory fake tree built by
+    `pipeline/tests/validate/builders.py` (no committed JSON), because the property tests mutate it.
     Files: `pipeline/tests/validate/test_checks.py`, `pipeline/tests/fixtures/validate/**`.
     Requirements: 2.7, 3.3 to 3.5, 5.2 to 5.5, 6.2, 6.3, 7.5, 8.3, 8.4.
-  - [ ] 4.5 Python conformance test over `data/schema/fixtures/`.
+  - [x] 4.5 Python conformance test over `data/schema/fixtures/`.
     Files: `pipeline/tests/validate/test_conformance.py`.
     Requirements: 9.3.
-  - [ ] 4.6 **[PBT] P13** Hypothesis: removing or zeroing `position_error_m`, emptying
+  - [x] 4.6 **[PBT] P13** Hypothesis: removing or zeroing `position_error_m`, emptying
     `observations`, or citing an unregistered source always yields an error for that feature id.
     Files: `pipeline/tests/validate/test_properties.py`, `pipeline/tests/validate/strategies.py`.
     Requirements: 2.4, 2.7, 3.3.
-  - [ ] 4.7 **[PBT] P14** Hypothesis: any position replaced by a lon/lat-range pair is rejected.
+  - [x] 4.7 **[PBT] P14** Hypothesis: any position replaced by a lon/lat-range pair is rejected.
     Files: `pipeline/tests/validate/test_properties.py`.
     Requirements: 1.6.
-  - [ ] 4.8 **[PBT] P15** Hypothesis: a feature is accepted only if `position_error_m` is at least
+  - [x] 4.8 **[PBT] P15** Hypothesis: a feature is accepted only if `position_error_m` is at least
     its origin source's `alignment_error_m`.
     Files: `pipeline/tests/validate/test_properties.py`.
     Requirements: 5.4.
-  - [ ] 4.9 Record `uv run buried validate` (run from `pipeline/`) as the schema validation command
+  - [x] 4.9 Record `uv run buried validate` (run from `pipeline/`) as the schema validation command
     in `.kiro/steering/tech.md`.
     Files: `.kiro/steering/tech.md`.
     Requirements: 15.3.
@@ -209,8 +210,8 @@ alignment gate is not blocked by it.
     Files: none.
     Requirements: 15.1.
 
-- [ ] 12. Validator checks added in session 002b (needs task 4)
-  - [ ] 12.1 Add to `checks.py`: observation method rules (origin observation, aerial
+- [x] 12. Validator checks added in session 002b (needs task 4)
+  - [x] 12.1 Add to `checks.py`: observation method rules (origin observation, aerial
     clear/obscured only by a person, `match_auto` presence tied to a published, linked feature
     from the observation's source), link rules (target exists, published, same kind, not self,
     mirrored with the same method, no two members of a linked set from one origin source),
@@ -222,23 +223,23 @@ alignment gate is not blocked by it.
     Files: `pipeline/buried_pipeline/validate/checks.py`, `pipeline/buried_pipeline/validate/schema.py`.
     Requirements: 5.4, 5.6, 7.5, 8.8, 16.4 to 16.6, 17.2, 17.3, 19.4, 20.1, 20.2, 21.3, 21.4,
     22.2, 22.3.
-  - [ ] 12.2 Example tests for each new check, extending the fake `data/` tree with a small present
+  - [x] 12.2 Example tests for each new check, extending the fake `data/` tree with a small present
     layer, a control file that cites it, two linked evidence files and a coverage area.
     Files: `pipeline/tests/validate/test_checks.py`, `pipeline/tests/fixtures/validate/**`.
     Requirements: as 12.1.
-  - [ ] 12.3 Update the **[PBT] P15** test from task 4.8 to the new floor (root-sum-square with
+  - [x] 12.3 Update the **[PBT] P15** test from task 4.8 to the new floor (root-sum-square with
     the digitising term, rounded up to 0.1 m; digitising at least 2 source pixels).
     Files: `pipeline/tests/validate/test_properties.py`.
     Requirements: 5.4, 5.6.
-  - [ ] 12.4 **[PBT] P19** Code never reads a photograph: aerial clear or obscured observations
+  - [x] 12.4 **[PBT] P19** Code never reads a photograph: aerial clear or obscured observations
     without `method: person` are always rejected.
     Files: `pipeline/tests/validate/test_properties.py`, `pipeline/tests/validate/strategies.py`.
     Requirements: 16.5.
-  - [ ] 12.5 **[PBT] P20** Links are symmetric, point at published features, and never join two
+  - [x] 12.5 **[PBT] P20** Links are symmetric, point at published features, and never join two
     features with the same origin source.
     Files: `pipeline/tests/validate/test_properties.py`, `pipeline/tests/validate/strategies.py`.
     Requirements: 17.2, 17.3.
-  - [ ] 12.6 **[PBT] P21** The alignment error rule and its basis.
+  - [x] 12.6 **[PBT] P21** The alignment error rule and its basis.
     Files: `pipeline/tests/validate/test_properties.py`, `pipeline/tests/validate/strategies.py`.
     Requirements: 20.1, 20.2.
 

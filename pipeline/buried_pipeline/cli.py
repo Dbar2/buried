@@ -15,7 +15,7 @@ from buried_pipeline.io.registry import load_registry
 from buried_pipeline.paths import Paths, find_repo_root
 from buried_pipeline.timeutil import utc_now
 
-NOT_IMPLEMENTED = ("tile", "extract", "publish", "match", "validate")
+NOT_IMPLEMENTED = ("tile", "extract", "publish", "match")
 HttpFactory = Callable[[], HttpClient]
 
 
@@ -75,6 +75,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     crops.add_argument("source_id", metavar="SOURCE_ID")
 
+    validate = sub.add_parser(
+        "validate",
+        parents=[parent],
+        help="check the contract files under data/ against the Schema and the cross-file rules",
+    )
+    validate.add_argument("paths", nargs="*", type=Path, metavar="PATH")
+
     for name in NOT_IMPLEMENTED:
         stub = sub.add_parser(name, parents=[parent], help="not implemented yet")
         stub.add_argument("rest", nargs="*")
@@ -107,6 +114,12 @@ def _dispatch(
     command: str, args: argparse.Namespace, http_factory: HttpFactory, now: Callable[[], datetime]
 ) -> int:
     paths = _paths(args.root)
+    if command == "validate":
+        from buried_pipeline.validate.run import run_validate
+
+        report = run_validate(paths, [p.resolve() for p in args.paths], now())
+        return 1 if report.errors else 0
+
     registry = load_registry(paths.sources_json)
 
     if command == "fetch":

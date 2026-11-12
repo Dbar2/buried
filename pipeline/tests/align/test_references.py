@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import replace
 from pathlib import Path
 
@@ -9,6 +10,7 @@ import pytest
 from buried_pipeline.align.control import ControlFilePoint, parse_control_file
 from buried_pipeline.align.references import check_references, point_problem
 from buried_pipeline.errors import PipelineError
+from buried_pipeline.validate.schema import load_schema
 
 FIXTURES = Path(__file__).parent.parent / "fixtures" / "align"
 
@@ -115,19 +117,7 @@ def test_parse_good_file(points) -> None:
     ("mutate", "message"),
     [
         (lambda d: d.update(source="fip_v3_1935_229"), "is for"),
-        (lambda d: d.update(pixel_convention="centre"), "pixel_convention"),
-        (lambda d: d.update(schema_version="2.0.0"), "schema_version"),
-        (lambda d: d.update(extra=1), "fields must be exactly"),
-        (lambda d: d["points"].__delitem__(slice(2, None)), "at least 3"),
-        (lambda d: d["points"][0].update(reference=[-79.35, 43.65]), "lon/lat"),
-        (lambda d: d["points"][0].update(pixel=[-1, 5]), "negative"),
-        (lambda d: d["points"][0].update(pixel=[1, "a"]), "expected \\[number, number\\]"),
-        (lambda d: d["points"][0].update(reference_kind="landmark"), "reference_kind"),
-        (lambda d: d["points"][0].update(reference_vertex={"polygon": 0, "vertex": 0}), "only for building_corner"),
-        (lambda d: d["points"][5].pop("reference_vertex"), "needs reference_vertex"),
         (lambda d: d["points"][1].update(id="p1"), "not unique"),
-        (lambda d: d["points"][0].update(description=""), "description"),
-        (lambda d: d["points"][0].update(surprise=True), "unknown fields"),
     ],
 )
 def test_parse_rejects(mutate, message: str) -> None:
@@ -135,3 +125,29 @@ def test_parse_rejects(mutate, message: str) -> None:
     mutate(doc)
     with pytest.raises(PipelineError, match=message):
         parse_control_file(doc, "fip_v3_1911_229")
+
+
+SCHEMA = load_schema(Path(__file__).resolve().parents[3])
+
+
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (lambda d: d.update(pixel_convention="centre"), "'gdal_corner' was expected"),
+        (lambda d: d.update(schema_version="2.0"), "does not match"),
+        (lambda d: d.update(extra=1), "Additional properties"),
+        (lambda d: d["points"].__delitem__(slice(2, None)), "needs at least 3"),
+        (lambda d: d["points"][0].update(reference=[-79.35, 43.65]), "minimum of 166000"),
+        (lambda d: d["points"][0].update(pixel=[-1, 5]), "minimum of 0"),
+        (lambda d: d["points"][0].update(pixel=[1, "a"]), "not of type 'number'"),
+        (lambda d: d["points"][0].update(reference_kind="landmark"), "is not one of"),
+        (lambda d: d["points"][5].pop("reference_vertex"), "'reference_vertex' is a required"),
+        (lambda d: d["points"][0].update(description=""), "non-empty"),
+        (lambda d: d["points"][0].update(surprise=True), "Additional properties"),
+    ],
+)
+def test_control_file_shape_is_the_schema(mutate, message: str) -> None:
+    doc = load("control_ok.json")
+    mutate(doc)
+    problems = [i.message for i in SCHEMA.issues("controlPoints", doc)]
+    assert any(re.search(message, p) for p in problems), problems

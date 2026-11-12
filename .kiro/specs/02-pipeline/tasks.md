@@ -138,8 +138,8 @@ Task numbers are stable, so the run order is not numeric:
     Files: `pipeline/tests/align/test_align_properties.py`, `pipeline/tests/align/strategies.py`.
     Requirements: 5.2.
 
-- [ ] 4. Validate alignment output against the Schema (needs spec 01 task 1)
-  - [ ] 4.1 Replace the in-code shape checks in align-check with spec 01's `controlPoints` and
+- [x] 4. Validate alignment output against the Schema (needs spec 01 task 1)
+  - [x] 4.1 Replace the in-code shape checks in align-check with spec 01's `controlPoints` and
     `alignmentRecord` definitions; align-check refuses to write a record that fails the Schema.
     Files: `pipeline/buried_pipeline/align/run.py`, `pipeline/tests/align/test_run.py`.
     Requirements: 5.1, 6.8.

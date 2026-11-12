@@ -61,10 +61,10 @@ def test_fetch_is_idempotent_and_contained(
             for rec in [*entry["files"], entry["zip"]]:
                 assert sha256_file(paths.raw / rec["path"]) == rec["sha256"]
 
-        # Nothing was written outside data/raw/ (apart from the repo's own scaffolding).
-        outside = [
-            p for p in tree(paths.root) if paths.raw not in p.parents and p != paths.sources_json
-        ]
+        # Nothing was written outside data/raw/ (apart from the repo's own scaffolding: the
+        # registry and the Schema that make_root puts in place).
+        scaffolding = {paths.sources_json, paths.data / "schema" / "evidence.schema.json"}
+        outside = [p for p in tree(paths.root) if paths.raw not in p.parents and p not in scaffolding]
         assert outside == []
 
 

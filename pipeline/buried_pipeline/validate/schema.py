@@ -55,6 +55,16 @@ def def_for_path(path: Path, data_dir: Path) -> str | None:
     return None
 
 
+def _message(e: JsonSchemaError) -> str:
+    """The error text without echoing a whole array or object back at the reader."""
+    if e.validator == "minItems":
+        return f"has {len(e.instance)} items, needs at least {e.validator_value}"
+    if e.validator == "maxItems":
+        return f"has {len(e.instance)} items, allows at most {e.validator_value}"
+    text = str(e.message)
+    return text if len(text) <= 160 else text[:157] + "..."
+
+
 class SchemaSet:
     """The Schema plus one validator per `$defs` entry (format checking on)."""
 
@@ -84,7 +94,7 @@ class SchemaSet:
 
     def issues(self, def_name: str, document: Any) -> list[SchemaIssue]:
         errors: list[JsonSchemaError] = list(self.validator(def_name).iter_errors(document))
-        issues = [SchemaIssue(json_pointer(e.absolute_path), e.message) for e in errors]
+        issues = [SchemaIssue(json_pointer(e.absolute_path), _message(e)) for e in errors]
         return sorted(issues, key=lambda i: (i.pointer, i.message))
 
     def is_valid(self, def_name: str, document: Any) -> bool:

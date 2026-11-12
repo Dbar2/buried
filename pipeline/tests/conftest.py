@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import pytest
 
 from buried_pipeline.paths import Paths
+
+# The real Schema, so tests of commands that validate against it use the contract itself.
+REAL_SCHEMA = Path(__file__).resolve().parents[2] / "data" / "schema" / "evidence.schema.json"
 
 SOURCES_DOC = {
     "schema_version": "1.0.0",
@@ -75,6 +79,8 @@ def make_root(tmp_path: Path, sources_doc: dict | None = None) -> Paths:
     (root / "data" / "sources.json").write_text(
         json.dumps(sources_doc or SOURCES_DOC), encoding="utf-8"
     )
+    (root / "data" / "schema").mkdir()
+    shutil.copy(REAL_SCHEMA, root / "data" / "schema" / "evidence.schema.json")
     return Paths(root)
 
 
