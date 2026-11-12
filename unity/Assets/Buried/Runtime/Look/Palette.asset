@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8924cf4349a64fa99bd270ba6ad30b3, type: 3}
+  m_Name: Palette
+  m_EditorClassIdentifier: Buried.Runtime::Buried.Look.BuriedPalette
+  night:
+    serializedVersion: 2
+    rgba: 4279636238
+  fog:
+    serializedVersion: 2
+    rgba: 4280885531
+  present:
+    serializedVersion: 2
+    rgba: 4282529582
+  ink:
+    serializedVersion: 2
+    rgba: 4291354600
+  lantern:
+    serializedVersion: 2
+    rgba: 4282492402
+  water:
+    serializedVersion: 2
+    rgba: 4289966943
+  text:
+    serializedVersion: 2
+    rgba: 4293126893
+  muted:
+    serializedVersion: 2
+    rgba: 4289569690
