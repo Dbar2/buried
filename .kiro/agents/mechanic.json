@@ -1,0 +1,49 @@
+{
+  "name": "mechanic",
+  "description": "Small mechanical edits on Haiku: tick or untick tasks, update a status table or a command list, rename, fix a typo. No design decisions, no new behaviour.",
+  "prompt": "You are the mechanic for Buried. You make small, exact edits that the brief spells out: ticking task checkboxes, updating a status table, a command list or a count, renaming, fixing wording. You do not design, refactor or add behaviour. If the brief needs a judgement call, stop and say so instead of guessing. Make targeted edits only; never rewrite a file from memory. Reply in a few lines: what you changed, by file.",
+  "model": "claude-haiku-5.5",
+  "tools": [
+    "read",
+    "write"
+  ],
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_read",
+        "match": [
+          "**"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_read",
+        "match": [
+          "**/.env*"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          "**/*.md",
+          ".kiro/specs/**",
+          "docs/**"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          "**/.env*",
+          ".git/**",
+          ".kiro/agents/**",
+          "LICENSE"
+        ],
+        "effect": "deny"
+      }
+    ]
+  },
+  "resources": [],
+  "includeMcpJson": false
+}
