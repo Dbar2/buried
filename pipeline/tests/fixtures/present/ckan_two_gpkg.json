@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "result": {
+    "name": "two-gpkg-package",
+    "last_refreshed": "2025-06-01T00:00:00",
+    "resources": [
+      {
+        "id": "res-a",
+        "name": "Layer - 4326",
+        "format": "GPKG",
+        "url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/p/resource/res-a/download/a.gpkg"
+      },
+      {
+        "id": "res-b",
+        "name": "Layer - 2952",
+        "format": "gpkg",
+        "url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/p/resource/res-b/download/b.gpkg"
+      }
+    ]
+  }
+}

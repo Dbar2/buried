@@ -1,0 +1,24 @@
+{
+  "help": "fixture",
+  "success": true,
+  "result": {
+    "name": "intersection-file-city-of-toronto",
+    "last_refreshed": "2025-11-21T05:30:19.123456",
+    "resources": [
+      {
+        "id": "res-csv",
+        "name": "Intersection File - csv",
+        "format": "CSV",
+        "url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/pkg/resource/res-csv/download/intersections.csv",
+        "last_modified": "2025-01-01T00:00:00"
+      },
+      {
+        "id": "res-gpkg",
+        "name": "Intersection File - 4326",
+        "format": "GPKG",
+        "url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/pkg/resource/res-gpkg/download/intersections.gpkg",
+        "last_modified": "2025-10-30T10:11:12"
+      }
+    ]
+  }
+}

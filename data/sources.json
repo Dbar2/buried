@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "id": "fip_v3_1911_229",
+      "type": "fire_insurance_plan",
+      "title": "Goad fire insurance plan, Vol 3, plate 229, 1911 edition revised to 1914",
+      "year_from": 1911,
+      "year_to": 1914,
+      "url": "https://maps.library.utoronto.ca/datapub/FIP/vol3_19111914/v3-1911-229.zip",
+      "licence_note": "U of T labels it out of copyright. No licence or terms attached. Credit anyway.",
+      "attribution_line": "Digitized and georeferenced by the University of Toronto Map & Data Library.",
+      "attribution_status": "confirmed",
+      "rights_checked_on": "2026-11-10",
+      "held_out": false
+    },
+    {
+      "id": "fip_v3_1911_232",
+      "type": "fire_insurance_plan",
+      "title": "Goad fire insurance plan, Vol 3, plate 232, 1911 edition revised to 1914",
+      "year_from": 1911,
+      "year_to": 1914,
+      "url": "https://maps.library.utoronto.ca/datapub/FIP/vol3_19111914/v3-1911-232.zip",
+      "licence_note": "U of T labels it out of copyright. No licence or terms attached. Credit anyway.",
+      "attribution_line": "Digitized and georeferenced by the University of Toronto Map & Data Library.",
+      "attribution_status": "confirmed",
+      "rights_checked_on": "2026-11-10",
+      "held_out": false
+    },
+    {
+      "id": "fip_v3_1935_229",
+      "type": "fire_insurance_plan",
+      "title": "Goad fire insurance plan, Vol 3, plate 229, 1935 edition",
+      "year_from": 1935,
+      "year_to": 1935,
+      "url": "https://maps.library.utoronto.ca/datapub/FIP/vol3_1935/Georeferenced/v3-1935-229.zip",
+      "licence_note": "U of T labels it out of copyright. No licence or terms attached. Credit anyway.",
+      "attribution_line": "Digitized and georeferenced by the University of Toronto Map & Data Library.",
+      "attribution_status": "confirmed",
+      "rights_checked_on": "2026-11-10",
+      "held_out": false
+    },
+    {
+      "id": "fip_v3_1935_232",
+      "type": "fire_insurance_plan",
+      "title": "Goad fire insurance plan, Vol 3, plate 232, 1935 edition (held out)",
+      "year_from": 1935,
+      "year_to": 1935,
+      "url": "https://maps.library.utoronto.ca/datapub/FIP/vol3_1935/Georeferenced/v3-1935-232.zip",
+      "licence_note": "U of T labels it out of copyright. No licence or terms attached. Credit anyway.",
+      "attribution_line": "Digitized and georeferenced by the University of Toronto Map & Data Library.",
+      "attribution_status": "confirmed",
+      "rights_checked_on": "2026-11-10",
+      "held_out": true
+    },
+    {
+      "id": "present_toronto_building_outlines_2026",
+      "type": "present_day_reference",
+      "title": "City of Toronto Open Data: topographic mapping building outlines",
+      "year_from": null,
+      "year_to": 2026,
+      "url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/api/3/action/package_show?id=topographic-mapping-building-outlines",
+      "licence_note": "Open Government Licence - Toronto",
+      "attribution_line": "Contains information licensed under the Open Government Licence - Toronto.",
+      "attribution_status": "confirmed",
+      "rights_checked_on": "2026-11-12",
+      "held_out": false
+    },
+    {
+      "id": "present_toronto_property_boundaries_2026",
+      "type": "present_day_reference",
+      "title": "City of Toronto Open Data: property boundaries",
+      "year_from": null,
+      "year_to": 2026,
+      "url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/api/3/action/package_show?id=property-boundaries",
+      "licence_note": "Open Government Licence - Toronto",
+      "attribution_line": "Contains information licensed under the Open Government Licence - Toronto.",
+      "attribution_status": "confirmed",
+      "rights_checked_on": "2026-11-12",
+      "held_out": false
+    },
+    {
+      "id": "present_toronto_address_points_2026",
+      "type": "present_day_reference",
+      "title": "City of Toronto Open Data: address points (municipal) - one address repository",
+      "year_from": null,
+      "year_to": 2026,
+      "url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/api/3/action/package_show?id=address-points-municipal-toronto-one-address-repository",
+      "licence_note": "Open Government Licence - Toronto",
+      "attribution_line": "Contains information licensed under the Open Government Licence - Toronto.",
+      "attribution_status": "confirmed",
+      "rights_checked_on": "2026-11-12",
+      "held_out": false
+    },
+    {
+      "id": "present_toronto_intersections_2026",
+      "type": "present_day_reference",
+      "title": "City of Toronto Open Data: intersection file",
+      "year_from": null,
+      "year_to": 2026,
+      "url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/api/3/action/package_show?id=intersection-file-city-of-toronto",
+      "licence_note": "Open Government Licence - Toronto",
+      "attribution_line": "Contains information licensed under the Open Government Licence - Toronto.",
+      "attribution_status": "confirmed",
+      "rights_checked_on": "2026-11-12",
+      "held_out": false
+    }
+  ]
+}

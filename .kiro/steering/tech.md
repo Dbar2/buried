@@ -105,7 +105,18 @@ No tooling exists yet. Each command below is to be added by the spec that create
 invent commands; when one is added, record it here.
 
 - Web shell install, dev, build, test: to be added by the spec that creates them.
-- Pipeline environment, CLI, test: to be added by the spec that creates them.
+- Pipeline (spec 02), all run from `pipeline/`:
+  - Environment: `uv sync` (Python 3.12).
+  - Tests: `uv run pytest`. Lint: `uv run ruff check .`.
+  - Fetch the showcase plates into `data/raw/`: `uv run buried fetch [SOURCE_ID ...]`.
+  - Read georeferencing of fetched rasters: `uv run buried inspect [SOURCE_ID ...]`. Add
+    `--propose-origin` to print the project origin and bounds (writes nothing).
+  - Clip the present-day City of Toronto layers into `data/present/`:
+    `uv run buried present [SOURCE_ID ...]` (`--recheck` downloads again and compares).
+  - Measure a raster's alignment error from `data/control/<id>.json`:
+    `uv run buried align-check <SOURCE_ID>`.
+  - `tile`, `extract`, `publish`, `match` and `validate` are registered and exit 2 with "not
+    implemented yet" until their tasks land.
 - Unity WebGL build and EditMode test run: to be added by the spec that creates them.
 - Schema validation of `data/`: to be added by the spec that creates it.
 

@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "result": {
+    "name": "no-gpkg-package",
+    "resources": [
+      {
+        "id": "res-shp",
+        "name": "Layer - shapefile",
+        "format": "SHP",
+        "url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/p/resource/res-shp/download/a.zip",
+        "last_modified": "2024-03-04T05:06:07"
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "FeatureCollection",
+  "schema_version": "1.0.0",
+  "crs": "EPSG:26917",
+  "source": "present_toronto_intersections_2026",
+  "features": [
+    {"type": "Feature", "id": "1001", "geometry": {"type": "Point", "coordinates": [630020.0, 4833980.0]}, "properties": {}},
+    {"type": "Feature", "id": "1002", "geometry": {"type": "Point", "coordinates": [630180.0, 4833990.0]}, "properties": {}},
+    {"type": "Feature", "id": "1003", "geometry": {"type": "Point", "coordinates": [630170.0, 4833860.0]}, "properties": {}},
+    {"type": "Feature", "id": "1004", "geometry": {"type": "Point", "coordinates": [630030.0, 4833870.0]}, "properties": {}},
+    {"type": "Feature", "id": "1005", "geometry": {"type": "Point", "coordinates": [630100.0, 4833930.0]}, "properties": {}}
+  ]
+}

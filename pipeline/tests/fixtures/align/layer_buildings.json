@@ -1,0 +1,29 @@
+{
+  "type": "FeatureCollection",
+  "schema_version": "1.0.0",
+  "crs": "EPSG:26917",
+  "source": "present_toronto_building_outlines_2026",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "B1",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[630050.0, 4833900.0], [630070.0, 4833900.0], [630070.0, 4833920.0], [630050.0, 4833920.0], [630050.0, 4833900.0]]]
+      },
+      "properties": {}
+    },
+    {
+      "type": "Feature",
+      "id": "B2",
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [[[630100.0, 4833800.0], [630110.0, 4833800.0], [630110.0, 4833810.0], [630100.0, 4833800.0]]],
+          [[[630120.0, 4833800.0], [630130.0, 4833800.0], [630130.0, 4833810.0], [630120.0, 4833800.0]]]
+        ]
+      },
+      "properties": {}
+    }
+  ]
+}

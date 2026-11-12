@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0.0",
+  "source": "fip_v3_1911_229",
+  "pixel_convention": "gdal_corner",
+  "points": [
+    {
+      "id": "p1",
+      "description": "synthetic: crossing of two test street centrelines",
+      "pixel": [101, 99],
+      "reference": [630020.0, 4833980.0],
+      "reference_source": "present_toronto_intersections_2026",
+      "reference_kind": "intersection",
+      "reference_feature_id": "1001"
+    },
+    {
+      "id": "p2",
+      "description": "synthetic: crossing of two test street centrelines",
+      "pixel": [898, 52],
+      "reference": [630180.0, 4833990.0],
+      "reference_source": "present_toronto_intersections_2026",
+      "reference_kind": "intersection",
+      "reference_feature_id": "1002"
+    },
+    {
+      "id": "p3",
+      "description": "synthetic: crossing of two test street centrelines",
+      "pixel": [852, 698],
+      "reference": [630170.0, 4833860.0],
+      "reference_source": "present_toronto_intersections_2026",
+      "reference_kind": "intersection",
+      "reference_feature_id": "1003"
+    },
+    {
+      "id": "p4",
+      "description": "synthetic: crossing of two test street centrelines",
+      "pixel": [149, 651],
+      "reference": [630030.0, 4833870.0],
+      "reference_source": "present_toronto_intersections_2026",
+      "reference_kind": "intersection",
+      "reference_feature_id": "1004"
+    },
+    {
+      "id": "p5",
+      "description": "synthetic: crossing of two test street centrelines",
+      "pixel": [502, 349],
+      "reference": [630100.0, 4833930.0],
+      "reference_source": "present_toronto_intersections_2026",
+      "reference_kind": "intersection",
+      "reference_feature_id": "1005"
+    },
+    {
+      "id": "p6",
+      "description": "synthetic: north-east corner of a test building judged to be the same building",
+      "pixel": [350, 400],
+      "reference": [630070.0, 4833920.0],
+      "reference_source": "present_toronto_building_outlines_2026",
+      "reference_kind": "building_corner",
+      "reference_feature_id": "B1",
+      "reference_vertex": {"polygon": 0, "vertex": 2}
+    }
+  ]
+}
