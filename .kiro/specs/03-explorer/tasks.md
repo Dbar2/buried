@@ -116,7 +116,7 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     `unity/Assets/Buried/Runtime/Look/Shaders/Ghost.shader`, `unity/Assets/Buried/Runtime/Look/Shaders/Drape.shader`,
     `unity/Assets/Buried/Runtime/Look/Shaders/Marker.shader`.
     Requirements: 2.2, 2.3, 5.4, 5.5, 5.6, 5.7, 6.1, 6.2, 8.3, 8.5, 11.1 (feature click only).
-  - [ ] 1.11 Prepare the gate data (maintainer, with the builder's help). Control files and
+  - [x] 1.11 Prepare the gate data (maintainer, with the builder's help). Control files and
     `align-check` for `fip_v3_1911_229` and `fip_v3_1935_229` (spec 02 task 3.12, run for both),
     `buried tile` for both, and one building on `fip_v3_1911_229` published with `buried publish`
     (spec 02 tasks 7 and 8). If spec 02 task 8 is not done by Nov 13, the evidence file may instead be
@@ -131,7 +131,7 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     `data/alignment/*.json`, `data/tiles/fip_v3_1911_229.*`, `data/tiles/fip_v3_1935_229.*`,
     `data/evidence/fip_v3_1911_229.geojson`.
     Requirements: 24.1, 24.2, 24.5.
-  - [ ] 1.12 Shell gate UI and verification. `UnityView` (lazy, `createUnityInstance`, 30 s
+  - [x] 1.12 Shell gate UI and verification. `UnityView` (lazy, `createUnityInstance`, 30 s
     `ready` timeout, version check, init, load both gate eras), a minimal era switch (two buttons;
     the full gauge comes in group 3), a gate evidence card (feature id, origin source,
     `positionPhrase`, `confirmed_by`, `confirmed_at`, attribution line), attribution lines for the
