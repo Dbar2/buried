@@ -179,7 +179,7 @@ Shell to Player:
 | `scene/loadEra` | `{ eraId, features: [sceneFeature] (unique ids), drapes: [drape] }` | Replaces that era's content; builds meshes; loads textures; sends `eraLoaded`. |
 | `scene/setDepth` | `{ depth: number 0..n−1 }` | Sets the blend (see "Depth"). |
 | `scene/focusLot` | `{ lot: lot \| null, fly: bool }` | Pins or clears the lot; flies if asked. |
-| `scene/selectFeature` | `{ featureId: featureId \| null }` | Lantern edges on that feature in any era that has it. |
+| `scene/selectFeature` | `{ featureId: featureId \| null }` | Selected treatment (brighter, thicker `ink` edges) on that feature in any era that has it. |
 | `scene/setLantern` | `{ on: bool, center: screenPoint, radius: number 0.05..0.5 (fraction of canvas height), eraId: string }` | Lens on or off. |
 | `scene/showEvidence` | `{ featureId, on: bool, drape: drape \| null }` (drape required when on) | Show Evidence on or off. |
 | `scene/addFeatures` | `{ eraId, features: [sceneFeature] }` | Adds or replaces by id; rise animation. |
@@ -350,8 +350,10 @@ needed to scale `crop_px` exactly.
 
 `WaterControl` toggle at depth 0. `eraIds` = past eras whose Era list has a `water` entry. DOM text:
 "Water shown from the <labels> records." With none: "No documented water in these records", then
-the eras checked. No water sources exist yet (spec 02 extracts buildings only; the Don Valley
-layers are not usable). The path is built and tested on synthetic water features.
+the eras checked. Water features come from the Studio (spec 04), where a person traces the river
+channel, shorelines and creeks from a plate as lines or polygons with the same provenance and
+position error rules as buildings. There is no automatic water extraction. Until a water feature is
+published, the path is built and tested on synthetic water features.
 
 ### 2D fallback
 
@@ -360,7 +362,9 @@ layers are not usable). The path is built and tested on synthetic water features
 - GeoJSON sources are built from the same data, with every position passed through
   `edge.toLonLat`. Era features use the confidence patterns from `design.md`: documented solid
   outline, estimated dashed (`line-dasharray`), unknown dotted, fill opacity lower for estimated and
-  unknown. Drapes are MapLibre `image` sources with their four corners converted by `edge.ts`.
+  unknown. The selected feature gets an `ink` outline at full opacity and twice the normal width.
+  Only the pinned lot uses `lantern`. Drapes are MapLibre `image` sources with their four corners
+  converted by `edge.ts`.
 - Clicks query rendered features, and open the same evidence card; a click on no feature does the
   lot lookup (point converted back with `edge.toUtm`).
 - The depth gauge, search, card, list view and attribution are the same components as in 3D.
@@ -438,7 +442,7 @@ properties set at runtime:
 | Ghost documented | `Buried/Ghost` + `Buried/Edge` | Fill `ink` alpha 0.35, emission 0.15; solid edges, emission 1.2 (blooms) |
 | Ghost estimated | same | Fill `ink` alpha 0.18; dashed edges, 1.5 m on, 1.0 m off |
 | Ghost unknown | `Buried/FogVolume` | Fill `ink` alpha 0.12 with a soft falloff toward the edges and top (no hard edges, no edge mesh); a camera-facing "?" image above the centroid |
-| Selected | `Buried/Edge` | Edges in `lantern`, emission 1.2 |
+| Selected | `Buried/Edge` | Edges in `ink` at full opacity, twice the unselected width (3 CSS px), emission 1.6. Never `lantern` (requirement 11.7). The DOM label is drawn by the Shell. |
 | Water | `Buried/WaterGlow` | `water` additive at 0.35, soft edge falloff, no animation |
 | Drape | `Buried/Drape` | Unlit texture, sRGB sampling, no fog colour; alpha = drape opacity × (1 − fog factor) |
 | Lot outline | `Buried/Edge` on the ground | `lantern`, 2 CSS px |
@@ -570,21 +574,43 @@ published building in `data/evidence/fip_v3_1911_229.geojson`; control files for
 The test fails with "Unity build not found; run the Unity build command" when
 `web/public/unity/Build/` is missing.
 
+### Gate-only hand trace and the demo readiness check
+
+If spec 02's `publish` is not ready by Nov 13, the gate building may be a reviewed hand edit (task
+1.11). That is acceptable for the gate only (requirement 24.5). The hand-edited feature is written
+without `provenance.proposal_id` and without `provenance.extraction_params_id`, so it can be found
+later. Every feature written by `buried publish` carries a `proposal_id` (spec 02), and every
+feature published through the Studio carries one too (spec 04 review item ids).
+
+Before any demo the maintainer sets the hand-edited feature to `status: rejected` with
+`status_reason: "Gate-only hand trace, replaced by a published footprint"`, publishes the
+replacement with `buried publish`, and runs `npm run check:demo` from `web/`. The script
+(`web/scripts/checkDemoReady.ts`) reads `data/evidence/*.geojson` and fails, naming each feature,
+if any `published` feature has no `provenance.proposal_id`. It is not part of `npm test`, because
+during development the gate feature is expected to be there.
+
 ## Budget
 
-- **Reference machine:** a laptop with integrated graphics no faster than an Apple M1 or Intel Iris
-  Xe, 16 GB RAM, current stable Chrome, on mains power. The exact model is recorded with each
-  result.
+- **Reference machine:** the maintainer's Apple M3 Pro laptop, current stable Chrome, on mains
+  power. The exact model, RAM and Chrome version are recorded with each result.
+- **Mid-range profile:** the same machine and browser with Chrome DevTools CPU throttling at 4×,
+  as the stand-in for a mid-range laptop. CPU throttling slows script, WebAssembly and layout but
+  not the GPU, so frame-rate results on this profile can be optimistic where the GPU is the limit.
+  The notes say so next to each frame-rate result. The pass or fail verdict for 23.1 and 23.3 comes
+  from this profile (requirement 23.5).
 - **Fast connection profile:** Chrome DevTools Protocol network emulation at 50 Mbit/s down,
   10 Mbit/s up, 20 ms latency, cache disabled.
 - **First interactive frame (23.1):** `web/e2e/budget.spec.ts`, headed with hardware GPU, against
   `vite preview` of a production build. Time from `performance.timeOrigin` to the first
-  `requestAnimationFrame` after `eraLoaded` for Today, read from the page. Median of 5 cold runs.
+  `requestAnimationFrame` after `eraLoaded` for Today, read from the page. Median of 5 cold runs,
+  on each profile.
 - **Build size (23.2):** `npm run check:unity-size` after the Unity build.
 - **Frame rate (23.3):** same spec, scripted: 5 s idle at Today, depth 0 → 3 → 0 by gauge steps,
   10 s Lantern sweep across the canvas at depth 0, 5 s pan. Frame intervals from page
   `requestAnimationFrame` timestamps (Unity renders in the same animation frame). Report median and
-  95th percentile; pass when the 95th percentile is at most 33.3 ms.
+  95th percentile; pass when the 95th percentile is at most 33.3 ms on the mid-range profile.
+- `budget.spec.ts` takes `--profile reference` or `--profile midrange`; `midrange` sets the CPU
+  throttling rate to 4 through the DevTools Protocol before navigation.
 - These runs need a real GPU, so they are run by the maintainer on the reference machine, not in
   headless CI. The gate and functional end-to-end tests run headless.
 
@@ -749,3 +775,13 @@ and registry, every string `cardModel` and `FeatureList` produce has no match in
   version change records that the rest was added, as `structure.md` asks for schema changes.
 - **Gate eras 1911 and 1935 on plate 229.** Both editions are tuning plates (not held out), and the
   same intersections appear on both, so the marker test compares the same ground points.
+- **`lantern` marks the pinned lot only** (session 005). A selected feature uses a brighter, thicker
+  `ink` outline plus its DOM label. This keeps the one warm accent for the one thing the user chose
+  to pin, and keeps the past drawn in one colour.
+- **Budget measured on the maintainer's M3 Pro, verdict on 4× CPU throttling** (session 005). A
+  real mid-range laptop is not available; throttling is the stated stand-in, and its blind spot
+  (GPU speed) is written next to the results.
+- **A hand-traced gate footprint is gate-only** (session 005). It is replaced through
+  `buried publish` before any demo, and `npm run check:demo` enforces that.
+- **Water comes from the Studio** (session 005). A person traces it; nothing extracts water
+  automatically.

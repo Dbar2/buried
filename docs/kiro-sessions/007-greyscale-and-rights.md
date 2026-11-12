@@ -66,3 +66,34 @@ outlines an area (a yard, a factory lot) and records the use as lettered on the 
 - Keep requirement and task numbers stable; add at the end.
 - No implementation code. Plain, direct English.
 - Reply with what changed, by file, and anything still open.
+
+## 4. Answers to the open questions from session 005, and its list of changes
+
+Apply every item in the "Steering and spec changes for a later session" list from session 005
+(product rule 9 wording for label assist; `sources.md` workspace-source rule, flood-subsidy link
+row and per-item rights timing; `tech.md` decisions and commands; `structure.md` additions;
+`design.md` lantern, print type size and Report tokens; the spec 01 and spec 02 items). They are
+accepted as listed.
+
+Answers:
+
+1. **Lot position error:** use 2.0 m for City property boundaries unless the dataset states a
+   figure. Record the reason: the parcel layer is a mapping product, not a survey.
+2. **Banned word inside a plate's printed text:** accepted. The Report refers to the source and
+   crop instead of quoting it.
+3. **Land acknowledgement:** do not write one. Link to the City of Toronto's published land
+   acknowledgement and say the records Buried uses begin with colonial-era mapping. The maintainer
+   approves the final wording before submission. Links: Ontario Dig Authority
+   `https://ontariodigauthority.ca/`; the City basement flooding protection subsidy page is to be
+   looked up and link-checked by the task that adds it, not guessed.
+4. **Bedrock model:** stays configurable through `BURIED_LABEL_MODEL_ID`; document that it must be
+   a vision-capable Anthropic Claude model enabled in the account's Bedrock region. No default id
+   in code.
+5. **Volume 3 plates outside the showcase:** accepted as you described.
+
+Measured since the specs were written, for the record in spec 02's design: plate 229 (1911)
+supplied georeferencing RMSE 2.140 m, published alignment error 4.3 m; plate 229 (1931-35)
+RMSE 1.504 m, published 3.1 m; six City intersections each. The six points all lie in the northern
+two-thirds of the plate because the southern street crossings no longer exist; add a requirement
+that an alignment record states the convex hull of its control points and that the Studio warns
+when a feature lies outside it.

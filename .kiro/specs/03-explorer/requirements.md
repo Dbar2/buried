@@ -52,8 +52,8 @@ the concept brief differ, the steering docs win.
   `data/present/present_toronto_property_boundaries_2026.geojson`.
 - **Project frame**: the conversion between EPSG:26917 and Unity world coordinates using the origin
   in `data/project.json`.
-- **Reference machine** and **fast connection profile**: the measurement setup in design.md
-  "Budget".
+- **Reference machine**, **mid-range profile** and **fast connection profile**: the measurement
+  setup in design.md "Budget".
 - **Gate**: the go/no-go checkpoint due Nov 14 (requirement 24).
 
 ## Requirement 1: Unity project and headless build
@@ -346,13 +346,18 @@ was present, absent or not readable (with the visibility); the origin source's t
 attribution line; who confirmed it and when; a crop of the origin source's tile around the feature
 with the feature outlined; and the feature id.
 
-11.4 WHEN a feature is selected, THE Player SHALL draw its edges in `lantern`.
+11.4 WHEN a feature is selected, THE Player SHALL draw its edges in `ink`, brighter and thicker
+than unselected edges (design.md "Materials and treatments"), and THE Shell SHALL show its DOM
+label. THE Player SHALL NOT use `lantern` for a selected feature.
 
 11.5 WHEN the user presses Escape or closes the card, THE Shell SHALL send
 `scene/selectFeature` with null and close the card.
 
 11.6 IF a clicked id is not in the Shell's current Era lists, THEN THE Shell SHALL ignore the click
 and log it.
+
+11.7 IN the scene and on the 2D map, `lantern` SHALL mark only the pinned lot (its outline and its
+light). No feature, control, hover state or selection SHALL be drawn in `lantern`.
 
 ## Requirement 12: Show Evidence
 
@@ -534,8 +539,9 @@ map with a message saying the 3D view did not load and why, as far as it is know
 19.3 THE Shell SHALL let the user switch to the 2D map at any time and back.
 
 19.4 THE 2D map SHALL show, for the current era, the same Era list features (with the confidence
-outline patterns from `design.md`), the drapes, the present buildings, the pinned lot, the
-attribution lines, the depth gauge, search, the evidence card and the list view.
+outline patterns from `design.md`, and the selected feature with the brighter, thicker `ink`
+outline of requirement 11.4), the drapes, the present buildings, the pinned lot, the attribution
+lines, the depth gauge, search, the evidence card and the list view.
 
 19.5 THE 2D map SHALL use MapLibre GL JS with no basemap, and SHALL take its positions from
 `web/src/map/edge.ts`.
@@ -608,18 +614,23 @@ reduced motion is on.
 
 ### Acceptance criteria
 
-23.1 ON the reference machine with the fast connection profile and a cold cache, THE time from
-navigation start to the first frame after `eraLoaded` for Today SHALL be under 8 s, as the median
-of 5 runs.
+23.1 ON the mid-range profile (design.md "Budget") with the fast connection profile and a cold
+cache, THE time from navigation start to the first frame after `eraLoaded` for Today SHALL be under
+8 s, as the median of 5 runs.
 
 23.2 THE total size of the files in `web/public/unity/Build/` SHALL be under 15,000,000 bytes.
 
-23.3 ON the reference machine, during the scripted run in design.md, THE 95th percentile frame
+23.3 ON the mid-range profile, during the scripted run in design.md, THE 95th percentile frame
 interval SHALL be at most 33.3 ms (30 fps floor), and THE median frame interval SHALL be reported
 against the 16.7 ms (60 fps) target.
 
-23.4 THE measurements in 23.1 to 23.3 SHALL be recorded with the machine, browser version, build
-commit and date in `docs/kiro-sessions/` notes each time they are run.
+23.4 THE measurements in 23.1 to 23.3 SHALL be recorded with the machine, browser version, profile
+(reference machine or mid-range profile), build commit and date in `docs/kiro-sessions/` notes each
+time they are run.
+
+23.5 THE measurements in 23.1 and 23.3 SHALL be run on both the reference machine and the
+mid-range profile. The pass or fail verdict SHALL be taken from the mid-range profile; the reference
+machine results SHALL be recorded alongside.
 
 ## Requirement 24: The Nov 14 gate
 
@@ -642,6 +653,10 @@ attribution line.
 24.4 AT the gate, a Playwright test SHALL show that the screen positions of three ground control
 points, drawn as debug markers at their reference coordinates, differ by at most 2 px between the
 two eras and from the positions projected from the camera's reported view-projection matrix.
+
+24.5 A footprint written by a reviewed hand edit SHALL be acceptable for the gate only. Before any
+demo, THE maintainer SHALL set that feature's status to `rejected` with a `status_reason`, publish
+its replacement through `buried publish`, and THE demo readiness check (design.md) SHALL pass.
 
 ## Requirement 25: Tests and tooling
 

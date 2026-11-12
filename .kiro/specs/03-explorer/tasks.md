@@ -123,11 +123,14 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     a reviewed hand edit (`structure.md` allows it): the maintainer traces one building's pixel
     polygon, converts it with the chosen transform using the pipeline's pure affine `apply`
     function, writes the feature with full provenance and the position error rule from spec 01, and
-    the file must pass `uv run buried validate`. No other evidence is written by hand.
+    the file must pass `uv run buried validate`. No other evidence is written by hand. A hand-edited
+    feature is gate-only: write it without `provenance.proposal_id` and
+    `provenance.extraction_params_id`, record its id in the `docs/kiro-sessions/` gate notes, and
+    replace it before any demo (task 15.1).
     Files: `data/control/fip_v3_1911_229.json`, `data/control/fip_v3_1935_229.json`,
     `data/alignment/*.json`, `data/tiles/fip_v3_1911_229.*`, `data/tiles/fip_v3_1935_229.*`,
     `data/evidence/fip_v3_1911_229.geojson`.
-    Requirements: 24.1, 24.2.
+    Requirements: 24.1, 24.2, 24.5.
   - [ ] 1.12 Shell gate UI and verification. `UnityView` (lazy, `createUnityInstance`, 30 s
     `ready` timeout, version check, init, load both gate eras), a minimal era switch (two buttons;
     the full gauge comes in group 3), a gate evidence card (feature id, origin source,
@@ -201,15 +204,16 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
 
 - [ ] 4. Ghost treatments and look
   - [ ] 4.1 Implement the three confidence treatments (solid edges and fill, dashed edges and
-    lighter fill, fog volume with the "?" image), selected edges in `lantern`, and water glow with
-    `RibbonBuilder`. EditMode tests: dash distance along edges, ribbon width, which meshes each class
-    gets (unknown has no edge mesh).
+    lighter fill, fog volume with the "?" image), the selected treatment (brighter, thicker `ink`
+    edges; never `lantern`), and water glow with `RibbonBuilder`. EditMode tests: dash distance
+    along edges, ribbon width, which meshes each class gets (unknown has no edge mesh), and that no
+    material other than the lot outline and lot light reads the `lantern` palette entry.
     Files: `unity/Assets/Buried/Runtime/Scene/EraLayer.cs`, `unity/Assets/Buried/Runtime/Meshing/RibbonBuilder.cs`,
     `unity/Assets/Buried/Runtime/Look/Shaders/FogVolume.shader`,
     `unity/Assets/Buried/Runtime/Look/Shaders/WaterGlow.shader`,
     `unity/Assets/Buried/Runtime/Look/Textures/QuestionMark.png`,
     `unity/Assets/Buried/Tests/EditMode/TreatmentTests.cs`.
-    Requirements: 8.6, 9.1 to 9.4, 11.4, 20.4.
+    Requirements: 8.6, 9.1 to 9.4, 11.4, 11.7, 20.4.
   - [ ] 4.2 Implement the look: sky gradient, sun, ambient, fog density rule, extended ground,
     tonemapping off, bloom limited to emission above 1, no other post effects. EditMode test that
     the palette asset equals `web/src/styles/tokens.css`.
@@ -318,12 +322,13 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     Requirements: 17.1, 17.7.
 
 - [ ] 11. 2D fallback and Report independence
-  - [ ] 11.1 Implement `edge.ts` and `MapView2D.tsx` (no basemap, confidence patterns, drapes as
-    image sources, same card, list, gauge, search and attribution), `webgl.ts`, the fallback
-    messages, the 30 s `ready` timeout path, and the 3D/2D switch.
+  - [ ] 11.1 Implement `edge.ts` and `MapView2D.tsx` (no basemap, confidence patterns, the selected
+    feature's thicker `ink` outline, `lantern` for the pinned lot only, drapes as image sources,
+    same card, list, gauge, search and attribution), `webgl.ts`, the fallback messages, the 30 s
+    `ready` timeout path, and the 3D/2D switch.
     Files: `web/src/map/edge.ts`, `web/src/map/edge.test.ts`, `web/src/map/MapView2D.tsx`,
     `web/src/explorer/webgl.ts`, `web/src/explorer/Explorer.tsx`, `web/src/explorer/UnityView.tsx`.
-    Requirements: 3.6, 19.1 to 19.5.
+    Requirements: 3.6, 11.7, 19.1 to 19.5.
   - [ ] 11.2 **[PBT] E8** The map edge round-trips within 1 mm.
     Files: `web/src/map/edge.property.test.ts`.
     Requirements: 3.6, 19.5.
@@ -347,16 +352,19 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
 
 - [ ] 13. Budget
   - [ ] 13.1 Implement `checkUnitySize.ts` (`npm run check:unity-size`) and `web/e2e/budget.spec.ts`
-    (first interactive frame, frame intervals, the scripted run, fast connection profile). Record
-    `npm run check:unity-size` and `npm run test:budget` in `.kiro/steering/tech.md`.
+    (first interactive frame, frame intervals, the scripted run, fast connection profile, and the
+    `reference` and `midrange` profiles with 4× CPU throttling). Record `npm run check:unity-size`
+    and `npm run test:budget` in `.kiro/steering/tech.md`.
     Files: `web/scripts/checkUnitySize.ts`, `web/e2e/budget.spec.ts`, `web/package.json`,
     `.kiro/steering/tech.md`.
-    Requirements: 23.1 to 23.3, 25.4.
-  - [ ] 13.2 Run the budget on the reference machine (maintainer) and record machine, browser
-    version, commit, date and the three results in `docs/kiro-sessions/` notes. If a budget fails,
-    report the numbers and the largest contributors; do not lower the budget.
+    Requirements: 23.1 to 23.3, 23.5, 25.4.
+  - [ ] 13.2 Run the budget on the maintainer's M3 Pro (reference machine) and again on the
+    mid-range profile, and record machine, browser version, profile, commit, date and the three
+    results for each in `docs/kiro-sessions/` notes, with the GPU caveat next to the frame-rate
+    results. The verdict comes from the mid-range profile. If a budget fails, report the numbers and
+    the largest contributors; do not lower the budget.
     Files: `docs/kiro-sessions/<NNN>-explorer-budget.md`.
-    Requirements: 23.4.
+    Requirements: 23.4, 23.5.
 
 - [ ] 14. Final check
   - [ ] 14.1 Run `npm test`, `npm run typecheck` and `npm run test:e2e` in `web/`, the Unity
@@ -364,3 +372,14 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     test, the boundary test passes, and the gate test still passes.
     Files: none.
     Requirements: 25.1, 25.2, 25.3.
+
+- [ ] 15. Demo readiness (run before any demo or recording)
+  - [ ] 15.1 Implement `web/scripts/checkDemoReady.ts` (`npm run check:demo`): fail, naming each
+    feature, if any `published` feature in `data/evidence/*.geojson` has no
+    `provenance.proposal_id`. Test it on a synthetic `data/` tree. If the gate used a hand-edited
+    footprint, set it to `rejected` with the `status_reason` in design.md, publish its replacement
+    with `buried publish`, run `uv run buried validate`, then `npm run check:demo`, and record the
+    result in `docs/kiro-sessions/` notes. Record `npm run check:demo` in `.kiro/steering/tech.md`.
+    Files: `web/scripts/checkDemoReady.ts`, `web/scripts/checkDemoReady.test.ts`, `web/package.json`,
+    `data/evidence/fip_v3_1911_229.geojson`, `.kiro/steering/tech.md`.
+    Requirements: 24.5, 25.4.
