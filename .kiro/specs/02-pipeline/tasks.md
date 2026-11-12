@@ -391,3 +391,23 @@ Task numbers are stable, so the run order is not numeric:
     Files: `pipeline/buried_pipeline/inspect/supplied_points.py`,
     `pipeline/tests/inspect/test_georef.py`.
     Requirements: 14.6, 14.7.
+
+- [x] 13. Control-point picking aid (session 006)
+  - [x] 13.1 Implement the pure pixel maths: predicted pixel, inside test, crop size and window,
+    crosshair drawing, RGB conversion. Test with fixed cases and property tests (inverse of the
+    supplied mapping, window always inside the raster and holding the pixel, crosshair touches only
+    its arms).
+    Files: `pipeline/buried_pipeline/controlcrops/__init__.py`,
+    `pipeline/buried_pipeline/controlcrops/pixels.py`,
+    `pipeline/tests/controlcrops/test_pixels.py`.
+    Requirements: 15.1, 15.2, 15.5.
+  - [x] 13.2 Implement `buried control-crops <SOURCE_ID>`: read the plate and the intersections
+    layer, write the PNG crops and `index.json`, remove the previous run's output, refuse unsafe
+    ids. Test on synthetic GeoTIFF and rotated JPEG plates.
+    Files: `pipeline/buried_pipeline/controlcrops/run.py`, `pipeline/buried_pipeline/cli.py`,
+    `pipeline/tests/controlcrops/test_run.py`.
+    Requirements: 15.1 to 15.4, 15.6.
+  - [x] 13.3 Record `uv run buried control-crops` in `.kiro/steering/tech.md`. Run it on
+    `fip_v3_1911_229` and `fip_v3_1935_229` (session 006: 39 and 62 intersections inside).
+    Files: `.kiro/steering/tech.md`.
+    Requirements: 1.8.

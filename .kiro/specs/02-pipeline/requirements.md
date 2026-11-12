@@ -538,3 +538,39 @@ provenance only.
 
 14.8 `align-check`, `control-crops` and every later command that opens a plate SHALL find and read
 the raster through the same functions as `inspect`.
+
+## Requirement 15: Control-point picking aid
+
+**User story:** As the maintainer, I want a crop of the plate around each City intersection, so
+that I can find the true street centreline crossing by eye and record its pixel in a control file.
+
+### Acceptance criteria
+
+15.1 WHEN `buried control-crops <SOURCE_ID>` runs, THE Pipeline SHALL map every feature of
+`data/present/present_toronto_intersections_2026.geojson` to a predicted pixel through the plate's
+supplied georeferencing (EPSG:26917 to the raster CRS, then the inverse of the raster's affine),
+in the `gdal_corner` pixel convention, and SHALL keep those whose predicted pixel lies inside the
+raster.
+
+15.2 FOR each kept intersection THE Pipeline SHALL write
+`data/work/control/<source id>/<intersection id>.png`: a crop of about 60 m on a side at native
+resolution (no resampling), with a faint one-pixel crosshair, with a gap at its centre, at the
+predicted pixel. No other pixel SHALL be changed, and a crop that would leave the raster SHALL be
+moved just far enough to stay inside it.
+
+15.3 THE Pipeline SHALL write `data/work/control/<source id>/index.json` last, giving per crop:
+intersection id, file, street names, description, classification, EPSG:26917 coordinate, predicted
+pixel, the crop's top-left pixel and size, the predicted pixel within the crop, and whether the
+crop was moved; and for the run: the pixel convention, the crop size in pixels and metres, the
+pixel size and the crosshair settings. The index SHALL say that the prediction is not a
+measurement.
+
+15.4 THE Pipeline SHALL refuse an intersection id that is not safe as a file name, and SHALL remove
+the previous run's PNG files and index before writing, so that an old index never sits beside new
+crops.
+
+15.5 THE pixel maths (prediction, inside test, crop size, crop window, crosshair) SHALL be pure
+functions.
+
+15.6 THE Pipeline SHALL NOT write a control file, and SHALL NOT use a predicted pixel as a control
+point. A person records the pixel they judge to be the crossing.

@@ -10,12 +10,12 @@ from buried_pipeline.paths import find_repo_root
 from tests.conftest import make_root
 
 
-def test_all_nine_subcommands_are_registered() -> None:
+def test_all_subcommands_are_registered() -> None:
     parser = build_parser()
     sub_action = next(a for a in parser._actions if a.dest == "command")
     assert set(sub_action.choices) == {
-        "fetch", "inspect", "present", "align-check", "tile", "extract", "publish", "match",
-        "validate",
+        "fetch", "inspect", "present", "align-check", "control-crops", "tile", "extract",
+        "publish", "match", "validate",
     }  # fmt: skip
 
 

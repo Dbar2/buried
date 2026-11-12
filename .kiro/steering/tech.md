@@ -115,6 +115,9 @@ invent commands; when one is added, record it here.
     `uv run buried present [SOURCE_ID ...]` (`--recheck` downloads again and compares).
   - Measure a raster's alignment error from `data/control/<id>.json`:
     `uv run buried align-check <SOURCE_ID>`.
+  - Write PNG crops around each City intersection inside a plate, for picking control points by
+    eye (output in `data/work/control/<id>/`, writes no control file):
+    `uv run buried control-crops <SOURCE_ID>`.
   - `tile`, `extract`, `publish`, `match` and `validate` are registered and exit 2 with "not
     implemented yet" until their tasks land.
 - Unity WebGL build and EditMode test run: to be added by the spec that creates them.

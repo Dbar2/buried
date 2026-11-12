@@ -68,6 +68,9 @@ pipeline/
       supplied.py           # pure given a transform spec: pixel -> CRS -> EPSG:26917
       references.py         # pure: look up and check control point references in a present layer
       run.py                # I/O: read control file + raster + present layers, write record
+    controlcrops/
+      pixels.py             # pure: predicted pixel, crop window, crosshair
+      run.py                # I/O: read plate + intersections layer, write PNG crops + index
     tile/
       corners.py            # pure: corners, bilinear check
       run.py                # I/O: downsample, write JPEG + sidecar
@@ -348,6 +351,32 @@ possible outliers: none
 
 `affine.invert` returns the inverse affine for `|a·e - b·d| > 1e-12`, else raises. Used by the
 round-trip property and by later Studio work (map position to plate pixel).
+
+## control-crops
+
+A picking aid, not a measurement (requirement 15). It sits between `present` and `align-check`: a
+person needs control points before `align-check` can run, and the supplied georeferencing already
+puts each City intersection near the right place on the plate.
+
+- Input: the plate (found and read exactly as `inspect` does), and
+  `data/present/present_toronto_intersections_2026.geojson`.
+- For each intersection: EPSG:26917 point, to the raster CRS with pyproj, then through
+  `invert_affine` of the raster's transform: a float `(col, row)` in the `gdal_corner` convention.
+  Kept when `0 <= col < width` and `0 <= row < height`. Pure functions in
+  `controlcrops/pixels.py`.
+- Crop: `round(60 / pixel_size_x_m)` by `round(60 / pixel_size_y_m)` pixels (the unit-step pixel
+  sizes from `inspect`), read at native resolution with a rasterio window, centred on the predicted
+  pixel and moved just far enough to stay inside the raster (`moved_to_stay_inside_plate`).
+- Crosshair: four one-pixel arms, 3 m long, starting 0.4 m from the predicted pixel (with floors of
+  12 px and 3 px on coarse plates), blended 50% with a red (230, 30, 30). The gap leaves the
+  crossing visible. One band is repeated to three; the plate is never otherwise recoloured.
+- Output: `data/work/control/<source id>/<intersection id>.png` and `index.json`, written
+  atomically, the index last. The previous run's PNGs and index are removed first. The directory is
+  under `data/work/`, so it is never committed.
+- The person reads a crop, finds the crossing of the two street centrelines as drawn, notes its
+  pixel in the full plate (`crop_top_left_px` plus the position in the crop), and writes it into
+  `data/control/<source id>.json` with `reference_feature_id` set to the intersection id. This
+  command writes no control file.
 
 ## tile
 

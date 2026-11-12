@@ -68,6 +68,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     align.add_argument("source_id", metavar="SOURCE_ID")
 
+    crops = sub.add_parser(
+        "control-crops",
+        parents=[parent],
+        help="write PNG crops around each City intersection inside a plate, for picking points",
+    )
+    crops.add_argument("source_id", metavar="SOURCE_ID")
+
     for name in NOT_IMPLEMENTED:
         stub = sub.add_parser(name, parents=[parent], help="not implemented yet")
         stub.add_argument("rest", nargs="*")
@@ -132,6 +139,12 @@ def _dispatch(
         from buried_pipeline.align.run import run_align_check
 
         run_align_check(paths, registry, args.source_id, now())
+        return 0
+
+    if command == "control-crops":
+        from buried_pipeline.controlcrops.run import run_control_crops
+
+        run_control_crops(paths, registry, args.source_id)
         return 0
 
     raise PipelineError(f"Unknown command {command}")  # pragma: no cover
