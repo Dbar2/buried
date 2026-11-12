@@ -161,20 +161,21 @@ Task numbers are stable, so the run order is not numeric:
     Requirements: 2.1, 2.3 to 2.7, 3.3.
 
 - [ ] 6. Tile plates and aerials (needs spec 01 task 1 for the sidecar shape)
-  - [ ] 6.1 Implement pure corner and bilinear-check functions.
+    (Plates done in session 008; the parent stays open until aerial tiling follows task 5.)
+  - [x] 6.1 Implement pure corner and bilinear-check functions.
     Files: `pipeline/buried_pipeline/tile/__init__.py`, `pipeline/buried_pipeline/tile/corners.py`,
     `pipeline/tests/tile/test_corners.py`.
     Requirements: 7.4, 7.5.
-  - [ ] 6.2 Implement `buried tile [SOURCE_ID ...]`: refusals, area-averaged downsample to at most
+  - [x] 6.2 Implement `buried tile [SOURCE_ID ...]`: refusals, area-averaged downsample to at most
     4096 px, palette expansion only, JPEG quality 85, sidecar validated against spec 01
     `tileSidecar`.
     Files: `pipeline/buried_pipeline/tile/run.py`, `pipeline/buried_pipeline/cli.py`,
     `pipeline/tests/tile/test_run.py`.
     Requirements: 7.1 to 7.3, 7.6.
-  - [ ] 6.3 **[PBT] T1** Tile corners are exact and independent of the downsample factor.
+  - [x] 6.3 **[PBT] T1** Tile corners are exact and independent of the downsample factor.
     Files: `pipeline/tests/tile/test_tile_properties.py`.
     Requirements: 7.4, 7.5.
-  - [ ] 6.4 Record `uv run buried tile` in `.kiro/steering/tech.md`.
+  - [x] 6.4 Record `uv run buried tile` in `.kiro/steering/tech.md`.
     Files: `.kiro/steering/tech.md`.
     Requirements: 1.8.
 

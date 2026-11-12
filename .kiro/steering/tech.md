@@ -121,7 +121,11 @@ invent commands; when one is added, record it here.
   - Check every contract file under `data/` against the Schema and the cross-file rules:
     `uv run buried validate [PATH ...]` (exit 1 on any error; with paths, reports only those
     files but judges them against the whole `data/` tree).
-  - `tile`, `extract`, `publish` and `match` are registered and exit 2 with "not
+  - Write each plate as a JPEG (long edge at most 4096 px) plus a sidecar with exact EPSG:26917
+    corners into `data/tiles/`: `uv run buried tile [SOURCE_ID ...]`. Needs the plate's alignment
+    record; plates only until aerials are registered. With no ids it tiles every plate that has
+    a record and names the ones it skipped.
+  - `extract`, `publish` and `match` are registered and exit 2 with "not
     implemented yet" until their tasks land.
 - Unity WebGL build and EditMode test run: to be added by the spec that creates them.
 
