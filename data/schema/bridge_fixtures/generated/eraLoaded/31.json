@@ -1,0 +1,12 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "appb_3",
+    "featureCount": 3421,
+    "drapeCount": 10,
+    "failedDrapes": [
+      "n_hb4e3",
+      "f50427_t_1z_m"
+    ]
+  }
+}

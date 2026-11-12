@@ -1,0 +1,12 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "kz_wsi08_b88p",
+    "featureCount": 4988,
+    "drapeCount": 20,
+    "failedDrapes": [
+      "1_1f9ux2_o_z843t",
+      "ap"
+    ]
+  }
+}

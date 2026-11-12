@@ -1,0 +1,11 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "jfe630_h",
+    "featureCount": 4400,
+    "drapeCount": 3,
+    "failedDrapes": [
+      "e_6c801e_3i51"
+    ]
+  }
+}

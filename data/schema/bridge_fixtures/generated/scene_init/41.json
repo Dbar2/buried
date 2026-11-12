@@ -1,0 +1,57 @@
+{
+  "type": "scene/init",
+  "payload": {
+    "bridgeVersion": "0.1.0",
+    "origin": {
+      "easting": 166000.009,
+      "northing": 994590.15
+    },
+    "bounds": {
+      "minE": 298238.267,
+      "minN": 8537559.4,
+      "maxE": 562811.316,
+      "maxN": 4945312.869
+    },
+    "eras": [
+      {
+        "id": "2x0b_68r",
+        "index": 0
+      }
+    ],
+    "present": [
+      {
+        "id": "apply",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                343742.28,
+                5314380.251
+              ],
+              [
+                376791.894,
+                9300686.373
+              ],
+              [
+                417562.686,
+                1130912.139
+              ],
+              [
+                167971.244,
+                7719416.726
+              ],
+              [
+                343742.28,
+                5314380.251
+              ]
+            ]
+          ]
+        },
+        "heightM": 949.521
+      }
+    ],
+    "reducedMotion": false,
+    "debug": true
+  }
+}

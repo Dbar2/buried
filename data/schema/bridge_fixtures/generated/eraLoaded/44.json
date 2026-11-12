@@ -1,0 +1,11 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "vp_s5p_c3",
+    "featureCount": 4310,
+    "drapeCount": 2,
+    "failedDrapes": [
+      "sqk3h"
+    ]
+  }
+}

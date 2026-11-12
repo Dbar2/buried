@@ -1,0 +1,33 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "62c_dht",
+    "features": [],
+    "drapes": [
+      {
+        "sourceId": "13tkq_f",
+        "url": "/data/tiles/l7ekly_418_m27.jpg",
+        "corners": {
+          "topLeft": [
+            166000.012,
+            9399999.993
+          ],
+          "topRight": [
+            833999.988,
+            1856458.639
+          ],
+          "bottomRight": [
+            801540.963,
+            0.026
+          ],
+          "bottomLeft": [
+            261494.65,
+            0.011
+          ]
+        },
+        "widthPx": 12085,
+        "heightPx": 14177
+      }
+    ]
+  }
+}

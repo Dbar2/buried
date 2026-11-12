@@ -1,0 +1,7 @@
+{
+  "type": "featureClicked",
+  "payload": {
+    "featureId": "wtr_2z6g_0604",
+    "eraId": "0g"
+  }
+}

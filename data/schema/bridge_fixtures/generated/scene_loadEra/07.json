@@ -1,0 +1,8 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "bsx3",
+    "features": [],
+    "drapes": []
+  }
+}

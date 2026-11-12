@@ -1,0 +1,8 @@
+{
+  "type": "error",
+  "payload": {
+    "code": "bounds_too_far",
+    "message": "call",
+    "messageType": "eraLoaded"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "key_ca",
+    "featureCount": 4994,
+    "drapeCount": 2,
+    "failedDrapes": [
+      "pa",
+      "sp5q"
+    ]
+  }
+}

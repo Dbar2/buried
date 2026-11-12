@@ -1,0 +1,65 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "a",
+    "features": [
+      {
+        "id": "use_fcag5_7pz_1125",
+        "kind": "water",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  502983.759,
+                  59280.305
+                ],
+                [
+                  579678.29,
+                  6206934.69
+                ],
+                [
+                  685942.226,
+                  4654557.594
+                ],
+                [
+                  502983.759,
+                  59280.305
+                ]
+              ]
+            ]
+          ]
+        },
+        "confidence": "unknown",
+        "heightM": 479.58
+      }
+    ],
+    "drapes": [
+      {
+        "sourceId": "t0diuz_s219_3ezln0_sv1",
+        "url": "/data/tiles/k.jpg",
+        "corners": {
+          "topLeft": [
+            784945.041,
+            4442439.443
+          ],
+          "topRight": [
+            475237.211,
+            2109657.926
+          ],
+          "bottomRight": [
+            813695.575,
+            5850658.069
+          ],
+          "bottomLeft": [
+            398992.218,
+            4423777.254
+          ]
+        },
+        "widthPx": 13847,
+        "heightPx": 5931
+      }
+    ]
+  }
+}

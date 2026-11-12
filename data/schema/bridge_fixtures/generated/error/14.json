@@ -1,0 +1,8 @@
+{
+  "type": "error",
+  "payload": {
+    "code": "bridge_version_mismatch",
+    "message": "OM.nV57z]i",
+    "messageType": "scene/loadEra"
+  }
+}

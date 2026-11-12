@@ -1,0 +1,8 @@
+{
+  "type": "error",
+  "payload": {
+    "code": "unknown_type",
+    "message": "`*k8",
+    "messageType": "scene/setDepth"
+  }
+}

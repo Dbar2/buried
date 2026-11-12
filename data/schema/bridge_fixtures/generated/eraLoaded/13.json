@@ -1,0 +1,13 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "780_2j1p_s_7839s",
+    "featureCount": 3217,
+    "drapeCount": 17,
+    "failedDrapes": [
+      "h2461z_4y5_81n366",
+      "n54h_7k_nf_9m",
+      "9y8_y3_e66_kk8"
+    ]
+  }
+}

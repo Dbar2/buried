@@ -1,0 +1,12 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "etz",
+    "featureCount": 98,
+    "drapeCount": 4,
+    "failedDrapes": [
+      "tfjeko_p9zo19_4358dx",
+      "o16k33_d610_4"
+    ]
+  }
+}

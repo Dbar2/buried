@@ -1,0 +1,8 @@
+{
+  "type": "error",
+  "payload": {
+    "code": "invalid_message",
+    "message": " ?aa;^'",
+    "messageType": "debug/markers"
+  }
+}

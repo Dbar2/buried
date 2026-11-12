@@ -1,0 +1,11 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "he_54_jp_5l",
+    "featureCount": 4813,
+    "drapeCount": 17,
+    "failedDrapes": [
+      "yl"
+    ]
+  }
+}

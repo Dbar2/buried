@@ -1,0 +1,6 @@
+{
+  "type": "scene/setDepth",
+  "payload": {
+    "depth": 53.811
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "p6830q_5_wa8_9",
+    "featureCount": 5,
+    "drapeCount": 11,
+    "failedDrapes": [
+      "t8yz5_ir73_287724",
+      "5x8_zx_x32z3_yp11"
+    ]
+  }
+}

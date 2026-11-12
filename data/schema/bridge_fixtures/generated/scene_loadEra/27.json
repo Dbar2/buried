@@ -1,0 +1,33 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "5b134q_o4u",
+    "features": [],
+    "drapes": [
+      {
+        "sourceId": "8q",
+        "url": "/data/tiles/2_t_v68d60_149p.jpg",
+        "corners": {
+          "topLeft": [
+            355960.921,
+            5357617.565
+          ],
+          "topRight": [
+            570462.116,
+            4804285.875
+          ],
+          "bottomRight": [
+            630367.902,
+            9345709.717
+          ],
+          "bottomLeft": [
+            611819.021,
+            4086760.784
+          ]
+        },
+        "widthPx": 4500,
+        "heightPx": 3567
+      }
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "98a",
+    "features": [],
+    "drapes": [
+      {
+        "sourceId": "6w310_0404se_tr_1h43",
+        "url": "/data/tiles/m93s6_431r0_7y140.jpg",
+        "corners": {
+          "topLeft": [
+            758128.572,
+            5506877.349
+          ],
+          "topRight": [
+            817332.787,
+            5828107.293
+          ],
+          "bottomRight": [
+            498427.223,
+            576430.178
+          ],
+          "bottomLeft": [
+            764884.918,
+            409223.466
+          ]
+        },
+        "widthPx": 6024,
+        "heightPx": 5828
+      },
+      {
+        "sourceId": "r679_seo_3r664_54",
+        "url": "/data/tiles/80_0_x9.jpg",
+        "corners": {
+          "topLeft": [
+            346450.473,
+            8417922.659
+          ],
+          "topRight": [
+            446671.408,
+            2513168.973
+          ],
+          "bottomRight": [
+            240165.386,
+            7588934.634
+          ],
+          "bottomLeft": [
+            420227.347,
+            7954842.822
+          ]
+        },
+        "widthPx": 7561,
+        "heightPx": 10024
+      }
+    ]
+  }
+}

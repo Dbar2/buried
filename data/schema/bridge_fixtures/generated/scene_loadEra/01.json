@@ -1,0 +1,33 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "6fit85_dfz_70",
+    "features": [],
+    "drapes": [
+      {
+        "sourceId": "75bw10_zu6_az_16j",
+        "url": "/data/tiles/06a54c.jpg",
+        "corners": {
+          "topLeft": [
+            166000.01,
+            3982431.903
+          ],
+          "topRight": [
+            166000.006,
+            6652912.61
+          ],
+          "bottomRight": [
+            166000.013,
+            2772802.16
+          ],
+          "bottomLeft": [
+            166000.024,
+            5058302.991
+          ]
+        },
+        "widthPx": 10888,
+        "heightPx": 16380
+      }
+    ]
+  }
+}

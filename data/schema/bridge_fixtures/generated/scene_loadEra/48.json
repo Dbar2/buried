@@ -1,0 +1,67 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "jfe630_h",
+    "features": [
+      {
+        "id": "bld_8_yf6_zdj_3511",
+        "kind": "building",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                727265.961,
+                246013.89
+              ],
+              [
+                175961.116,
+                3544627.255
+              ],
+              [
+                184305.048,
+                832241.843
+              ],
+              [
+                443253.461,
+                4437536.938
+              ],
+              [
+                727265.961,
+                246013.89
+              ]
+            ]
+          ]
+        },
+        "confidence": "documented",
+        "heightM": 265.229
+      }
+    ],
+    "drapes": [
+      {
+        "sourceId": "8n3k3_3i1lu1_42_81h",
+        "url": "/data/tiles/qu3k.jpg",
+        "corners": {
+          "topLeft": [
+            318579.441,
+            7930770.981
+          ],
+          "topRight": [
+            429675.306,
+            5874188.778
+          ],
+          "bottomRight": [
+            833166.618,
+            8954334.434
+          ],
+          "bottomLeft": [
+            678837.417,
+            2583489.711
+          ]
+        },
+        "widthPx": 8485,
+        "heightPx": 3324
+      }
+    ]
+  }
+}

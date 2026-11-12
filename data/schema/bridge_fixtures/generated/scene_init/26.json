@@ -1,0 +1,61 @@
+{
+  "type": "scene/init",
+  "payload": {
+    "bridgeVersion": "0.1.0",
+    "origin": {
+      "easting": 166000.01,
+      "northing": 4625986.173
+    },
+    "bounds": {
+      "minE": 349235.456,
+      "minN": 0.029,
+      "maxE": 806050.636,
+      "maxN": 3733126.576
+    },
+    "eras": [
+      {
+        "id": "c71v2_44406",
+        "index": 1
+      },
+      {
+        "id": "00qwlp_2o2l61_f19_i",
+        "index": 2
+      },
+      {
+        "id": "m34p07_12",
+        "index": 0
+      }
+    ],
+    "present": [
+      {
+        "id": "_4__7",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                641282.053,
+                2613961.904
+              ],
+              [
+                483032.433,
+                3767146.396
+              ],
+              [
+                712719.372,
+                6065523.137
+              ],
+              [
+                641282.053,
+                2613961.904
+              ]
+            ]
+          ]
+        },
+        "heightM": 999.991
+      }
+    ],
+    "reducedMotion": true,
+    "debug": false
+  }
+}

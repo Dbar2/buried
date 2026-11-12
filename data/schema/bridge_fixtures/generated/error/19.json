@@ -1,0 +1,8 @@
+{
+  "type": "error",
+  "payload": {
+    "code": "debug_disabled",
+    "message": "$2",
+    "messageType": "ready"
+  }
+}

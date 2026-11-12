@@ -1,0 +1,13 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "t04",
+    "featureCount": 1249,
+    "drapeCount": 18,
+    "failedDrapes": [
+      "0v3xu_82h_jnx4c",
+      "42_8_b",
+      "6l_hp5cao_pdf5_i567ov"
+    ]
+  }
+}

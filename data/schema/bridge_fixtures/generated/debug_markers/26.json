@@ -1,0 +1,21 @@
+{
+  "type": "debug/markers",
+  "payload": {
+    "markers": [
+      {
+        "id": "42y__9j1_",
+        "position": [
+          166000.005,
+          1075705.708
+        ]
+      },
+      {
+        "id": "rx_7u",
+        "position": [
+          833999.996,
+          0.01
+        ]
+      }
+    ]
+  }
+}

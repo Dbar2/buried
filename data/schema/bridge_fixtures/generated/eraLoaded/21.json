@@ -1,0 +1,11 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "trpzy6",
+    "featureCount": 4993,
+    "drapeCount": 11,
+    "failedDrapes": [
+      "34tb"
+    ]
+  }
+}

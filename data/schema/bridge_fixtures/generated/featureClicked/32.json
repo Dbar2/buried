@@ -1,0 +1,7 @@
+{
+  "type": "featureClicked",
+  "payload": {
+    "featureId": "wtr_5_8_0009",
+    "eraId": "f8w"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "bsx3",
+    "featureCount": 11,
+    "drapeCount": 4,
+    "failedDrapes": []
+  }
+}

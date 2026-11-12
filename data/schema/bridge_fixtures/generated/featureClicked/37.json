@@ -1,0 +1,7 @@
+{
+  "type": "featureClicked",
+  "payload": {
+    "featureId": "bld_7_6_3476",
+    "eraId": "l880"
+  }
+}

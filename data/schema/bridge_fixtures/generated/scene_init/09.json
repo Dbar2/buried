@@ -1,0 +1,45 @@
+{
+  "type": "scene/init",
+  "payload": {
+    "bridgeVersion": "0.1.0",
+    "origin": {
+      "easting": 645871.476,
+      "northing": 0.013
+    },
+    "bounds": {
+      "minE": 833999.989,
+      "minN": 9399999.995,
+      "maxE": 833999.985,
+      "maxN": 0.015
+    },
+    "eras": [
+      {
+        "id": "728293",
+        "index": 1
+      },
+      {
+        "id": "z7y80y",
+        "index": 0
+      },
+      {
+        "id": "9dj05_xh_6rih1",
+        "index": 5
+      },
+      {
+        "id": "o_104",
+        "index": 2
+      },
+      {
+        "id": "l458a_0kgm",
+        "index": 3
+      },
+      {
+        "id": "c",
+        "index": 4
+      }
+    ],
+    "present": [],
+    "reducedMotion": false,
+    "debug": false
+  }
+}

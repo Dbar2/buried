@@ -1,0 +1,8 @@
+{
+  "type": "error",
+  "payload": {
+    "code": "era_not_initialised",
+    "message": "key",
+    "messageType": "featureClicked"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "u33_ho_t_05j",
+    "featureCount": 3619,
+    "drapeCount": 16,
+    "failedDrapes": []
+  }
+}

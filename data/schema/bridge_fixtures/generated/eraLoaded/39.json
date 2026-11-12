@@ -1,0 +1,9 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "kd8e",
+    "featureCount": 8,
+    "drapeCount": 17,
+    "failedDrapes": []
+  }
+}

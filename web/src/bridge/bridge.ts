@@ -167,7 +167,7 @@ export interface Bridge {
   /** Give the bridge the Unity instance. Messages sent before this throw. */
   attach(instance: UnityLike): void;
   /** Validate, then SendMessage("Bridge", "Receive", json). Throws BridgeError and sends nothing if invalid. */
-  send<T extends ShellToPlayerType>(message: MessageOf<T>): void;
+  send(message: MessageOf<ShellToPlayerType>): void;
   /** Listen for one kind of Player message. Returns an unsubscribe function. */
   on<T extends PlayerToShellType>(type: T, handler: (payload: PayloadOf<T>) => void): () => void;
   /** Listen for messages that were dropped as malformed, with the reason. */

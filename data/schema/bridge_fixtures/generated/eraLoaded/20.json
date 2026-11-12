@@ -1,0 +1,9 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "w2e",
+    "featureCount": 4996,
+    "drapeCount": 9,
+    "failedDrapes": []
+  }
+}

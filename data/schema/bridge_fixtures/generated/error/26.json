@@ -1,0 +1,8 @@
+{
+  "type": "error",
+  "payload": {
+    "code": "debug_disabled",
+    "message": "( )",
+    "messageType": "scene/init"
+  }
+}

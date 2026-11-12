@@ -1,0 +1,8 @@
+{
+  "type": "error",
+  "payload": {
+    "code": "bridge_version_mismatch",
+    "message": "v*@1h*",
+    "messageType": "eraLoaded"
+  }
+}

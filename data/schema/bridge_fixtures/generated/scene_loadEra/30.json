@@ -1,0 +1,57 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "key_ca",
+    "features": [],
+    "drapes": [
+      {
+        "sourceId": "v65pa_rsp5q1",
+        "url": "/data/tiles/v4m5_i884_atf_g8vf8.jpg",
+        "corners": {
+          "topLeft": [
+            606710.835,
+            7277951.867
+          ],
+          "topRight": [
+            592801.825,
+            31722.833
+          ],
+          "bottomRight": [
+            666446.991,
+            3356871.057
+          ],
+          "bottomLeft": [
+            597976.304,
+            2032001.468
+          ]
+        },
+        "widthPx": 1141,
+        "heightPx": 6000
+      },
+      {
+        "sourceId": "0f_888y9q_uzj_qot7",
+        "url": "/data/tiles/1v76_6b8_r375.jpg",
+        "corners": {
+          "topLeft": [
+            573549.534,
+            5609616.918
+          ],
+          "topRight": [
+            646279.48,
+            1126160.331
+          ],
+          "bottomRight": [
+            264837.713,
+            7953915.817
+          ],
+          "bottomLeft": [
+            641998.304,
+            7275634.747
+          ]
+        },
+        "widthPx": 15277,
+        "heightPx": 10356
+      }
+    ]
+  }
+}

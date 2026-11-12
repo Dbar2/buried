@@ -1,0 +1,33 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "85",
+    "features": [],
+    "drapes": [
+      {
+        "sourceId": "hxyy",
+        "url": "/data/tiles/7_e8_bh70_cp8p.jpg",
+        "corners": {
+          "topLeft": [
+            190481.906,
+            2857183.074
+          ],
+          "topRight": [
+            477993.268,
+            7634147.948
+          ],
+          "bottomRight": [
+            409708.235,
+            2223866.103
+          ],
+          "bottomLeft": [
+            722361.673,
+            8079263.869
+          ]
+        },
+        "widthPx": 8079,
+        "heightPx": 5042
+      }
+    ]
+  }
+}

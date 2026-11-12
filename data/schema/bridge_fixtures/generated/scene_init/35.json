@@ -1,0 +1,33 @@
+{
+  "type": "scene/init",
+  "payload": {
+    "bridgeVersion": "0.1.0",
+    "origin": {
+      "easting": 492919.079,
+      "northing": 460094.733
+    },
+    "bounds": {
+      "minE": 487933.685,
+      "minN": 4970837.861,
+      "maxE": 824762.729,
+      "maxN": 2750865.48
+    },
+    "eras": [
+      {
+        "id": "qx08s_5d_lo1x66_mg41",
+        "index": 0
+      },
+      {
+        "id": "7z",
+        "index": 1
+      },
+      {
+        "id": "u",
+        "index": 2
+      }
+    ],
+    "present": [],
+    "reducedMotion": true,
+    "debug": true
+  }
+}

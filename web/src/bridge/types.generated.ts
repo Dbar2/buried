@@ -1,0 +1,617 @@
+/* eslint-disable */
+/**
+ * GENERATED FILE. Do not edit by hand.
+ * Source: data/schema/bridge.schema.json. Regenerate with `npm run gen:bridge-types` (from web/).
+ * All positions are EPSG:26917 metres, easting first, never longitude/latitude.
+ */
+
+/**
+ * The Envelope: exactly one of the message definitions below.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "bridgeMessage".
+ */
+export type BridgeMessage =
+  | SceneInitMessage
+  | SceneLoadEraMessage
+  | SceneSetDepthMessage
+  | DebugMarkersMessage
+  | ReadyMessage
+  | EraLoadedMessage
+  | FeatureClickedMessage
+  | CameraChangedMessage
+  | ErrorMessage;
+/**
+ * Polygon or MultiPolygon.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "polygonalGeometry".
+ */
+export type PolygonalGeometry = PolygonGeometry | MultiPolygonGeometry;
+/**
+ * A ring of at least four positions whose first and last positions are equal (checked by both parsers).
+ *
+ * @minItems 4
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "ring".
+ */
+export type Ring = [Position, Position, Position, Position, ...Position[]];
+/**
+ * One position in EPSG:26917 metres: [easting, northing]. Never longitude/latitude: a pair such as [-79.35, 43.65] fails the easting minimum. Exactly two numbers.
+ *
+ * @minItems 2
+ * @maxItems 2
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "position".
+ */
+export type Position = [number, number];
+/**
+ * <bld|wtr|use>_<origin source id>_<4 digits>.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "featureId".
+ */
+export type FeatureId = string;
+/**
+ * Polygon, MultiPolygon, LineString or MultiLineString, positions only, in EPSG:26917 metres.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "geometry".
+ */
+export type Geometry =
+  PolygonGeometry | MultiPolygonGeometry | LineStringGeometry | MultiLineStringGeometry;
+/**
+ * A source id, built as in structure.md: lowercase snake_case.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sourceId".
+ */
+export type SourceId = string;
+
+/**
+ * One property per definition in the Bridge Schema.
+ */
+export interface BridgeSchemaTypes {
+  bridgeMessage?: BridgeMessage;
+  cameraChangedMessage?: CameraChangedMessage;
+  cameraChangedPayload?: CameraChangedPayload;
+  cameraPoint?: CameraPoint;
+  canvasSize?: CanvasSize;
+  debugMarkersMessage?: DebugMarkersMessage;
+  debugMarkersPayload?: DebugMarkersPayload;
+  drape?: Drape;
+  drapeCorners?: DrapeCorners;
+  eraLoadedMessage?: EraLoadedMessage;
+  eraLoadedPayload?: EraLoadedPayload;
+  eraRef?: EraRef;
+  errorMessage?: ErrorMessage;
+  errorPayload?: ErrorPayload;
+  featureClickedMessage?: FeatureClickedMessage;
+  featureClickedPayload?: FeatureClickedPayload;
+  featureId?: FeatureId;
+  geometry?: Geometry;
+  lineStringGeometry?: LineStringGeometry;
+  markerEntry?: MarkerEntry;
+  multiLineStringGeometry?: MultiLineStringGeometry;
+  multiPolygonGeometry?: MultiPolygonGeometry;
+  originPoint?: OriginPoint;
+  polygonGeometry?: PolygonGeometry;
+  polygonalGeometry?: PolygonalGeometry;
+  position?: Position;
+  presentBuilding?: PresentBuilding;
+  readyMessage?: ReadyMessage;
+  readyPayload?: ReadyPayload;
+  ring?: Ring;
+  sceneBounds?: SceneBounds;
+  sceneFeature?: SceneFeature;
+  sceneInitMessage?: SceneInitMessage;
+  sceneInitPayload?: SceneInitPayload;
+  sceneLoadEraMessage?: SceneLoadEraMessage;
+  sceneLoadEraPayload?: SceneLoadEraPayload;
+  sceneSetDepthMessage?: SceneSetDepthMessage;
+  sceneSetDepthPayload?: SceneSetDepthPayload;
+  sourceId?: SourceId;
+}
+/**
+ * Shell to Player. Always the first message.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneInitMessage".
+ */
+export interface SceneInitMessage {
+  type: 'scene/init';
+  payload: SceneInitPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneInitPayload".
+ */
+export interface SceneInitPayload {
+  bridgeVersion: '0.1.0';
+  origin: OriginPoint;
+  bounds: SceneBounds;
+  /**
+   * At least one era. Indexes are exactly 0 to n-1, each once; 0 is Today.
+   *
+   * @minItems 1
+   * @maxItems 64
+   */
+  eras: [EraRef, ...EraRef[]];
+  /**
+   * Today's buildings, each with a fixed display height.
+   */
+  present: PresentBuilding[];
+  reducedMotion: boolean;
+  debug: boolean;
+}
+/**
+ * The project origin (E0, N0) in EPSG:26917 metres, read by the Shell from data/project.json.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "originPoint".
+ */
+export interface OriginPoint {
+  easting: number;
+  northing: number;
+}
+/**
+ * The project bounds in EPSG:26917 metres. Each corner must be within 4000 m of the origin.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneBounds".
+ */
+export interface SceneBounds {
+  minE: number;
+  minN: number;
+  maxE: number;
+  maxN: number;
+}
+/**
+ * An era by id and index only. The Player never sees what years an era covers.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "eraRef".
+ */
+export interface EraRef {
+  id: string;
+  index: number;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "presentBuilding".
+ */
+export interface PresentBuilding {
+  id: string;
+  geometry: PolygonalGeometry;
+  heightM: number;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "polygonGeometry".
+ */
+export interface PolygonGeometry {
+  type: 'Polygon';
+  /**
+   * @minItems 1
+   */
+  coordinates: [Ring, ...Ring[]];
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "multiPolygonGeometry".
+ */
+export interface MultiPolygonGeometry {
+  type: 'MultiPolygon';
+  /**
+   * @minItems 1
+   */
+  coordinates: [[Ring, ...Ring[]], ...[Ring, ...Ring[]][]];
+}
+/**
+ * Shell to Player. Replaces one era's content.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneLoadEraMessage".
+ */
+export interface SceneLoadEraMessage {
+  type: 'scene/loadEra';
+  payload: SceneLoadEraPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneLoadEraPayload".
+ */
+export interface SceneLoadEraPayload {
+  eraId: string;
+  features: SceneFeature[];
+  drapes: Drape[];
+}
+/**
+ * What the Player needs to draw one feature of an era. A building has polygon geometry; water may be any of the four geometry types.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneFeature".
+ */
+export interface SceneFeature {
+  id: FeatureId;
+  kind: 'building' | 'water';
+  geometry: Geometry;
+  confidence: 'documented' | 'estimated' | 'unknown';
+  heightM: number;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "lineStringGeometry".
+ */
+export interface LineStringGeometry {
+  type: 'LineString';
+  /**
+   * @minItems 2
+   */
+  coordinates: [Position, Position, ...Position[]];
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "multiLineStringGeometry".
+ */
+export interface MultiLineStringGeometry {
+  type: 'MultiLineString';
+  /**
+   * @minItems 1
+   */
+  coordinates: [[Position, Position, ...Position[]], ...[Position, Position, ...Position[]][]];
+}
+/**
+ * A tile from data/tiles/ placed on the ground by its four corners.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "drape".
+ */
+export interface Drape {
+  sourceId: SourceId;
+  url: string;
+  corners: DrapeCorners;
+  widthPx: number;
+  heightPx: number;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "drapeCorners".
+ */
+export interface DrapeCorners {
+  topLeft: Position;
+  topRight: Position;
+  bottomRight: Position;
+  bottomLeft: Position;
+}
+/**
+ * Shell to Player. Which era is shown.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneSetDepthMessage".
+ */
+export interface SceneSetDepthMessage {
+  type: 'scene/setDepth';
+  payload: SceneSetDepthPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneSetDepthPayload".
+ */
+export interface SceneSetDepthPayload {
+  /**
+   * 0 is Today. An integer is an era; a fraction is a transition. The Player also refuses a depth past the last era it was told about.
+   */
+  depth: number;
+}
+/**
+ * Shell to Player. Only honoured when scene/init had debug: true.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "debugMarkersMessage".
+ */
+export interface DebugMarkersMessage {
+  type: 'debug/markers';
+  payload: DebugMarkersPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "debugMarkersPayload".
+ */
+export interface DebugMarkersPayload {
+  /**
+   * @maxItems 16
+   */
+  markers:
+    | []
+    | [MarkerEntry]
+    | [MarkerEntry, MarkerEntry]
+    | [MarkerEntry, MarkerEntry, MarkerEntry]
+    | [MarkerEntry, MarkerEntry, MarkerEntry, MarkerEntry]
+    | [MarkerEntry, MarkerEntry, MarkerEntry, MarkerEntry, MarkerEntry]
+    | [MarkerEntry, MarkerEntry, MarkerEntry, MarkerEntry, MarkerEntry, MarkerEntry]
+    | [MarkerEntry, MarkerEntry, MarkerEntry, MarkerEntry, MarkerEntry, MarkerEntry, MarkerEntry]
+    | [
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry
+      ]
+    | [
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry
+      ]
+    | [
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry
+      ]
+    | [
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry
+      ]
+    | [
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry
+      ]
+    | [
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry
+      ]
+    | [
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry
+      ]
+    | [
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry
+      ]
+    | [
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry,
+        MarkerEntry
+      ];
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "markerEntry".
+ */
+export interface MarkerEntry {
+  id: string;
+  position: Position;
+}
+/**
+ * Player to Shell. Sent once, after the first rendered frame.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "readyMessage".
+ */
+export interface ReadyMessage {
+  type: 'ready';
+  payload: ReadyPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "readyPayload".
+ */
+export interface ReadyPayload {
+  bridgeVersion: '0.1.0';
+  unityVersion: string;
+}
+/**
+ * Player to Shell. An era's meshes are built and its drape textures have loaded or failed.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "eraLoadedMessage".
+ */
+export interface EraLoadedMessage {
+  type: 'eraLoaded';
+  payload: EraLoadedPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "eraLoadedPayload".
+ */
+export interface EraLoadedPayload {
+  eraId: string;
+  featureCount: number;
+  drapeCount: number;
+  failedDrapes: SourceId[];
+}
+/**
+ * Player to Shell. A click on a drawn feature.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "featureClickedMessage".
+ */
+export interface FeatureClickedMessage {
+  type: 'featureClicked';
+  payload: FeatureClickedPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "featureClickedPayload".
+ */
+export interface FeatureClickedPayload {
+  featureId: FeatureId;
+  eraId: string;
+}
+/**
+ * Player to Shell. The camera pose, at most 10 times a second while it moves, once when it stops, after scene/init, and after every scene/setDepth.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "cameraChangedMessage".
+ */
+export interface CameraChangedMessage {
+  type: 'cameraChanged';
+  payload: CameraChangedPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "cameraChangedPayload".
+ */
+export interface CameraChangedPayload {
+  eye: CameraPoint;
+  target: CameraPoint;
+  /**
+   * Vertical field of view in degrees.
+   */
+  fovDeg: number;
+  /**
+   * Projection times view, 16 numbers, column-major: element (row r, column c) is at index c * 4 + r. Unity world space (x east, y up, z north), OpenGL clip conventions: x and y of clip / w run from -1 (left, bottom) to 1 (right, top).
+   *
+   * @minItems 16
+   * @maxItems 16
+   */
+  viewProjection: [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number
+  ];
+  canvas: CanvasSize;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "cameraPoint".
+ */
+export interface CameraPoint {
+  easting: number;
+  northing: number;
+  heightM: number;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "canvasSize".
+ */
+export interface CanvasSize {
+  widthPx: number;
+  heightPx: number;
+}
+/**
+ * Player to Shell. A refusal or a failure.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "errorMessage".
+ */
+export interface ErrorMessage {
+  type: 'error';
+  payload: ErrorPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "errorPayload".
+ */
+export interface ErrorPayload {
+  code:
+    | 'invalid_message'
+    | 'unknown_type'
+    | 'bridge_version_mismatch'
+    | 'bounds_too_far'
+    | 'era_not_initialised'
+    | 'texture_load_failed'
+    | 'mesh_build_failed'
+    | 'debug_disabled';
+  message: string;
+  messageType: string | null;
+}

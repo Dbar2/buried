@@ -1,0 +1,33 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "4_x5y8",
+    "features": [],
+    "drapes": [
+      {
+        "sourceId": "802_1",
+        "url": "/data/tiles/ic950h_2pwg.jpg",
+        "corners": {
+          "topLeft": [
+            625668.857,
+            0.003
+          ],
+          "topRight": [
+            166000.007,
+            7289285.266
+          ],
+          "bottomRight": [
+            166000.01,
+            439294.86
+          ],
+          "bottomLeft": [
+            235981.27,
+            3345533.247
+          ]
+        },
+        "widthPx": 2877,
+        "heightPx": 2753
+      }
+    ]
+  }
+}

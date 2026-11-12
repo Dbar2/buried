@@ -1,0 +1,8 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "836_53",
+    "features": [],
+    "drapes": []
+  }
+}

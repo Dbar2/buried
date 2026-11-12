@@ -1,0 +1,9 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "nqa_g4l",
+    "featureCount": 1118,
+    "drapeCount": 9,
+    "failedDrapes": []
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "error",
+  "payload": {
+    "code": "texture_load_failed",
+    "message": "]0PAM",
+    "messageType": "scene/setDepth"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "eraLoaded",
+  "payload": {
+    "eraId": "836_53",
+    "featureCount": 4495,
+    "drapeCount": 3,
+    "failedDrapes": [
+      "b",
+      "u700p_cfk1ve",
+      "83fc_1c70_p77v_2w91q"
+    ]
+  }
+}

@@ -26,7 +26,8 @@ export function buildSceneInit(
       bridgeVersion: BRIDGE_VERSION as InitPayload['bridgeVersion'],
       origin: { easting: origin.easting, northing: origin.northing },
       bounds: { minE: bounds.min_e, minN: bounds.min_n, maxE: bounds.max_e, maxN: bounds.max_n },
-      eras: eraRefs(order),
+      // The type says "at least one"; serialiseMessage enforces it (and the 64 limit) with the Schema.
+      eras: eraRefs(order) as InitPayload['eras'],
       // Today's buildings are drawn from task group 3 on.
       present: [],
       reducedMotion: flags.reducedMotion,
@@ -47,5 +48,7 @@ export function buildSetDepth(depth: number): MessageOf<'scene/setDepth'> {
 }
 
 export function buildMarkers(markers: readonly GateMarker[]): MessageOf<'debug/markers'> {
-  return { type: 'debug/markers', payload: { markers: markers.map((m) => ({ id: m.id, position: m.position })) } };
+  // The generated type is a tuple union up to 16 entries; the Schema's maxItems check runs at send.
+  const entries = markers.map((m) => ({ id: m.id, position: m.position })) as MessageOf<'debug/markers'>['payload']['markers'];
+  return { type: 'debug/markers', payload: { markers: entries } };
 }

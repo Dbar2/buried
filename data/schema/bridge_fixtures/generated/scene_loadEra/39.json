@@ -1,0 +1,8 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "kd8e",
+    "features": [],
+    "drapes": []
+  }
+}

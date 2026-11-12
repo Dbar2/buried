@@ -1,0 +1,7 @@
+{
+  "type": "featureClicked",
+  "payload": {
+    "featureId": "use_4_0000",
+    "eraId": "l13"
+  }
+}

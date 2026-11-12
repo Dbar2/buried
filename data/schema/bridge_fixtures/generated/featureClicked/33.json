@@ -1,0 +1,7 @@
+{
+  "type": "featureClicked",
+  "payload": {
+    "featureId": "use_k_6d_mtn_0011",
+    "eraId": "a4c"
+  }
+}
