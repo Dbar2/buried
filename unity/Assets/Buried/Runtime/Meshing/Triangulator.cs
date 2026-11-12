@@ -64,6 +64,7 @@ namespace Buried.Meshing
             Vec2d m = v[holeVertex];
 
             int bridge = FindBridge(v, ring, m);
+            bridge = OccurrenceFacing(v, ring, bridge, m);
 
             var merged = new List<int>(ring.Count + count + 2);
             for (int k = 0; k <= bridge; k++) merged.Add(ring[k]);
@@ -73,6 +74,36 @@ namespace Buried.Meshing
             for (int k = bridge + 1; k < ring.Count; k++) merged.Add(ring[k]);
             ring.Clear();
             ring.AddRange(merged);
+        }
+
+        /// <summary>
+        /// An earlier bridge leaves the same vertex in the ring more than once. The new bridge must
+        /// attach at the occurrence whose interior angle contains the direction to m, or the merged
+        /// ring crosses itself. Returns <paramref name="bridge"/> when only one occurrence exists.
+        /// </summary>
+        private static int OccurrenceFacing(List<Vec2d> v, List<int> ring, int bridge, Vec2d m)
+        {
+            int n = ring.Count;
+            Vec2d target = v[ring[bridge]];
+            for (int pass = 0; pass < 2; pass++)
+            {
+                bool inclusive = pass == 1;
+                for (int k = 0; k < n; k++)
+                {
+                    if (!Same(v[ring[k]], target)) continue;
+                    Vec2d a = v[ring[(k + n - 1) % n]];
+                    Vec2d c = v[ring[k]];
+                    Vec2d b = v[ring[(k + 1) % n]];
+                    double left1 = Cross(a, c, m);
+                    double left2 = Cross(c, b, m);
+                    bool convex = Cross(a, c, b) > 0.0;
+                    bool inside;
+                    if (inclusive) inside = convex ? (left1 >= 0.0 && left2 >= 0.0) : (left1 >= 0.0 || left2 >= 0.0);
+                    else inside = convex ? (left1 > 0.0 && left2 > 0.0) : (left1 > 0.0 || left2 > 0.0);
+                    if (inside) return k;
+                }
+            }
+            return bridge;
         }
 
         /// <summary>Position in <paramref name="ring"/> of the vertex to join the hole's rightmost vertex m to.</summary>

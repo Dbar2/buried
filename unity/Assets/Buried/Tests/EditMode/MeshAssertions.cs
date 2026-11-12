@@ -38,6 +38,21 @@ namespace Buried.Tests
             return area;
         }
 
+        /// <summary>Area of the polygon after each vertex is rounded to float32, as the mesh stores it.</summary>
+        public static double StoredPolygonArea(PreparedPolygon polygon)
+        {
+            double area = Math.Abs(PolygonPrep.SignedArea(Rounded(polygon.Outer)));
+            foreach (List<Vec2d> hole in polygon.Holes) area -= Math.Abs(PolygonPrep.SignedArea(Rounded(hole)));
+            return area;
+        }
+
+        private static List<Vec2d> Rounded(List<Vec2d> ring)
+        {
+            var result = new List<Vec2d>(ring.Count);
+            foreach (Vec2d p in ring) result.Add(new Vec2d((double)(float)p.X, (double)(float)p.Y));
+            return result;
+        }
+
         public static bool InsideSolid(PreparedPolygon polygon, double x, double y)
         {
             if (!PointInRing(polygon.Outer, x, y)) return false;
@@ -72,9 +87,16 @@ namespace Buried.Tests
                 Assert.GreaterOrEqual(mesh.TriangleArea(t), Extruder.MinTriangleAreaM2, "triangle " + t + " is degenerate");
             }
 
-            double expected = PolygonArea(polygon);
+            // The mesh stores float32 positions, so the caps tile the polygon as stored, not the
+            // double-precision polygon. At 500 m from the origin one float step is 3e-5 m, which moves
+            // a 1300 m2 polygon's area by about 1e-6 relative. Compare against the rounded polygon so
+            // the 1e-6 bound checks the triangulation and not the storage format.
+            double expected = StoredPolygonArea(polygon);
             double capArea = CapArea(mesh);
-            Assert.LessOrEqual(Math.Abs(capArea - expected), 1e-6 * expected, "cap area " + capArea + " vs polygon area " + expected);
+            Assert.LessOrEqual(
+                Math.Abs(capArea - expected),
+                1e-6 * expected,
+                "cap area " + capArea + " vs stored polygon area " + expected + " (double polygon area " + PolygonArea(polygon) + ")");
 
             int wallTriangles = 0;
             for (int t = 0; t < mesh.TriangleCount; t++)

@@ -34,14 +34,14 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     Files: `web/vite/dataPlugin.ts`, `web/vite/dataPlugin.test.ts`, `web/src/data/loadData.ts`,
     `web/src/data/loadData.test.ts`, `web/src/explorer/testing/fixtures/**`.
     Requirements: 6.6, 21.1.
-  - [ ] 1.3 Write `data/schema/bridge.schema.json` at bridge version `0.1.0` with the Envelope, the
+  - [x] 1.3 Write `data/schema/bridge.schema.json` at bridge version `0.1.0` with the Envelope, the
     common definitions and the gate messages only (`scene/init`, `scene/loadEra`, `scene/setDepth`,
     `debug/markers`, `ready`, `eraLoaded`, `featureClicked`, `cameraChanged`, `error`), exactly as in
     design.md "Bridge". Write valid and invalid fixtures for each.
     Files: `data/schema/bridge.schema.json`, `data/schema/bridge_fixtures/valid/**`,
     `data/schema/bridge_fixtures/invalid/**`.
     Requirements: 4.1, 4.2, 5.1, 5.2 (gate subset).
-  - [ ] 1.4 Generate `web/src/bridge/types.generated.ts` with a regeneration test; implement
+  - [x] 1.4 Generate `web/src/bridge/types.generated.ts` with a regeneration test; implement
     `bridge.ts` (validate outgoing and throw, validate incoming and drop, `window.buriedBridge`,
     typed events) and the fast-check arbitraries for the gate messages; generate the samples into
     `bridge_fixtures/generated/` with a regeneration test. Add the bridge boundary test.
@@ -50,7 +50,7 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     `web/src/bridge/bridge.test.ts`, `web/src/bridge/testing/arbitraries.ts`,
     `web/src/bridge/boundary.test.ts`, `data/schema/bridge_fixtures/generated/**`.
     Requirements: 4.3, 4.4, 4.6, 4.7, 4.9.
-  - [ ] 1.5 **[PBT] E1** Every bridge message parses on the Shell side (gate subset).
+  - [x] 1.5 **[PBT] E1** Every bridge message parses on the Shell side (gate subset).
     Files: `web/src/bridge/bridge.property.test.ts`.
     Requirements: 4.4, 4.6, 4.7.
   - [ ] 1.6 Create the Unity project: Unity 6000.3.26f1, URP, packages
@@ -68,7 +68,7 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     `unity/Assets/Buried/Tests/EditMode/BootstrapSceneTests.cs`, `unity/Assets/link.xml`,
     `.gitignore` (add `unity/TestResults/`), `.kiro/steering/tech.md`.
     Requirements: 1.1 to 1.5, 2.1, 2.5.
-  - [ ] 1.7 Implement the Player side of the bridge for the gate messages: `.jslib`, `JsBridge`,
+  - [x] 1.7 Implement the Player side of the bridge for the gate messages: `.jslib`, `JsBridge`,
     `Bridge.Receive`, `BridgeParser` (hand reading over `JToken`, unknown fields rejected),
     `BridgeWriter`, one DTO per payload, `BridgeVersion`. EditMode tests: fixture conformance,
     DTO-vs-schema reflection, version equals the schema `const`.
@@ -77,11 +77,11 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     `unity/Assets/Buried/Tests/EditMode/BridgeSchemaReflectionTests.cs`,
     `unity/Assets/Buried/Tests/EditMode/PropertyRunner.cs`.
     Requirements: 4.2, 4.3, 4.5, 4.6, 4.8.
-  - [ ] 1.8 **[PBT] E2** Every bridge message parses on the Player side (gate subset, valid,
+  - [x] 1.8 **[PBT] E2** Every bridge message parses on the Player side (gate subset, valid,
     generated and invalid fixtures).
     Files: `unity/Assets/Buried/Tests/EditMode/BridgeConformanceTests.cs`.
     Requirements: 4.5, 4.6, 4.8.
-  - [ ] 1.9 Implement `ProjectFrame` and the meshing needed for the gate: `PolygonPrep`,
+  - [x] 1.9 Implement `ProjectFrame` and the meshing needed for the gate: `PolygonPrep`,
     `Triangulator` (vendor LibTessDotNet with its licence), `Extruder`, `DrapeMeshBuilder`. Example
     EditMode tests for each, including an L-shaped polygon, a polygon with a hole, a MultiPolygon and
     a rotated parallelogram drape.
@@ -91,13 +91,13 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     `unity/Assets/Buried/Tests/EditMode/ProjectFrameTests.cs`,
     `unity/Assets/Buried/Tests/EditMode/MeshingTests.cs`.
     Requirements: 2.3, 3.1, 3.2, 3.4, 3.5, 8.3, 8.5.
-    - [ ] 1.9.1 **[PBT] E3** World and data round-trip within 1 mm.
+    - [x] 1.9.1 **[PBT] E3** World and data round-trip within 1 mm.
       Files: `unity/Assets/Buried/Tests/EditMode/ProjectFramePropertyTests.cs`.
       Requirements: 3.1, 3.2, 3.4.
-    - [ ] 1.9.2 **[PBT] E4** Extrusion never produces degenerate triangles.
+    - [x] 1.9.2 **[PBT] E4** Extrusion never produces degenerate triangles.
       Files: `unity/Assets/Buried/Tests/EditMode/ExtrusionPropertyTests.cs`.
       Requirements: 2.3, 8.5.
-    - [ ] 1.9.3 **[PBT] E9** Drape meshes follow the corners.
+    - [x] 1.9.3 **[PBT] E9** Drape meshes follow the corners.
       Files: `unity/Assets/Buried/Tests/EditMode/DrapePropertyTests.cs`.
       Requirements: 8.3.
   - [ ] 1.10 Build the gate scene at runtime: `SceneBootstrap` (camera, sun, ground, plain fog),
