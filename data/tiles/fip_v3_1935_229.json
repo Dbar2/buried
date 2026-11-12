@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "source": "fip_v3_1935_229",
+  "image": "fip_v3_1935_229.jpg",
+  "width_px": 3855,
+  "height_px": 3463,
+  "corners": {
+    "top_left": [
+      632234.6093525467,
+      4835136.299133643
+    ],
+    "top_right": [
+      632676.5830415823,
+      4835268.446205185
+    ],
+    "bottom_right": [
+      632792.1124823894,
+      4834860.296646204
+    ],
+    "bottom_left": [
+      632350.1387933538,
+      4834728.149574662
+    ]
+  },
+  "transform": "supplied",
+  "alignment_error_m": 3.1,
+  "source_pixel_size_m": 0.12249068232516311,
+  "tile_pixel_size_m": 0.12249068232516311,
+  "attribution_line": "Digitized and georeferenced by the University of Toronto Map & Data Library."
+}
