@@ -77,27 +77,8 @@ produces degenerate triangles for valid simple polygons; world-to-data-to-world 
 - Plain, direct English. No marketing language, no emoji.
 - Reply with the files written and any open question.
 
-## Present-day data: decided
+## Present-day data
 
-Checked on the City of Toronto Open Data portal (CKAN) on Nov 12, 2026. All four are published
-under the Open Government Licence - Toronto. Add them to `.kiro/steering/sources.md` with the
-attribution line "Contains information licensed under the Open Government Licence - Toronto." and
-resolve the matching "not decided yet" items in `tech.md`:
-
-| Use | Dataset (CKAN package id) | Formats |
-|---|---|---|
-| Present-day building footprints | `topographic-mapping-building-outlines` | GeoJSON, GPKG, SHP |
-| Lots for the Report and the pinned lot | `property-boundaries` | GeoJSON, GPKG, SHP |
-| Address search inside the coverage area | `address-points-municipal-toronto-one-address-repository` | GeoJSON, GPKG, CSV |
-| Street corners as alignment control references | `intersection-file-city-of-toronto` | GeoJSON, GPKG, CSV |
-
-The `3d-massing` package still exists (SHP, refreshed Dec 2025) and may supply present-day building
-heights; treat it as optional and fall back to a fixed storey height when a height is missing.
-
-The pipeline clips each dataset to the showcase bounds and writes small files under `data/present/`.
-Nothing citywide is committed or shipped. Add a pipeline task for this clip to spec 02's `tasks.md`
-(a new numbered task at the end, so existing numbering does not move), and reference it from the
-Explorer spec.
-
-For this session you may therefore also edit `.kiro/steering/sources.md`, `.kiro/steering/tech.md`
-and `.kiro/specs/02-pipeline/tasks.md`.
+Present-day sources were decided in session 002b and are already in `.kiro/steering/sources.md`
+and spec 02 (the `buried present` clip task). Reference them; do not redefine them. In this session
+write only inside `.kiro/specs/03-explorer/`.

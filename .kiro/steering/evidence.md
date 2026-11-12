@@ -1,6 +1,6 @@
 ---
 inclusion: fileMatch
-fileMatchPattern: "{data,pipeline}/**"
+fileMatchPattern: ["data/**", "pipeline/**"]
 ---
 
 # Evidence

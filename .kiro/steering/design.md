@@ -1,6 +1,6 @@
 ---
 inclusion: fileMatch
-fileMatchPattern: "{web,unity}/**"
+fileMatchPattern: ["web/**", "unity/**"]
 ---
 
 # Design
