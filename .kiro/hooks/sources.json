@@ -1,0 +1,29 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "source-licence-check-on-save",
+      "description": "The source registry changed. Check that every source has a licence note, an attribution line and a matching row in .kiro/steering/sources.md. Reports gaps; never edits.",
+      "trigger": "PostFileSave",
+      "matcher": "data/sources.json",
+      "action": {
+        "type": "agent",
+        "prompt": "data/sources.json was just saved. Check it against .kiro/steering/sources.md and report. Do not edit any file.\n\nFor every entry in data/sources.json:\n1. licence_note and attribution_line are present and not empty.\n2. .kiro/steering/sources.md has a table row whose source id is exactly this entry's id. For a 1947 aerial, the id must also be listed under \"1947 aerial records in use\". A pattern row such as aerial_1947_<id> does not count as a match.\n3. The entry's attribution_line is the same text as that row's attribution line, and its licence_note says the same as the row's licence note. For the 1935 plates the row points to the section \"The 1935 edition\"; compare against that section.\n4. If the row's status or attribution says \"to be confirmed before use\", the entry's attribution_status is to_be_confirmed.\n5. rights_checked_on matches the row's rights-checked date.\n6. No entry id starts with ws_upload_ (workspace uploads never enter the registry).\n\nReply with one line per problem: the source id, the check number, and what differs (quote both texts when they differ). If there are no problems, reply \"Sources check: no gaps\" and the number of entries checked. Do not fix anything: adding a source is a reviewed edit, and its row in sources.md is agreed first (sources.md, \"Adding a source\")."
+      },
+      "timeout": 300,
+      "enabled": true
+    },
+    {
+      "name": "source-licence-check-on-create",
+      "description": "The source registry was created. Same check as on save.",
+      "trigger": "PostFileCreate",
+      "matcher": "data/sources.json",
+      "action": {
+        "type": "agent",
+        "prompt": "data/sources.json was just created. Run the same check as the source-licence-check-on-save hook in .kiro/hooks/sources.json: for every entry, a non-empty licence_note and attribution_line; a row with exactly that id in .kiro/steering/sources.md (aerials also listed under \"1947 aerial records in use\"); the same attribution line and licence note as that row; attribution_status to_be_confirmed where the row says \"to be confirmed before use\"; the same rights-checked date; and no ws_upload_ ids. Reply with one line per problem (source id, check, what differs), or \"Sources check: no gaps\" with the count. Do not edit any file."
+      },
+      "timeout": 300,
+      "enabled": true
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "validate-evidence-on-save",
+      "description": "An evidence file was saved. Check every contract file under data/ against the Schema and the cross-file rules. A failure means the file must not be committed.",
+      "trigger": "PostFileSave",
+      "matcher": "data/evidence/**",
+      "action": { "type": "command", "command": "uv --directory pipeline run buried validate" },
+      "timeout": 120,
+      "enabled": true
+    },
+    {
+      "name": "validate-evidence-on-create",
+      "description": "An evidence file was created. Same check as on save.",
+      "trigger": "PostFileCreate",
+      "matcher": "data/evidence/**",
+      "action": { "type": "command", "command": "uv --directory pipeline run buried validate" },
+      "timeout": 120,
+      "enabled": true
+    },
+    {
+      "name": "validate-control-on-save",
+      "description": "A control point or map area file was saved. Alignment and map areas feed every position error, so validate the whole data/ tree.",
+      "trigger": "PostFileSave",
+      "matcher": "data/control/**",
+      "action": { "type": "command", "command": "uv --directory pipeline run buried validate" },
+      "timeout": 120,
+      "enabled": true
+    },
+    {
+      "name": "validate-control-on-create",
+      "description": "A control point or map area file was created. Same check as on save.",
+      "trigger": "PostFileCreate",
+      "matcher": "data/control/**",
+      "action": { "type": "command", "command": "uv --directory pipeline run buried validate" },
+      "timeout": 120,
+      "enabled": true
+    },
+    {
+      "name": "validate-alignment-on-save",
+      "description": "An alignment record was saved. Its error figures must recompute from its control points, so validate the whole data/ tree.",
+      "trigger": "PostFileSave",
+      "matcher": "data/alignment/**",
+      "action": { "type": "command", "command": "uv --directory pipeline run buried validate" },
+      "timeout": 120,
+      "enabled": true
+    },
+    {
+      "name": "validate-alignment-on-create",
+      "description": "An alignment record was created. Same check as on save.",
+      "trigger": "PostFileCreate",
+      "matcher": "data/alignment/**",
+      "action": { "type": "command", "command": "uv --directory pipeline run buried validate" },
+      "timeout": 120,
+      "enabled": true
+    },
+    {
+      "name": "validate-registry-on-save",
+      "description": "The source registry was saved. Every feature cites registry sources, so validate the whole data/ tree.",
+      "trigger": "PostFileSave",
+      "matcher": "data/sources.json",
+      "action": { "type": "command", "command": "uv --directory pipeline run buried validate" },
+      "timeout": 120,
+      "enabled": true
+    },
+    {
+      "name": "schema-regenerate-and-conform",
+      "description": "The evidence Schema was saved. Regenerate the TypeScript types, run the evidence tests (the TypeScript conformance test and the generated-types check among them), run the Python conformance test, then validate every committed data file against the changed Schema.",
+      "trigger": "PostFileSave",
+      "matcher": "data/schema/evidence.schema.json",
+      "action": {
+        "type": "command",
+        "command": "npm --prefix web run gen:types && npm --prefix web test -- src/evidence && uv --directory pipeline run pytest tests/validate/test_conformance.py && uv --directory pipeline run buried validate"
+      },
+      "timeout": 300,
+      "enabled": true
+    }
+  ]
+}

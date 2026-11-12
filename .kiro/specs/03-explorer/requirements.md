@@ -271,6 +271,14 @@ filled shapes, lines as ribbons whose width is given in design.md.
 8.7 WHILE an era is not loaded, THE Player SHALL draw nothing for it and SHALL NOT draw a
 placeholder in its place.
 
+8.8 WHEN a drape carries a `clip` polygon (the plate's map area), THE Player SHALL draw no drape
+pixel whose ground position lies outside that polygon by more than one mask texel (design.md
+"Drape mask"). The clip SHALL change opacity only.
+
+8.9 THE Player SHALL fade each drape's opacity from 0 at its boundary (the `clip` polygon, or the
+four corners when there is no clip) to full over `DRAPE_FEATHER_M` inside it, so that no drape
+ends in a hard edge. WHILE Show Evidence draws a drape, THE Player SHALL NOT apply the fade to it.
+
 ## Requirement 9: Ghosts and confidence
 
 **User story:** As a viewer, I want to see how sure Buried is about each ghost by its look and by a
@@ -341,7 +349,8 @@ id and open the evidence card for it.
 
 11.3 THE evidence card SHALL show: the feature's use if recorded; its date phrases; its confidence
 label and reason; its position phrase; its storeys if recorded, or "Storeys: not recorded"; one
-line per source checked for its linked set with the source id, year range, and whether the feature
+line per source checked for its linked set with the source id, the source's years as worded by the
+Evidence Library's `sourceYearsText` (for example "1931, revised to 1935"), and whether the feature
 was present, absent or not readable (with the visibility); the origin source's title and
 attribution line; who confirmed it and when; a crop of the origin source's tile around the feature
 with the feature outlined; and the feature id.
@@ -462,8 +471,9 @@ on its own.
 
 ### Acceptance criteria
 
-16.1 THE Player SHALL move the camera only in response to user input on the 3D view or a
-`scene/focusLot` with `fly: true`.
+16.1 THE Player SHALL move the camera only in response to user input on the 3D view, a
+`scene/focusLot` with `fly: true`, or, only when `scene/init` had `debug: true`, a
+`debug/setCamera`.
 
 16.2 THE Player SHALL let the user pan by dragging, rotate and tilt by right-dragging or with two
 fingers, and zoom with Ctrl or Shift and the wheel, pinch, or the `+` and `-` keys.
@@ -475,6 +485,16 @@ fingers, and zoom with Ctrl or Shift and the wheel, pinch, or the `+` and `-` ke
 
 16.5 THE Shell SHALL capture an unmodified wheel event over the 3D view for Dig before it reaches
 the Player.
+
+16.6 UNTIL task 3.1 adds Dig on the wheel, an unmodified wheel event over the 3D view SHALL reach
+the Player and zoom. From task 3.1 on, 16.5 applies and only Ctrl or Shift with the wheel zooms.
+(Open: the maintainer decides whether the plain wheel stays Dig; see design.md "Camera".)
+
+16.7 WHEN the user drags to pan, THE Player SHALL keep the ground point under the pointer under it
+for the whole drag, and SHALL stop the camera when the pointer stops or is released (no inertia).
+
+16.8 THE default pose after `scene/init` SHALL show the whole `initialView` rectangle the Shell
+sent, centred on the canvas, looking north at a pitch of 50 degrees.
 
 ## Requirement 17: Keyboard, list view and screen readers
 
@@ -589,8 +609,12 @@ shown that is not cleared.
 each visible source as DOM text.
 
 21.3 THE Shell SHALL provide a Sources page built from `data/sources.json` that lists, for every
-registered source, its id, title, years, URL, licence note, attribution line and the date its rights
-were checked.
+registered source, its id, title, years (through `sourceYearsText`), holding institution when
+recorded, URL, licence note, attribution line and the date its rights were checked.
+
+21.4 FOR each plate with a `full_image` in its tile sidecar, THE Sources page SHALL show that full,
+uncropped photograph, archive labels and ruler included, with alt text. THE Shell SHALL never drape
+a full image.
 
 ## Requirement 22: Studio publish into the scene
 
@@ -677,3 +701,58 @@ committed under `web/`, `unity/` or `data/schema/bridge_fixtures/`.
 25.4 WHEN a task adds a command (Shell dev, build, preview, end-to-end tests, Unity build, Unity
 EditMode tests, size check), THE same change SHALL record it under "Commands" in
 `.kiro/steering/tech.md`.
+
+25.5 A Playwright test SHALL show, for every control point of each draped gate plate, that the
+tile's own pixels around the control point appear on screen where the camera's reported
+view-projection puts the ground position the tile corners assign to that pixel, within 1 px, by
+normalised cross-correlation (design.md "Drape placement check").
+
+25.6 No package with a known vulnerability (`npm audit --omit=dev`) SHALL ship to users in the
+built site. Dev-only advisories SHALL be recorded with the reason they remain.
+
+25.7 THE Player's triangulation SHALL be tested on every polygon in the committed
+`data/evidence/*.geojson` and `data/present/*.geojson` files, not only on generated polygons.
+
+## Requirement 26: The look pass
+
+**User story:** As the maintainer, I want the scene to read as Buried before more features are
+added, so that the look is a foundation and not a final coat of paint.
+
+Each criterion is checked from the screenshots that task 16.7 saves (canvas 1280 × 800, default
+pose, debug off). (a) to (f) of task 16.7 automate parts of 26.1, 26.2, 26.5, 26.6 and 26.9.
+
+### Acceptance criteria
+
+26.1 AT the default pose, THE published building SHALL appear inside the middle third of the
+canvas, and at least two corners of its plate's drape SHALL lie outside the canvas, so that the
+view frames the block and not the whole photograph.
+
+26.2 THE top of the canvas SHALL be the darkest part of the sky and close to `night`; the band just
+above the horizon SHALL be lighter and grey-blue. There SHALL be no default Unity skybox, no pure
+black and no visible horizon line where the ground ends.
+
+26.3 THE drape SHALL fade into the ground with no hard straight edge; beyond it the ground SHALL
+continue in `fog` into the distance, so that nothing reads as a rectangle floating in a void.
+
+26.4 THE building SHALL show thin `ink` lines on its top outline, vertical corners and base, and a
+translucent fill through which the plate's own lines are visible. It SHALL carry no warm or blue
+tint, and any glow around its lines SHALL be no wider than about 2 px.
+
+26.5 THE screenshots SHALL contain no `lantern` colour and no `water` colour, in the canvas or the
+DOM, because nothing is pinned, no water is drawn and the view has no primary action.
+
+26.6 THE header SHALL run across the top with the wordmark "Buried" in Fraunces and the Sources
+link in Inter, on `night` or `fog`.
+
+26.7 THE depth gauge SHALL sit on the right edge and list Today, 1947, 1935 and 1911 from top to
+bottom, years in IBM Plex Mono, with the current era marked by shape and weight (not by `lantern`
+or `water`).
+
+26.8 WITH the evidence card open, THE card SHALL be a `fog` panel that does not cover the building,
+with the heading in Fraunces, body text in Inter at 16 px or larger, and the feature id, years and
+position figure in IBM Plex Mono.
+
+26.9 THE attribution line of each visible drape SHALL be legible along the bottom edge, and no
+debug marker SHALL be drawn.
+
+26.10 WHEN the gauge has keyboard focus, THE focus ring SHALL be visible in the screenshot.

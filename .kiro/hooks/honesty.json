@@ -1,0 +1,65 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "honesty-tests-report",
+      "description": "A Report module (templates, sentence builder, findings) was saved. Run the banned-word and every-finding-has-a-source tests.",
+      "trigger": "PostFileSave",
+      "matcher": "web/src/report/**",
+      "action": {
+        "type": "command",
+        "command": "npm --prefix web test -- --passWithNoTests src/evidence/text src/evidence/findings src/evidence/sentences src/report src/explorer/text"
+      },
+      "timeout": 180,
+      "enabled": true
+    },
+    {
+      "name": "honesty-tests-banned-words",
+      "description": "The Evidence Library's banned-word module was saved. Run the same honesty tests.",
+      "trigger": "PostFileSave",
+      "matcher": "web/src/evidence/text.ts",
+      "action": {
+        "type": "command",
+        "command": "npm --prefix web test -- --passWithNoTests src/evidence/text src/evidence/findings src/evidence/sentences src/report src/explorer/text"
+      },
+      "timeout": 180,
+      "enabled": true
+    },
+    {
+      "name": "honesty-tests-findings",
+      "description": "The Evidence Library's findings module was saved. Run the same honesty tests.",
+      "trigger": "PostFileSave",
+      "matcher": "web/src/evidence/findings.ts",
+      "action": {
+        "type": "command",
+        "command": "npm --prefix web test -- --passWithNoTests src/evidence/text src/evidence/findings src/evidence/sentences src/report src/explorer/text"
+      },
+      "timeout": 180,
+      "enabled": true
+    },
+    {
+      "name": "honesty-tests-sentences",
+      "description": "The generated-sentence check (spec 05) was saved. Run the same honesty tests.",
+      "trigger": "PostFileSave",
+      "matcher": "web/src/evidence/sentences.ts",
+      "action": {
+        "type": "command",
+        "command": "npm --prefix web test -- --passWithNoTests src/evidence/text src/evidence/findings src/evidence/sentences src/report src/explorer/text"
+      },
+      "timeout": 180,
+      "enabled": true
+    },
+    {
+      "name": "honesty-tests-card-text",
+      "description": "The Explorer's evidence card text model was saved. Run the same honesty tests.",
+      "trigger": "PostFileSave",
+      "matcher": "web/src/explorer/cardModel.ts",
+      "action": {
+        "type": "command",
+        "command": "npm --prefix web test -- --passWithNoTests src/evidence/text src/evidence/findings src/evidence/sentences src/report src/explorer/text"
+      },
+      "timeout": 180,
+      "enabled": true
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "ui-typecheck-and-tests",
+      "description": "A component under web/src/ was saved. Type check the web package and run the tests related to the changed files.",
+      "trigger": "PostFileSave",
+      "matcher": "web/src/**/*.tsx",
+      "action": {
+        "type": "command",
+        "command": "npm --prefix web run typecheck && npm --prefix web test -- --changed --passWithNoTests"
+      },
+      "timeout": 180,
+      "enabled": true
+    },
+    {
+      "name": "ui-tokens-and-motion-review",
+      "description": "A new component was created under web/src/. Check it uses palette tokens only and respects prefers-reduced-motion. Reports; never edits.",
+      "trigger": "PostFileCreate",
+      "matcher": "web/src/**/*.tsx",
+      "action": {
+        "type": "agent",
+        "prompt": "A new React component was just created under web/src/. Read it and any CSS file it imports, then report. Do not edit any file.\n\nCheck:\n1. No raw colour values: no hex (#rgb, #rrggbb, #rrggbbaa), rgb(), rgba(), hsl() or named CSS colours in the component, its inline styles or its CSS. Colours come only from the custom properties in web/src/styles/tokens.css (the only file in web/src/ allowed to hold hex values; report/report.tokens.css is the Report's own token file). A canvas drawing call that sets a colour must read it from those custom properties too.\n2. Token use follows .kiro/steering/design.md: lantern only for the pinned lot and primary actions, never for selection or decoration; water only for documented water; the Report route uses only the report tokens.\n3. Motion: any CSS transition or animation, and any JavaScript animation (requestAnimationFrame loops, tweens, scrolling with behavior: smooth), is turned off or replaced by a crossfade when prefers-reduced-motion: reduce is set, either by a media query or by reading the Shell's reduced-motion state. Nothing loops or pulses while idle.\n4. Interactive elements keep a visible focus ring (no outline: none without a replacement).\n\nReply with one line per problem: file, line, rule number, what to change. If there are none, reply \"UI check: no problems\" with the file name."
+      },
+      "timeout": 300,
+      "enabled": true
+    }
+  ]
+}

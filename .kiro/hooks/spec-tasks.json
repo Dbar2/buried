@@ -1,0 +1,17 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "task-fast-suites",
+      "description": "A spec task finished. Run the fast suites (web tests, web type check, pipeline tests) and untick the task if any of them fails.",
+      "trigger": "PostTaskExec",
+      "matcher": "*",
+      "action": {
+        "type": "agent",
+        "prompt": "A spec task has just been executed. Run these commands from the repository root, one at a time, and note each exit code:\n\n1. npm --prefix web test\n2. npm --prefix web run typecheck\n3. uv --directory pipeline run pytest\n\nIf all three pass, reply \"Fast suites: pass\" with the test counts.\n\nIf any fails: find the task that was just executed in .kiro/specs/*/tasks.md. If its checkbox is ticked (- [x]), change it back to - [ ]. If that leaves a ticked parent group with an unticked subtask, untick the parent too. Change nothing else in tasks.md. Then reply with the failing command, the first failing test or error, and the task you unticked. Do not edit code or tests in this hook, and never weaken a test or a property to make it pass: the fix belongs to the next task run.\n\nThe Unity EditMode tests and the Playwright tests are not part of this hook because they need a headless Unity run or a build; tasks that touch unity/ or web/e2e/ run them themselves."
+      },
+      "timeout": 900,
+      "enabled": true
+    }
+  ]
+}

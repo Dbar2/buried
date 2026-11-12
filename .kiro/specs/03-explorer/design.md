@@ -61,6 +61,8 @@ the modules below to the same package.
 | `web/scripts/genBridgeTypes.ts`, `web/scripts/genBridgeSamples.ts` | Type generation; deterministic sample generation into `data/schema/bridge_fixtures/generated/`. |
 | `web/scripts/checkUnitySize.ts` | Sums `web/public/unity/Build/` and fails over 15,000,000 bytes. |
 | `web/src/explorer/eraOrder.ts` | Pure: eras from the project file to `[{ id, index, label }]`, Today first. |
+| `web/src/explorer/initialView.ts` | Pure: the rectangle the default camera pose frames (see "Initial view"). |
+| `web/src/shell/Header.tsx`, `web/src/shell/layout.css` | The Shell's header and page layout (see "Layout"). |
 | `web/src/explorer/sceneFeatures.ts` | Pure: `toSceneFeature(entry)`, height rule, `land_use` filter. |
 | `web/src/explorer/drapes.ts` | Pure: `drapesForEra(era, sources, sidecars)`, `drapeForSource(id)`. |
 | `web/src/explorer/presentBuildings.ts` | Pure: present layer to `PresentBuilding[]`. |
@@ -93,18 +95,22 @@ unity/
         Plugins/WebGL/BuriedBridge.jslib
         Geo/                       ProjectFrame.cs, GeoPosition.cs
         Meshing/                   PolygonPrep.cs, Triangulator.cs, Extruder.cs, EdgeMeshBuilder.cs,
-                                   RibbonBuilder.cs, DrapeMeshBuilder.cs, MeshChunk.cs
+                                   RibbonBuilder.cs, DrapeMeshBuilder.cs, DrapeMaskBuilder.cs,
+                                   MeshChunk.cs
         Scene/                     SceneBootstrap.cs, SceneController.cs, EraLayer.cs,
                                    PresentLayer.cs, DrapeLayer.cs, DepthBlend.cs, LanternMask.cs,
-                                   LanternController.cs, Picker.cs, CameraRig.cs, CameraFlight.cs,
-                                   LotMarker.cs, DebugMarkers.cs, TextureCache.cs, RiseAnimator.cs
+                                   LanternController.cs, Picker.cs, CameraRig.cs, CameraRigMath.cs,
+                                   CameraFlight.cs, LotMarker.cs, DebugMarkers.cs, TextureCache.cs,
+                                   RiseAnimator.cs
         Look/                      BuriedPalette.cs (ScriptableObject), Palette.asset,
                                    LookSettings.cs, Shaders/*.shader, Textures/QuestionMark.png
       Editor/                      asmdef Buried.Editor: Build.cs (namespace Buried.Editor, class
                                    Build, static WebGL())
       Tests/EditMode/              asmdef Buried.Tests.EditMode (Editor only): tests + PropertyRunner.cs
-    ThirdParty/LibTessDotNet/      vendored source (MIT), with its licence file
 ```
+
+No third-party source is vendored: the triangulator is Buried's own (see "Meshing" and "Decisions
+and reasons").
 
 One type per file, file name matches the type (`structure.md`).
 
@@ -147,7 +153,9 @@ directory there as an evidence `$defs` entry.
 - Field names are camelCase, matching the Evidence Library's `EraFeature`.
 
 Bridge version: `1.0.0` for the full catalogue. The gate uses a subset at `0.1.0` (tasks.md group
-1). It is the `const` of `bridgeVersion` in `scene/init` and `ready`, and `BridgeVersion.Value` in
+1). The look pass adds `initialView` and `debug/setCamera` at `0.2.0` (task 16.1); the drape `clip`
+comes at `0.3.0` (task 17.1); group 2 completes the catalogue at `1.0.0`. The version is the
+`const` of `bridgeVersion` in `scene/init` and `ready`, and `BridgeVersion.Value` in
 C#, checked equal by an EditMode test that reads the schema.
 
 ### Common definitions
@@ -158,7 +166,10 @@ geometry      = GeoJSON Polygon | MultiPolygon | LineString | MultiLineString, p
 screenPoint   = { x: number 0..1, y: number 0..1 }      // normalised canvas coords, origin top-left
 drape         = { sourceId, url: string (relative, starts with "/data/tiles/"),
                   corners: { topLeft, topRight, bottomRight, bottomLeft: position },
-                  widthPx: int >= 1, heightPx: int >= 1 }
+                  widthPx: int >= 1, heightPx: int >= 1,
+                  clip?: Polygon (EPSG:26917 positions; the plate's map area, from the sidecar's
+                         `map_area`; bridge 0.3.0 on) }
+rect          = { minE, minN, maxE, maxN: number }      // EPSG:26917, minE < maxE, minN < maxN
 sceneFeature  = { id: featureId, kind: "building" | "water",
                   geometry, confidence: "documented" | "estimated" | "unknown",
                   heightM: number > 0 }                 // buildings: polygon types only
@@ -175,7 +186,7 @@ Shell to Player:
 
 | Type | Payload | Player does |
 |---|---|---|
-| `scene/init` | `{ bridgeVersion, origin: { easting, northing }, bounds: { minE, minN, maxE, maxN }, eras: [eraRef] (indexes 0..n−1, each once), present: [presentBuilding], reducedMotion: bool, debug: bool }` | Checks version and 4000 m rule, builds frame, sky, fog, ground, present buildings, camera at the default pose. Clears any previous scene. |
+| `scene/init` | `{ bridgeVersion, origin: { easting, northing }, bounds: { minE, minN, maxE, maxN }, initialView: rect (inside bounds; 0.2.0 on), eras: [eraRef] (indexes 0..n−1, each once), present: [presentBuilding], reducedMotion: bool, debug: bool }` | Checks version and 4000 m rule, builds frame, sky, fog, ground, present buildings, camera at the default pose framed on `initialView`. Clears any previous scene. |
 | `scene/loadEra` | `{ eraId, features: [sceneFeature] (unique ids), drapes: [drape] }` | Replaces that era's content; builds meshes; loads textures; sends `eraLoaded`. |
 | `scene/setDepth` | `{ depth: number 0..n−1 }` | Sets the blend (see "Depth"). |
 | `scene/focusLot` | `{ lot: lot \| null, fly: bool }` | Pins or clears the lot; flies if asked. |
@@ -186,6 +197,7 @@ Shell to Player:
 | `scene/setReducedMotion` | `{ reducedMotion: bool }` | Switches motion mode. |
 | `scene/setWaterRemembers` | `{ on: bool, eraIds: [string] }` | Water of those eras drawn with Today. |
 | `debug/markers` | `{ markers: [{ id: string, position }] } (max 16)` | Draws markers (see "Gate verification"). Only when `debug` was true. |
+| `debug/setCamera` | `{ target: position, distanceM: number 30..3000, pitchDeg: number 20..80, headingDeg: number 0..<360 }` (0.2.0 on) | Sets the camera pose exactly, inside the limits of requirement 16.3, and sends `cameraChanged` once. Only when `debug` was true; otherwise refused with `debug_disabled`. Used by the look and drape placement tests. |
 
 Player to Shell:
 
@@ -241,7 +253,48 @@ code.
 3. If `webgl.ts` finds no WebGL 2: 2D map with the reason. Else lazy-load `UnityView`, which calls
    `createUnityInstance` with the build files from `/unity/Build/`.
 4. On `ready`: version check, then `scene/init`, then `scene/loadEra` for Today and depth 1, then
-   `scene/setDepth { depth: 0 }`. Timeout for `ready`: 30 s.
+   `scene/setDepth { depth: 0 }`. Timeout for `ready`: 30 s. Until `sceneModel.ts` (task 3.5)
+   decides what to keep loaded, the Shell sends `scene/loadEra` for every era at start (task 16.6);
+   with four eras and small data this costs little.
+
+### Initial view
+
+`initialView(eraLists, drapes, bounds)` (pure, `initialView.ts`) gives the rectangle the default
+camera pose frames, so the first view shows the reconstructed block rather than the whole plate:
+
+```
+INITIAL_VIEW_MARGIN_M = 60
+INITIAL_VIEW_MIN_M    = 200
+```
+
+1. Take the bounding box of the geometry of every entry in every era's Era list (the features the
+   Player will draw, from `featuresForEra`; `land_use` excluded as for scene features).
+2. If there are none, take the bounding box of every drape's four corners. If there are none
+   either, return the project bounds.
+3. Grow the box by `INITIAL_VIEW_MARGIN_M` on each side, then widen each side about the centre to
+   at least `INITIAL_VIEW_MIN_M`.
+4. Clip to the project bounds.
+
+It reads only geometry; no year, date or source rule is involved. With the gate data it frames a
+200 m square centred on the one building.
+
+### Layout
+
+The Shell's first real layout (task 16.6), dark theme, colours only from `tokens.css`:
+
+- **Header** across the top, `night` background, height 56 px: the wordmark "Buried" in Fraunces
+  at the left; links "Explorer" and "Sources" in Inter at the right.
+- **3D view** fills the rest of the window under the header.
+- **Depth gauge** over the right edge of the view, on a `fog` panel at 90% opacity: one stop per
+  project era from `eraOrder`, Today at the top; labels "Today" in Inter, years in IBM Plex Mono,
+  both in `text`; the current stop is marked by a filled `text` bar and a heavier label weight, the
+  others by a thin `muted` tick. Never `lantern` or `water`; `ink` stays for the past in the scene.
+- **Evidence card** at the left edge of the view, below the header, width 360 px, on `fog`; the
+  heading in Fraunces 22 px, body in Inter 16 px, ids, years and the position figure in IBM Plex
+  Mono. It opens beside the building, not over it, because the default view centres the building.
+- **Attribution lines** along the bottom edge of the view, Inter 14 px in `muted` on `night` at 80%
+  opacity. (14 px is allowed here as secondary text; body text stays at 16 px or more.)
+- **Focus ring**: 2 px `text` outline with a 2 px `night` offset on every interactive element.
 
 ### Era order and drapes
 
@@ -372,9 +425,16 @@ published, the path is built and tested on synthetic water features.
 
 ### Sources page
 
-`/sources`: one entry per registry source, sorted by id: id, title, years, URL, licence note,
-attribution line, rights checked date. Sources with `to_be_confirmed` are listed as "Not shown in
-the app yet" and are never sent to the Player.
+`/sources`: one entry per registry source, sorted by id: id, title, years (through
+`sourceYearsText`), holding institution when recorded, URL, licence note, attribution line, rights
+checked date. Sources with `to_be_confirmed` are listed as "Not shown in the app yet" and are never
+sent to the Player.
+
+Each plate whose tile sidecar names a `full_image` also shows that image: the whole photograph,
+archive labels and ruler included, at most 2048 px on its long edge, `loading="lazy"`, with its
+width and height set from `full_width_px` and `full_height_px` so the page does not jump, and alt
+text "Full photograph of <title>, including the archive's labels". The full image is for this page
+only; `drapesForEra` reads the sidecar's `image` and never `full_image`.
 
 ## Player
 
@@ -413,9 +473,11 @@ All pure, operating on `double` positions already converted to world `Vector2` (
 - `PolygonPrep`: drop the closing vertex; remove consecutive duplicates and vertices whose removal
   moves the ring by less than 1 mm (collinear); orient exterior rings counter-clockwise and holes
   clockwise when seen from above; reject a ring with fewer than 3 vertices after this.
-- `Triangulator`: LibTessDotNet with winding rule positive, output triangles; then drop any
-  triangle with area below 1e-6 m² (the property test asserts there are none to drop for valid
-  input).
+- `Triangulator`: Buried's own ear clipper with hole bridging (after Eberly, "Triangulation by Ear
+  Clipping"), in double precision, output triangles counter-clockwise; then drop any triangle with
+  area below 1e-6 m² (the property tests assert there are none to drop for valid input). The gate
+  build kept it in place of LibTessDotNet (see "Decisions and reasons"); property E15 runs it on
+  every committed real polygon.
 - `Extruder`: top cap at `heightM` (normals +y), no bottom cap (never seen), walls as one quad per
   ring edge with outward normals, vertices not shared between walls so edges stay sharp. Index
   format UInt32.
@@ -429,7 +491,30 @@ All pure, operating on `double` positions already converted to world `Vector2` (
   (affine tile) this equals the transform exactly; for a slightly bent quad it follows the bilinear
   mapping that spec 02 checked against the true transform.
 - `MeshChunk`: combines per-feature meshes of one era and one material into meshes of at most 500k
-  vertices, keeping a triangle-range-to-feature-id table for picking.
+  vertices, keeping a triangle-range-to-feature-id table for picking. The gate build picks by its
+  own ray-triangle test over that table rather than with `MeshCollider`s, so the Player needs no
+  physics module.
+- `DrapeMaskBuilder` (pure): see "Drape mask".
+
+### Precision
+
+Decided in session 012: **meshes keep one world frame; chunks do not carry a local origin.**
+
+- Every vertex is stored as float32 in the project frame (`ToWorld`, subtracting in double first).
+  The 4000 m rule bounds the frame; at 4096 m a float's spacing is about 0.0005 m, and the showcase
+  content lies within about 1 km of the origin, where the spacing is about 0.00006 m. That is
+  more than 10,000 times smaller than the 2 m floor on any position error.
+- A chunk-local origin would not help in Unity as it stands: a `Transform` position is itself
+  float32, so the offset would be rounded once anyway, and the GPU works in float. It would add a
+  second, per-object offset path, which `tech.md` forbids ("No per-object offsets"), and every
+  picking and projection test would have to account for it.
+- What the gate run showed is a test matter, not a rendering one. The 1e-6 m² degenerate-triangle
+  threshold is below the area change that float rounding causes at a few hundred metres from the
+  origin, so a property that compares the stored mesh against the double-precision polygon fails
+  for reasons no viewer could see. The mesh is what is drawn, so E4 compares it against the
+  polygon rounded to float32, and E14 bounds the rounding itself at 1 mm.
+- Revisit only if the bounds must grow past 4000 m (for example the citywide 1947 Lantern stretch
+  goal). That is a migration-level decision (a floating origin), not a per-chunk one.
 
 ### Materials and treatments
 
@@ -445,7 +530,7 @@ properties set at runtime:
 | Ghost unknown | `Buried/FogVolume` | Fill `ink` alpha 0.12 with a soft falloff toward the edges and top (no hard edges, no edge mesh); a camera-facing "?" image above the centroid |
 | Selected | `Buried/Edge` | Edges in `ink` at full opacity, twice the unselected width (3 CSS px), emission 1.6. Never `lantern` (requirement 11.7). The DOM label is drawn by the Shell. |
 | Water | `Buried/WaterGlow` | `water` additive at 0.35, soft edge falloff, no animation |
-| Drape | `Buried/Drape` | Unlit texture, sRGB sampling, no fog colour; alpha = drape opacity × (1 − fog factor) |
+| Drape | `Buried/Drape` | Unlit texture, sRGB sampling, no fog colour; alpha = drape opacity × drape mask × (1 − fog factor) |
 | Lot outline | `Buried/Edge` on the ground | `lantern`, 2 CSS px |
 | Debug marker | `Buried/Marker` | Unlit `#FF00FF`, ZTest Always, 9 × 9 px cross. The one colour outside the palette; debug only. |
 
@@ -477,7 +562,7 @@ are set to outside-only, the Lantern era layer (weight 1) to inside-only. The le
 ### Picking and hover
 
 `Picker` raycasts on pointer up (if the pointer moved less than 4 px since down) and on pointer
-move (throttled to 20 Hz) against `MeshCollider`s of the visible era layers, honouring the lens.
+move (throttled to 20 Hz) against the `MeshChunk`s of the visible era layers, honouring the lens.
 The hit triangle index maps to a feature id through `MeshChunk`'s table. A ray that hits no feature
 is intersected with the plane y = 0 and converted with `ToData` for `groundClicked`. Present
 buildings are not pickable in this spec.
@@ -499,10 +584,28 @@ over 1500 ms to a target at the lot centroid with a distance that frames the lot
 ### Camera
 
 `CameraRig`: target point on the ground, distance, pitch, heading. Default pose after init: target
-at the bounds centre, heading 0 (looking north), pitch 50°, distance to fit the bounds. Inputs per
-requirement 16.2; limits per 16.3. The rig never changes without input or a fly-to. The Shell's
-capture-phase wheel listener stops unmodified wheel events before Unity sees them; Ctrl/Shift+wheel
-pass through and the Shell calls `preventDefault` so the page does not zoom.
+at the centre of `initialView` (see Shell "Initial view"), heading 0 (looking north), pitch 50°,
+and the smallest distance at which the whole rectangle is in view for the canvas's aspect ratio and
+the camera's vertical field of view. Inputs per requirement 16.2; limits per 16.3. The rig never
+changes without input, a fly-to or `debug/setCamera`. The rig's maths (pose to view, the fit
+distance, the pan that keeps a ground point under the pointer) lives in `CameraRigMath` so EditMode
+tests can call it without a scene.
+
+- **Pan:** on pointer down the rig records the ground point under the pointer; on each move it
+  moves the target so that point is under the pointer again (ray to the plane y = 0). There is no
+  velocity and no easing after release.
+- **Zoom:** each wheel notch (100 px of normalised `deltaY`) or pinch step scales the distance by
+  0.85 or 1/0.85 about the ground point under the pointer, inside the limits. `+` and `-` do the
+  same about the canvas centre.
+- **The plain wheel.** Requirement 10.2 gives the unmodified wheel to Dig, and requirement 16.5 has
+  the Shell capture it. Until task 3.1 adds Dig, the plain wheel reaches the Player and zooms
+  (requirement 16.6, asked for in session 012). From task 3.1 on, only Ctrl or Shift with the wheel
+  zooms. Open for the maintainer: if the plain wheel should keep zooming, Dig needs another input,
+  and requirements 10.2 and 16.5 change with it.
+
+The Shell's capture-phase wheel listener (from task 3.1) stops unmodified wheel events before Unity
+sees them; Ctrl/Shift+wheel pass through and the Shell calls `preventDefault` so the page does not
+zoom.
 
 ### Textures
 
@@ -513,6 +616,29 @@ for eras within one index of the current depth, the Lantern era, the Show Eviden
 water eras; others are destroyed and reloaded from their URL when needed. A failed download is
 reported in `eraLoaded.failedDrapes` and an `error` with `texture_load_failed`; the era still draws
 its features.
+
+### Drape mask
+
+Each drape has a mask that removes what is not map content and fades the drape into the ground
+(requirements 8.8 and 8.9). It changes alpha only.
+
+```
+DRAPE_FEATHER_M   = 15.0     // fade band inside the boundary
+DRAPE_MASK_MAX_PX = 512      // mask long edge
+```
+
+- **Boundary:** the drape's `clip` polygon when present (bridge 0.3.0 on), else the quad of its four
+  corners. Converted with `ToWorld` to (x, z).
+- **Mask texture:** two channels, axis-aligned in world x and z over the boundary's bounding box,
+  long edge `DRAPE_MASK_MAX_PX` texels (about 0.8 m per texel for a plate tile). For each texel
+  centre, `DrapeMaskBuilder` computes the signed distance d to the boundary (positive inside) in
+  double precision and stores R = `smoothstep(0, DRAPE_FEATHER_M, d)` and G = 1 when d > 0, both 0
+  for d ≤ 0. Bilinear filtering, clamp to 0 outside the texture.
+- **Shader:** the drape fragment shader samples the mask at its world (x, z), which it already has,
+  so no inverse of the corner mapping is needed in the Player. Normally it uses R.
+- **Show Evidence:** the shown drape uses G: full opacity inside the boundary with no fade, because
+  the viewer asked to see the source itself. Outside the boundary it stays at 0.
+- The mask is built once per drape when the drape is loaded and kept with its texture.
 
 ### Look
 
@@ -574,6 +700,53 @@ published building in `data/evidence/fip_v3_1911_229.geojson`; control files for
 
 The test fails with "Unity build not found; run the Unity build command" when
 `web/public/unity/Build/` is missing.
+
+### Drape placement check (task 17.4)
+
+The gate test measures debug markers drawn at fixed world positions. It proves the camera and its
+projection are consistent across eras; it does not look at the drape. This check looks at the
+drape's own pixels.
+
+`web/e2e/drape.spec.ts`, against `vite preview` with `?debug=1`, canvas 1280 × 800, Shell overlays
+hidden by a debug-only CSS class during capture. For each gate plate and each control point in
+`data/control/<source id>.json`:
+
+1. **Tile pixel.** Convert the control point's `pixel` (full-resolution, `gdal_corner`) to tile
+   pixels: `((px − crop.x) × widthPx / crop.width, (py − crop.y) × heightPx / crop.height)` with the
+   sidecar's `crop_px`. Skip, and list, a point outside the tile or less than
+   `DRAPE_FEATHER_M` + 10 m inside the drape's boundary. Fewer than three tested points on a plate
+   fails the test.
+2. **World point.** Map that tile pixel to EPSG:26917 through the sidecar corners by the same
+   bilinear rule the drape mesh uses. This is deliberately not the control point's City
+   `reference`: the reference differs from the drawn intersection by the alignment error, which
+   spec 02 measures. This check isolates the renderer.
+3. **Camera.** `debug/setCamera` with that point as target, heading 0, pitch 80°, distance 250 m
+   (about 0.25 m per screen pixel). Show only that plate's era. Wait for `cameraChanged` and two
+   frames; screenshot the canvas.
+4. **Expected patch.** For each pixel of a 64 × 64 px window centred on the point's projection
+   (with `viewProjection`, origin subtracted in double), unproject to the ground plane, map to tile
+   pixels with the inverse corner mapping, and average 4 × 4 bilinear samples of the tile JPEG over
+   that screen pixel's footprint. Convert both images to luminance.
+5. **Match.** Compute the normalised cross-correlation of the expected patch against the screenshot
+   at every offset in [−8, 8] px on both axes. Pass when the peak is at an offset within 1 px of
+   (0, 0) and its value is at least 0.85. A patch whose expected luminance has a standard deviation
+   below 8 (of 255) is too flat to test; the test fails with that message rather than passing.
+6. **Outside the map area** (after task 17.1): one point inside the tile but more than 5 m outside
+   the clip polygon renders within ±3 per channel of the same view with the drape hidden.
+
+NCC is unchanged by a gain and an offset in brightness, so the fog fade, the drape opacity and the
+blend with the ground do not affect it, as long as they are near constant over the patch.
+
+**What it proves:** the tile's pixel at each control point is drawn where the camera's own matrix
+puts the ground position that the tile corners give that pixel, within about 1 screen pixel
+(0.25 m at this pose): no flip, mirror, half-texel shift, UV or corner-order error, on both plates.
+With the alignment records (spec 02), which measure how far the corners put each drawn
+intersection from the City's intersection, it means a plate on screen sits within its stated
+alignment error of today's map.
+
+**What it does not prove:** that the corners or the transform are right (that is `align-check`),
+anything about extruded features, or placement far from the control points (all of plate 229's
+points lie in the northern two-thirds; see `evidence.md`).
 
 ### Gate-only hand trace and the demo readiness check
 
@@ -659,7 +832,9 @@ holes strictly inside, at building scale 2 to 200 m, with optional collinear and
 inserted) and height 1 to 100 m: every output triangle has area at least 1e-6 m²; the cap triangles'
 areas sum to the polygon's area within 1e-6 relative; every cap normal is +y; every wall triangle's
 normal points away from the polygon interior; and every input edge (after preparation) has exactly
-one wall quad. *(req 2.3, 8.5)*
+one wall quad. Areas and normals are computed from the stored float32 vertices and compared with
+the polygon rounded to float32, because the stored mesh is what is drawn (see "Precision"); E14
+bounds that rounding. *(req 2.3, 8.5)*
 
 **E5. A feature is never drawn outside its evidence window.** For every generated set of
 collections (spec 01's arbitraries) and every sequence of Shell actions (depth changes, Lantern,
@@ -701,6 +876,28 @@ and registry, every string `cardModel` and `FeatureList` produce has no match in
 `findBannedWords`; and the same holds for every fixed UI string in `web/src/explorer/` and
 `web/src/map/`. *(req 7.4)*
 
+**E13. The drape mask hides what is outside and keeps what is inside.** For every convex quad of
+corners of 50 to 2000 m (and, from task 17.1, every simple clip polygon of 4 to 64 vertices inside
+such a quad, concave allowed) and every sample point: where the point lies outside the boundary by
+more than one texel diagonal, both mask channels sampled bilinearly are exactly 0; where it lies
+inside by more than `DRAPE_FEATHER_M` plus one texel diagonal, R is 1; where it lies inside by more
+than one texel diagonal, G is 1; and R never decreases along any segment from the boundary straight
+inward. *(req 8.8, 8.9)*
+
+**E14. Stored vertices stay within 1 mm of their data positions.** For every polygon E4 generates,
+placed anywhere within 4000 m of a generated origin inside UTM 17N, every vertex `Extruder` and
+`EdgeMeshBuilder` store, converted back with `ToData`, lies within 0.001 m of the input position
+(easting, northing) and of its height. *(req 3.1, 3.4, 3.5)*
+
+**E15. Every committed real polygon triangulates.** For every Polygon and MultiPolygon part in
+`data/evidence/*.geojson` (published or not) and `data/present/*.geojson`, converted with the
+origin read from `data/project.json`: `PolygonPrep` accepts it, and the extrusion satisfies every
+condition of E4. A polygon that fails is named by file and feature id in the failure message. The
+fix goes to the Triangulator or, for an invalid present-day polygon, to spec 02's `buried present`
+(which should write only valid polygons); the test is never relaxed. This is an example-based run
+over all real data rather than generated cases; it lives with the properties because it checks the
+same conditions. *(req 2.3, 8.5, 25.7)*
+
 ## Testing strategy
 
 - **Shell unit tests** (Vitest) next to each pure module. Component tests with React Testing
@@ -712,7 +909,8 @@ and registry, every string `cardModel` and `FeatureList` produce has no match in
   `Bridge/`; scans the C# runtime for numeric literals of 100000 or more (no hard-coded origin);
   scans the Report route's import graph for `UnityView` or `bridge` (requirement 19.6).
 - **Unity EditMode tests** (`Buried.Tests.EditMode`): `ProjectFrame`, `PolygonPrep`,
-  `Triangulator`, `Extruder`, `EdgeMeshBuilder`, `RibbonBuilder`, `DrapeMeshBuilder`, `DepthBlend`,
+  `Triangulator`, `Extruder`, `EdgeMeshBuilder`, `RibbonBuilder`, `DrapeMeshBuilder`,
+  `DrapeMaskBuilder`, `CameraRigMath`, `DepthBlend`,
   `LanternMask`, `BridgeParser`/`BridgeWriter` conformance, DTO-vs-schema reflection, bridge version,
   palette vs `tokens.css`, the `Bootstrap` scene contents (one root `Bridge`, no renderers, lights or
   cameras), and the runtime asmdef's references (no `UnityEngine.UI`, no TextMeshPro).
@@ -724,8 +922,9 @@ and registry, every string `cardModel` and `FeatureList` produce has no match in
   of flat colour patches, viewed top-down at full opacity, and checks rendered pixels within ±2 of
   the source values per channel (requirement 20.5).
 - **Fixtures:** synthetic evidence collections and present layers under `web/src/explorer/testing/`;
-  a synthetic tile under `web/e2e/fixtures/` served only in test mode. The gate test is the one test
-  that uses real data (the gate plates and the published building), read from `data/`.
+  a synthetic tile under `web/e2e/fixtures/` served only in test mode. The tests that use real data,
+  read from `data/`, are the gate test, the look check (task 16.7), the drape placement check
+  (task 17.4) and E15 (every committed polygon). Nothing else reads `data/`.
 - No test uses the network beyond the local preview server.
 
 ## Decisions and reasons
@@ -752,8 +951,34 @@ and registry, every string `cardModel` and `FeatureList` produce has no match in
   maintained one is commercially licensed.
 - **Seeded generators instead of FsCheck in Unity.** Avoids adding FSharp.Core to the project for a
   handful of properties.
-- **LibTessDotNet for triangulation.** MIT licensed, single C# source, handles holes and
-  MultiPolygons; writing an ear-clipper with hole bridging is avoidable risk.
+- **Buried's own ear clipper instead of LibTessDotNet** (session 012, recording the gate build's
+  choice). The coder could not vendor LibTessDotNet and wrote an ear clipper with hole bridging;
+  the builder kept it because E4 passed on generated polygons with holes, collinear and duplicate
+  vertices. It adds no third-party source or licence file. Its known weaknesses are quadratic time
+  and sensitivity to near-degenerate input. Buried's inputs are validated simple polygons of
+  building size, so neither is expected to matter, and E15 checks every real polygon to make sure.
+  If E15 finds a polygon the clipper cannot handle, vendor LibTessDotNet (MIT) behind the same
+  `Triangulate` signature rather than special-casing the polygon.
+- **No chunk-local origins** (session 012). See "Precision": the frame is small enough for float32,
+  a Unity `Transform` offset would be float32 anyway, and a second offset path conflicts with
+  `tech.md`.
+- **A look pass right after the gate** (session 012). The scene should read as Buried before
+  features are layered on, so look problems are found while the scene is small. It takes task 4.2
+  and the documented part of 4.1 early; the rest of groups 3 and 4 is unchanged.
+- **Default view framed on the published features, computed in the Shell** (session 012). The
+  showcase block is not a stored shape; the features are. The rule reads geometry only, so it does
+  not move a fact into the Player, and it needs no coordinates in C#.
+- **Drape edges fade over 15 m, by a world-space mask** (session 012). A fade changes opacity only,
+  which `design.md` allows. 15 m is under 5% of a plate tile's width, so the band covers the street
+  margin at the plate edge and not the blocks. A world-space mask avoids inverting the corner
+  mapping in the Player and serves both the rectangle and the map-area clip. Show Evidence turns the
+  fade off.
+- **`debug/setCamera`** (session 012). The look and drape checks need exact, repeatable poses.
+  Pressing zoom keys from Playwright is not exact. It is refused unless `debug` is on, like
+  `debug/markers`.
+- **Drape placement by normalised cross-correlation** (session 012). NCC ignores the gain and
+  offset that fog, opacity and blending add, so the check can run on the real look, not a debug
+  material.
 - **Present-day height 7.0 m, storey 3.5 m.** `tech.md` leaves the value to this spec. 3D massing is
   not licensed yet. Two storeys gives quiet context massing, and no height is shown as a fact.
 - **Water ribbon width from position error.** A creek line has no recorded width; drawing it as wide
@@ -787,11 +1012,11 @@ and registry, every string `cardModel` and `FeatureList` produce has no match in
 - **Water comes from the Studio** (session 005). A person traces it; nothing extracts water
   automatically.
 
-## Changes from session 007 (tasks to be added after task group 1)
+## Changes from session 007 (tasks 17.1 to 17.3)
 
-Session 007 recorded facts about the real plates that reach the Explorer. They do not change task
-group 1 (the gate), which is being built now. Tasks for them are added to `tasks.md` at the end,
-after group 1 is done, so the builder's file is not edited mid-task.
+Session 007 recorded facts about the real plates that reach the Explorer. They did not change task
+group 1 (the gate). Session 012 added their tasks at the end of `tasks.md`: 17.1 (drape clip),
+17.2 (card years), 17.3 (full photograph on the Sources page).
 
 - **The 1935 era covers 1931 to 1935** (spec 01 requirement 7.4). The era id and label stay
   `1935` and "1935". `eraOrder` sorts by `year_to`, so the order is unchanged. `drapesForEra` still
@@ -802,11 +1027,11 @@ after group 1 is done, so the builder's file is not edited mid-task.
 - **Map-area tiles** (spec 02 requirements 16 and 19). Plate tiles now cover the bounding box of the
   plate's map area, and the sidecar carries `crop_px` and `map_area`. The corners in the sidecar
   still describe the tile exactly, so draping is unchanged. The Player clips a plate drape to the
-  `map_area` polygon (a stencil or a per-pixel mask from the polygon in drape UV space) so that
-  pixels inside the box but outside the polygon are not shown. This needs one optional field on the
-  drape payload (`clip`: the polygon in local metres), so the bridge goes to a minor version with
-  it. Opacity is the only change to the raster; the clip removes non-map pixels, it does not
-  recolour any.
+  `map_area` polygon through the drape mask (see "Drape mask") so that pixels inside the box but
+  outside the polygon are not shown. This needs one optional field on the drape payload (`clip`:
+  the polygon as EPSG:26917 positions, converted by the Player's frame like every other geometry),
+  so the bridge goes to `0.3.0` with it. Opacity is the only change to the raster; the clip removes
+  non-map pixels, it does not recolour any.
 - **Sources page.** Each plate's entry shows its full uncropped photograph (`full_image` from the
   sidecar, spec 01 requirement 31.2), archive labels included, with its title, `years_label`,
   `holding`, licence note and attribution line. The 1935 plates show the Library and Archives

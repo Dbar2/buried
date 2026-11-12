@@ -1,0 +1,17 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "bridge-regenerate-and-parse",
+      "description": "The Bridge Schema was saved. Regenerate the TypeScript bridge types and the generated samples, run the Shell's bridge tests (E1, conformance, boundary), then the Unity EditMode tests (E2, DTO reflection, bridge version). The Unity run is headless and takes several minutes.",
+      "trigger": "PostFileSave",
+      "matcher": "data/schema/bridge.schema.json",
+      "action": {
+        "type": "command",
+        "command": "npm --prefix web run gen:bridge-types && npm --prefix web run gen:bridge-samples && npm --prefix web test -- src/bridge && tools/unity.sh test"
+      },
+      "timeout": 1200,
+      "enabled": true
+    }
+  ]
+}

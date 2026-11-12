@@ -18,6 +18,11 @@ Dependencies of group 1:
 
 Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232` for any gate data.
 
+**Run order after the gate (session 012).** Group numbers are stable, so the run order is not
+numeric: 1, then **16 (look pass)**, then 17 (session 007 items and gate follow-ups), then 2 to 15.
+Do no other feature work before group 16 passes. Within group 17, tasks 17.5 to 17.8 have no data
+dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
+
 - [ ] 1. Gate: one plate, one building, two eras, in the browser
   - [x] 1.1 Add Vite and React to the existing `web/` package (spec 01 task 3.1), the app entry and
     routes (`/` Explorer, `/sources`), the palette tokens as CSS custom properties, and the
@@ -175,12 +180,11 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     Files: `web/src/explorer/depth.property.test.ts`.
     Requirements: 10.3.
   - [ ] 3.3 Implement `DepthBlend` and wire it: era weights, present drain (fill to wireframe to
-    faint outline), ghost rise in the vertex shader, drape opacity, both motion modes. Add
-    `EdgeMeshBuilder` and the `Buried/Edge` and `Buried/Present` shaders. EditMode tests for
+    faint outline), ghost rise in the vertex shader, drape opacity, both motion modes. Add the
+    `Buried/Present` shader (`EdgeMeshBuilder` and `Buried/Edge` come from task 16.3). EditMode tests for
     `DepthBlend` at d = 0, 0.25, 0.5, 0.75, 1, 2.5 in both modes.
     Files: `unity/Assets/Buried/Runtime/Scene/DepthBlend.cs`, `unity/Assets/Buried/Runtime/Scene/EraLayer.cs`,
-    `unity/Assets/Buried/Runtime/Scene/PresentLayer.cs`, `unity/Assets/Buried/Runtime/Meshing/EdgeMeshBuilder.cs`,
-    `unity/Assets/Buried/Runtime/Look/Shaders/Edge.shader`, `unity/Assets/Buried/Runtime/Look/Shaders/Present.shader`,
+    `unity/Assets/Buried/Runtime/Scene/PresentLayer.cs`, `unity/Assets/Buried/Runtime/Look/Shaders/Present.shader`,
     `unity/Assets/Buried/Runtime/Look/Shaders/Ghost.shader`,
     `unity/Assets/Buried/Tests/EditMode/DepthBlendTests.cs`.
     Requirements: 10.4, 10.5, 10.6, 10.9, 18.2.
@@ -205,7 +209,8 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
 - [ ] 4. Ghost treatments and look
   - [ ] 4.1 Implement the three confidence treatments (solid edges and fill, dashed edges and
     lighter fill, fog volume with the "?" image), the selected treatment (brighter, thicker `ink`
-    edges; never `lantern`), and water glow with `RibbonBuilder`. EditMode tests: dash distance
+    edges; never `lantern`), and water glow with `RibbonBuilder`. The documented treatment already
+    exists from task 16.3; this task adds the other two and keeps it unchanged. EditMode tests: dash distance
     along edges, ribbon width, which meshes each class gets (unknown has no edge mesh), and that no
     material other than the lot outline and lot light reads the `lantern` palette entry.
     Files: `unity/Assets/Buried/Runtime/Scene/EraLayer.cs`, `unity/Assets/Buried/Runtime/Meshing/RibbonBuilder.cs`,
@@ -214,8 +219,9 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     `unity/Assets/Buried/Runtime/Look/Textures/QuestionMark.png`,
     `unity/Assets/Buried/Tests/EditMode/TreatmentTests.cs`.
     Requirements: 8.6, 9.1 to 9.4, 11.4, 11.7, 20.4.
-  - [ ] 4.2 Implement the look: sky gradient, sun, ambient, fog density rule, extended ground,
-    tonemapping off, bloom limited to emission above 1, no other post effects. EditMode test that
+  - [ ] 4.2 Done by task 16.2 (the look moved into the look pass). Tick this when 16.2 is ticked.
+    Original scope, for reference: sky gradient, sun, ambient, fog density rule, extended ground,
+    tonemapping off, bloom limited to emission above 1, no other post effects; EditMode test that
     the palette asset equals `web/src/styles/tokens.css`.
     Files: `unity/Assets/Buried/Runtime/Look/LookSettings.cs`, `unity/Assets/Buried/Runtime/Look/Shaders/Sky.shader`,
     `unity/Assets/Buried/Runtime/Scene/SceneBootstrap.cs`,
@@ -351,12 +357,11 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     Requirements: 6.2, 6.3, 22.1.
 
 - [ ] 13. Budget
-  - [ ] 13.1 Implement `checkUnitySize.ts` (`npm run check:unity-size`) and `web/e2e/budget.spec.ts`
-    (first interactive frame, frame intervals, the scripted run, fast connection profile, and the
-    `reference` and `midrange` profiles with 4× CPU throttling). Record `npm run check:unity-size`
-    and `npm run test:budget` in `.kiro/steering/tech.md`.
-    Files: `web/scripts/checkUnitySize.ts`, `web/e2e/budget.spec.ts`, `web/package.json`,
-    `.kiro/steering/tech.md`.
+  - [ ] 13.1 Implement `web/e2e/budget.spec.ts` (first interactive frame, frame intervals, the
+    scripted run, fast connection profile, and the `reference` and `midrange` profiles with 4× CPU
+    throttling), using `npm run check:unity-size` from task 17.7 for the size. Record
+    `npm run test:budget` in `.kiro/steering/tech.md`.
+    Files: `web/e2e/budget.spec.ts`, `web/package.json`, `.kiro/steering/tech.md`.
     Requirements: 23.1 to 23.3, 23.5, 25.4.
   - [ ] 13.2 Run the budget on the maintainer's M3 Pro (reference machine) and again on the
     mid-range profile, and record machine, browser version, profile, commit, date and the three
@@ -368,8 +373,8 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
 
 - [ ] 14. Final check
   - [ ] 14.1 Run `npm test`, `npm run typecheck` and `npm run test:e2e` in `web/`, the Unity
-    EditMode tests and the Unity build. All pass. Confirm every property E1 to E12 has a passing
-    test, the boundary test passes, and the gate test still passes.
+    EditMode tests and the Unity build. All pass. Confirm every property E1 to E15 has a passing
+    test, the boundary test passes, and the gate, look and drape placement tests still pass.
     Files: none.
     Requirements: 25.1, 25.2, 25.3.
 
@@ -383,3 +388,179 @@ Use plate 229 only for the gate. Do not use the held-out plate `fip_v3_1935_232`
     Files: `web/scripts/checkDemoReady.ts`, `web/scripts/checkDemoReady.test.ts`, `web/package.json`,
     `data/evidence/fip_v3_1911_229.geojson`, `.kiro/steering/tech.md`.
     Requirements: 24.5, 25.4.
+
+- [ ] 16. Look pass (session 012; run right after group 1, before any other group)
+
+  The gate proved placement. This group makes the same scene read as Buried before more features
+  are added: dusk, fog, an ink ghost, a drape that fades into the ground, a camera framed on the
+  block, and the Shell's first real layout. Acceptance is requirement 26, checked by the
+  maintainer from the screenshots task 16.7 saves. Needs group 1 only. Uses only the gate data
+  (plate 229, both editions, and the one building).
+
+  - [ ] 16.1 Bridge `0.2.0`: add `initialView` to `scene/init` and the debug-only
+    `debug/setCamera` message, as in design.md "Message catalogue". Fixtures (valid, invalid for
+    each rule, generated), arbitraries, regenerated types and samples, DTOs, parser and writer.
+    Implement `initialView.ts` (pure) per design.md "Initial view", with example tests (one
+    feature, several eras, no features but drapes, nothing at all, a frame clipped by the project
+    bounds). Rerun **[PBT] E1** and **[PBT] E2**; both pass on the new messages.
+    Files: `data/schema/bridge.schema.json`, `data/schema/bridge_fixtures/**`,
+    `web/src/bridge/types.generated.ts`, `web/src/bridge/testing/arbitraries.ts`,
+    `web/src/explorer/initialView.ts`, `web/src/explorer/initialView.test.ts`,
+    `web/src/explorer/UnityView.tsx`, `unity/Assets/Buried/Runtime/Bridge/*.cs`,
+    `unity/Assets/Buried/Tests/EditMode/BridgeTests.cs`.
+    Requirements: 4.2, 16.1, 16.8.
+  - [ ] 16.2 The look (this is task 4.2's work): sky gradient shader, sun, flat ambient, fog
+    density rule, the ground extended to 4 × R in `fog`, tonemapping None, bloom threshold 1.0 and
+    intensity 0.3, no other post effect, all per design.md "Look". EditMode tests: the palette asset
+    equals `web/src/styles/tokens.css`; the fog density for a known bounds equals `ln(50) / R`; the
+    ground quad reaches 4 × R; the URP volume has no effect other than bloom.
+    Files: `unity/Assets/Buried/Runtime/Look/LookSettings.cs`, `unity/Assets/Buried/Runtime/Look/Shaders/Sky.shader`,
+    `unity/Assets/Buried/Runtime/Scene/SceneBootstrap.cs`, `unity/Assets/Buried/Rendering/**`,
+    `unity/Assets/Buried/Tests/EditMode/PaletteTests.cs`, `unity/Assets/Buried/Tests/EditMode/LookTests.cs`.
+    Requirements: 20.1, 20.2, 20.5, 20.6, 26.2, 26.3.
+  - [ ] 16.3 The documented ghost treatment: `EdgeMeshBuilder` (top ring, base ring, vertical
+    corners, with the per-vertex distance along each edge that dashes will use later), the
+    `Buried/Edge` shader (1.5 CSS px, `ink`, emission 1.2) and the `Buried/Ghost` fill (`ink`
+    alpha 0.35, emission 0.15), per design.md "Materials and treatments". Every confidence class
+    uses this treatment until task 4.1 adds the other two; the Shell still sends the real class.
+    EditMode tests: edge count for an L-shape and a polygon with a hole; distance along edge is
+    continuous along each ring; edge vertices sit on the extruded mesh's corners within 1 mm.
+    Files: `unity/Assets/Buried/Runtime/Meshing/EdgeMeshBuilder.cs`,
+    `unity/Assets/Buried/Runtime/Look/Shaders/Edge.shader`, `unity/Assets/Buried/Runtime/Look/Shaders/Ghost.shader`,
+    `unity/Assets/Buried/Runtime/Scene/EraLayer.cs`, `unity/Assets/Buried/Tests/EditMode/EdgeMeshTests.cs`.
+    Requirements: 9.1, 20.4, 26.4.
+  - [ ] 16.4 The drape edge fade: `DrapeMaskBuilder` (pure) per design.md "Drape mask", built for
+    now from the drape's four corners; the `Buried/Drape` shader multiplies its alpha by the mask
+    sampled at the fragment's world position, and by nothing else that changes colour. EditMode
+    example tests: mask is 0 outside the quad, 1 deeper than the feather inside it, and rises
+    monotonically across the band.
+    Files: `unity/Assets/Buried/Runtime/Meshing/DrapeMaskBuilder.cs`,
+    `unity/Assets/Buried/Runtime/Scene/DrapeLayer.cs`, `unity/Assets/Buried/Runtime/Look/Shaders/Drape.shader`,
+    `unity/Assets/Buried/Tests/EditMode/DrapeMaskTests.cs`.
+    Requirements: 8.9, 20.5, 26.3.
+    - [ ] 16.4.1 **[PBT] E13** The drape mask hides what is outside and keeps what is inside.
+      Files: `unity/Assets/Buried/Tests/EditMode/DrapeMaskPropertyTests.cs`.
+      Requirements: 8.8, 8.9.
+  - [ ] 16.5 Camera: default pose framed on `initialView`; zoom with the mouse wheel (interim, see
+    requirement 16.6), Ctrl or Shift and the wheel, pinch, and `+`/`-`; drag pan with no inertia
+    (the ground point under the pointer stays under it, and the camera stops when the pointer
+    stops or is released); the limits in requirement 16.3; `debug/setCamera`. Keep the rig's pure
+    maths in a class the EditMode tests can call. EditMode tests: the default pose shows the whole
+    `initialView` rectangle and its centre at the canvas centre; a drag of the pointer from A to B
+    moves the ground point under A to B within 1 px at pitches 20°, 50° and 80°; no camera change
+    in the frames after release; zoom and pitch stay inside the limits; `debug/setCamera` without
+    debug is refused with `debug_disabled`.
+    Files: `unity/Assets/Buried/Runtime/Scene/CameraRig.cs`, `unity/Assets/Buried/Runtime/Scene/CameraRigMath.cs`,
+    `unity/Assets/Buried/Runtime/Scene/SceneController.cs`, `unity/Assets/Buried/Tests/EditMode/CameraTests.cs`.
+    Requirements: 16.1 to 16.4, 16.6 to 16.8, 26.1.
+  - [ ] 16.6 The Shell's first real layout, per design.md "Layout": `Header` (wordmark "Buried" in
+    Fraunces, links to the Explorer and Sources in Inter), the first `DepthGauge` (DOM slider on
+    the right edge, every project era from `eraOrder` with Today at the top, Up/Down/Home/End,
+    integer steps only, a hard switch; tween, drag and wheel come in task 3.1), the
+    "Now showing <era label>" `aria-live` announcement, the gate `EvidenceCard` restyled as a `fog`
+    panel (heading Fraunces, body Inter at least 16 px, ids, years and the position figure in
+    IBM Plex Mono, Escape and a close button), the attribution lines along the bottom edge, and
+    visible focus rings. `scene/loadEra` is sent for every era at start (four eras, two of them
+    empty until their data exists). Colours only from `tokens.css`; no `lantern` (nothing is pinned
+    and this view has no primary action); no `water`. Component tests for the gauge (keys, ARIA
+    values, announcement) and the card (Escape, close, fields present).
+    Files: `web/src/App.tsx`, `web/src/shell/Header.tsx`, `web/src/shell/Header.test.tsx`,
+    `web/src/shell/layout.css`, `web/src/explorer/Explorer.tsx`, `web/src/explorer/DepthGauge.tsx`,
+    `web/src/explorer/DepthGauge.test.tsx`, `web/src/explorer/EvidenceCard.tsx`,
+    `web/src/explorer/EvidenceCard.test.tsx`, `web/src/explorer/Attribution.tsx`,
+    `web/src/styles/fonts.css`.
+    Requirements: 7.1, 10.7, 17.1 (gauge), 17.2, 17.6, 26.5 to 26.9.
+  - [ ] 16.7 Look check. `web/e2e/look.spec.ts` against `vite preview` without `?debug=1`, canvas
+    1280 × 800: wait for `eraLoaded` for every era; screenshot the page at the default pose at
+    Today, 1935 and 1911 (Down on the gauge), and with the evidence card open at 1911. Automated
+    checks: (a) every request the page makes is same-origin (fonts included); (b) no canvas pixel
+    is within ±12 per channel of `lantern` or of the debug magenta; (c) the mean luminance of the
+    top 5% of canvas rows is below that of the rows just above the projected horizon, and the top
+    rows are within ±6 per channel of `night`; (d) at least two of the 1911 drape's corners,
+    projected with `cameraChanged.viewProjection`, fall outside the canvas, and the building's
+    projected centroid falls inside its middle third; (e) the computed `font-family` of the
+    wordmark, the gauge labels and the card id starts with Fraunces, IBM Plex Mono and IBM Plex
+    Mono, and of the card body with Inter; (f) Down then Up on the gauge announces "Now showing
+    1935" then "Now showing Today". Save the screenshots as `web/e2e/output/look-*.png`. The
+    maintainer checks them against requirement 26 and records the result, item by item, in
+    `docs/kiro-sessions/` notes. A criterion that fails is fixed, not waived.
+    Files: `web/e2e/look.spec.ts`, `docs/kiro-sessions/<NNN>-look-pass.md`.
+    Requirements: 26.1 to 26.10.
+
+- [ ] 17. Session 007 items and what the gate taught (session 012)
+
+  - [ ] 17.1 Clip each plate drape to its map area (needs spec 01 task 16 and spec 02 task 14).
+    Bridge `0.3.0`: optional `clip` on `drape` (design.md "Common definitions"), with fixtures,
+    types, samples, DTOs, parser and writer; rerun **[PBT] E1** and **[PBT] E2**. `drapesForEra`
+    sets `clip` from the sidecar's `map_area` and leaves it out when there is none.
+    `DrapeMaskBuilder` takes the clip polygon in place of the four corners when it is present.
+    Extend **[PBT] E13** to concave clip polygons inside the quad. Example tests: a sidecar with
+    `map_area` gives a drape with `clip` equal to it; one without gives none; the full image is
+    never a drape.
+    Files: `data/schema/bridge.schema.json`, `data/schema/bridge_fixtures/**`,
+    `web/src/bridge/types.generated.ts`, `web/src/bridge/testing/arbitraries.ts`,
+    `web/src/explorer/drapes.ts`, `web/src/explorer/drapes.test.ts`,
+    `unity/Assets/Buried/Runtime/Bridge/*.cs`, `unity/Assets/Buried/Runtime/Meshing/DrapeMaskBuilder.cs`,
+    `unity/Assets/Buried/Runtime/Scene/DrapeLayer.cs`,
+    `unity/Assets/Buried/Tests/EditMode/DrapeMaskPropertyTests.cs`.
+    Requirements: 8.8, 8.9.
+  - [ ] 17.2 Years on the evidence card through `sourceYearsText` (needs spec 01 task 19.1). The
+    gate card and `cardModel` (when task 5.1 lands) word every source's years with it and nowhere
+    else. Example test: a feature observed on `fip_v3_1935_229` shows "1931, revised to 1935"; a
+    synthetic single-year source shows "1947". A test fails if any module in `web/src/explorer/`
+    or `web/src/sources/` formats `year_from` or `year_to` itself.
+    Files: `web/src/explorer/EvidenceCard.tsx`, `web/src/explorer/EvidenceCard.test.tsx`,
+    `web/src/explorer/yearsText.boundary.test.ts`.
+    Requirements: 11.3.
+  - [ ] 17.3 The full photograph on the Sources page (needs spec 01 task 16 and spec 02 task 14.2).
+    Each plate's entry shows `<source id>_full.jpg` from the sidecar's `full_image` with its width
+    and height set, lazy-loaded, with alt text naming the plate and saying the image is the whole
+    photograph, archive labels included; and the title, years through `sourceYearsText`,
+    `holding` when present, URL, licence note, attribution line and rights date. The 1935 plates
+    show the Library and Archives Canada credit line. Component tests on a synthetic registry and
+    sidecars.
+    Files: `web/src/sources/SourcesPage.tsx`, `web/src/sources/SourcesPage.test.tsx`.
+    Requirements: 21.3, 21.4.
+  - [ ] 17.4 Drape placement check (needs task 16.1 and spec 02 task 14.2, because it needs
+    `crop_px`). `web/e2e/drape.spec.ts` per design.md "Drape placement check", on both gate plates
+    with `?debug=1`: for each control point of each plate, place the camera with
+    `debug/setCamera`, screenshot the canvas with the Shell overlays hidden, and pass when the
+    normalised cross-correlation peak lies within 1 px of the expected position and is at least
+    0.85. Also check one point inside the tile but outside the map area renders as ground. Report
+    every point's NCC and peak offset in `docs/kiro-sessions/` notes, and add to
+    `docs/gate/README.md` one paragraph on what this check proves and does not prove.
+    Files: `web/e2e/drape.spec.ts`, `web/e2e/support/ncc.ts`, `web/e2e/support/ncc.test.ts`,
+    `docs/kiro-sessions/<NNN>-drape-check.md`, `docs/gate/README.md`.
+    Requirements: 25.5.
+  - [ ] 17.5 Float precision, decided (design.md "Precision"): no chunk-local origins. Restate
+    **[PBT] E4** in the test's doc comment as design.md now words it (areas compared on the
+    float32-rounded polygon, which is what the mesh stores). Add **[PBT] E14**.
+    Files: `unity/Assets/Buried/Tests/EditMode/ExtrusionPropertyTests.cs`,
+    `unity/Assets/Buried/Tests/EditMode/StoredVertexPropertyTests.cs`.
+    Requirements: 3.1, 3.4, 3.5.
+  - [ ] 17.6 Triangulation on real data. design.md now records the decision to keep Buried's own
+    ear clipper ("Decisions and reasons"). Update the doc comment in `Triangulator.cs` so it states
+    that decision rather than a pending swap to LibTessDotNet. Add **[PBT] E15**.
+    Files: `unity/Assets/Buried/Runtime/Meshing/Triangulator.cs`,
+    `unity/Assets/Buried/Tests/EditMode/RealPolygonTests.cs`.
+    Requirements: 2.3, 8.5, 25.7.
+  - [ ] 17.7 Implement `web/scripts/checkUnitySize.ts` and `npm run check:unity-size`: sum the bytes
+    of every file under `web/public/unity/Build/`, print the total and the three largest files, exit
+    1 over 15,000,000 bytes or when the folder is missing (with "Unity build not found; run the
+    Unity build command"). Test on a synthetic folder in a temp directory. Record
+    `npm run check:unity-size` in `.kiro/steering/tech.md`.
+    Files: `web/scripts/checkUnitySize.ts`, `web/scripts/checkUnitySize.test.ts`, `web/package.json`,
+    `.kiro/steering/tech.md`.
+    Requirements: 23.2, 25.4.
+  - [ ] 17.8 Audit the npm tree. Run `npm --prefix web audit` and `npm --prefix web audit --omit=dev`.
+    For each advisory record the package, severity, path and whether it ships to users. A package
+    ships when it is in `dependencies` and ends up in `web/dist/` after `npm run build`; dev tools
+    (Vite, Vitest, Playwright, tsx, type generators) do not. Shipped advisories must be zero: fix
+    them by an upgrade within the same major version, or stop and report to the maintainer if only
+    a major upgrade fixes one. For dev-only advisories apply `npm audit fix` without `--force` if
+    it fixes any, rerun `npm test`, `npm run typecheck` and `npm run build`, and record the rest
+    with the reason they are left. Never run `npm audit fix --force`. Record
+    `npm audit --omit=dev` in `.kiro/steering/tech.md` as the shipped-code check.
+    Files: `web/package.json`, `web/package-lock.json`, `docs/kiro-sessions/<NNN>-npm-audit.md`,
+    `.kiro/steering/tech.md`.
+    Requirements: 25.6.
