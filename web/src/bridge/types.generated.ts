@@ -16,6 +16,7 @@ export type BridgeMessage =
   | SceneLoadEraMessage
   | SceneSetDepthMessage
   | DebugMarkersMessage
+  | DebugSetCameraMessage
   | ReadyMessage
   | EraLoadedMessage
   | FeatureClickedMessage
@@ -81,6 +82,8 @@ export interface BridgeSchemaTypes {
   canvasSize?: CanvasSize;
   debugMarkersMessage?: DebugMarkersMessage;
   debugMarkersPayload?: DebugMarkersPayload;
+  debugSetCameraMessage?: DebugSetCameraMessage;
+  debugSetCameraPayload?: DebugSetCameraPayload;
   drape?: Drape;
   drapeCorners?: DrapeCorners;
   eraLoadedMessage?: EraLoadedMessage;
@@ -103,6 +106,7 @@ export interface BridgeSchemaTypes {
   presentBuilding?: PresentBuilding;
   readyMessage?: ReadyMessage;
   readyPayload?: ReadyPayload;
+  rect?: Rect1;
   ring?: Ring;
   sceneBounds?: SceneBounds;
   sceneFeature?: SceneFeature;
@@ -129,9 +133,10 @@ export interface SceneInitMessage {
  * via the `definition` "sceneInitPayload".
  */
 export interface SceneInitPayload {
-  bridgeVersion: '0.1.0';
+  bridgeVersion: '0.2.0';
   origin: OriginPoint;
   bounds: SceneBounds;
+  initialView: Rect;
   /**
    * At least one era. Indexes are exactly 0 to n-1, each once; 0 is Today.
    *
@@ -163,6 +168,15 @@ export interface OriginPoint {
  * via the `definition` "sceneBounds".
  */
 export interface SceneBounds {
+  minE: number;
+  minN: number;
+  maxE: number;
+  maxN: number;
+}
+/**
+ * The rectangle the default camera pose frames, centred on the canvas. It lies inside bounds (checked by both parsers).
+ */
+export interface Rect {
   minE: number;
   minN: number;
   maxE: number;
@@ -469,6 +483,26 @@ export interface MarkerEntry {
   position: Position;
 }
 /**
+ * Shell to Player. Sets the camera pose exactly. Only honoured when scene/init had debug: true; otherwise refused with debug_disabled.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "debugSetCameraMessage".
+ */
+export interface DebugSetCameraMessage {
+  type: 'debug/setCamera';
+  payload: DebugSetCameraPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "debugSetCameraPayload".
+ */
+export interface DebugSetCameraPayload {
+  target: Position;
+  distanceM: number;
+  pitchDeg: number;
+  headingDeg: number;
+}
+/**
  * Player to Shell. Sent once, after the first rendered frame.
  *
  * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
@@ -483,7 +517,7 @@ export interface ReadyMessage {
  * via the `definition` "readyPayload".
  */
 export interface ReadyPayload {
-  bridgeVersion: '0.1.0';
+  bridgeVersion: '0.2.0';
   unityVersion: string;
 }
 /**
@@ -614,4 +648,16 @@ export interface ErrorPayload {
     | 'debug_disabled';
   message: string;
   messageType: string | null;
+}
+/**
+ * An axis-aligned rectangle in EPSG:26917 metres. minE < maxE and minN < maxN (checked by both parsers).
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "rect".
+ */
+export interface Rect1 {
+  minE: number;
+  minN: number;
+  maxE: number;
+  maxN: number;
 }

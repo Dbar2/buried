@@ -3,6 +3,6 @@
   "payload": {
     "code": "mesh_build_failed",
     "message": "{p:|CTJ",
-    "messageType": "debug/markers"
+    "messageType": "eraLoaded"
   }
 }

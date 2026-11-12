@@ -3,6 +3,6 @@
   "payload": {
     "code": "bridge_version_mismatch",
     "message": "V_JwNw>* -",
-    "messageType": "error"
+    "messageType": "scene/loadEra"
   }
 }

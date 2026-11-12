@@ -3,6 +3,6 @@
   "payload": {
     "code": "debug_disabled",
     "message": "!5",
-    "messageType": "featureClicked"
+    "messageType": "eraLoaded"
   }
 }

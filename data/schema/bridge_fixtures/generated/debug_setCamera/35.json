@@ -1,0 +1,12 @@
+{
+  "type": "debug/setCamera",
+  "payload": {
+    "target": [
+      492919.079,
+      460094.733
+    ],
+    "distanceM": 1490.522,
+    "pitchDeg": 31.455,
+    "headingDeg": 150.565
+  }
+}

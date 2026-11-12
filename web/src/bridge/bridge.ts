@@ -18,7 +18,7 @@ export type MessageType = BridgeMessage['type'];
 export type MessageOf<T extends MessageType> = Extract<BridgeMessage, { type: T }>;
 export type PayloadOf<T extends MessageType> = MessageOf<T>['payload'];
 
-export const SHELL_TO_PLAYER = ['scene/init', 'scene/loadEra', 'scene/setDepth', 'debug/markers'] as const;
+export const SHELL_TO_PLAYER = ['scene/init', 'scene/loadEra', 'scene/setDepth', 'debug/markers', 'debug/setCamera'] as const;
 export const PLAYER_TO_SHELL = ['ready', 'eraLoaded', 'featureClicked', 'cameraChanged', 'error'] as const;
 export type ShellToPlayerType = (typeof SHELL_TO_PLAYER)[number];
 export type PlayerToShellType = (typeof PLAYER_TO_SHELL)[number];
@@ -86,6 +86,12 @@ export function semanticProblem(message: BridgeMessage): string | null {
   switch (message.type) {
     case 'scene/init': {
       const p = message.payload;
+      const v = p.initialView;
+      if (!(v.minE < v.maxE) || !(v.minN < v.maxN)) return 'payload.initialView must have minE < maxE and minN < maxN';
+      const b = p.bounds;
+      if (v.minE < b.minE || v.minN < b.minN || v.maxE > b.maxE || v.maxN > b.maxN) {
+        return 'payload.initialView must lie inside payload.bounds';
+      }
       const dupEra = firstDuplicate(p.eras.map((e) => e.id));
       if (dupEra !== null) return `payload.eras has the era id "${dupEra}" more than once`;
       const indexes = p.eras.map((e) => e.index).sort((a, b) => a - b);

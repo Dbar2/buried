@@ -21,6 +21,28 @@ const easting = milli(166000, 834000);
 const northing = milli(0, 9400000);
 const positionArb: Arb<[number, number]> = fc.tuple(easting, northing);
 
+const toMilli = (i: number): number => (i === 0 ? 0 : i / 1000);
+/** An interval [min, max] with min < max, in whole millimetres, inside [lo, hi] (metres). */
+const intervalIn = (lo: number, hi: number): Arb<[number, number]> =>
+  fc
+    .tuple(fc.integer({ min: Math.round(lo * 1000), max: Math.round(hi * 1000) - 1 }), fc.integer({ min: 1, max: 1_000_000 }))
+    .map(([a, w]) => [a, Math.min(a + w, Math.round(hi * 1000))] as [number, number])
+    .map(([a, b]) => [toMilli(a), toMilli(b)] as [number, number]);
+const subInterval = (outer: [number, number]): Arb<[number, number]> =>
+  fc
+    .tuple(fc.integer({ min: Math.round(outer[0] * 1000), max: Math.round(outer[1] * 1000) - 1 }), fc.integer({ min: 1, max: 1_000_000 }))
+    .map(([a, w]) => [toMilli(a), toMilli(Math.min(a + w, Math.round(outer[1] * 1000)))] as [number, number]);
+
+/** bounds and an initialView inside it, both with min < max. */
+const boundsAndViewArb = fc
+  .tuple(intervalIn(166000, 834000), intervalIn(0, 9400000))
+  .chain(([e, n]) =>
+    fc.tuple(subInterval(e), subInterval(n)).map(([ve, vn]) => ({
+      bounds: { minE: e[0], minN: n[0], maxE: e[1], maxN: n[1] },
+      initialView: { minE: ve[0], minN: vn[0], maxE: ve[1], maxN: vn[1] },
+    })),
+  );
+
 const idPart = fc.stringMatching(/^[a-z0-9]{1,6}$/);
 /** A source id or era id: lowercase snake_case. */
 export const sourceIdArb: Arb<string> = fc.array(idPart, { minLength: 1, maxLength: 4 }).map((parts) => parts.join('_'));
@@ -90,15 +112,26 @@ const message = (type: MessageType, payload: Arb<unknown>): Arb<BridgeMessage> =
 export const messageArbitraries: Readonly<Record<MessageType, Arb<BridgeMessage>>> = {
   'scene/init': message(
     'scene/init',
-    fc.record({
-      bridgeVersion: fc.constant(BRIDGE_VERSION),
-      origin: fc.record({ easting, northing }),
-      bounds: fc.record({ minE: easting, minN: northing, maxE: easting, maxN: northing }),
-      eras: eraRefsArb,
-      present: fc.uniqueArray(presentBuildingArb, { selector: (b) => b.id, maxLength: 3 }),
-      reducedMotion: fc.boolean(),
-      debug: fc.boolean(),
-    }),
+    fc
+      .record({
+        bridgeVersion: fc.constant(BRIDGE_VERSION),
+        origin: fc.record({ easting, northing }),
+        view: boundsAndViewArb,
+        eras: eraRefsArb,
+        present: fc.uniqueArray(presentBuildingArb, { selector: (b) => b.id, maxLength: 3 }),
+        reducedMotion: fc.boolean(),
+        debug: fc.boolean(),
+      })
+      .map(({ view, ...rest }) => ({
+        bridgeVersion: rest.bridgeVersion,
+        origin: rest.origin,
+        bounds: view.bounds,
+        initialView: view.initialView,
+        eras: rest.eras,
+        present: rest.present,
+        reducedMotion: rest.reducedMotion,
+        debug: rest.debug,
+      })),
   ),
   'scene/loadEra': message(
     'scene/loadEra',
@@ -116,6 +149,15 @@ export const messageArbitraries: Readonly<Record<MessageType, Arb<BridgeMessage>
         fc.record({ id: fc.stringMatching(/^[a-z0-9_]{1,10}$/), position: positionArb }),
         { selector: (m) => m.id, maxLength: 16 },
       ),
+    }),
+  ),
+  'debug/setCamera': message(
+    'debug/setCamera',
+    fc.record({
+      target: positionArb,
+      distanceM: milli(30, 3000),
+      pitchDeg: milli(20, 80),
+      headingDeg: milli(0, 359.999),
     }),
   ),
   ready: message(

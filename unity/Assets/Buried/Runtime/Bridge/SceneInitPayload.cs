@@ -8,6 +8,7 @@ namespace Buried.Interop
         public string bridgeVersion;
         public OriginPoint origin;
         public SceneBounds bounds;
+        public RectDto initialView;
         public List<EraRef> eras;
         public List<PresentBuildingDto> present;
         public bool reducedMotion;

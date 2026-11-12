@@ -3,6 +3,6 @@
   "payload": {
     "code": "texture_load_failed",
     "message": "6O6nm",
-    "messageType": "error"
+    "messageType": "cameraChanged"
   }
 }

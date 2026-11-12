@@ -41,6 +41,7 @@ namespace Buried.Interop
                 case BridgeMessageTypes.SceneLoadEra: return new ParsedMessage(type, ParseSceneLoadEra(payload));
                 case BridgeMessageTypes.SceneSetDepth: return new ParsedMessage(type, ParseSceneSetDepth(payload));
                 case BridgeMessageTypes.DebugMarkers: return new ParsedMessage(type, ParseDebugMarkers(payload));
+                case BridgeMessageTypes.DebugSetCamera: return new ParsedMessage(type, ParseDebugSetCamera(payload));
                 case BridgeMessageTypes.Ready: return new ParsedMessage(type, ParseReady(payload));
                 case BridgeMessageTypes.EraLoaded: return new ParsedMessage(type, ParseEraLoaded(payload));
                 case BridgeMessageTypes.FeatureClicked: return new ParsedMessage(type, ParseFeatureClicked(payload));
@@ -56,7 +57,7 @@ namespace Buried.Interop
         private static SceneInitPayload ParseSceneInit(JObject o)
         {
             const string p = "payload";
-            JsonFields.Exactly(o, p, "bridgeVersion", "origin", "bounds", "eras", "present", "reducedMotion", "debug");
+            JsonFields.Exactly(o, p, "bridgeVersion", "origin", "bounds", "initialView", "eras", "present", "reducedMotion", "debug");
 
             string version = JsonFields.String(o, "bridgeVersion", p);
             if (version != BridgeVersion.Value)
@@ -71,11 +72,19 @@ namespace Buried.Interop
                 bridgeVersion = version,
                 origin = ParseOrigin(JsonFields.ObjectAt(o, "origin", p), p + ".origin"),
                 bounds = ParseBounds(JsonFields.ObjectAt(o, "bounds", p), p + ".bounds"),
+                initialView = ParseRect(JsonFields.ObjectAt(o, "initialView", p), p + ".initialView"),
                 eras = new List<EraRef>(),
                 present = new List<PresentBuildingDto>(),
                 reducedMotion = JsonFields.Boolean(o, "reducedMotion", p),
                 debug = JsonFields.Boolean(o, "debug", p),
             };
+
+            RectDto v = result.initialView;
+            SceneBounds b = result.bounds;
+            if (v.minE < b.minE || v.minN < b.minN || v.maxE > b.maxE || v.maxN > b.maxN)
+            {
+                throw JsonFields.Fail(p + ".initialView", "must lie inside payload.bounds");
+            }
 
             JArray eras = JsonFields.ArrayAt(o, "eras", p, 1, 64);
             for (int i = 0; i < eras.Count; i++) result.eras.Add(ParseEraRef(eras[i], p + ".eras[" + i + "]"));
@@ -114,6 +123,38 @@ namespace Buried.Interop
                 minN = JsonFields.NumberIn(o, "minN", p, JsonFields.MinNorthing, JsonFields.MaxNorthing),
                 maxE = JsonFields.NumberIn(o, "maxE", p, JsonFields.MinEasting, JsonFields.MaxEasting),
                 maxN = JsonFields.NumberIn(o, "maxN", p, JsonFields.MinNorthing, JsonFields.MaxNorthing),
+            };
+        }
+
+        private static RectDto ParseRect(JObject o, string p)
+        {
+            JsonFields.Exactly(o, p, "minE", "minN", "maxE", "maxN");
+            var rect = new RectDto
+            {
+                minE = JsonFields.NumberIn(o, "minE", p, JsonFields.MinEasting, JsonFields.MaxEasting),
+                minN = JsonFields.NumberIn(o, "minN", p, JsonFields.MinNorthing, JsonFields.MaxNorthing),
+                maxE = JsonFields.NumberIn(o, "maxE", p, JsonFields.MinEasting, JsonFields.MaxEasting),
+                maxN = JsonFields.NumberIn(o, "maxN", p, JsonFields.MinNorthing, JsonFields.MaxNorthing),
+            };
+            if (!(rect.minE < rect.maxE) || !(rect.minN < rect.maxN))
+            {
+                throw JsonFields.Fail(p, "must have minE < maxE and minN < maxN");
+            }
+            return rect;
+        }
+
+        private static DebugSetCameraPayload ParseDebugSetCamera(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.Exactly(o, p, "target", "distanceM", "pitchDeg", "headingDeg");
+            double heading = JsonFields.NumberIn(o, "headingDeg", p, 0.0, 360.0);
+            if (heading >= 360.0) throw JsonFields.Fail(p + ".headingDeg", "must be below 360");
+            return new DebugSetCameraPayload
+            {
+                target = JsonFields.PositionAt(o, "target", p),
+                distanceM = JsonFields.NumberIn(o, "distanceM", p, 30.0, 3000.0),
+                pitchDeg = JsonFields.NumberIn(o, "pitchDeg", p, 20.0, 80.0),
+                headingDeg = heading,
             };
         }
 

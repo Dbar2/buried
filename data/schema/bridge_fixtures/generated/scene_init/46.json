@@ -1,33 +1,35 @@
 {
   "type": "scene/init",
   "payload": {
-    "bridgeVersion": "0.1.0",
+    "bridgeVersion": "0.2.0",
     "origin": {
       "easting": 166000.029,
       "northing": 9048739.328
     },
     "bounds": {
-      "minE": 277019.838,
-      "minN": 0.011,
-      "maxE": 301076.634,
-      "maxN": 0.011
+      "minE": 277019.84,
+      "minN": 1935863.927,
+      "maxE": 277019.858,
+      "maxN": 1936475.376
+    },
+    "initialView": {
+      "minE": 277019.849,
+      "minN": 1936156.296,
+      "maxE": 277019.858,
+      "maxN": 1936475.376
     },
     "eras": [
       {
-        "id": "qy_2jm7",
-        "index": 1
-      },
-      {
-        "id": "9727j1_y7ub2_lbxjt",
-        "index": 2
-      },
-      {
-        "id": "2j22xs_rz270k",
+        "id": "8b2",
         "index": 0
+      },
+      {
+        "id": "37f6_1if8w3_m6244_z3o9",
+        "index": 1
       }
     ],
     "present": [],
     "reducedMotion": false,
-    "debug": false
+    "debug": true
   }
 }

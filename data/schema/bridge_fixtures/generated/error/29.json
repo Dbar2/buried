@@ -3,6 +3,6 @@
   "payload": {
     "code": "unknown_type",
     "message": "QototyAzY",
-    "messageType": "scene/setDepth"
+    "messageType": "scene/init"
   }
 }

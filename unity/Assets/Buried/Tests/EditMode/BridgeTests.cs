@@ -62,6 +62,33 @@ namespace Buried.Tests
         }
 
         [Test]
+        public void ParsesTheInitialViewAndRefusesOneThatIsInvertedEmptyOrOutsideTheBounds()
+        {
+            var init = (SceneInitPayload)BridgeParser.Parse(Fixture("valid", "scene_init", "gate")).payload;
+            Assert.Less(init.initialView.minE, init.initialView.maxE);
+            Assert.GreaterOrEqual(init.initialView.minE, init.bounds.minE);
+            foreach (string name in new[] { "initial_view_missing", "initial_view_inverted", "initial_view_empty", "initial_view_outside_bounds" })
+            {
+                string text = Fixture("invalid", "scene_init", name);
+                Assert.Throws<BridgeValidationException>(() => BridgeParser.Parse(text), name);
+            }
+        }
+
+        [Test]
+        public void ParsesADebugSetCameraAndRefusesOneOutsideTheLimits()
+        {
+            var camera = (DebugSetCameraPayload)BridgeParser.Parse(Fixture("valid", "debug_setCamera", "default")).payload;
+            Assert.AreEqual(250.0, camera.distanceM);
+            Assert.AreEqual(80.0, camera.pitchDeg);
+            Assert.AreEqual(0.0, camera.headingDeg);
+            foreach (string name in new[] { "pitch_too_low", "pitch_too_high", "distance_too_small", "distance_too_large", "heading_360", "position_lonlat", "extra_property", "missing_heading" })
+            {
+                string text = Fixture("invalid", "debug_setCamera", name);
+                Assert.Throws<BridgeValidationException>(() => BridgeParser.Parse(text), name);
+            }
+        }
+
+        [Test]
         public void ParsingTheSameMessageTwiceGivesTheSameJson()
         {
             string text = Fixture("valid", "scene_loadEra", "building_and_drape");

@@ -30,7 +30,7 @@ function fakeUnity() {
 
 describe('the schema', () => {
   it('has the version this module reports', () => {
-    expect(BRIDGE_VERSION).toBe('0.1.0');
+    expect(BRIDGE_VERSION).toBe('0.2.0');
   });
 
   it('has one message definition and one payload definition per message type', () => {
@@ -74,6 +74,7 @@ describe('defNameFor', () => {
     expect(defNameFor('scene/init')).toBe('sceneInit');
     expect(defNameFor('scene/loadEra')).toBe('sceneLoadEra');
     expect(defNameFor('debug/markers')).toBe('debugMarkers');
+    expect(defNameFor('debug/setCamera')).toBe('debugSetCamera');
     expect(defNameFor('ready')).toBe('ready');
     expect(defNameFor('cameraChanged')).toBe('cameraChanged');
   });
@@ -128,9 +129,10 @@ describe('checkMessage', () => {
       JSON.stringify({
         type: 'scene/init',
         payload: {
-          bridgeVersion: '0.1.0',
+          bridgeVersion: '0.2.0',
           origin: { easting: 632500, northing: 4835000 },
           bounds: { minE: 631900, minN: 4834400, maxE: 633200, maxN: 4835600 },
+          initialView: { minE: 632000, minN: 4834500, maxE: 633100, maxN: 4835500 },
           eras: [
             { id: 'today', index: 1 },
             { id: '1911', index: 2 },

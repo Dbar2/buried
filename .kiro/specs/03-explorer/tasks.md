@@ -397,7 +397,7 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
   maintainer from the screenshots task 16.7 saves. Needs group 1 only. Uses only the gate data
   (plate 229, both editions, and the one building).
 
-  - [ ] 16.1 Bridge `0.2.0`: add `initialView` to `scene/init` and the debug-only
+  - [x] 16.1 Bridge `0.2.0`: add `initialView` to `scene/init` and the debug-only
     `debug/setCamera` message, as in design.md "Message catalogue". Fixtures (valid, invalid for
     each rule, generated), arbitraries, regenerated types and samples, DTOs, parser and writer.
     Implement `initialView.ts` (pure) per design.md "Initial view", with example tests (one

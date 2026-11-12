@@ -3,6 +3,6 @@
   "payload": {
     "code": "debug_disabled",
     "message": "qar!",
-    "messageType": "scene/setDepth"
+    "messageType": "eraLoaded"
   }
 }

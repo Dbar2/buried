@@ -31,6 +31,7 @@ namespace Buried.Interop
                 case BridgeMessageTypes.SceneLoadEra: payload = Write((SceneLoadEraPayload)message.payload); break;
                 case BridgeMessageTypes.SceneSetDepth: payload = Write((SceneSetDepthPayload)message.payload); break;
                 case BridgeMessageTypes.DebugMarkers: payload = Write((DebugMarkersPayload)message.payload); break;
+                case BridgeMessageTypes.DebugSetCamera: payload = Write((DebugSetCameraPayload)message.payload); break;
                 case BridgeMessageTypes.Ready: payload = Write((ReadyPayload)message.payload); break;
                 case BridgeMessageTypes.EraLoaded: payload = Write((EraLoadedPayload)message.payload); break;
                 case BridgeMessageTypes.FeatureClicked: payload = Write((FeatureClickedPayload)message.payload); break;
@@ -116,6 +117,13 @@ namespace Buried.Interop
                     ["maxE"] = Num(p.bounds.maxE),
                     ["maxN"] = Num(p.bounds.maxN),
                 },
+                ["initialView"] = new JObject
+                {
+                    ["minE"] = Num(p.initialView.minE),
+                    ["minN"] = Num(p.initialView.minN),
+                    ["maxE"] = Num(p.initialView.maxE),
+                    ["maxN"] = Num(p.initialView.maxN),
+                },
                 ["eras"] = eras,
                 ["present"] = present,
                 ["reducedMotion"] = p.reducedMotion,
@@ -171,6 +179,17 @@ namespace Buried.Interop
                 markers.Add(new JObject { ["id"] = m.id, ["position"] = Position(m.position) });
             }
             return new JObject { ["markers"] = markers };
+        }
+
+        private static JObject Write(DebugSetCameraPayload p)
+        {
+            return new JObject
+            {
+                ["target"] = Position(p.target),
+                ["distanceM"] = Num(p.distanceM),
+                ["pitchDeg"] = Num(p.pitchDeg),
+                ["headingDeg"] = Num(p.headingDeg),
+            };
         }
 
         private static JObject Write(ReadyPayload p)

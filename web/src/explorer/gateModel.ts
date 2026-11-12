@@ -15,6 +15,8 @@ import { eraOrder } from './eraOrder';
 import type { EraInfo } from './eraOrder';
 import { pickGateMarkers } from './gateMarkers';
 import type { GateMarker } from './gateMarkers';
+import { initialView } from './initialView';
+import type { Rect } from './initialView';
 
 export const GATE_ERA_IDS: readonly string[] = ['1911', '1935'];
 export const GATE_SOURCE_IDS: ReadonlySet<string> = new Set(['fip_v3_1911_229', 'fip_v3_1935_229']);
@@ -32,6 +34,8 @@ export type GateModel = {
   features: Map<string, Feature>;
   tiles: TileSidecar[];
   markers: GateMarker[];
+  /** The rectangle the default camera pose frames. */
+  initialView: Rect;
 };
 
 export function buildGateModel(data: LoadedData): GateModel {
@@ -46,11 +50,21 @@ export function buildGateModel(data: LoadedData): GateModel {
 
   const lists = new Map<string, EraFeatureList>();
   const drapes = new Map<string, Drape[]>();
-  for (const info of gateEras) {
+  // Every era is loaded at start (design.md "Startup", until sceneModel decides what to keep): the
+  // gate eras carry the data; the others are empty until their data exists.
+  for (const info of order) {
     const era = eraById.get(info.id) as Era;
     lists.set(info.id, featuresForEra(data.evidence, data.sources, era));
     drapes.set(info.id, drapesForEra(era, data.sources, tiles));
   }
+
+  const b = data.project.bounds;
+  const view = initialView(lists.values(), [...drapes.values()].flat(), {
+    minE: b.min_e,
+    minN: b.min_n,
+    maxE: b.max_e,
+    maxN: b.max_n,
+  });
 
   const features = new Map<string, Feature>();
   for (const collection of data.evidence) {
@@ -61,5 +75,5 @@ export function buildGateModel(data: LoadedData): GateModel {
   const second: ControlPoints | undefined = data.controls.get('fip_v3_1935_229');
   const markers = first ? pickGateMarkers(first, second) : [];
 
-  return { project: data.project, sources: data.sources, order, gateEras, lists, drapes, features, tiles, markers };
+  return { project: data.project, sources: data.sources, order, gateEras, lists, drapes, features, tiles, markers, initialView: view };
 }

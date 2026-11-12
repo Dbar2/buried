@@ -116,7 +116,12 @@ export default function UnityView(props: UnityViewProps) {
         await ready.promise;
         if (disposed) return;
 
-        bridge.send(buildSceneInit(model.project, model.order, { reducedMotion: latest.current.reducedMotion, debug }));
+        bridge.send(
+          buildSceneInit(model.project, model.order, model.initialView, {
+            reducedMotion: latest.current.reducedMotion,
+            debug,
+          }),
+        );
         for (const era of model.gateEras) {
           const done = deferred();
           loaded.set(era.id, done);

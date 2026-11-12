@@ -3,6 +3,6 @@
   "payload": {
     "code": "era_not_initialised",
     "message": "key",
-    "messageType": "featureClicked"
+    "messageType": "scene/loadEra"
   }
 }

@@ -11,12 +11,14 @@ import type { EraInfo } from './eraOrder';
 import { eraRefs } from './eraOrder';
 import type { GateMarker } from './gateMarkers';
 import { sceneFeaturesFor } from './sceneFeatures';
+import type { Rect } from './initialView';
 
 type InitPayload = MessageOf<'scene/init'>['payload'];
 
 export function buildSceneInit(
   project: Project,
   order: readonly EraInfo[],
+  view: Rect,
   flags: { reducedMotion: boolean; debug: boolean },
 ): MessageOf<'scene/init'> {
   const { origin, bounds } = project;
@@ -26,6 +28,7 @@ export function buildSceneInit(
       bridgeVersion: BRIDGE_VERSION as InitPayload['bridgeVersion'],
       origin: { easting: origin.easting, northing: origin.northing },
       bounds: { minE: bounds.min_e, minN: bounds.min_n, maxE: bounds.max_e, maxN: bounds.max_n },
+      initialView: { minE: view.minE, minN: view.minN, maxE: view.maxE, maxN: view.maxN },
       // The type says "at least one"; serialiseMessage enforces it (and the 64 limit) with the Schema.
       eras: eraRefs(order) as InitPayload['eras'],
       // Today's buildings are drawn from task group 3 on.
@@ -45,6 +48,24 @@ export function buildLoadEra(era: Pick<EraInfo, 'id'>, list: EraFeatureList, dra
 
 export function buildSetDepth(depth: number): MessageOf<'scene/setDepth'> {
   return { type: 'scene/setDepth', payload: { depth } };
+}
+
+/** debug/setCamera, for the look and drape placement tests. The Player refuses it without debug. */
+export function buildSetCamera(pose: {
+  target: readonly [number, number];
+  distanceM: number;
+  pitchDeg: number;
+  headingDeg: number;
+}): MessageOf<'debug/setCamera'> {
+  return {
+    type: 'debug/setCamera',
+    payload: {
+      target: [pose.target[0], pose.target[1]],
+      distanceM: pose.distanceM,
+      pitchDeg: pose.pitchDeg,
+      headingDeg: pose.headingDeg,
+    },
+  };
 }
 
 export function buildMarkers(markers: readonly GateMarker[]): MessageOf<'debug/markers'> {
