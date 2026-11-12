@@ -1,8 +1,6 @@
 /**
  * The Evidence Library: the single implementation of the date logic and the honesty rules.
  * Nothing outside web/src/evidence/ may import its internal modules; import from here.
- *
- * Lot relations, findings and the banned-word check are added by spec 01 tasks 7 and 8.
  */
 export type {
   Dated,
@@ -16,6 +14,18 @@ export type { EraFeature, EraFeatureList, EraRange } from './eras';
 export { drawnMember, featuresForEra, isDrawnInEra } from './eras';
 export { linkedSets } from './links';
 export type { LinkedSet } from './links';
+export { LotInputError, lotRelation } from './lot';
+export type { Lot, LotFeature, LotRelation } from './lot';
+export {
+  checkedRecordsText,
+  createFinding,
+  createNotCovered,
+  createNothingFound,
+  statusLabel,
+} from './findings';
+export type { CheckedInput, CheckedRecord, Finding, FindingInput, FindingStatus } from './findings';
+export { BANNED_WORDS, HonestyError, findBannedWords } from './text';
+export type { BannedWord } from './text';
 export { EvidenceLoadError, checkContract, parseContract } from './load';
 export { parseEvidenceFile, parseProject, parseSourceRegistry } from './load';
 export { positionPhrase } from './position';

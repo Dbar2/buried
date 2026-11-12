@@ -158,34 +158,34 @@ alignment gate is not blocked by it.
     Files: `web/src/evidence/eras.property.test.ts`.
     Requirements: 2.8, 12.2, 12.4.
 
-- [ ] 7. Implement the lot relation
-  - [ ] 7.1 Implement `lotRelation` with JSTS, including the `k = 1 / cos(π / (4q))` distance
+- [x] 7. Implement the lot relation
+  - [x] 7.1 Implement `lotRelation` with JSTS, including the `k = 1 / cos(π / (4q))` distance
     scaling for the inward buffer.
     Files: `web/src/evidence/lot.ts`, `web/src/evidence/lot.test.ts`.
     Requirements: 13.1 to 13.5.
-  - [ ] 7.2 **[PBT] P7** "On this lot" survives any displacement within the error (include
+  - [x] 7.2 **[PBT] P7** "On this lot" survives any displacement within the error (include
     L-shaped lots).
     Files: `web/src/evidence/lot.property.test.ts`.
     Requirements: 13.2, 13.5.
-  - [ ] 7.3 **[PBT] P8** "On this lot" never appears when the overlap is smaller than the error.
+  - [x] 7.3 **[PBT] P8** "On this lot" never appears when the overlap is smaller than the error.
     Files: `web/src/evidence/lot.property.test.ts`.
     Requirements: 13.2, 13.4.
-  - [ ] 7.4 **[PBT] P9** "Near" distance is an integer within one metre above distance plus error.
+  - [x] 7.4 **[PBT] P9** "Near" distance is an integer within one metre above distance plus error.
     Files: `web/src/evidence/lot.property.test.ts`.
     Requirements: 13.3.
 
-- [ ] 8. Implement findings and the banned-word check
-  - [ ] 8.1 Implement `text.ts` (`BANNED_WORDS`, `findBannedWords`, `HonestyError`) and
+- [x] 8. Implement findings and the banned-word check
+  - [x] 8.1 Implement `text.ts` (`BANNED_WORDS`, `findBannedWords`, `HonestyError`) and
     `findings.ts` (`createFinding`, `createNothingFound`, the `not_covered` constructor,
     `statusLabel`, `checkedRecordsText`).
     Files: `web/src/evidence/text.ts`, `web/src/evidence/findings.ts`,
     `web/src/evidence/text.test.ts`, `web/src/evidence/findings.test.ts`.
     Requirements: 14.1 to 14.5.
-  - [ ] 8.2 **[PBT] P10** Every finding has a source; banned words are always found and always
+  - [x] 8.2 **[PBT] P10** Every finding has a source; banned words are always found and always
     refused.
     Files: `web/src/evidence/findings.property.test.ts`.
     Requirements: 14.2, 14.4, 14.5.
-  - [ ] 8.3 **[PBT] P11** "Nothing found" lists every record and year range checked.
+  - [x] 8.3 **[PBT] P11** "Nothing found" lists every record and year range checked.
     Files: `web/src/evidence/findings.property.test.ts`.
     Requirements: 14.3.
 
@@ -204,8 +204,8 @@ alignment gate is not blocked by it.
     Files: `data/project.json`.
     Requirements: 7.1 to 7.4, 7.6.
 
-- [ ] 11. Final check (run after tasks 12 to 19 as well)
-  - [ ] 11.1 Run `npm test` and `npm run typecheck` in `web/`, and `uv run pytest` and
+- [x] 11. Final check (run after tasks 12 to 19 as well)
+  - [x] 11.1 Run `npm test` and `npm run typecheck` in `web/`, and `uv run pytest` and
     `uv run buried validate` in `pipeline/`. All pass. Confirm every property P1 to P23 has a
     passing test.
     Files: none.
@@ -278,8 +278,8 @@ alignment gate is not blocked by it.
     `web/src/evidence/index.ts`.
     Requirements: 20.3, 20.4.
 
-- [ ] 15. Banned word inflections
-  - [ ] 15.1 Make sure `BANNED_WORDS` and the **[PBT] P10** generators include "safer", "safest",
+- [x] 15. Banned word inflections
+  - [x] 15.1 Make sure `BANNED_WORDS` and the **[PBT] P10** generators include "safer", "safest",
     "cleaner" and "cleanest", and add example tests showing "safety" and "cleaning" pass. If task 8
     is already done, this is the change; otherwise task 8 builds it this way from the start.
     Files: `web/src/evidence/text.ts`, `web/src/evidence/text.test.ts`,
