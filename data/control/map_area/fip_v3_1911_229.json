@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.1.0",
+  "source": "fip_v3_1911_229",
+  "pixel_convention": "gdal_corner",
+  "pixel_polygon": [
+    [
+      435,
+      800
+    ],
+    [
+      5567,
+      800
+    ],
+    [
+      5567,
+      2150
+    ],
+    [
+      3207,
+      2860
+    ],
+    [
+      4560,
+      6185
+    ],
+    [
+      4560,
+      6598
+    ],
+    [
+      435,
+      6598
+    ]
+  ],
+  "excluded": "Sheet margins, the plate number and title block, the north arrow and the scale bar. The blank part of the sheet east of St Lawrence St and south of King St E (drawn on sheet 232) is left out.",
+  "confirmed_by": "Buried maintainers (draft, unreviewed)",
+  "confirmed_at": "2026-11-12T23:11:49Z"
+}

@@ -2,29 +2,77 @@
   "schema_version": "1.1.0",
   "source": "fip_v3_1911_229",
   "image": "fip_v3_1911_229.jpg",
-  "width_px": 3428,
+  "width_px": 3626,
   "height_px": 4096,
   "corners": {
     "top_left": [
-      632273.9227376722,
-      4835125.009481436
+      632312.268258896,
+      4835087.454831159
     ],
     "top_right": [
-      632592.4023848702,
-      4835225.600777758
+      632596.4688413026,
+      4835177.21913871
     ],
     "bottom_right": [
-      632714.8438886629,
-      4834837.70468001
+      632699.789440777,
+      4834849.898286615
     ],
     "bottom_left": [
-      632396.3642414649,
-      4834737.113383687
+      632415.5888583706,
+      4834760.1339790635
     ]
   },
   "transform": "supplied",
   "alignment_error_m": 4.3,
   "source_pixel_size_m": 0.05919982119286117,
-  "tile_pixel_size_m": 0.09931685288218921,
-  "attribution_line": "Digitized and georeferenced by the University of Toronto Map & Data Library."
+  "tile_pixel_size_m": 0.08379896564360573,
+  "attribution_line": "Digitized and georeferenced by the University of Toronto Map & Data Library.",
+  "crop_px": {
+    "x": 435,
+    "y": 800,
+    "width": 5132,
+    "height": 5798
+  },
+  "map_area": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          632312.268258896,
+          4835087.454831159
+        ],
+        [
+          632596.4688413026,
+          4835177.21913871
+        ],
+        [
+          632620.5258970615,
+          4835101.006108298
+        ],
+        [
+          632502.4857307359,
+          4835019.644711827
+        ],
+        [
+          632636.6639830325,
+          4834855.600294274
+        ],
+        [
+          632644.0236600905,
+          4834832.284752377
+        ],
+        [
+          632415.5888583706,
+          4834760.1339790635
+        ],
+        [
+          632312.268258896,
+          4835087.454831159
+        ]
+      ]
+    ]
+  },
+  "full_image": "fip_v3_1911_229_full.jpg",
+  "full_width_px": 1714,
+  "full_height_px": 2048
 }

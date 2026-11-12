@@ -2,29 +2,77 @@
   "schema_version": "1.1.0",
   "source": "fip_v3_1935_229",
   "image": "fip_v3_1935_229.jpg",
-  "width_px": 3855,
-  "height_px": 3463,
+  "width_px": 2467,
+  "height_px": 2760,
   "corners": {
     "top_left": [
-      632234.6093525467,
-      4835136.299133643
+      632313.5450235297,
+      4835088.952014592
     ],
     "top_right": [
-      632676.5830415823,
-      4835268.446205185
+      632596.3852546193,
+      4835173.5192845
     ],
     "bottom_right": [
-      632792.1124823894,
-      4834860.296646204
+      632688.4618519706,
+      4834848.225382453
     ],
     "bottom_left": [
-      632350.1387933538,
-      4834728.149574662
+      632405.621620881,
+      4834763.658112545
     ]
   },
   "transform": "supplied",
   "alignment_error_m": 3.1,
   "source_pixel_size_m": 0.12249068232516311,
   "tile_pixel_size_m": 0.12249068232516311,
-  "attribution_line": "Library and Archives Canada, National Map Collection (NMC-0013999). Digitized and georeferenced by the University of Toronto Map & Data Library."
+  "attribution_line": "Library and Archives Canada, National Map Collection (NMC-0013999). Digitized and georeferenced by the University of Toronto Map & Data Library.",
+  "crop_px": {
+    "x": 527,
+    "y": 555,
+    "width": 2467,
+    "height": 2760
+  },
+  "map_area": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          632313.5450235297,
+          4835088.952014592
+        ],
+        [
+          632596.3852546193,
+          4835173.5192845
+        ],
+        [
+          632616.8689614214,
+          4835101.153177305
+        ],
+        [
+          632500.2671559687,
+          4835021.931354613
+        ],
+        [
+          632633.6345108347,
+          4834861.362235981
+        ],
+        [
+          632641.3409216999,
+          4834834.136550701
+        ],
+        [
+          632405.621620881,
+          4834763.658112545
+        ],
+        [
+          632313.5450235297,
+          4835088.952014592
+        ]
+      ]
+    ]
+  },
+  "full_image": "fip_v3_1935_229_full.jpg",
+  "full_width_px": 2048,
+  "full_height_px": 1840
 }

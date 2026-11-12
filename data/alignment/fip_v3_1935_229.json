@@ -6,7 +6,7 @@
   ],
   "control_file": "data/control/fip_v3_1935_229.json",
   "control_sha256": "9458755f4146f119e56616eb0cf9f3c7da498cbe7ee7825b3f4d7ea3cea0dec9",
-  "measured_at": "2026-11-12T22:46:15Z",
+  "measured_at": "2026-11-12T23:13:52Z",
   "tool_version": "0.1.0",
   "status": "measured",
   "source_pixel_size_m": 0.12249068232516311,
