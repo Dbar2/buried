@@ -89,24 +89,108 @@
 
 .bands {
   display: grid;
-  gap: var(--space-2);
+  gap: 0;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
+/* One band: the era, a picture of the lot from that era's source, and its plain sentences. Hairline
+   rules between bands, as on a paper form. */
 .band {
-  border-left: 3px solid var(--report-rule);
-  padding: 0 0 0 var(--space-3);
+  align-items: start;
+  border-top: 1px solid var(--report-rule);
+  column-gap: var(--space-3);
+  display: grid;
+  grid-template-columns: 4.5rem 7rem minmax(0, 1fr);
+  padding: var(--space-3) 0;
 }
 
-.band h3 button {
+.band:last-child {
+  border-bottom: 1px solid var(--report-rule);
+}
+
+.band-head h3 {
+  margin: 0;
+}
+
+.band-label {
+  font-size: 1rem;
+}
+
+.band-head h3 button,
+.band-head h3 a {
   background: none;
-  border: 1px solid var(--report-rule);
+  border: 0;
   color: var(--report-ink);
   cursor: pointer;
   font: inherit;
-  padding: var(--space-1) var(--space-2);
+  padding: 0;
+  text-align: left;
+  text-decoration: underline;
+}
+
+.band-crop {
+  background: none;
+  border: 1px solid var(--report-rule);
+  border-radius: 2px;
+  cursor: zoom-in;
+  display: block;
+  line-height: 0;
+  padding: 0;
+}
+
+.crop-canvas {
+  display: block;
+  max-width: 100%;
+}
+
+.band-none,
+.band-flag {
+  margin: var(--space-1) 0 0;
+}
+
+.band-flag {
+  color: var(--report-ink-soft);
+}
+
+.band-text p:last-child {
+  margin-bottom: 0;
+}
+
+.band-dialog {
+  background: var(--report-paper);
+  border: 1px solid var(--report-ink);
+  border-radius: 2px;
+  color: var(--report-ink);
+  max-width: min(36rem, 96vw);
+  padding: var(--space-3);
+}
+
+.band-dialog::backdrop {
+  background: var(--night);
+  opacity: 0.8;
+}
+
+.band-dialog-body h3 {
+  margin-bottom: var(--space-2);
+}
+
+.band-dialog .crop-canvas {
+  height: auto !important;
+  width: 100% !important;
+}
+
+.band-attribution {
+  list-style: none;
+  margin: var(--space-2) 0;
+  padding: 0;
+}
+
+.report button.primary,
+.report-actions button.primary {
+  background: var(--report-ink);
+  color: var(--report-paper);
 }
 
 .findings {
@@ -124,6 +208,37 @@
 
 .finding-head {
   margin: 0 0 var(--space-1);
+}
+
+/* A finding that says "nothing" or "not covered" is one plain line, not a box. */
+.finding-checked {
+  border: 0;
+  border-left: 2px solid var(--report-rule);
+  padding: 0 0 0 var(--space-3);
+}
+
+.finding-checked .finding-sentence {
+  margin: 0 0 var(--space-1);
+}
+
+.status-text {
+  font-weight: 600;
+}
+
+.report-subtitle {
+  color: var(--report-ink-soft);
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  margin: 0 0 var(--space-3);
+}
+
+.report-summary {
+  font-size: 1.125rem;
+}
+
+.report-coverage {
+  color: var(--report-ink-soft);
+  font-size: 0.9375rem;
 }
 
 /* Status and confidence: a label in text, plus a line pattern. */
@@ -173,7 +288,8 @@
 .report-actions button,
 .report-search button {
   background: var(--report-paper);
-  border: 2px solid var(--report-ink);
+  border: 1px solid var(--report-ink);
+  border-radius: 2px;
   color: var(--report-ink);
   cursor: pointer;
   font: inherit;

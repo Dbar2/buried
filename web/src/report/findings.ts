@@ -1,12 +1,12 @@
 /**
  * The Report's findings (spec 05 design "Finding rules" and "Empty groups").
  *
- * Three groups, in this order: Water history, Past land use, Fill and old structures. Each finding is
+ * Three groups, in this order: Water, What the land was used for, Old buildings and fill. Each finding is
  * made through spec 01's constructors, so one without a source, with an unregistered source, or with
  * a banned word cannot exist. Every sentence is built with the sentence builder, so it carries the
  * fact pack it was built from. Nothing here reads a clock or a random number.
  *
- * One departure from the design text, recorded here: "Past land use" groups by (use, relation, kind)
+ * One departure from the design text, recorded here: "What the land was used for" groups by (use, relation, kind)
  * instead of (use, relation), so "a building" and "an area" are never counted together.
  */
 import {
@@ -17,7 +17,7 @@ import {
   findBannedWords,
   linkedSets,
   lotRelation,
-  sourceYearsText,
+  plainSourceName,
   summariseSet,
 } from '../evidence';
 import type {
@@ -35,9 +35,10 @@ import type {
 import { COVERAGE_WORDING, coverageVisibility, lotCoverage } from './coverage';
 import type { LotCoverage, PlateCoverage } from './coverage';
 import * as copy from './copy';
+import { confirmedSentences } from './confirmed';
 import { LAND_USE_RADIUS_M, RADIUS_M, STRUCTURE_RADIUS_M, WATER_RADIUS_M } from './radii';
 import type { GroupId } from './radii';
-import { datePhrase, dates, fixed, id, joined, onLot, position, quote, sentence, words, within } from './sentence';
+import { datePhrase, dates, fixed, joined, listOf, onLot, plan, position, quote, sentence, words, within, years } from './sentence';
 import type { RelationClaim, Sentence, Slot } from './sentence';
 
 export type ConfidenceEntry = { label: string; reason: string; pattern: 'solid' | 'dashed' | 'dotted' };
@@ -130,16 +131,10 @@ function relationSlot(featureId: string, relation: LotRelation): Slot {
 
 const sourceYearFrom = (sources: SourceIndex, sourceId: string): number => sources.get(sourceId)?.year_from ?? 0;
 
-/** "fip_v3_1911_229 (1911, revised to 1914); fip_v3_1935_229 (1931, revised to 1935)". */
+/** "the 1911 plan and the 1931-35 plan", earliest first. No ids in the sentence. */
 function sourceListSlot(sourceIds: readonly string[], sources: SourceIndex): Slot {
   const ordered = [...sourceIds].sort((a, b) => sourceYearFrom(sources, a) - sourceYearFrom(sources, b) || byString(a, b));
-  return joined(
-    ordered.map((sourceId) => {
-      const source = sources.get(sourceId) as Source;
-      return joined([id(sourceId), words(' ('), { text: sourceYearsText(source), numbers: [source.year_from, source.year_to].filter((y): y is number => y !== null).map(String) }, words(')')], '');
-    }),
-    '; ',
-  );
+  return listOf(ordered.map((sourceId) => plan(sources.get(sourceId))));
 }
 
 function confidenceEntry(feature: Feature): ConfidenceEntry {
@@ -184,13 +179,15 @@ function makeReportFinding(
   },
 ): ReportFinding {
   const featureIds = [...new Set(parts.members.map((m) => m.id))].sort(byString);
+  // The record's own words about who confirmed these features, after the sentences about them.
+  const sentences = [...parts.sentences, ...confirmedSentences(parts.members)];
   const finding = createFinding(
-    { status: parts.status, text: textOf(parts.sentences), sourceIds: parts.sourceIds, featureIds, relation: parts.relation },
+    { status: parts.status, text: textOf(sentences), sourceIds: parts.sourceIds, featureIds, relation: parts.relation },
     input.sources,
   );
   return {
     finding,
-    sentences: parts.sentences,
+    sentences,
     confidence: confidenceEntries(parts.members),
     featureIds,
     sortKey: {
@@ -211,6 +208,18 @@ const kindWord = (kind: Feature['properties']['kind'], count: number): string =>
   return count === 1 ? 'a building' : `${count} buildings`;
 };
 
+const capitalise = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);
+
+/**
+ * A use as the plan letters it. The evidence files end some uses with "(as lettered on the plate)";
+ * the sentence already says "lettered on the 1911 plan as", so that note is not repeated. What is left
+ * is a part of the recorded string, unchanged.
+ */
+export function lettering(use: string): string {
+  const trimmed = use.replace(/\s*\(as lettered on the plate\)\s*$/i, '');
+  return trimmed === '' ? use : trimmed;
+}
+
 // ---------- conflicts ----------
 
 function conflictFinding(info: SetInfo, input: GroupsInput): ReportFinding {
@@ -225,10 +234,10 @@ function conflictFinding(info: SetInfo, input: GroupsInput): ReportFinding {
   }
   const subject = info.kind === 'water' ? 'water' : 'a building';
   const rel = relationSlot(info.claim.id, info.relation);
-  const list = (ids: Iterable<string>): Slot => joined([...ids].sort(byString).map(id), ', ');
+  const list = (ids: Iterable<string>): Slot => sourceListSlot([...ids], input.sources);
   const body =
     absence.size > 0 && presence.size > 0
-      ? sentence`The records disagree about ${words(subject)} drawn ${rel}: ${list(presence)} show it; ${list(absence)} show the spot empty. It needs review.`
+      ? sentence`The records disagree about ${words(subject)} drawn ${rel}: it is shown on ${list(presence)}, and the spot is shown empty on ${list(absence)}. It needs review.`
       : sentence`The records disagree with each other about ${words(subject)} drawn ${rel}, on ${list(new Set(refs.map((r) => r.source)))}. It needs review.`;
   return makeReportFinding(input, {
     status: 'estimated',
@@ -246,7 +255,7 @@ function datedSentences(info: SetInfo): Sentence[] {
 }
 
 function waterFinding(info: SetInfo, input: GroupsInput): ReportFinding {
-  const label = info.claim.properties.attributes.use;
+  const label = lettering(info.claim.properties.attributes.use ?? '') || undefined;
   const printable = label !== undefined && findBannedWords(label).length === 0;
   const labelled: Slot = printable ? joined([words(' labelled '), quote(label)], '') : words('');
   const rel = relationSlot(info.claim.id, info.relation);
@@ -260,14 +269,11 @@ function waterFinding(info: SetInfo, input: GroupsInput): ReportFinding {
 }
 
 function structureFinding(info: SetInfo, input: GroupsInput): ReportFinding {
-  const use = info.claim.properties.attributes.use;
-  const printable = use !== undefined && findBannedWords(use).length === 0;
+  // A use lettered on the plan is quoted once, under "What the land was used for" (useFindings).
   const rel = relationSlot(info.claim.id, info.relation);
   const storeys = info.claim.properties.attributes.storeys;
   const sentences = [
-    printable
-      ? sentence`A building recorded as ${quote(use)} is drawn ${rel} on ${sourceListSlot(info.originIds, input.sources)}.`
-      : sentence`A building is drawn ${rel} on ${sourceListSlot(info.originIds, input.sources)}.`,
+    sentence`A building is drawn ${rel} on ${sourceListSlot(info.originIds, input.sources)}.`,
     ...datedSentences(info),
     storeys !== undefined ? sentence`Storeys: ${{ text: String(storeys), numbers: [String(storeys)] }}.` : sentence`Storeys: not recorded.`,
     sentence`${position(info.claim.properties.position_error_m)}.`,
@@ -301,8 +307,9 @@ type UseKey = { printable: boolean; use: string; sourceId: string; kind: Feature
 function useFindings(input: GroupsInput, features: ReadonlyArray<{ feature: Feature; relation: LotRelation }>): ReportFinding[] {
   const groups = new Map<string, { key: UseKey; items: typeof features[number][] }>();
   for (const item of features) {
-    const use = item.feature.properties.attributes.use;
-    if (use === undefined) continue;
+    const raw = item.feature.properties.attributes.use;
+    if (raw === undefined) continue;
+    const use = lettering(raw);
     const printable = findBannedWords(use).length === 0;
     const sourceId = item.feature.properties.provenance.origin_source;
     const key: UseKey = { printable, use: printable ? use : '', sourceId: printable ? '' : sourceId, kind: item.feature.properties.kind, relationKind: item.relation.kind };
@@ -325,11 +332,12 @@ function useFindings(input: GroupsInput, features: ReadonlyArray<{ feature: Feat
             claims: items.map((i) => ({ featureId: i.feature.id, kind: 'near' as const, withinM: (i.relation as { withinM: number }).withinM })),
           };
     const originIds = [...new Set(members.map((m) => m.properties.provenance.origin_source))].sort(byString);
-    const what = words(kindWord(members[0]?.properties.kind ?? 'building', members.length));
+    const what = words(capitalise(kindWord(members[0]?.properties.kind ?? 'building', members.length)));
     const countNum: Slot = { text: '', numbers: members.length > 1 ? [String(members.length)] : [] };
+    const verb = words(members.length === 1 ? 'is' : 'are');
     const body = key.printable
-      ? sentence`${quote(key.use)} is recorded for ${what}${countNum} ${rel} on ${sourceListSlot(originIds, input.sources)}.`
-      : sentence`A use printed on ${id(key.sourceId)} is recorded for ${what}${countNum} ${rel}. Its wording is not reproduced in this report; see the source.`;
+      ? sentence`${what}${countNum} ${rel} ${verb} lettered on ${sourceListSlot(originIds, input.sources)} as ${quote(key.use)}.`
+      : sentence`A use printed on ${plan(input.sources.get(key.sourceId))} is recorded for ${words(kindWord(members[0]?.properties.kind ?? 'building', members.length))}${countNum} ${rel}. Its wording is not reproduced in this report; see the source.`;
     const errorM = Math.max(...members.map((m) => m.properties.position_error_m));
     const cited = new Set<string>();
     for (const m of members) for (const o of m.properties.observations) cited.add(o.source);
@@ -357,13 +365,38 @@ function sortFindings(list: ReportFinding[]): ReportFinding[] {
 
 type Rows = ReadonlyArray<{ source: Source; coverage: LotCoverage }>;
 
+const COVERAGE_ORDER: readonly LotCoverage[] = ['reviewed', 'mapped', 'not_read', 'not_mapped'];
+
+/** "the 1911 plan (1911, revised to 1914)": a plan's plain name and the years its record states. */
+function planWithYears(source: Source): Slot {
+  return joined([plan(source), words(' ('), years(source), words(')')], '');
+}
+
+/**
+ * What was looked at, in plain words and in one run: one sentence per kind of coverage, such as
+ * "Checked here: the 1911 plan (1911, revised to 1914) and the 1931-35 plan (1931, revised to 1935)."
+ * Two sheets of one plan are named once, by the one that says most about the lot. The finding's
+ * `checked` list (built from every row) keeps each sheet with its visibility.
+ */
 function recordLines(rows: Rows): Sentence[] {
-  return rows.map(({ source, coverage }) => sentence`${id(source.id)} (${{ text: sourceYearsText(source), numbers: [source.year_from, source.year_to].filter((y): y is number => y !== null).map(String) }}): ${words(COVERAGE_WORDING[coverage])}.`);
+  const best = new Map<string, { source: Source; coverage: LotCoverage }>();
+  for (const row of rows) {
+    const key = plainSourceName(row.source);
+    const have = best.get(key);
+    if (!have || COVERAGE_ORDER.indexOf(row.coverage) < COVERAGE_ORDER.indexOf(have.coverage)) best.set(key, row);
+  }
+  return COVERAGE_ORDER.flatMap((coverage) => {
+    const group = [...best.values()]
+      .filter((r) => r.coverage === coverage)
+      .sort((a, b) => (a.source.year_from ?? 0) - (b.source.year_from ?? 0) || byString(a.source.id, b.source.id));
+    if (group.length === 0) return [];
+    const label = capitalise(COVERAGE_WORDING[coverage]);
+    return [sentence`${words(label)}: ${listOf(group.map((r) => planWithYears(r.source)))}.`];
+  });
 }
 
 function checkedFinding(kind: 'nothing_found' | 'not_covered', head: Sentence, rows: Rows, input: GroupsInput): ReportFinding {
-  const lines = recordLines(rows);
-  const sentences = [head, sentence`Records checked:`, ...lines];
+  const sentences = [head, ...recordLines(rows)];
   const checked = rows.map(({ source, coverage }) => ({ sourceId: source.id, visibility: coverageVisibility(coverage) }));
   const text = textOf(sentences);
   const finding = kind === 'nothing_found' ? createNothingFound(text, checked, input.sources) : createNotCovered(text, checked, input.sources);
@@ -377,7 +410,7 @@ function checkedFinding(kind: 'nothing_found' | 'not_covered', head: Sentence, r
 }
 
 function idList(rows: Rows): Slot {
-  return joined(rows.map((r) => id(r.source.id)), ', ');
+  return listOf(rows.map((r) => plan(r.source)));
 }
 
 function coveragesFor(input: GroupsInput, radiusM: number, kinds: ReadonlyArray<'building' | 'water' | 'land_use'>): PlateCoverage[] {
@@ -392,6 +425,18 @@ function coveragesFor(input: GroupsInput, radiusM: number, kinds: ReadonlyArray<
 }
 
 // ---------- the three groups ----------
+
+/**
+ * One entry per linked set of building outlines within the structure radius of the lot, with its
+ * relation to the lot. The place summary counts these; they are the same sets the "Old buildings and
+ * fill" group reports on.
+ */
+export function structureOutlines(input: GroupsInput): Array<{ featureId: string; relation: LotRelation }> {
+  return linkedSets(input.collections)
+    .map((set) => setInfo(set, input))
+    .filter((i) => i.kind === 'building' && inRange(i.relation, STRUCTURE_RADIUS_M))
+    .map((i) => ({ featureId: i.claim.id, relation: i.relation }));
+}
 
 const NEXT: Record<GroupId, string> = { water: copy.NEXT_WATER, land_use: copy.NEXT_LAND_USE, structures: copy.NEXT_STRUCTURES };
 
@@ -421,7 +466,7 @@ export function buildGroups(input: GroupsInput): [Group, Group, Group] {
     const reviewed = rows.filter((r) => r.coverage === 'reviewed');
     const mapped = rows.filter((r) => r.coverage === 'mapped');
     if (reviewed.length > 0 && mapped.length === 0) {
-      water.push(checkedFinding('nothing_found', sentence`No water is drawn at this lot or within ${num100()} m in these records.`, rows, input));
+      water.push(checkedFinding('nothing_found', sentence`No water is drawn at this lot or within ${num100()} m.`, rows, input));
     } else {
       water.push(
         checkedFinding(
@@ -454,10 +499,10 @@ export function buildGroups(input: GroupsInput): [Group, Group, Group] {
     const reviewed = structureRows.filter((r) => r.coverage === 'reviewed');
     const mapped = structureRows.filter((r) => r.coverage === 'mapped');
     if (structures.length === 0 && reviewed.length > 0) {
-      structures.push(checkedFinding('nothing_found', sentence`No building is drawn at this lot or within ${num10()} m in these records.`, structureRows, input));
+      structures.push(checkedFinding('nothing_found', sentence`No building is drawn at this lot or within ${num10()} m.`, structureRows, input));
     }
     if (mapped.length > 0) {
-      structures.push(checkedFinding('not_covered', sentence`${idList(mapped)} show this lot, but not every building they draw here has been checked.`, structureRows, input));
+      structures.push(checkedFinding('not_covered', sentence`This lot is on ${idList(mapped)}, but not every building they draw here has been checked.`, structureRows, input));
     }
     if (structures.length === 0) {
       structures.push(checkedFinding('not_covered', sentence`No record Buried has read shows this lot.`, structureRows, input));
@@ -490,10 +535,10 @@ export function buildGroups(input: GroupsInput): [Group, Group, Group] {
         ),
       );
     } else if (landUse.length === 0 && reviewed.length > 0) {
-      landUse.push(checkedFinding('nothing_found', sentence`No building or land use is drawn at this lot or within ${num30()} m in these records.`, landRows, input));
+      landUse.push(checkedFinding('nothing_found', sentence`No building or land use is drawn at this lot or within ${num30()} m.`, landRows, input));
     }
     if (mapped.length > 0) {
-      landUse.push(checkedFinding('not_covered', sentence`${idList(mapped)} show this lot, but not every building or area they draw here has been checked.`, landRows, input));
+      landUse.push(checkedFinding('not_covered', sentence`This lot is on ${idList(mapped)}, but not every building or area they draw here has been checked.`, landRows, input));
     }
     if (landUse.length === 0) {
       landUse.push(checkedFinding('not_covered', sentence`No record Buried has read shows this lot.`, landRows, input));

@@ -156,6 +156,10 @@ export function PlateStage(props: PlateStageProps) {
     if (image) {
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(image, crop.x, crop.y, crop.width, crop.height);
+      // The scan is dimmed toward mid-grey so traced outlines read (design.md "Studio look"). A veil
+      // of the `present` token over the plate; the raster itself is not changed.
+      ctx.fillStyle = withAlpha(tokens.present, 0.45);
+      ctx.fillRect(crop.x, crop.y, crop.width, crop.height);
     }
     const px = (n: number) => n / view.k; // a line width in screen pixels, in plate pixels
 
@@ -196,7 +200,7 @@ export function PlateStage(props: PlateStageProps) {
         const band = bandOf(p.properties.quality.score);
         halo(3.5, 0.8);
         ctx.setLineDash(dashFor(band).map(px));
-        ctx.strokeStyle = band === 'high' ? withAlpha(tokens.text, 0.95) : withAlpha(tokens.muted, 1);
+        ctx.strokeStyle = band === 'high' ? withAlpha(tokens.ink, 0.95) : withAlpha(tokens.ink, band === 'medium' ? 0.8 : 0.65);
         ctx.lineWidth = px(1.5);
       }
       ctx.stroke();

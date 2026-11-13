@@ -13,8 +13,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:e2e": "npm run build && playwright test",
-    "test:e2e:studio": "npm run build && playwright test -c playwright.studio.config.ts",
+    "test:e2e:studio": "VITE_STUDIO_SERVICE_URL=/ npm run build && playwright test -c playwright.studio.config.ts",
     "typecheck": "tsc --noEmit",
+    "size": "tsx scripts/sizeReport.ts",
     "gen:types": "tsx scripts/genTypes.ts",
     "gen:bridge-types": "tsx scripts/genBridgeTypes.ts",
     "gen:bridge-samples": "tsx scripts/genBridgeSamples.ts"

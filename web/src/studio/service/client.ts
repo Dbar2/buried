@@ -45,8 +45,11 @@ export class ServiceError extends Error {
 }
 
 export type ClientOptions = {
-  /** Base URL of the Service. Default: the page's own origin (the dev and preview servers proxy /v1). */
-  baseUrl?: string;
+  /**
+   * Base URL of the Service. Default: the page's own origin (the dev and preview servers proxy /v1).
+   * `null` means no Service address is set: every call fails as unavailable, without a request.
+   */
+  baseUrl?: string | null;
   fetchImpl?: typeof fetch;
   /** The canon data version this page was built against (from /data/index.json). */
   dataVersion: () => Promise<string>;
@@ -85,6 +88,7 @@ export function createServiceClient(options: ClientOptions): ServiceClient {
   const doFetch = options.fetchImpl ?? ((...args: Parameters<typeof fetch>) => fetch(...args));
 
   async function call(path: string, init: RequestInit, timeoutMs: number): Promise<unknown> {
+    if (options.baseUrl === null) throw new ServiceUnavailableError('no Service address is set for this build (VITE_STUDIO_SERVICE_URL)');
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     let response: Response;

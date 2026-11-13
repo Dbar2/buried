@@ -5,7 +5,7 @@
  *
  * The text between slots is fixed wording. It holds no digits (a test checks every template).
  */
-import { EMPTY_PACK, datePhrases, positionPhrase, sourceYearsText } from '../evidence';
+import { EMPTY_PACK, datePhrases, plainSourceName, plainSourceNumbers, positionPhrase, sourceYearsText } from '../evidence';
 import type { Dated, SentencePack, Source } from '../evidence';
 
 export type RelationClaim = { featureId: string; kind: 'on' } | { featureId: string; kind: 'near'; withinM: number };
@@ -27,6 +27,21 @@ export const years = (source: Pick<Source, 'id' | 'year_from' | 'year_to' | 'yea
   text: sourceYearsText(source),
   numbers: [source.year_from, source.year_to].filter((y): y is number => y !== null).map(String),
 });
+
+/** A source's plain name as a slot: "the 1911 plan", with its years in the pack. No id: the id stays in the sources block. */
+export function plan(source: Pick<Source, 'id' | 'type' | 'year_from' | 'year_to'> | undefined): Slot {
+  if (!source) return { text: 'the records' };
+  return { text: plainSourceName(source), numbers: plainSourceNumbers(source) };
+}
+
+/** "a", "a and b", "a, b and c". Equal texts are listed once. */
+export function listOf(slots: readonly Slot[]): Slot {
+  const seen = new Set<string>();
+  const unique = slots.filter((s) => (seen.has(s.text) ? false : (seen.add(s.text), true)));
+  if (unique.length <= 1) return joined(unique, '');
+  const last = unique[unique.length - 1] as Slot;
+  return joined([joined(unique.slice(0, -1), ', '), words(' and '), last], '');
+}
 
 export const id = (value: string): Slot => ({ text: value, ids: [value] });
 

@@ -1,0 +1,27 @@
+# Cloudflare Pages response headers (session 027). Vite copies this file into dist/.
+# Every path below is matched by exactly one rule, because Pages joins the values of rules that
+# overlap (two Cache-Control rules on one path would be sent as "a, b").
+
+# Hashed build output (scripts, styles, fonts): the file name changes when the content does.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# The data version and the file lists: always ask the server.
+/data/index.json
+  Cache-Control: no-cache
+
+# The Unity build is Brotli-compressed (Player setting compressionFormat Brotli). These files must be
+# sent with Content-Encoding: br and the type of the decompressed file. If a host leaves these headers
+# out, the loader's JavaScript decompression fallback (decompressionFallback is on) still starts the
+# Player, only more slowly. The names are those in unity/build.json; vite/hosting.test.ts checks them.
+/unity/Build/unity.data.unityweb
+  Content-Type: application/octet-stream
+  Content-Encoding: br
+
+/unity/Build/unity.framework.js.unityweb
+  Content-Type: application/javascript
+  Content-Encoding: br
+
+/unity/Build/unity.wasm.unityweb
+  Content-Type: application/wasm
+  Content-Encoding: br

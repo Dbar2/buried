@@ -72,7 +72,7 @@
   /* Each section is a block: its heading, then its text running on. */
   .report section {
     break-inside: avoid;
-    margin: 4pt 0 0;
+    margin: 3pt 0 0;
   }
 
   .report section:not(.report-links) p {
@@ -99,11 +99,27 @@
     padding: 0;
   }
 
+  /* The bands run on as one block, as the paragraphs of a section do. */
   .band {
-    border-left: 2px solid var(--report-rule);
-    display: block;
-    margin: 1pt 0 0;
-    padding-left: 4pt;
+    border: 0 !important;
+    display: inline;
+    margin: 0 4pt 0 0;
+    padding: 0;
+  }
+
+  /* The pictures stay on screen: a printed page holds the sentences, the findings and the sources. */
+  .band-picture,
+  .band-dialog {
+    display: none !important;
+  }
+
+  .band-head,
+  .band-text {
+    display: inline;
+  }
+
+  .report .band-label {
+    font-size: 9pt;
   }
 
   .band h3 a,

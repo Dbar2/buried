@@ -8,7 +8,7 @@
  */
 import fc from 'fast-check';
 import { describe, expect, it, vi } from 'vitest';
-import { checkSentence, featuresForEra, findBannedWords, indexSources, lotRelation, sourceYearsText } from '../evidence';
+import { checkSentence, featuresForEra, findBannedWords, indexSources, lotRelation, plainSourceName, sourceYearsText } from '../evidence';
 import type { Feature, FeatureCollection } from '../evidence';
 import { allSentences, buildReport } from './buildReport';
 import type { Report, ReportModel } from './buildReport';
@@ -138,7 +138,9 @@ describe('R4 "Nothing found" and "Not covered" list every record checked', () =>
               const source = plates.find((s) => s.id === c.sourceId)!;
               expect(c.yearFrom).toBe(source.year_from);
               expect(c.yearTo).toBe(source.year_to);
-              expect(f.finding.text).toContain(c.sourceId);
+              // The text names the record in plain words; its id is in `checked` (asserted above).
+              expect(f.finding.text).toContain(plainSourceName(source));
+              expect(f.finding.text).not.toContain(c.sourceId);
               expect(f.finding.text).toContain(String(c.yearFrom));
               expect(f.finding.text).toContain(String(c.yearTo));
               expect(f.finding.text).toContain(sourceYearsText(source));
@@ -272,7 +274,7 @@ describe('the generator exercises the cases the properties are about', () => {
           if (f.finding.text.startsWith('Water is drawn on this lot')) seen.add('water-then-building');
         }
       }
-      if (r.coreSample.some((b) => b.sentences.some((s) => s.text.includes('drawn on this lot')))) seen.add('band-on');
+      if (r.coreSample.some((b) => b.sentences.some((s) => s.text.includes('sits on this lot') || s.text.includes('sit on this lot')))) seen.add('band-on');
     }
     for (const needed of ['report', 'not_reconstructed', 'water:documented', 'water:nothing_found', 'water:not_covered', 'structures:documented', 'structures:estimated', 'structures:nothing_found', 'structures:not_covered', 'land_use:documented', 'land_use:not_covered', 'conflict', 'near', 'on', 'unprintable', 'band-on']) {
       expect(seen.has(needed), `${needed} was never generated`).toBe(true);

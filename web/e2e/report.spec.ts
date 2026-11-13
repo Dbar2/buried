@@ -62,7 +62,9 @@ test('the Report for the lot with the committed building: screen, then one page 
   // The first line, then the parts in order.
   await expect(page.getByTestId('screens-line')).toHaveText("Buried screens; it doesn't certify.");
   const headings = await page.locator('.report h2').allTextContents();
-  expect(headings).toEqual(['Place', 'Core sample', 'Water history', 'Past land use', 'Fill and old structures', 'What these records cannot tell you', 'Before you dig', 'Sources']);
+  expect(headings).toEqual(['Core sample', 'Water', 'What the land was used for', 'Old buildings and fill', 'What these records cannot tell you', 'Before you dig', 'Sources']);
+  await expect(page.getByTestId('report-subtitle')).toHaveText('The documented history of this place.');
+  await expect(page.locator('.report h1')).not.toHaveText(/documented history/i);
   await expect(page.getByTestId('group-structures')).toContainText('bld_fip_v3_1911_229_0001'.slice(0, 0) + 'fip_v3_1911_229');
   await expect(report).toContainText('Request locates through Ontario Dig Authority before you dig.');
   await expect(page.getByTestId('share-link')).toHaveAttribute('href', new RegExp(`/report\\?lot=${lot}&era=1911`));

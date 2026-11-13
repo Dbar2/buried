@@ -1,5 +1,5 @@
-/* Base styles and the Sources page. Colours come from tokens.css only. `lantern` is not used here
- * (it marks the pinned lot and primary actions, requirement 11.7); neither is `water`. The Shell's
+/* Base styles and the Sources page. Colours come from tokens.css only. `lantern` marks focus rings
+ * and the active nav underline (design.md "Identity"); `water` is not used here. The Shell's
  * header, view and panels are in shell/layout.css. */
 * {
   box-sizing: border-box;
@@ -36,40 +36,15 @@ code,
   font-family: var(--font-mono);
 }
 
-/* A visible focus ring on every interactive element (requirement 17.6). */
+/* A visible focus ring on every interactive element (requirement 17.6). `lantern` on the dark
+   theme (design.md "Controls"); the Report overrides it with its own ink on paper. */
 :focus-visible {
-  outline: 2px solid var(--text);
+  outline: 2px solid var(--lantern);
   outline-offset: 2px;
 }
 
 .muted {
   color: var(--muted);
-}
-
-.sources {
-  margin: 0 auto;
-  max-width: 60rem;
-  padding: var(--space-4);
-}
-
-.sources article {
-  border-top: 1px solid var(--present);
-  padding: var(--space-3) 0;
-}
-
-.sources dl {
-  display: grid;
-  gap: var(--space-1) var(--space-3);
-  grid-template-columns: max-content 1fr;
-  margin: var(--space-2) 0 0;
-}
-
-.sources dt {
-  color: var(--muted);
-}
-
-.sources dd {
-  margin: 0;
 }
 
 .visually-hidden {

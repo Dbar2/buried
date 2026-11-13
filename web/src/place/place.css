@@ -1,0 +1,214 @@
+/*
+ * The landing and the place page (session 024). Colours come from tokens.css only. The landing is
+ * the dusk scene with one field over it; the place page is the scene on the left (about 58 per cent)
+ * and the report on paper on the right (about 42 per cent), stacked on a narrow screen.
+ */
+
+/* ---- landing ---- */
+.landing {
+  background: var(--night);
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.view--backdrop {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* A veil of `night` keeps the text legible over any part of the scene. */
+.landing::after {
+  background: color-mix(in srgb, var(--night) 55%, transparent);
+  content: '';
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.landing-main {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  height: 100%;
+  justify-content: center;
+  padding: var(--space-4);
+  position: relative;
+  z-index: 1;
+}
+
+.landing-wordmark {
+  align-items: center;
+  color: var(--ink);
+  display: flex;
+  font-size: 3.5rem;
+  gap: var(--space-3);
+  line-height: 1;
+}
+
+.landing-tagline {
+  color: var(--text);
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  margin: calc(-1 * var(--space-2)) 0 0;
+}
+
+.landing-try {
+  max-width: 34rem;
+  width: 100%;
+}
+
+.landing-try p {
+  color: var(--muted);
+  margin: 0 0 var(--space-1);
+}
+
+.landing-coverage {
+  color: var(--muted);
+  font-size: 1rem;
+  margin: 0;
+  max-width: 34rem;
+  text-align: center;
+}
+
+.landing-search {
+  max-width: 34rem;
+  position: relative;
+  width: 100%;
+}
+
+.landing-search input {
+  background: var(--fog);
+  border: 1px solid var(--muted);
+  border-radius: 2px;
+  color: var(--text);
+  font: inherit;
+  font-size: 1.25rem;
+  padding: var(--space-3);
+  width: 100%;
+}
+
+.landing-search input::placeholder {
+  color: var(--muted);
+}
+
+.landing-search p {
+  background: var(--fog);
+  margin: var(--space-2) 0 0;
+  padding: var(--space-2) var(--space-3);
+}
+
+.landing-list {
+  background: var(--fog);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.landing-search .landing-list {
+  border: 1px solid var(--present);
+  border-top: 0;
+}
+
+.landing-examples {
+  max-width: 34rem;
+}
+
+.landing-list li + li {
+  border-top: 1px solid var(--present);
+}
+
+.landing-list a,
+.landing-list button {
+  background: none;
+  border: 0;
+  color: var(--text);
+  cursor: pointer;
+  display: block;
+  font: inherit;
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  text-decoration: none;
+  width: 100%;
+}
+
+.landing-list a:hover,
+.landing-list button:hover {
+  background: var(--present);
+}
+
+/* ---- place page ---- */
+.place {
+  display: grid;
+  grid-template-columns: 58fr 42fr;
+  min-height: 0;
+}
+
+.place-scene {
+  min-height: 0;
+  position: relative;
+}
+
+.place-scene .view {
+  height: 100%;
+}
+
+.place-report {
+  background: var(--report-paper);
+  color: var(--report-ink);
+  min-height: 0;
+  overflow: auto;
+}
+
+.place-report > p {
+  margin: 0;
+  padding: var(--space-4);
+}
+
+.place-report .report {
+  max-width: none;
+}
+
+/* The depth gauge on the scene's left edge, Today at the top (design.md "Place page layout"). */
+.view--place .depth-gauge {
+  left: var(--space-3);
+  right: auto;
+}
+
+.view--place .card {
+  left: 9.5rem;
+}
+
+.view--place .view-hint,
+.view--place .view-notes {
+  left: 9.5rem;
+}
+
+/* Narrow screens: the report sits below the scene, and the whole page scrolls. */
+@media (max-width: 800px) {
+  .place {
+    display: block;
+    overflow: auto;
+  }
+
+  .place-scene {
+    height: 70vh;
+  }
+
+  .place-report {
+    overflow: visible;
+  }
+}
+
+@media print {
+  .place {
+    display: block;
+  }
+
+  .place-scene {
+    display: none;
+  }
+}

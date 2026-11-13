@@ -1,8 +1,10 @@
 /*
  * The Studio: a working tool, calm and dense. Dark theme from tokens.css only. The plate is the hero
- * and keeps its own colours; the chrome stays quiet. `lantern` marks primary actions only (design.md);
- * the current proposal is drawn in `ink`, thicker, with a text label. No gradients, no shadows, no
- * cards inside cards, no icons without text.
+ * and is dimmed toward mid-grey so traced outlines read; the chrome stays quiet. The one primary
+ * action in a panel is filled `ink` with dark text. `lantern` appears here as the underline of the
+ * active step and nav item and as the focus ring, never on the plate and never as a fill
+ * (design.md "Studio look"). The current proposal is drawn in `ink`, thicker, with a mono tag. No
+ * gradients, no shadows, no cards inside cards, no pills, no icons without text.
  */
 .studio {
   background: var(--night);
@@ -70,11 +72,12 @@
   font-size: 0.875rem;
 }
 
-/* Buttons: a thin `muted` outline, no fill. */
+/* Buttons: a thin `muted` outline, no fill, a 2 px radius. */
 .studio button,
 .studio .button {
   background: none;
   border: 1px solid var(--muted);
+  border-radius: 2px;
   color: var(--text);
   cursor: pointer;
   display: inline-block;
@@ -93,16 +96,23 @@
   opacity: 0.6;
 }
 
-.studio button[aria-pressed='true'],
-.studio button[aria-current='step'] {
+.studio button[aria-pressed='true'] {
   border-color: var(--text);
   font-weight: 600;
 }
 
-/* The primary action is the only `lantern` in the Studio chrome. */
+/* The active step is underlined in `lantern`, and its weight changes too, so it is not colour alone. */
+.studio button[aria-current='step'] {
+  border-bottom: 2px solid var(--lantern);
+  border-color: var(--text);
+  border-bottom-color: var(--lantern);
+  font-weight: 600;
+}
+
+/* The primary action of a panel: filled `ink`, dark text. */
 .studio .primary:not(:disabled) {
-  background: var(--lantern);
-  border-color: var(--lantern);
+  background: var(--ink);
+  border-color: var(--ink);
   color: var(--night);
   font-weight: 600;
 }
@@ -166,6 +176,7 @@
 .studio input[type='number'] {
   background: var(--night);
   border: 1px solid var(--muted);
+  border-radius: 2px;
   color: var(--text);
   font: inherit;
   padding: var(--space-1) var(--space-2);
@@ -297,6 +308,7 @@
   background: var(--night);
   border: 1px solid var(--ink);
   color: var(--ink);
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   padding: 0 var(--space-1);
   pointer-events: none;

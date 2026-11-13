@@ -147,7 +147,15 @@ async function settle(): Promise<void> {
 async function shoot(name: string): Promise<void> {
   await settle();
   await page.screenshot({ path: join(OUTPUT, `look-${name}.png`) });
+  // The canvas copy is for the scene's colour checks. The gauge's `lantern` focus ring (design.md
+  // "Controls") may overlap it, so the focused element is blurred for the capture and given focus back.
+  await page.evaluate(() => {
+    const w = window as unknown as { __focused?: Element | null };
+    w.__focused = document.activeElement;
+    (document.activeElement as HTMLElement | null)?.blur();
+  });
   shots[name] = PNG.sync.read(await page.getByTestId('unity-canvas').screenshot());
+  await page.evaluate(() => ((window as unknown as { __focused?: Element | null }).__focused as HTMLElement | null | undefined)?.focus());
 }
 
 test.describe.configure({ mode: 'serial' });
@@ -158,7 +166,7 @@ test.beforeAll(async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 });
   page = await context.newPage();
   page.on('request', (request) => requested.push(request.url()));
-  await page.goto('/');
+  await page.goto('/explorer');
   await expect
     .poll(
       async () => {
@@ -378,7 +386,12 @@ test('26.5 / (b) no lantern or water colour, and no debug marker, in the canvas 
       };
       for (const el of document.querySelectorAll('*')) {
         const style = getComputedStyle(el);
+        // The active nav item's underline is `lantern` by design (design.md "Identity", session 024);
+        // it is the one permitted use of the colour in the Explorer's chrome.
+        const underline = el.matches('.site-nav a[aria-current="page"]');
         for (const prop of ['color', 'backgroundColor', 'borderTopColor', 'borderBottomColor', 'outlineColor'] as const) {
+          if (underline && prop === 'borderBottomColor') continue;
+          if (prop === 'outlineColor' && el.matches(':focus-visible')) continue; // the focus ring is `lantern` by design
           if (bad(style[prop])) hits.push(`${el.tagName.toLowerCase()}.${el.className} ${prop}`);
         }
       }

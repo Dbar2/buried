@@ -13,16 +13,21 @@ export type AddressHit = { id: string; text: string; point: [number, number] };
 export function searchAddresses(layer: PresentLayer | undefined, query: string, limit = 8): AddressHit[] {
   const needle = query.trim().toLowerCase();
   if (!layer || needle.length < 2) return [];
-  const hits: AddressHit[] = [];
+  const hits: Array<AddressHit & { rank: number }> = [];
   for (const f of layer.features) {
     if (f.geometry.type !== 'Point') continue;
     const text = f.properties.ADDRESS_FULL;
     if (typeof text !== 'string' || findBannedWords(text).length > 0) continue;
-    if (!text.toLowerCase().includes(needle)) continue;
+    const lower = text.toLowerCase();
+    if (!lower.includes(needle)) continue;
     const [e, n] = f.geometry.coordinates as [number, number];
-    hits.push({ id: f.id, text, point: [e, n] });
+    // An exact match comes first, so Enter on a full address opens that address and not "112" for "12".
+    hits.push({ id: f.id, text, point: [e, n], rank: lower === needle ? 0 : lower.startsWith(needle) ? 1 : 2 });
   }
-  return hits.sort((a, b) => (a.text < b.text ? -1 : a.text > b.text ? 1 : a.id < b.id ? -1 : 1)).slice(0, limit);
+  return hits
+    .sort((a, b) => a.rank - b.rank || (a.text < b.text ? -1 : a.text > b.text ? 1 : a.id < b.id ? -1 : 1))
+    .slice(0, limit)
+    .map(({ rank: _rank, ...hit }) => hit);
 }
 
 function bounds(coordinates: unknown, box: [number, number, number, number]): void {

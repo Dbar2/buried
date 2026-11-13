@@ -17,6 +17,7 @@ import { initialReview, reviewReducer } from './review/reviewModel';
 import type { ProposalFeature } from './review/reviewModel';
 import { ServiceError, ServiceUnavailableError, UNAVAILABLE_MESSAGE, createServiceClient, fetchDataVersion } from './service/client';
 import type { ServiceClient } from './service/client';
+import { studioServiceBase } from './service/serviceUrl';
 import type { ExtractResponse, ProposalFile, RegisteredPlate } from './service/types.generated';
 import './studio.css';
 
@@ -44,7 +45,10 @@ export function StudioPage() {
   const reducedMotion = useMemo(() => typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
   const client: ServiceClient = useMemo(() => {
     let version: Promise<string> | null = null;
-    return createServiceClient({ dataVersion: () => (version ??= fetchDataVersion().catch((e) => ((version = null), Promise.reject(e)))) });
+    return createServiceClient({
+      baseUrl: studioServiceBase(),
+      dataVersion: () => (version ??= fetchDataVersion().catch((e) => ((version = null), Promise.reject(e)))),
+    });
   }, []);
 
   const [health, setHealth] = useState<Health>({ kind: 'checking' });

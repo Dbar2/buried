@@ -5,6 +5,7 @@
  */
 .page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: var(--header-height) 1fr;
   height: 100%;
 }
@@ -25,35 +26,91 @@
 }
 
 .wordmark {
-  color: var(--text);
+  align-items: center;
+  color: var(--ink);
+  display: inline-flex;
   font-family: var(--font-heading);
   font-size: 1.75rem;
   font-weight: 600;
+  gap: var(--space-2);
   letter-spacing: 0.01em;
   line-height: 1;
   text-decoration: none;
 }
 
+.mark {
+  flex: none;
+}
+
+.loading-mark {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+/* The address of the place on screen, between the wordmark and the nav. */
+.header-address {
+  border-left: 1px solid var(--present);
+  color: var(--text);
+  flex: 1 1 auto;
+  margin: 0 var(--space-4);
+  overflow: hidden;
+  padding-left: var(--space-4);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .site-nav {
   display: flex;
   gap: var(--space-4);
+  margin-left: auto;
 }
 
+/* The active item carries the `lantern` underline (design.md "Identity"); the text weight changes
+   too, so the mark is never colour alone. */
 .site-nav a {
+  border-bottom: 2px solid transparent;
   color: var(--muted);
   font-family: var(--font-body);
   font-size: 1rem;
+  padding: var(--space-1) 0;
   text-decoration: none;
 }
 
 .site-nav a:hover {
   color: var(--text);
-  text-decoration: underline;
 }
 
 .site-nav a[aria-current='page'] {
+  border-bottom-color: var(--lantern);
   color: var(--text);
   font-weight: 600;
+}
+
+:where(.site-header, .view, .studio) :focus-visible {
+  outline: 2px solid var(--lantern);
+  outline-offset: 2px;
+}
+
+/* A narrow screen: the header keeps the wordmark and the nav; the address is in the report. */
+@media (max-width: 560px) {
+  .site-header {
+    padding: 0 var(--space-3);
+  }
+
+  .wordmark {
+    font-size: 1.375rem;
+  }
+
+  .header-address {
+    display: none;
+  }
+
+  .site-nav {
+    gap: var(--space-3);
+  }
 }
 
 /* The view fills the window under the header. */
