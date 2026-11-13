@@ -3,7 +3,7 @@
   "hooks": [
     {
       "name": "block-held-out-in-tuning",
-      "description": "Before a file write, block it if it targets the extraction parameter sets or tuning fixtures and mentions the held-out plate fip_v3_1935_232. The script exits 2 with a message; the pytest guard (pipeline/tests/extract/test_held_out.py) catches writes this hook cannot see. Disabled until spec 02 task 17 adds the script it calls; enable it in the same commit as the script.",
+      "description": "Before a file write, block it if it targets the extraction parameter sets or tuning fixtures and mentions the held-out plate fip_v3_1935_232. The script exits 2 with a message; the pytest guard (pipeline/tests/extract/test_held_out.py) catches writes this hook cannot see.",
       "trigger": "PreToolUse",
       "matcher": "write",
       "action": {
@@ -11,7 +11,7 @@
         "command": "uv --directory pipeline run python -m buried_pipeline.hooks.held_out_write"
       },
       "timeout": 30,
-      "enabled": false
+      "enabled": true
     }
   ]
 }
