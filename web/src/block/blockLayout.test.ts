@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { blockLayout, CARD_WIDTH, isPhone, PHONE_CAPTION_HEIGHT, PHONE_SHEET_FAR_EDGE, TOP_ROW_HEIGHT, tagKeepOut } from './blockLayout';
+import { blockLayout, CAPTION_HEIGHT, captionHeight, CARD_WIDTH, isPhone, PHONE_CAPTION_HEIGHT, PHONE_SHEET_FAR_EDGE, TOP_ROW_HEIGHT, tagKeepOut } from './blockLayout';
 import { estimateTagSize, layoutTags, rectsOverlap } from './tagLayout';
 import type { Rect } from './tagLayout';
 
@@ -48,6 +48,17 @@ describe('blockLayout', () => {
         expect(rectsOverlap(rects.lensControl, rects.listControl)).toBe(false);
         expect(rectsOverlap(rects.ruler, rects.caption)).toBe(false);
       }
+    }
+  });
+
+  it('the caption is taller where the flat-sheet notice wraps, and the controls stay apart', () => {
+    expect(captionHeight(1440, false, true)).toBe(CAPTION_HEIGHT);
+    expect(captionHeight(900, false, true)).toBeGreaterThan(CAPTION_HEIGHT);
+    expect(captionHeight(390, true, true)).toBeGreaterThan(PHONE_CAPTION_HEIGHT);
+    for (const w of [390, 900, 1440]) {
+      const r = blockLayout({ w, h: 800, cardOpen: false, sheetExpanded: false, notice: true });
+      expect(r.caption.h).toBe(captionHeight(w, w < 720, true));
+      expect(rectsOverlap(r.ruler, r.caption)).toBe(false);
     }
   });
 

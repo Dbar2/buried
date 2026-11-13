@@ -50,16 +50,7 @@
 }
 
 .block-failed {
-  background: var(--haze);
-  border-left: 2px solid var(--parchment-dim);
   color: var(--parchment);
-  left: var(--space-3);
-  margin: 0;
-  max-width: min(36rem, calc(100% - 2 * var(--space-3)));
-  padding: var(--space-1) var(--space-2);
-  position: absolute;
-  top: 64px;
-  z-index: 4;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -726,7 +717,16 @@
 .flat-sheet-svg {
   display: block;
   height: 100%;
+  isolation: isolate;
   width: 100%;
+}
+
+.flat-sheet-paper {
+  fill: var(--parchment);
+}
+
+.flat-sheet.is-toned .flat-sheet-tile {
+  mix-blend-mode: multiply;
 }
 
 .flat-sheet.is-dimmed .flat-sheet-tile {
@@ -816,7 +816,7 @@
 /* Phone (under 720 px): the tags scroll in one row, the ruler sits on the scene's lower edge, the card is a sheet. */
 @media (max-width: 719px) {
   /* The caption is the one link; the block's name is still in the page for a screen reader. */
-  .block-caption > span {
+  .block-caption > .block-caption-name {
     border: 0;
     clip: rect(0 0 0 0);
     height: 1px;

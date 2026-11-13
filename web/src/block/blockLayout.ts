@@ -42,6 +42,8 @@ export type LayoutInput = {
   readonly sheetExpanded: boolean;
   /** The raise has ended. On a phone the scene's box then changes (see `PHONE_SHEET_FAR_EDGE`). */
   readonly raised?: boolean;
+  /** The caption also carries the line saying why the sheet is flat, so its bar is taller where that line wraps. */
+  readonly notice?: boolean;
 };
 
 export type BlockRects = {
@@ -64,6 +66,17 @@ export type BlockRects = {
 
 export const isPhone = (w: number): boolean => w < PHONE_MAX_WIDTH;
 
+/** With the flat-sheet notice in it the caption wraps to two lines below this width, and to four on a phone. */
+export const NOTICE_WIDE_MIN_WIDTH = 1100;
+export const CAPTION_HEIGHT_NOTICE_WRAPPED = 64;
+export const PHONE_CAPTION_HEIGHT_NOTICE = 88;
+
+export function captionHeight(w: number, phone: boolean, notice: boolean): number {
+  if (!notice) return phone ? PHONE_CAPTION_HEIGHT : CAPTION_HEIGHT;
+  if (phone) return PHONE_CAPTION_HEIGHT_NOTICE;
+  return w >= NOTICE_WIDE_MIN_WIDTH ? CAPTION_HEIGHT : CAPTION_HEIGHT_NOTICE_WRAPPED;
+}
+
 export function blockLayout(input: LayoutInput): BlockRects {
   const { w, h } = input;
   const phone = isPhone(w);
@@ -72,7 +85,7 @@ export function blockLayout(input: LayoutInput): BlockRects {
   const sheetTop = input.sheetExpanded ? Math.round(h * 0.12) : h - SHEET_PEEK;
   const sheet: Rect | null = sheetShown ? { x: 0, y: sheetTop, w, h: h - sheetTop } : null;
 
-  const captionH = phone ? PHONE_CAPTION_HEIGHT : CAPTION_HEIGHT;
+  const captionH = captionHeight(w, phone, input.notice === true);
   const captionY = sheetShown ? h - SHEET_PEEK - captionH : h - captionH;
   const caption: Rect = { x: 0, y: captionY, w, h: captionH };
 

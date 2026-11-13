@@ -50,7 +50,7 @@ for (const viewport of [
     await expect(page.getByTestId('raise-button')).toHaveText('Raise the past');
     await expect(page.locator('.block-line')).toHaveText('Every ghost comes with the map that proves it.');
     await expect(page.getByTestId('flat-sheet')).toBeVisible();
-    await expect(page.getByTestId('block-failed')).toContainText('cannot show the 3D view');
+    await expect(page.getByTestId('block-caption').getByTestId('block-failed')).toContainText('cannot show the 3D view');
     // Tags sit on the sheet where the layout finds room; on a phone the headline covers most of the sheet, so they may hide.
     if (viewport.width >= 720) await expect(page.getByTestId('pinned-overall-factory')).toBeVisible();
     await expect(page.getByTestId('look-up-address')).toHaveAttribute('href', '/place');

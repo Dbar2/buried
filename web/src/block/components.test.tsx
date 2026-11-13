@@ -268,6 +268,18 @@ describe('FlatSheet', () => {
     expect(html).toMatch(/d="M\d+\.\d \d+\.\d(L\d+\.\d \d+\.\d)+Z"/);
   });
 
+  it('tones the scan by default, leaves "the original sheet" untouched, and clips the outlines to the tile', () => {
+    const toned = renderToStaticMarkup(<FlatSheet {...base} raised present={[[[[0, 0], [10, 0], [10, 10], [0, 0]]]]} />);
+    expect(toned).toContain('flat-sheet is-toned');
+    expect(toned).toContain('class="flat-sheet-paper"');
+    expect(toned).toMatch(/<clipPath id="(flat-clip-[^"]+)"><rect width="3626" height="4096"><\/rect><\/clipPath>/);
+    const id = /<clipPath id="(flat-clip-[^"]+)"/.exec(toned)![1];
+    expect(toned).toContain(`clip-path="url(#${id})"`);
+    const bare = renderToStaticMarkup(<FlatSheet {...base} raised={false} toned={false} />);
+    expect(bare).not.toContain('is-toned');
+    expect(bare).not.toContain('flat-sheet-paper');
+  });
+
   it('puts the outlines there at once under reduced motion', () => {
     const html = renderToStaticMarkup(<FlatSheet {...base} raised reducedMotion />);
     expect(html.match(/class="flat-fp-edge"/g)).toHaveLength(3);

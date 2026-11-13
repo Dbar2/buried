@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import type { CSSProperties } from 'react';
 import { makeSheetTransform, ringsToPath } from './sheetTransform';
 import type { Pt, TileCorners } from './sheetTransform';
@@ -29,6 +30,8 @@ export type FlatSheetProps = {
   present?: readonly (readonly (readonly Pt[])[])[];
   /** Dim the tile (the Today stop shows the 1911 tile dimmed under today's outlines). */
   dimmed?: boolean;
+  /** Tone the scan toward `--parchment` (a multiply blend over a parchment ground). Off for "Show the original sheet". Default true. */
+  toned?: boolean;
   /** Told to raise: the footprints draw on. Until then only the tile (and today's outlines) show. */
   raised: boolean;
   /** Reduced motion: the footprints are there at once. */
@@ -55,12 +58,13 @@ export function flatStagger(count: number): number {
  * it along its length (so the dash pattern, which is the confidence mark, stays intact), then its fill comes up.
  * The selected footprint's edge is `--lantern` and thicker.
  */
-export function FlatSheet({ tile, footprints, present = [], dimmed = false, raised, reducedMotion, selectedId, onSelect }: FlatSheetProps) {
+export function FlatSheet({ tile, footprints, present = [], dimmed = false, toned = true, raised, reducedMotion, selectedId, onSelect }: FlatSheetProps) {
   const transform = makeSheetTransform(tile.corners, tile.widthPx, tile.heightPx);
   const animate = raised && !reducedMotion;
   const step = flatStagger(footprints.length);
+  const clipId = `flat-clip-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   return (
-    <div className={`flat-sheet${dimmed ? ' is-dimmed' : ''}`} data-testid="flat-sheet" data-raised={raised}>
+    <div className={`flat-sheet${dimmed ? ' is-dimmed' : ''}${toned ? ' is-toned' : ''}`} data-testid="flat-sheet" data-raised={raised}>
       <svg
         className="flat-sheet-svg"
         viewBox={`0 0 ${tile.widthPx} ${tile.heightPx}`}
@@ -68,7 +72,15 @@ export function FlatSheet({ tile, footprints, present = [], dimmed = false, rais
         role="img"
         aria-label={`The plan sheet, flat. ${raised ? `${footprints.length} ${footprints.length === 1 ? 'footprint' : 'footprints'} drawn.` : 'No footprints drawn yet.'} The list of finds has the same records as text.`}
       >
+        <defs>
+          <clipPath id={clipId}>
+            <rect width={tile.widthPx} height={tile.heightPx} />
+          </clipPath>
+        </defs>
+        {/* The sheet is toned toward `--parchment` by multiplying the scan over a parchment ground; its lines stay dark. */}
+        {toned ? <rect className="flat-sheet-paper" width={tile.widthPx} height={tile.heightPx} /> : null}
         <image className="flat-sheet-tile" href={tile.src} width={tile.widthPx} height={tile.heightPx} />
+        <g clipPath={`url(#${clipId})`}>
         <g className="flat-present">
           {present.map((rings, i) => (
             <path key={i} d={ringsToPath(transform, rings)} fillRule="evenodd" />
@@ -102,6 +114,7 @@ export function FlatSheet({ tile, footprints, present = [], dimmed = false, rais
             })}
           </g>
         ) : null}
+        </g>
       </svg>
     </div>
   );

@@ -211,7 +211,9 @@ export function BlockStage(props: BlockStageProps) {
   const stillKind = stillKindFor(stage);
   const tile = model ? flatTileFor(model, eraId) : null;
   const cardOpen = raised && selection !== null;
-  const rects = blockLayout({ w: stage.w, h: stage.h, cardOpen, sheetExpanded, raised });
+  // Why the sheet is flat: one line in the caption bar at the foot of the page (requirement 3).
+  const failedLine = flat ? (webgl2 ? PLAYER_FAILED_LINE : `${NO_WEBGL2_MESSAGE} The sheet is shown flat.`) : null;
+  const rects = blockLayout({ w: stage.w, h: stage.h, cardOpen, sheetExpanded, raised, notice: failedLine !== null });
   // The Player's canvas and the Flat sheet fill the scene's box, which is the stage except on a phone after the raise.
   const scene = rects.scene;
   const sceneSize = useMemo(() => ({ w: scene.w, h: scene.h }), [scene.w, scene.h]);
@@ -394,6 +396,7 @@ export function BlockStage(props: BlockStageProps) {
         footprints={today || bare ? [] : flatFootprints(model, era)}
         present={today ? flatPresent(model) : []}
         dimmed={today}
+        toned={!bare}
         raised={bare ? false : isLens ? true : era === 'today' ? false : flatDrawing || raised}
         reducedMotion={isLens || reducedMotion || Boolean(routeFind)}
         selectedId={isLens ? null : selectedSceneId}
@@ -401,8 +404,6 @@ export function BlockStage(props: BlockStageProps) {
       />
     );
   };
-
-  const failedLine = flat ? (webgl2 ? PLAYER_FAILED_LINE : `${NO_WEBGL2_MESSAGE} The sheet is shown flat.`) : null;
 
   return (
     <main
@@ -518,16 +519,17 @@ export function BlockStage(props: BlockStageProps) {
       ) : null}
 
       <p className="block-caption" data-testid="block-caption" style={rectStyle(rects.caption)}>
-        <span>{BLOCK_CAPTION}</span>{' '}
+        {failedLine ? (
+          <span className="block-failed" role="status" data-testid="block-failed">
+            {failedLine}
+          </span>
+        ) : (
+          <span className="block-caption-name">{BLOCK_CAPTION}</span>
+        )}{' '}
         <a href="/place" data-testid="look-up-address">
           Look up an address
         </a>
       </p>
-      {failedLine ? (
-        <p className="block-failed" role="status" data-testid="block-failed">
-          {failedLine}
-        </p>
-      ) : null}
     </main>
   );
 }
