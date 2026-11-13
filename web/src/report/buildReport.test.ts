@@ -28,7 +28,9 @@ function report(model: ReportModel): Report {
 const allText = (r: Report): string[] => [
   r.screensLine.text,
   r.title.text,
-  ...r.place.sentences.map((s) => s.text),
+  r.place.heading.text,
+  ...r.summary.map((s) => s.text),
+  ...r.coverage.map((s) => s.text),
   ...r.coreSample.flatMap((b) => b.sentences.map((s) => s.text)),
   ...r.groups.flatMap((g) => [...g.findings.map((f) => f.finding.text), ...(g.nextStep ?? []).map((s) => s.text)]),
   ...r.cannotTell.map((s) => s.text),
@@ -52,7 +54,7 @@ describe('a lot with a building drawn on it', () => {
     expect(r.screensLine.text).toBe("Buried screens; it doesn't certify.");
     expect(r.title.text).toBe('The documented history of this place.');
     expect(r.coreSample.map((b) => b.eraId)).toEqual(['today', '1947', '1935', '1911']);
-    expect(r.groups.map((g) => g.heading)).toEqual(['Water history', 'Past land use', 'Fill and old structures']);
+    expect(r.groups.map((g) => g.heading)).toEqual(['Water', 'What the land was used for', 'Old buildings and fill']);
     expect(r.cannotTell.map((s) => s.text)).toContain(copy.CANNOT_CONDITION);
     expect(r.cannotTell.map((s) => s.text)).toContain(copy.CANNOT_UTILITIES);
     expect(r.beforeYouDig.map((s) => s.text)).toEqual([copy.DIG_NOT_LOCATES, copy.DIG_REQUEST]);
@@ -132,14 +134,14 @@ describe('a lot with nothing found', () => {
       expect(g.findings).toHaveLength(1);
       const f = g.findings[0]!.finding;
       expect(f.status).toBe('nothing_found');
-      expect(f.text).toContain(P1911);
-      expect(f.text).toContain(P1935);
-      expect(f.text).toContain('1911, revised to 1914');
-      expect(f.text).toContain('1931, revised to 1935');
-      expect(f.text).toContain('checked here');
+      expect(f.text).toContain('the 1911 plan (1911, revised to 1914)');
+      expect(f.text).toContain('the 1931-35 plan (1931, revised to 1935)');
+      expect(f.text).toContain('Checked here: ');
+      // Plain words in the text; the ids are in the structured list.
+      expect(f.text).not.toMatch(/fip_v3/);
       expect(checkedRecordsText(f)).toEqual([`${P1911} (1911–1914, clear)`, `${P1935} (1931–1935, clear)`]);
     }
-    expect(r.groups[2].findings[0]!.finding.text).toContain('No building is drawn at this lot or within 10 m in these records.');
+    expect(r.groups[2].findings[0]!.finding.text).toContain('No building is drawn at this lot or within 10 m.');
     expect(r.groups.every((g) => g.nextStep === null)).toBe(true);
   });
 
@@ -156,7 +158,7 @@ describe('a lot with nothing found', () => {
   it('says "Not covered" where a plate shows the lot but nobody has checked it', () => {
     const r = report(buildReport(inputs([mappedOnly(P1911, []), mappedOnly(P1935, [])])));
     expect(r.groups[2].findings.map((f) => f.finding.status)).toEqual(['not_covered']);
-    expect(r.groups[2].findings[0]!.finding.text).toContain('shows this lot, not fully checked here');
+    expect(r.groups[2].findings[0]!.finding.text).toContain('Shows this lot, not fully checked here');
   });
 
   it('adds a "not covered" finding beside a Documented one when another plate was not checked', () => {
@@ -168,7 +170,7 @@ describe('a lot with nothing found', () => {
   it('lists a plate that has no evidence file as not read', () => {
     const r = report(buildReport(inputs([plateCollection(P1911, [])])));
     const f = r.groups[2].findings[0]!.finding;
-    expect(f.text).toContain(`${P1935} (1931, revised to 1935): not read into Buried yet.`);
+    expect(f.text).toContain('Not read into Buried yet: the 1931-35 plan (1931, revised to 1935).');
   });
 });
 
@@ -204,16 +206,26 @@ describe('estimated, conflicting and unprintable records', () => {
     const r = report(buildReport(inputs([plateCollection(P1911, [a]), plateCollection(P1935, [])])));
     const text = allText(r).join('\n');
     expect(text).not.toMatch(/clean/i);
-    expect(r.groups[1].findings.map((f) => f.finding.text).join(' ')).toContain(`A use printed on ${P1911} is recorded for a building on this lot.`);
+    expect(r.groups[1].findings.map((f) => f.finding.text).join(' ')).toContain('A use printed on the 1911 plan is recorded for a building on this lot.');
   });
 
-  it('quotes a printable use and groups the same use together', () => {
+  it('quotes a printable use once, as lettered on the plan, and groups the same use together', () => {
     const a = makeFeature(P1911, [obs(P1911, true, 'clear', 'origin')], { seq: 1, at: [E0 + 6, N0 + 10], size: [8, 8] });
     const b = makeFeature(P1911, [obs(P1911, true, 'clear', 'origin')], { seq: 2, at: [E0 + 6, N0 + 20], size: [8, 8] });
     a.properties.attributes = { use: 'Stores 2nd floor' };
     b.properties.attributes = { use: 'Stores 2nd floor' };
     const r = report(buildReport(inputs([plateCollection(P1911, [a, b]), plateCollection(P1935, [])])));
-    expect(r.groups[1].findings[0]!.finding.text).toContain("'Stores 2nd floor' is recorded for 2 buildings on this lot on ");
+    expect(r.groups[1].findings[0]!.finding.text).toContain("2 buildings on this lot are lettered on the 1911 plan as 'Stores 2nd floor'.");
+    // The use is quoted in this group only, not in the buildings group or in the era bands.
+    const elsewhere = [...r.groups[2].findings.map((f) => f.finding.text), ...r.coreSample.flatMap((band) => band.sentences.map((s) => s.text))].join(' ');
+    expect(elsewhere).not.toContain('Stores 2nd floor');
+  });
+
+  it('does not repeat the "as lettered on the plate" note the record adds to a use', () => {
+    const a = makeFeature(P1911, [obs(P1911, true, 'clear', 'origin')], { seq: 1, at: [E0 + 6, N0 + 10], size: [8, 8] });
+    a.properties.attributes = { use: 'Bank of Nova Scotia; offices on 2nd (as lettered on the plate)' };
+    const r = report(buildReport(inputs([plateCollection(P1911, [a]), plateCollection(P1935, [])])));
+    expect(r.groups[1].findings[0]!.finding.text).toContain("A building on this lot is lettered on the 1911 plan as 'Bank of Nova Scotia; offices on 2nd'.");
   });
 
   it('says "near this lot (within X m)" for a building off the lot', () => {

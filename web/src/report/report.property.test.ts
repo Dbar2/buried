@@ -8,7 +8,7 @@
  */
 import fc from 'fast-check';
 import { describe, expect, it, vi } from 'vitest';
-import { checkSentence, featuresForEra, findBannedWords, indexSources, lotRelation, sourceYearsText } from '../evidence';
+import { checkSentence, featuresForEra, findBannedWords, indexSources, lotRelation, plainSourceName, sourceYearsText } from '../evidence';
 import type { Feature, FeatureCollection } from '../evidence';
 import { allSentences, buildReport } from './buildReport';
 import type { Report, ReportModel } from './buildReport';
@@ -138,7 +138,9 @@ describe('R4 "Nothing found" and "Not covered" list every record checked', () =>
               const source = plates.find((s) => s.id === c.sourceId)!;
               expect(c.yearFrom).toBe(source.year_from);
               expect(c.yearTo).toBe(source.year_to);
-              expect(f.finding.text).toContain(c.sourceId);
+              // The text names the record in plain words; its id is in `checked` (asserted above).
+              expect(f.finding.text).toContain(plainSourceName(source));
+              expect(f.finding.text).not.toContain(c.sourceId);
               expect(f.finding.text).toContain(String(c.yearFrom));
               expect(f.finding.text).toContain(String(c.yearTo));
               expect(f.finding.text).toContain(sourceYearsText(source));

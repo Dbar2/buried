@@ -210,6 +210,37 @@
   margin: 0 0 var(--space-1);
 }
 
+/* A finding that says "nothing" or "not covered" is one plain line, not a box. */
+.finding-checked {
+  border: 0;
+  border-left: 2px solid var(--report-rule);
+  padding: 0 0 0 var(--space-3);
+}
+
+.finding-checked .finding-sentence {
+  margin: 0 0 var(--space-1);
+}
+
+.status-text {
+  font-weight: 600;
+}
+
+.report-subtitle {
+  color: var(--report-ink-soft);
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  margin: 0 0 var(--space-3);
+}
+
+.report-summary {
+  font-size: 1.125rem;
+}
+
+.report-coverage {
+  color: var(--report-ink-soft);
+  font-size: 0.9375rem;
+}
+
 /* Status and confidence: a label in text, plus a line pattern. */
 .status-badge,
 .confidence-badge {

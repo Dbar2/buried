@@ -3,11 +3,15 @@ import type { FormEvent } from 'react';
 import { Explorer } from '../explorer/Explorer';
 import { PRESENT_SOURCES } from '../report/buildReport';
 import { exampleAddresses } from '../report/examples';
+import { coverageLine } from '../report/placeText';
 import { lotForPoint, searchAddresses } from '../report/search';
 import { useReportData } from '../report/useReportData';
 import { Mark } from '../shell/Mark';
 import { placeLink } from './placeLink';
 import './place.css';
+
+/** The tagline from design.md "Identity". */
+export const TAGLINE = 'Forgotten maps, rebuilt with proof.';
 
 /**
  * The landing (`/`): the dusk scene full-bleed behind, the wordmark, one field, "What was here?",
@@ -25,6 +29,7 @@ export function Landing() {
   const lots = layers?.get(PRESENT_SOURCES.lots);
   const examples = useMemo(() => (loaded.status === 'ready' ? exampleAddresses(addresses, lots, loaded.data.evidence) : []), [loaded, addresses, lots]);
   const hits = useMemo(() => searchAddresses(addresses, query), [addresses, query]);
+  const coverage = useMemo(() => (loaded.status === 'ready' ? coverageLine(loaded.data.registry, loaded.data.tiles) : []), [loaded]);
 
   const open = (point: [number, number]) => {
     const id = lotForPoint(lots, point);
@@ -50,6 +55,9 @@ export function Landing() {
           <Mark size={44} />
           <span>Buried</span>
         </h1>
+        <p className="landing-tagline" data-testid="landing-tagline">
+          {TAGLINE}
+        </p>
         <form className="landing-search" role="search" onSubmit={submit}>
           <label htmlFor="landing-address" className="visually-hidden">
             What was here?
@@ -84,13 +92,21 @@ export function Landing() {
           {loaded.status === 'error' && <p role="alert">The records could not be loaded.</p>}
         </form>
         {examples.length > 0 && query === '' && (
-          <ul className="landing-list landing-examples" aria-label="Example addresses" data-testid="landing-examples">
-            {examples.map((e) => (
-              <li key={e.lotId}>
-                <a href={placeLink(e.lotId)}>{e.address}</a>
-              </li>
-            ))}
-          </ul>
+          <div className="landing-try">
+            <p id="landing-try-label">Try</p>
+            <ul className="landing-list landing-examples" aria-labelledby="landing-try-label" data-testid="landing-examples">
+              {examples.map((e) => (
+                <li key={e.lotId}>
+                  <a href={placeLink(e.lotId)}>{e.address}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {coverage.length > 0 && (
+          <p className="landing-coverage" data-testid="landing-coverage">
+            {coverage.map((s) => s.text).join(' ')}
+          </p>
         )}
       </main>
     </div>

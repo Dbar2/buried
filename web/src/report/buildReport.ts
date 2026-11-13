@@ -14,13 +14,14 @@ import { aerialCoversLot, isPlateSource, lotCoverage } from './coverage';
 import { buildCoreSample } from './coreSample';
 import type { Band } from './coreSample';
 import * as copy from './copy';
-import { buildGroups } from './findings';
+import { buildGroups, structureOutlines } from './findings';
 import type { Group } from './findings';
 import { offsetOf, toJts, unionAll } from './geom';
 import { LOT_POSITION_ERROR_M } from './lotError';
 import { liveLink, resolveEra, shareLink, versionPrefix } from './links';
+import { addressHeading, coverageLine, summarySentences } from './placeText';
 import { STRUCTURE_RADIUS_M } from './radii';
-import { fixed, joined, quote, sentence, verbatim } from './sentence';
+import { fixed, joined, sentence } from './sentence';
 import type { Sentence, Slot } from './sentence';
 
 export type ReportInputs = {
@@ -48,7 +49,12 @@ export type Report = {
   kind: 'report';
   screensLine: Sentence;
   title: Sentence;
-  place: { lotId: string; addresses: string[]; sentences: Sentence[] };
+  /** The lot's addresses as a heading ("541 and 543 Queen St E"), or "This lot". `title` is the line under it. */
+  place: { lotId: string; addresses: string[]; heading: Sentence };
+  /** One or two sentences built from facts on the page. */
+  summary: Sentence[];
+  /** Which plans Buried holds, and how much of Toronto they cover. */
+  coverage: Sentence[];
   recordsChanged: Sentence | null;
   coreSample: Band[];
   groups: [Group, Group, Group];
@@ -153,7 +159,9 @@ export function allSentences(report: Report): Sentence[] {
   return [
     report.screensLine,
     report.title,
-    ...report.place.sentences,
+    report.place.heading,
+    ...report.summary,
+    ...report.coverage,
     ...(report.recordsChanged ? [report.recordsChanged] : []),
     ...report.coreSample.flatMap((b) => b.sentences),
     ...fromGroups(report.groups),
@@ -218,26 +226,42 @@ export function buildReport(inputs: ReportInputs): ReportModel {
     );
 
     const addresses = addressesIn(lot, inputs.canon.addresses);
-    const place: Report['place'] = {
-      lotId: inputs.lotId,
-      addresses,
-      sentences: [
-        sentence`Lot ${verbatim(inputs.lotId)}.`,
-        ...addresses.map((a) => sentence`Address: ${quote(a)}.`),
-      ],
-    };
+    const place: Report['place'] = { lotId: inputs.lotId, addresses, heading: addressHeading(addresses) };
 
     const byOrigin = new Map(canonCollections.map((c) => [c.origin_source, c]));
     const covering: Array<[number, number]> = [];
+    const coveringPlans: Source[] = [];
+    const coveringAerials: Source[] = [];
+    let anyReviewed = false;
     for (const s of plateSources) {
       const c = lotCoverage(lot, byOrigin.get(s.id), STRUCTURE_RADIUS_M);
-      if ((c === 'reviewed' || c === 'mapped') && s.year_from !== null) covering.push([s.year_from, s.year_to]);
+      if ((c === 'reviewed' || c === 'mapped') && s.year_from !== null) {
+        covering.push([s.year_from, s.year_to]);
+        coveringPlans.push(s);
+        if (c === 'reviewed') anyReviewed = true;
+      }
     }
     for (const s of inputs.canon.registry.sources) {
       if (s.type === 'aerial_photograph' && s.attribution_status === 'confirmed' && s.year_from !== null && inputs.canon.sidecars.some((t) => t.source === s.id && aerialCoversLot(lot, t))) {
         covering.push([s.year_from, s.year_to]);
+        coveringAerials.push(s);
       }
     }
+    const summary = summarySentences({
+      covering: coveringPlans,
+      anyReviewed,
+      aerials: coveringAerials,
+      outlines: structureOutlines({
+        lot,
+        lotErrorM: LOT_POSITION_ERROR_M,
+        sources,
+        collections: canonCollections,
+        coverageCollections: canonCollections,
+        plateSources,
+        withEmptyFindings: false,
+      }),
+    });
+    const coverage = coverageLine(inputs.canon.registry, inputs.canon.sidecars);
     const cannotTell: Sentence[] = [fixed(copy.CANNOT_CONDITION), yearsSentence(mergeYearRanges(covering)), fixed(copy.CANNOT_UTILITIES), fixed(copy.BEFORE_COLONIAL)];
     const cannotTellLink = copy.CITY_LAND_ACKNOWLEDGEMENT_URL ? { text: copy.LAND_ACKNOWLEDGEMENT_LINK, url: copy.CITY_LAND_ACKNOWLEDGEMENT_URL } : null;
 
@@ -271,6 +295,8 @@ export function buildReport(inputs: ReportInputs): ReportModel {
       screensLine: fixed(copy.SCREENS_LINE),
       title: fixed(copy.TITLE),
       place,
+      summary,
+      coverage,
       recordsChanged,
       coreSample,
       groups,

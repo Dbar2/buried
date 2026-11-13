@@ -31,8 +31,7 @@ import { boundsOf, boxesOverlap, cropWindow, ringsOf, tileRef, windowBox } from 
 import type { Crop, CropWindow, Pt } from './cropPlan';
 import { offsetOf, toJts } from './geom';
 import { STRUCTURE_RADIUS_M, WATER_RADIUS_M } from './radii';
-import { findBannedWords } from '../evidence';
-import { fixed, joined, num, quote, sentence, words } from './sentence';
+import { fixed, joined, num, sentence, words } from './sentence';
 import type { RelationClaim, Sentence, Slot } from './sentence';
 
 export const BUILDING_OUTLINES_SOURCE = 'present_toronto_building_outlines_2026';
@@ -239,11 +238,7 @@ function pastBand(input: CoreSampleInput, era: Era, plates: readonly Source[]): 
     sentences.push(...outlineSentences(items, (items[0] as Item).relation.kind, input.sources));
   }
 
-  const uses = [...new Set([...buildings, ...water].map((i) => i.entry.attributes.use).filter((u): u is string => u !== undefined))];
-  const printable = uses.filter((u) => findBannedWords(u).length === 0).sort(byString);
-  if (printable.length > 0) sentences.push(sentence`Uses recorded: ${joined(printable.map(quote), ', ')}.`);
-  const hidden = uses.length - printable.length;
-  if (hidden > 0) sentences.push(sentence`${num(hidden)} recorded ${words(hidden === 1 ? 'use is' : 'uses are')} not reproduced in this report.`);
+  // A use lettered on a plan is quoted once, in "What the land was used for", not in each era's band.
 
   if (covered && buildings.length === 0 && water.length === 0) {
     if (anyReviewed) {

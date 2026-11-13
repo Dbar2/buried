@@ -63,21 +63,29 @@ function FullReport({ report, onBandSelect }: { report: Report; onBandSelect: ((
       <p className="report-screens" data-testid="screens-line">
         {report.screensLine.text}
       </p>
-      <h1 id="report-title">{report.title.text}</h1>
+      <h1 id="report-title">{report.place.heading.text}</h1>
+      <p className="report-subtitle" data-testid="report-subtitle">
+        {report.title.text}
+      </p>
       {report.recordsChanged && (
         <p role="status" className="report-note" data-testid="records-changed">
           {report.recordsChanged.text}
         </p>
       )}
 
-      <section aria-labelledby="report-place">
-        <h2 id="report-place">{copy.SECTION_HEADINGS.place}</h2>
-        {report.place.sentences.map((s, i) => (
-          <p key={i}>
+      <div className="report-summary" data-testid="report-summary">
+        {report.summary.map((s, i) => (
+          <span key={i}>
+            {i > 0 ? ' ' : ''}
             <RichText text={s.text} />
-          </p>
+          </span>
         ))}
-      </section>
+      </div>
+      {report.coverage.length > 0 && (
+        <p className="report-coverage print-extra" data-testid="report-coverage">
+          {report.coverage.map((s) => s.text).join(' ')}
+        </p>
+      )}
 
       <section aria-labelledby="report-core">
         <h2 id="report-core">{copy.SECTION_HEADINGS.coreSample}</h2>
@@ -135,8 +143,8 @@ function FullReport({ report, onBandSelect }: { report: Report; onBandSelect: ((
             <SourceItem key={s.id} source={s} />
           ))}
         </ul>
-        <p className="small">
-          Data version <span className="mono">{report.dataVersion.slice(0, 12) || 'unknown'}</span>
+        <p className="small" data-testid="report-lot">
+          City property lot <span className="mono">{lotId}</span>. Data version <span className="mono">{report.dataVersion.slice(0, 12) || 'unknown'}</span>.
         </p>
       </section>
 

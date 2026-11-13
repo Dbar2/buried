@@ -48,6 +48,31 @@
   line-height: 1;
 }
 
+.landing-tagline {
+  color: var(--text);
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  margin: calc(-1 * var(--space-2)) 0 0;
+}
+
+.landing-try {
+  max-width: 34rem;
+  width: 100%;
+}
+
+.landing-try p {
+  color: var(--muted);
+  margin: 0 0 var(--space-1);
+}
+
+.landing-coverage {
+  color: var(--muted);
+  font-size: 1rem;
+  margin: 0;
+  max-width: 34rem;
+  text-align: center;
+}
+
 .landing-search {
   max-width: 34rem;
   position: relative;

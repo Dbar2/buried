@@ -111,8 +111,9 @@ describe('on the committed data', () => {
     expect(b1947.crop).toEqual({ kind: 'none', text: 'No 1947 photograph loaded yet' });
     const b1911 = r.coreSample.find((b) => b.eraId === '1911')!;
     expect(b1911.crop.kind).toBe('tile');
-    // A quoted use is the plan's own lettering, so "Uses recorded" lines are left out of this check.
-    for (const band of r.coreSample) for (const s of band.sentences.filter((x) => !x.text.startsWith('Uses recorded'))) expect(s.text).not.toMatch(BODY_FORBIDDEN);
+    // A use is quoted once, in the land-use group, never in an era's band.
+    for (const band of r.coreSample) for (const s of band.sentences.filter((x) => !x.text.startsWith('Confirmed by'))) expect(s.text).not.toMatch(BODY_FORBIDDEN);
+    expect(r.coreSample.flatMap((b) => b.sentences.map((s) => s.text)).join(' ')).not.toContain('Bank of Nova Scotia');
     const outline = b1911.sentences.map((s) => s.text).find((t) => /building outline/.test(t));
     expect(outline).toMatch(/the 1911 plan (sits|sit) (on this lot|near this lot \(within \d+ m\))\.$/);
   });
