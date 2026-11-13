@@ -1,0 +1,25 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "1911",
+    "features": [],
+    "drapes": [
+      {
+        "sourceId": "fip_v3_1911_229",
+        "url": "/data/tiles/fip_v3_1911_229.jpg",
+        "corners": {
+          "topLeft": [632312.3, 4835087.5],
+          "topRight": [632596.5, 4835177.2],
+          "bottomRight": [632699.8, 4834849.9],
+          "bottomLeft": [632415.6, 4834760.1]
+        },
+        "widthPx": 3626,
+        "heightPx": 4096,
+        "clip": {
+          "type": "Polygon",
+          "coordinates": [[[632312.3, 4835087.5], [632596.5, 4835177.2], [632644.0, 4834832.3], [632415.6, 4834760.1], [632400.0, 4834800.0]]]
+        }
+      }
+    ]
+  }
+}

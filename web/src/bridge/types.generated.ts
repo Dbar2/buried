@@ -133,7 +133,7 @@ export interface SceneInitMessage {
  * via the `definition` "sceneInitPayload".
  */
 export interface SceneInitPayload {
-  bridgeVersion: '0.2.0';
+  bridgeVersion: '0.3.0';
   origin: OriginPoint;
   bounds: SceneBounds;
   initialView: Rect;
@@ -289,6 +289,7 @@ export interface Drape {
   corners: DrapeCorners;
   widthPx: number;
   heightPx: number;
+  clip?: PolygonGeometry1;
 }
 /**
  * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
@@ -299,6 +300,16 @@ export interface DrapeCorners {
   topRight: Position;
   bottomRight: Position;
   bottomLeft: Position;
+}
+/**
+ * Optional (bridge 0.3.0). The plate's map area as a closed Polygon in EPSG:26917 metres, from the tile sidecar's map_area. The drape shows only inside it. Absent: the four corners bound the drape.
+ */
+export interface PolygonGeometry1 {
+  type: 'Polygon';
+  /**
+   * @minItems 1
+   */
+  coordinates: [Ring, ...Ring[]];
 }
 /**
  * Shell to Player. Which era is shown.
@@ -517,7 +528,7 @@ export interface ReadyMessage {
  * via the `definition` "readyPayload".
  */
 export interface ReadyPayload {
-  bridgeVersion: '0.2.0';
+  bridgeVersion: '0.3.0';
   unityVersion: string;
 }
 /**

@@ -473,7 +473,9 @@ rendered.
 
 All pure, operating on `double` positions already converted to world `Vector2` (x, z).
 
-- `PolygonPrep`: drop the closing vertex; remove consecutive duplicates and vertices whose removal
+- `PolygonPrep`: drop the closing vertex; merge a vertex closer than `MinEdgeM` = 2 cm to the one
+  before it (session 015: E15 found a 13 mm fold-back jog in City building 306711 whose wall had no
+  solid behind it); remove vertices whose removal
   moves the ring by less than 1 mm (collinear); orient exterior rings counter-clockwise and holes
   clockwise when seen from above; reject a ring with fewer than 3 vertices after this.
 - `Triangulator`: Buried's own ear clipper with hole bridging (after Eberly, "Triangulation by Ear

@@ -1,7 +1,7 @@
 {
   "type": "scene/init",
   "payload": {
-    "bridgeVersion": "0.2.0",
+    "bridgeVersion": "0.3.0",
     "bounds": { "minE": 631900, "minN": 4834400, "maxE": 633200, "maxN": 4835600 },
     "initialView": { "minE": 632000, "minN": 4834500, "maxE": 633100, "maxN": 4835500 },
     "eras": [{ "id": "today", "index": 0 }],

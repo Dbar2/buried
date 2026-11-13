@@ -13,6 +13,14 @@ namespace Buried.Meshing
         private const double SamePointM = 1e-9;
         private const double MinAreaM2 = 1e-9;
 
+        /// <summary>
+        /// A vertex closer than this to the one before it is merged into it. Real survey data has
+        /// sliver edges (the City's building outlines have 13 mm fold-back jogs) whose wall quads have
+        /// no solid behind them. 2 cm is a hundredth of the smallest position error (2 m) and under
+        /// one pixel of a plate, so it moves nothing anyone can see or measure.
+        /// </summary>
+        public const double MinEdgeM = 0.02;
+
         /// <summary>Positive for counter-clockwise rings (x east, y north).</summary>
         public static double SignedArea(IList<Vec2d> ring)
         {
@@ -27,7 +35,7 @@ namespace Buried.Meshing
         }
 
         /// <summary>
-        /// Drops the closing vertex, consecutive duplicates and vertices that lie within
+        /// Drops the closing vertex, vertices closer than <see cref="MinEdgeM"/> to the one before them, and vertices that lie within
         /// <see cref="CollinearToleranceM"/> of the line through their neighbours, then orients the ring
         /// (counter-clockwise for an exterior, clockwise for a hole).
         /// Returns null when fewer than 3 vertices or no area remain.
@@ -42,7 +50,11 @@ namespace Buried.Meshing
 
             for (int i = points.Count - 1; i >= 1; i--)
             {
-                if (Distance(points[i], points[i - 1]) < SamePointM) points.RemoveAt(i);
+                if (Distance(points[i], points[i - 1]) < MinEdgeM) points.RemoveAt(i);
+            }
+            while (points.Count >= 2 && Distance(points[0], points[points.Count - 1]) < MinEdgeM)
+            {
+                points.RemoveAt(points.Count - 1);
             }
 
             bool changed = true;

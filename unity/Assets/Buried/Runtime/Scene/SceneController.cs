@@ -13,7 +13,7 @@ namespace Buried.Scene
     /// <summary>
     /// Handles the Shell's messages and builds the scene from them. It draws what it is told: it never
     /// computes dates, confidence or lot relations, and it never filters the features of an era.
-    /// Bridge 0.2.0: scene/init, scene/loadEra, scene/setDepth, debug/markers and debug/setCamera.
+    /// Bridge 0.3.0: scene/init, scene/loadEra, scene/setDepth, debug/markers and debug/setCamera.
     /// Integer depths are a hard switch; the transitions come in task group 3.
     /// </summary>
     public sealed class SceneController : MonoBehaviour

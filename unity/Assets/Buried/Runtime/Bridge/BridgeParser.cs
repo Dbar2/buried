@@ -222,7 +222,13 @@ namespace Buried.Interop
         private static DrapeDto ParseDrape(JToken t, string p)
         {
             JObject o = JsonFields.Object(t, p);
-            JsonFields.Exactly(o, p, "sourceId", "url", "corners", "widthPx", "heightPx");
+            JsonFields.ExactlyWithOptional(o, p, new[] { "sourceId", "url", "corners", "widthPx", "heightPx" }, new[] { "clip" });
+            GeometryDto clip = null;
+            if (o["clip"] != null)
+            {
+                clip = ParseGeometry(o["clip"], p + ".clip", true);
+                if (clip.type != GeometryDto.Polygon) throw JsonFields.Fail(p + ".clip.type", "must be Polygon");
+            }
             return new DrapeDto
             {
                 sourceId = JsonFields.Matching(o, "sourceId", p, JsonFields.SourceIdPattern),
@@ -230,6 +236,7 @@ namespace Buried.Interop
                 corners = ParseCorners(JsonFields.ObjectAt(o, "corners", p), p + ".corners"),
                 widthPx = JsonFields.IntegerIn(o, "widthPx", p, 1, 16384),
                 heightPx = JsonFields.IntegerIn(o, "heightPx", p, 1, 16384),
+                clip = clip,
             };
         }
 

@@ -331,28 +331,28 @@
         "heightPx": 662
       },
       {
-        "sourceId": "9_2476_39r8",
-        "url": "/data/tiles/bv_6_ml3b.jpg",
+        "sourceId": "3247",
+        "url": "/data/tiles/3_9r_y86662_l.jpg",
         "corners": {
           "topLeft": [
-            188113.934,
-            4276749.958
+            295992.299,
+            8563451.464
           ],
           "topRight": [
+            239446.985,
+            5809304.185
+          ],
+          "bottomRight": [
             545501.463,
             7925812.654
           ],
-          "bottomRight": [
+          "bottomLeft": [
             223650.433,
             975091.791
-          ],
-          "bottomLeft": [
-            633557.855,
-            5405761.186
           ]
         },
-        "widthPx": 15501,
-        "heightPx": 6154
+        "widthPx": 14565,
+        "heightPx": 4585
       }
     ]
   }

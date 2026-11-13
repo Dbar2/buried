@@ -93,6 +93,22 @@ namespace Buried.Interop
             }
         }
 
+        /// <summary>Like <see cref="Exactly"/>, but the properties in <paramref name="optional"/> may be absent.</summary>
+        public static void ExactlyWithOptional(JObject o, string path, string[] required, string[] optional)
+        {
+            foreach (string name in required)
+            {
+                if (o[name] == null) throw Fail(path, "is missing the property \"" + name + "\"");
+            }
+            foreach (JProperty p in o.Properties())
+            {
+                if (System.Array.IndexOf(required, p.Name) < 0 && System.Array.IndexOf(optional, p.Name) < 0)
+                {
+                    throw Fail(path, "has the property \"" + p.Name + "\", which the Bridge Schema does not define");
+                }
+            }
+        }
+
         public static JToken Get(JObject o, string name)
         {
             return o[name];

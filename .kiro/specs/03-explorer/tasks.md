@@ -489,7 +489,7 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
 
 - [ ] 17. Session 007 items and what the gate taught (session 012)
 
-  - [ ] 17.1 Clip each plate drape to its map area (needs spec 01 task 16 and spec 02 task 14).
+  - [x] 17.1 Clip each plate drape to its map area (needs spec 01 task 16 and spec 02 task 14).
     Bridge `0.3.0`: optional `clip` on `drape` (design.md "Common definitions"), with fixtures,
     types, samples, DTOs, parser and writer; rerun **[PBT] E1** and **[PBT] E2**. `drapesForEra`
     sets `clip` from the sidecar's `map_area` and leaves it out when there is none.
@@ -538,7 +538,7 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
     Files: `unity/Assets/Buried/Tests/EditMode/ExtrusionPropertyTests.cs`,
     `unity/Assets/Buried/Tests/EditMode/StoredVertexPropertyTests.cs`.
     Requirements: 3.1, 3.4, 3.5.
-  - [ ] 17.6 Triangulation on real data. design.md now records the decision to keep Buried's own
+  - [x] 17.6 Triangulation on real data. design.md now records the decision to keep Buried's own
     ear clipper ("Decisions and reasons"). Update the doc comment in `Triangulator.cs` so it states
     that decision rather than a pending swap to LibTessDotNet. Add **[PBT] E15**.
     Files: `unity/Assets/Buried/Runtime/Meshing/Triangulator.cs`,

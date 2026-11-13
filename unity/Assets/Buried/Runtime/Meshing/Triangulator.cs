@@ -7,11 +7,14 @@ namespace Buried.Meshing
     /// <summary>
     /// Ear-clipping triangulation with hole bridging, in double precision.
     ///
-    /// Design note: design.md names LibTessDotNet for this step. The library source could not be
-    /// vendored in the session that wrote this file, so this is a self-contained ear clipper
-    /// (hole bridging after Eberly, "Triangulation by Ear Clipping"). The public contract is the one
-    /// the property test E4 checks: triangles tile the polygon, wind counter-clockwise, and none is
-    /// degenerate. Swapping in LibTessDotNet later only has to keep this signature.
+    /// Ear-clipping triangulation with hole bridging, in double precision.
+    ///
+    /// Decision (design.md "Decisions and reasons"): Buried keeps its own ear clipper (hole bridging
+    /// after Eberly, "Triangulation by Ear Clipping"); it does not use LibTessDotNet. An earlier note
+    /// here said the library would replace it; that is withdrawn. The contract is the one the property
+    /// tests check: triangles tile the polygon, wind counter-clockwise, and none is degenerate. E4 checks
+    /// it on generated polygons and E15 (RealPolygonTests) on every polygon in the committed
+    /// data/evidence and data/present files.
     ///
     /// Input must come from <see cref="PolygonPrep"/>: exterior counter-clockwise, holes clockwise.
     /// Output indices refer to the returned vertex list (exterior first, then each hole), three per

@@ -82,6 +82,29 @@ describe('toDrape', () => {
     expect([d.widthPx, d.heightPx]).toEqual([3428, 4096]);
   });
 
+  it('sets clip to the sidecar\'s map_area, and leaves it out when there is none (requirement 8.8)', () => {
+    const ring = [
+      [632300, 4835100],
+      [632590, 4835200],
+      [632600, 4835120],
+      [632500, 4835020],
+      [632400, 4834760],
+      [632300, 4835100],
+    ] as unknown as NonNullable<TileSidecar['map_area']>['coordinates'][number];
+    const withArea: TileSidecar = { ...tile('fip_v3_1911_229'), map_area: { type: 'Polygon', coordinates: [ring] } };
+    expect(toDrape(withArea).clip).toEqual({ type: 'Polygon', coordinates: [ring] });
+    const without = toDrape(tile('fip_v3_1911_229'));
+    expect('clip' in without).toBe(false);
+  });
+
+  it('never makes a drape of the full photograph', () => {
+    const t = { ...tile('fip_v3_1911_229'), full_image: 'fip_v3_1911_229_full.jpg', full_width_px: 1714, full_height_px: 2048 };
+    const d = toDrape(t);
+    expect(d.url).toBe('/data/tiles/fip_v3_1911_229.jpg');
+    expect(JSON.stringify(d)).not.toContain('_full');
+    expect([d.widthPx, d.heightPx]).toEqual([3428, 4096]);
+  });
+
   it('finds the drape of one source for Show Evidence', () => {
     expect(drapeForSource('fip_v3_1935_229', [tile('fip_v3_1911_229'), tile('fip_v3_1935_229')])?.sourceId).toBe('fip_v3_1935_229');
     expect(drapeForSource('fip_v3_1947_x', [tile('fip_v3_1911_229')])).toBeNull();

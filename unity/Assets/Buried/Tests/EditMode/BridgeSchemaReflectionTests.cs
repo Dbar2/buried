@@ -70,9 +70,11 @@ namespace Buried.Tests
                 string[] fieldNames = fields.Select(f => f.Name).OrderBy(n => n, StringComparer.Ordinal).ToArray();
 
                 Assert.AreEqual(schemaNames, fieldNames, pair.Value.Name + ": field names differ from the schema properties");
-                // Bridge 0.1.0 has no optional property. A DTO field cannot say "optional", so the
-                // schema may not introduce one without extending this test.
-                Assert.AreEqual(schemaNames, required, pair.Key + ": every property must be required");
+                // A DTO field cannot say "optional", so the schema's optional properties are listed here:
+                // each is a reference type that is null when the property is absent.
+                string[] optional = pair.Key == "drape" ? new[] { "clip" } : new string[0];
+                string[] expectedRequired = schemaNames.Where(n => !optional.Contains(n)).ToArray();
+                Assert.AreEqual(expectedRequired, required, pair.Key + ": every property but the listed optional ones must be required");
 
                 foreach (FieldInfo field in fields)
                 {
@@ -116,7 +118,7 @@ namespace Buried.Tests
                 var def = (JObject)_defs[name];
                 Assert.IsNotNull(def, "dangling $ref " + target);
                 // Both geometry unions are read into one DTO.
-                if (name == "polygonalGeometry") return _dtoByDef["geometry"];
+                if (name == "polygonalGeometry" || name == "polygonGeometry") return _dtoByDef["geometry"];
                 if (_dtoByDef.ContainsKey(name)) return _dtoByDef[name];
                 return ExpectedClrType(def);
             }

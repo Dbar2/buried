@@ -148,7 +148,7 @@ namespace Buried.Interop
             var drapes = new JArray();
             foreach (DrapeDto d in p.drapes)
             {
-                drapes.Add(new JObject
+                var drape = new JObject
                 {
                     ["sourceId"] = d.sourceId,
                     ["url"] = d.url,
@@ -161,7 +161,9 @@ namespace Buried.Interop
                     },
                     ["widthPx"] = d.widthPx,
                     ["heightPx"] = d.heightPx,
-                });
+                };
+                if (d.clip != null) drape["clip"] = Write(d.clip);
+                drapes.Add(drape);
             }
             return new JObject { ["eraId"] = p.eraId, ["features"] = features, ["drapes"] = drapes };
         }

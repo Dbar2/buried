@@ -108,6 +108,7 @@ export function semanticProblem(message: BridgeMessage): string | null {
       const dupDrape = firstDuplicate(p.drapes.map((d) => d.sourceId));
       if (dupDrape !== null) return `payload.drapes has the source id "${dupDrape}" more than once`;
       if (p.features.some((f) => firstOpenRing(f.geometry))) return 'payload.features has a ring that is not closed';
+      if (p.drapes.some((d) => d.clip !== undefined && firstOpenRing(d.clip))) return 'payload.drapes has a clip ring that is not closed';
       return null;
     }
     case 'debug/markers': {

@@ -23,6 +23,28 @@ namespace Buried.Scene
         private Material _material;
         private Texture2D _maskTexture;
 
+        /// <summary>
+        /// The ring that bounds a drape, in world x and z, not closed (the repeated last vertex is dropped):
+        /// the exterior ring of <c>clip</c> when the drape has one, else its four corners. Holes in the clip
+        /// are ignored; a plate's map area has none.
+        /// </summary>
+        public static List<Vec2d> Boundary(ProjectFrame frame, DrapeDto drape)
+        {
+            var ring = new List<Vec2d>();
+            if (drape.clip != null && drape.clip.polygons != null && drape.clip.polygons.Count > 0)
+            {
+                List<double[]> exterior = drape.clip.polygons[0][0];
+                for (int i = 0; i < exterior.Count - 1; i++) ring.Add(frame.ToLocal(exterior[i][0], exterior[i][1]));
+                return ring;
+            }
+            DrapeCornersDto c = drape.corners;
+            ring.Add(frame.ToLocal(c.topLeft[0], c.topLeft[1]));
+            ring.Add(frame.ToLocal(c.topRight[0], c.topRight[1]));
+            ring.Add(frame.ToLocal(c.bottomRight[0], c.bottomRight[1]));
+            ring.Add(frame.ToLocal(c.bottomLeft[0], c.bottomLeft[1]));
+            return ring;
+        }
+
         public static DrapeLayer Create(Transform parent, ProjectFrame frame, DrapeDto drape, Texture2D texture, Shader shader, int order)
         {
             DrapeCornersDto c = drape.corners;
@@ -32,8 +54,8 @@ namespace Buried.Scene
             Vec2d bottomLeft = frame.ToLocal(c.bottomLeft[0], c.bottomLeft[1]);
             MeshData data = DrapeMeshBuilder.Build(topLeft, topRight, bottomRight, bottomLeft);
 
-            // The boundary is the four corners until a plate's map area is sent (task 17.1).
-            DrapeMask mask = DrapeMaskBuilder.Build(new List<Vec2d> { topLeft, topRight, bottomRight, bottomLeft });
+            // The boundary is the plate's map area when one is sent, else the four corners.
+            DrapeMask mask = DrapeMaskBuilder.Build(Boundary(frame, drape));
 
             var layer = new DrapeLayer { SourceId = drape.sourceId };
             layer._mesh = data.ToMesh("Drape " + drape.sourceId);

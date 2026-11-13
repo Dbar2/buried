@@ -10,9 +10,13 @@ import type { Era, SourceIndex, TileSidecar } from '../evidence';
 
 export type Drape = PayloadOf<'scene/loadEra'>['drapes'][number];
 
-/** The tile as a bridge drape. The URL is below /data/tiles/, where the data plugin serves it. */
+/**
+ * The tile as a bridge drape. The URL is below /data/tiles/, where the data plugin serves it.
+ * `clip` is the sidecar's `map_area` when it has one (bridge 0.3.0) and is left out when it has
+ * none. The full photograph (`full_image`) is never a drape.
+ */
 export function toDrape(tile: TileSidecar): Drape {
-  return {
+  const drape: Drape = {
     sourceId: tile.source,
     url: `/data/tiles/${tile.image}`,
     corners: {
@@ -24,6 +28,8 @@ export function toDrape(tile: TileSidecar): Drape {
     widthPx: tile.width_px,
     heightPx: tile.height_px,
   };
+  if (tile.map_area) drape.clip = { type: 'Polygon', coordinates: tile.map_area.coordinates };
+  return drape;
 }
 
 /** Whether a source's rasters may be shown in this era. */

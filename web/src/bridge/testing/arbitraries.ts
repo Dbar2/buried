@@ -78,7 +78,7 @@ const sceneFeatureArb = fc.oneof(
 );
 
 const tileUrl = sourceIdArb.map((id) => `/data/tiles/${id}.jpg`);
-const drapeArb = fc.record({
+const drapeBaseArb = fc.record({
   sourceId: sourceIdArb,
   url: tileUrl,
   corners: fc.record({
@@ -90,6 +90,8 @@ const drapeArb = fc.record({
   widthPx: fc.integer({ min: 1, max: 16384 }),
   heightPx: fc.integer({ min: 1, max: 16384 }),
 });
+/** A drape, with a clip polygon about half the time (bridge 0.3.0). */
+const drapeArb = fc.tuple(drapeBaseArb, fc.option(polygonGeometry, { nil: undefined })).map(([drape, clip]) => (clip ? { ...drape, clip } : drape));
 
 const eraRefsArb = fc.integer({ min: 1, max: 6 }).chain((n) =>
   fc
