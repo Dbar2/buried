@@ -158,10 +158,11 @@ def worlds(
 
 @st.composite
 def chains(draw: st.DrawFn) -> MatchInputs:
-    """Four wide boxes in a row, shifted by about half their width, on three plates:
+    """Four wide boxes in a row, shifted by about a third of their width, on three plates:
     F1 (1911/229) ~ G (1935/229) ~ H (1911/232) ~ F2 (1911/229). Each neighbouring pair matches
-    and the ends are too far apart to compete, so the set would hold two 1911/229 features."""
-    shift = draw(st.integers(44, 48))
+    (the boxes overlap by two thirds and the error shift closes the rest) and the ends are far
+    enough apart not to compete, so the set would hold two 1911/229 features."""
+    shift = draw(st.integers(30, 34))
     dy = [draw(st.integers(-3, 3)) for _ in range(4)]
 
     def at(i: int) -> Rect:

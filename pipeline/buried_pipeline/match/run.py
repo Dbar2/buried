@@ -21,8 +21,8 @@ from buried_pipeline.align.pairwise import (
     PAIRWISE_FLOOR_M,
     PAIRWISE_MULTIPLIER,
     PlatePoint,
-    pairwise_error,
     plate_points,
+    register,
 )
 from buried_pipeline.align.residuals import ceil_tenth
 from buried_pipeline.errors import PipelineError
@@ -31,6 +31,7 @@ from buried_pipeline.io.atomic import atomic_write_json
 from buried_pipeline.io.registry import Registry
 from buried_pipeline.match.apply import parse_decisions
 from buried_pipeline.match.compute import AerialInfo, MatchInputs, MatchResult, compute_match
+from buried_pipeline.match.rules import PairRegistration
 from buried_pipeline.paths import Paths
 from buried_pipeline.publish.build import canonical_text
 from buried_pipeline.publish.run import read_json
@@ -70,18 +71,18 @@ def _write_all(files: dict[Path, str]) -> None:
         os.replace(temp, target)
 
 
-def plate_min_own_term(record: dict[str, Any]) -> float:
-    """A plate's digitising term: at least 1.0 m and 2 source pixels (evidence.md)."""
-    return max(1.0, 2.0 * float(record["source_pixel_size_m"]))
+def _pair(point: tuple[float, float]) -> list[float]:
+    return [round(point[0], 4), round(point[1], 4)]
 
 
 def pairwise_figures(
     paths: Paths, records: dict[str, dict[str, Any]], out: Callable[[str], None]
-) -> tuple[dict[tuple[str, str], float], list[dict[str, Any]]]:
-    """The pairwise alignment error of every two plates that share enough control references
-    (requirement 13.15), from the committed control files and alignment records. Returns the
-    figures keyed by the two source ids in sorted order, and one report row per pair of plates
-    saying what was used or why not. A plate whose control file no longer matches its alignment
+) -> tuple[dict[tuple[str, str], PairRegistration], list[dict[str, Any]]]:
+    """The registration and pairwise alignment error of every two plates that share enough control
+    references (requirement 13.15), from the committed control files and alignment records.
+    Returns the registrations keyed by the two source ids in sorted order (plate B onto plate A,
+    A the lower id), and one report row per pair of plates saying what was used and the numbers it
+    can be recomputed from, or why not. A plate whose control file no longer matches its alignment
     record (stale record) takes no part."""
     points: dict[str, list[PlatePoint]] = {}
     report: list[dict[str, Any]] = []
@@ -97,26 +98,38 @@ def pairwise_figures(
             points[sid] = plate_points(records[sid], read_json(control_path, "the control file"))
         except ValueError as exc:
             out(f"{sid}: {exc}, no pairwise figure")
-    figures: dict[tuple[str, str], float] = {}
+    figures: dict[tuple[str, str], PairRegistration] = {}
     for a, b in itertools.combinations(sorted(records), 2):
         row: dict[str, Any] = {"plates": [a, b]}
-        result = pairwise_error(points[a], points[b]) if a in points and b in points else None
+        result = register(points[a], points[b]) if a in points and b in points else None
         if result is None:
             row["used"] = False
             row["reason"] = (
                 f"fewer than {MIN_SHARED} shared control references, or a plate has no usable "
-                "control file; the plates' absolute errors are used"
+                "control file, or the shared points are too degenerate to fit; the plates' "
+                "absolute errors are used and the plates are compared as drawn"
             )
         else:
-            figures[(a, b)] = result.error_m
+            figures[(a, b)] = PairRegistration(a, b, result.error_m, result.b_to_a)
+            t = result.b_to_a
             row.update(
                 used=True,
+                model=result.model,
                 shared_references=[list(k) for k in result.shared],
-                differences_m=[[round(dx, 4), round(dy, 4)] for dx, dy in result.differences_m],
-                basis_m=round(result.basis_m, 4),
+                positions_a_m=[_pair(p) for p in result.positions_a],
+                positions_b_m=[_pair(p) for p in result.positions_b],
+                leave_one_out_residuals_m=[_pair(p) for p in result.loo_residuals_m],
+                leave_one_out_rms_m=round(result.loo_rms_m, 4),
                 pairwise_error_m=result.error_m,
                 floor_m=PAIRWISE_FLOOR_M,
                 multiplier=PAIRWISE_MULTIPLIER,
+                # T_BA = q0 + L (p - p0): B positions to A positions, held relative to the two
+                # centroids so no small number is added to a coordinate near 4.8e6.
+                b_to_a={
+                    "linear": [float(f"{c:.12g}") for c in (t.a, t.b, t.d, t.e)],
+                    "from_origin_m": [round(c, 6) for c in t.p0],
+                    "to_origin_m": [round(c, 6) for c in t.q0],
+                },
                 chosen={a: records[a]["chosen"], b: records[b]["chosen"]},
                 control_sha256={a: records[a]["control_sha256"], b: records[b]["control_sha256"]},
             )
@@ -139,7 +152,6 @@ def load_inputs(
         s.id for s in registry.by_type(PLATE_TYPE) if s.id in docs
     )
     min_error: dict[str, float] = {}
-    min_own: dict[str, float] = {}
     records: dict[str, dict[str, Any]] = {}
     for sid in sorted(plate_sources):
         record_path = paths.alignment_record(sid)
@@ -150,8 +162,7 @@ def load_inputs(
             )
         records[sid] = read_json(record_path, "the alignment record")
         min_error[sid] = plate_min_error(records[sid])
-        min_own[sid] = plate_min_own_term(records[sid])
-    pairwise_errors, pairwise_rows = pairwise_figures(paths, records, out)
+    registrations, pairwise_rows = pairwise_figures(paths, records, out)
     if pairwise is not None:
         pairwise.extend(pairwise_rows)
 
@@ -180,8 +191,7 @@ def load_inputs(
         aerials=aerials,
         year_to={s.id: s.year_to for s in registry.sources},
         decisions=parse_decisions(decisions_doc),
-        min_own_term_m=min_own,
-        pairwise_error_m=pairwise_errors,
+        registrations=registrations,
     )
 
 
@@ -245,8 +255,8 @@ def run_match(
         if row["used"]:
             out(
                 f"pairwise {a} / {b}: {row['pairwise_error_m']} m from "
-                f"{len(row['shared_references'])} shared references "
-                f"(RMS of differences {row['basis_m']} m)"
+                f"{len(row['shared_references'])} shared references, {row['model']} "
+                f"(leave-one-out RMS {row['leave_one_out_rms_m']} m)"
             )
         else:
             out(f"pairwise {a} / {b}: not used ({row['reason']})")

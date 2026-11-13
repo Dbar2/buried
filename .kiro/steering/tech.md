@@ -201,9 +201,14 @@ invent commands; when one is added, record it here.
     Writes `data/work/match/review.json` (cases for a person, and pending aerial checks) and
     prints counts per source pair. Aerials without an alignment record or tile sidecar are
     skipped and named. Code writes `not_covered` for an aerial and nothing else. For two plates that
-    share at least four control references, plate-to-plate tests use their pairwise alignment error
-    (spec 02 13.15) instead of the sum of their absolute errors; each run writes the figures it
-    used to `data/work/match/pairwise.json`.
+    share at least four control references, plate-to-plate tests register plate B onto plate A with
+    a fitted transform (similarity for four or five references, affine for six or more) and use the
+    pairwise error `ceil_0.1(max(0.5, 2 x leave-one-out RMS))` (spec 02 13.15) instead of the sum of
+    their absolute errors; published geometry is never changed. A match is the best overlap score
+    (largest IoU under shifts up to `e`) at least 0.5 with the second-best under 0.3; a clear
+    absence needs F wholly inside one reviewed area and no footprint covering 10 per cent of it
+    under any shift (spec 02 13.2 to 13.4). Each run writes the figures it used to
+    `data/work/match/pairwise.json`.
   - Held-out write hook (spec 02 task 17), run by `.kiro/hooks/held-out.json` (still `"enabled":
     false`; the maintainer enables it): `uv --directory pipeline run python -m
     buried_pipeline.hooks.held_out_write`. Reads the hook event as JSON on standard input; exits 2

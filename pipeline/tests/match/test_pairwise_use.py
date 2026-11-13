@@ -3,21 +3,24 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 import pytest
-from hypothesis import given, settings
+from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 from shapely.geometry import box
 
+from buried_pipeline.align.affine import LocalAffine
 from buried_pipeline.fetch.manifest import sha256_file
 from buried_pipeline.match import rules
-from buried_pipeline.match.rules import Building, Plate
+from buried_pipeline.match.rules import Building, PairRegistration, Plate
 from buried_pipeline.match.run import pairwise_figures
 from buried_pipeline.paths import Paths
 from tests.match.conftest import read_json_file
 
 ALIGN_F, ALIGN_G = 4.3, 3.1
+IDENTITY = LocalAffine(1.0, 0.0, 0.0, 1.0, (0.0, 0.0), (0.0, 0.0))
 
 
 def bld(bid: str, source: str, rect: tuple[float, float, float, float], err: float, al: float) -> Building:
@@ -48,12 +51,17 @@ def test_a_building_with_no_known_alignment_error_falls_back_to_the_sum() -> Non
     assert rules.pair_error(f, g, 3.3) == pytest.approx(7.8)
 
 
-def test_a_footprint_that_the_sum_erases_can_match_with_the_pairwise_figure() -> None:
+def test_a_tighter_pairwise_error_rejects_a_match_the_sum_of_errors_would_make() -> None:
     f = bld("F", "p1", (0, 0, 12, 12), 4.5, ALIGN_F)
-    g = bld("G", "p2", (1, 0, 13, 12), 3.3, ALIGN_G)
-    plate = Plate("p2", box(-100, -100, 300, 300), box(-50, -50, 250, 250), (g,), 3.3, 1.0)
-    assert rules.plate_outcome(f, plate).kind == rules.REVIEW  # too small for 7.8 m
-    assert rules.plate_outcome(f, plate, pairwise_m=1.0).kind == rules.MATCH_CANDIDATE
+    g = bld("G", "p2", (8, 0, 20, 12), 3.3, ALIGN_G)
+    plate = Plate("p2", box(-100, -100, 300, 300), (box(-50, -50, 250, 250),), (g,))
+    # As drawn, e is 7.8 m and a shift of 8 m would bring them together.
+    assert rules.plate_outcome(f, plate).kind == rules.MATCH_CANDIDATE
+    # Registered to within about 2 m, the 8 m gap is a different footprint.
+    reg = PairRegistration("p1", "p2", 1.0, IDENTITY)
+    out = rules.plate_outcome(f, plate, registration=reg)
+    assert (out.kind, out.reason) == (rules.REVIEW, rules.PARTIAL_OVERLAP)
+    assert rules.pair_error(f, g, 1.0) < 3.0
 
 
 # --- the figure is only used with four shared references -----------------------------------------
@@ -101,6 +109,9 @@ def test_the_figure_is_used_only_with_four_shared_references(
     figures, rows = pairwise_figures(paths, records, lines.append)
     assert (("p1", "p2") in figures) is used
     assert rows[0]["used"] is used
+    if used:
+        assert figures[("p1", "p2")].source_a == "p1" and figures[("p1", "p2")].source_b == "p2"
+        assert rows[0]["pairwise_error_m"] == figures[("p1", "p2")].pairwise_m
 
 
 def test_a_control_file_that_changed_since_its_record_takes_no_part(tmp_path: Path) -> None:
@@ -138,43 +149,103 @@ def test_match_writes_the_figure_it_used(match_root: Paths) -> None:
     assert any(line.startswith("pairwise ") for line in lines)
 
 
-# --- a larger error never produces more matches or absences --------------------------------------
+# --- properties of the rule under a registration -------------------------------------------------
 
+Rect = tuple[float, float, float, float]
 rect = st.tuples(
     st.integers(0, 40), st.integers(0, 40), st.integers(6, 60), st.integers(6, 60)
 ).map(lambda t: (float(t[0]), float(t[1]), float(t[0] + t[2]), float(t[1] + t[3])))
+WIDE = (-100.0, -100.0, 300.0, 300.0)
+REVIEWED = (-50.0, -50.0, 250.0, 250.0)
+
+
+def other_plate(gs: tuple[Building, ...], reviewed: Rect = REVIEWED) -> Plate:
+    return Plate("p2", box(*WIDE), (box(*reviewed),), gs)
+
+
+def at(pairwise_m: float) -> PairRegistration:
+    return PairRegistration("p1", "p2", pairwise_m, IDENTITY)
 
 
 @given(
     f_rect=rect,
     g_rects=st.lists(rect, min_size=0, max_size=3),
-    small=st.integers(10, 60).map(lambda v: v / 10),
+    small=st.integers(5, 60).map(lambda v: v / 10),
     extra=st.integers(0, 60).map(lambda v: v / 10),
-    reviewed=st.sampled_from([(-50, -50, 250, 250), (0, 0, 80, 80)]),
+    reviewed=st.sampled_from([REVIEWED, (0.0, 0.0, 80.0, 80.0)]),
 )
-@settings(max_examples=400, deadline=None)
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "FALSE for the rules of requirements 13.2 and 13.4 as written (session 025, reported to the "
-        "maintainer). Counterexample: F = (0,0)-(7,7), G = (0,4)-(7,11), reviewed area wide, "
-        "pairwise 1.0 m gives review (G overlaps F's core), 2.5 m gives a clear absence, because "
-        "the larger error shrinks F's core until G no longer touches it. A match can also appear "
-        "at a larger error: r is measured on the shrunk core, so a shift smaller than the "
-        "shrink scores 1.0. Needs a decision on the rule, not a change to this test."
-    ),
+@settings(max_examples=300, deadline=None)
+def test_a_clear_absence_at_a_larger_error_is_one_at_a_smaller_error(
+    f_rect: Rect, g_rects: list[Rect], small: float, extra: float, reviewed: Rect
+) -> None:
+    """The shrink-to-core rule failed this (session 025): a larger error shrank the core until a
+    neighbour no longer touched it. Under the shift rule a larger error only adds shifts and
+    candidates, so every score is at least as large, and an absence can only be lost."""
+    f = bld("F", "p1", f_rect, 4.5, ALIGN_F)
+    gs = tuple(bld(f"G{i}", "p2", r, 3.3, ALIGN_G) for i, r in enumerate(g_rects))
+    plate = other_plate(gs, reviewed)
+    low = rules.plate_outcome(f, plate, registration=at(small))
+    high = rules.plate_outcome(f, plate, registration=at(small + extra))
+    if high.kind == rules.ABSENT:
+        assert low.kind == rules.ABSENT
+    low_scores = {c: (r, cov) for c, r, cov in low.scores}
+    for c, r, cov in high.scores:
+        if c in low_scores:
+            assert r >= low_scores[c][0] and cov >= low_scores[c][1]
+
+
+@given(
+    f_rect=rect,
+    shift=st.tuples(st.integers(-3, 3), st.integers(-3, 3)),
+    pairwise=st.integers(30, 80).map(lambda v: v / 10),
 )
-def test_a_larger_pairwise_error_never_gives_more_matches_or_absences(
-    f_rect: tuple[float, float, float, float],
-    g_rects: list[tuple[float, float, float, float]],
-    small: float,
-    extra: float,
-    reviewed: tuple[float, float, float, float],
+@settings(max_examples=200, deadline=None)
+def test_a_copy_shifted_by_less_than_e_always_matches_when_nothing_else_is_near(
+    f_rect: Rect, shift: tuple[int, int], pairwise: float
+) -> None:
+    f = bld("F", "p1", f_rect, 4.5, ALIGN_F)
+    g_rect = (f_rect[0] + shift[0], f_rect[1] + shift[1], f_rect[2] + shift[0], f_rect[3] + shift[1])
+    g = bld("G", "p2", g_rect, 3.3, ALIGN_G)
+    e = rules.pair_error(f, g, pairwise)
+    assume(math.hypot(*shift) < e)
+    out = rules.plate_outcome(f, other_plate((g,)), registration=at(pairwise))
+    assert out.kind == rules.MATCH_CANDIDATE and out.other == "G"
+    assert out.scores[0][1] == pytest.approx(1.0)  # whole-metre shifts lie on the 0.25 m lattice
+
+
+@given(
+    f_rect=rect,
+    g_size=st.tuples(st.integers(6, 60), st.integers(6, 60)),
+    pairwise=st.integers(10, 80).map(lambda v: v / 10),
+    direction=st.integers(0, 3),
+)
+@settings(max_examples=200, deadline=None)
+def test_footprints_further_apart_than_e_never_match_and_give_an_absence(
+    f_rect: Rect, g_size: tuple[int, int], pairwise: float, direction: int
+) -> None:
+    f = bld("F", "p1", f_rect, 4.5, ALIGN_F)
+    e = rules.pair_error(f, bld("G", "p2", (0, 0, 1, 1), 3.3, ALIGN_G), pairwise)
+    gap = e + 0.5
+    w, h = g_size
+    x0, y0, x1, y1 = f_rect
+    g_rect = [
+        (x1 + gap, y0, x1 + gap + w, y0 + h),
+        (x0 - gap - w, y0, x0 - gap, y0 + h),
+        (x0, y1 + gap, x0 + w, y1 + gap + h),
+        (x0, y0 - gap - h, x0 + w, y0 - gap),
+    ][direction]
+    g = bld("G", "p2", g_rect, 3.3, ALIGN_G)
+    out = rules.plate_outcome(f, other_plate((g,), (-300, -300, 400, 400)), registration=at(pairwise))
+    assert out.kind == rules.ABSENT and out.scores == ()
+
+
+@given(f_rect=rect, g_rects=st.lists(rect, min_size=1, max_size=3), pairwise=st.just(2.0))
+@settings(max_examples=100, deadline=None)
+def test_the_outcome_does_not_depend_on_the_order_of_the_other_plates_buildings(
+    f_rect: Rect, g_rects: list[Rect], pairwise: float
 ) -> None:
     f = bld("F", "p1", f_rect, 4.5, ALIGN_F)
     gs = tuple(bld(f"G{i}", "p2", r, 3.3, ALIGN_G) for i, r in enumerate(g_rects))
-    plate = Plate("p2", box(-100, -100, 300, 300), box(*reviewed), gs, 3.3, 1.0)
-    low = rules.plate_outcome(f, plate, pairwise_m=small).kind
-    high = rules.plate_outcome(f, plate, pairwise_m=small + extra).kind
-    rank = {rules.MATCH_CANDIDATE: 1, rules.ABSENT: 1}
-    assert rank.get(high, 0) <= rank.get(low, 0)
+    forward = rules.plate_outcome(f, other_plate(gs), registration=at(pairwise))
+    backward = rules.plate_outcome(f, other_plate(gs[::-1]), registration=at(pairwise))
+    assert forward == backward
