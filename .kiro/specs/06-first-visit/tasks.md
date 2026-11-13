@@ -62,19 +62,19 @@ generated types; W1 lands before U2.
 
 ## P: pipeline and data contract
 
-- [ ] P1 (video) Finds schema and validation. `data/schema/finds.schema.json`,
+- [x] P1 (video) Finds schema and validation. `data/schema/finds.schema.json`,
   `pipeline/buried_pipeline/validate/finds.py` in `buried validate` (+ P1 Hypothesis test,
   fixtures in `pipeline/tests/fixtures/finds/`); extend `npm run gen:types` to write
   `web/src/evidence/finds.types.generated.ts` (P owns that script change). R8.
-- [ ] P2 (video) Evidence schema 1.2.0 with `provenance.review` and its Validator rules;
+- [x] P2 (video) Evidence schema 1.2.0 with `provenance.review` and its Validator rules;
   `pipeline/buried_pipeline/migrate/review_state.py` run once over `data/evidence/*.geojson`;
   `buried publish` writes `reviewed`; regenerate `web/src/evidence/types.generated.ts`. R9.1,
   R9.3.
-- [ ] P3 (video) `data/finds.json` with the overall factory, the bank and the coal yard: crops on
+- [x] P3 (video) `data/finds.json` with the overall factory, the bank and the coal yard: crops on
   `fip_v3_1911_229`, lettering transcribed as lettered, checked by the maintainer, whose name goes
   in `read_by`. The coal yard needs a published `use_` or `bld_` feature; until one exists it
   waits and the page shows the finds that resolve. R8.
-- [ ] P4 (video, Kiro proof) MCP `find_places` returns matching finds (slug, tag, readings,
+- [x] P4 (video, Kiro proof) MCP `find_places` returns matching finds (slug, tag, readings,
   review state), paged under the 20 KB cap (+ test in `pipeline/tests/mcp`). R8.
 
 ## Maintainer

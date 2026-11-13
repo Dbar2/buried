@@ -10,7 +10,7 @@ import math
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 from buried_pipeline.align.residuals import ceil_tenth
@@ -22,6 +22,7 @@ TOLERANCE = 1e-9
 COVERAGE_SLACK_M = 0.01
 ID_RE = re.compile(r"^(bld|wtr|use)_(.+)_(\d{4})$")
 KIND_BY_PREFIX = {"bld": "building", "wtr": "water", "use": "land_use"}
+REVIEW_STATE_SCHEMA = (1, 2, 0)  # the first schema whose features carry provenance.review
 
 
 def parse_time(value: str) -> datetime:
@@ -80,6 +81,11 @@ def index_features(docs: Sequence[Doc]) -> tuple[dict[str, FeatureRef], list[Val
 
 def _check_file(d: Doc, ctx: Context) -> list[ValidationError]:
     out: list[ValidationError] = []
+    version = tuple(int(n) for n in d.doc["schema_version"].split("."))
+    if version < REVIEW_STATE_SCHEMA:
+        out.append(err(d.path, "/schema_version", "an evidence file carries provenance.review "
+                       f"from schema {'.'.join(map(str, REVIEW_STATE_SCHEMA))}; run "
+                       "the review-state migration or write the file again"))
     origin = d.doc["origin_source"]
     if origin != d.name:
         out.append(err(d.path, "/origin_source", f"origin_source {origin} does not match the "
@@ -373,6 +379,16 @@ def _linked_set_errors(all_features: dict[str, FeatureRef]) -> list[ValidationEr
     return out
 
 
+def _check_review(ref: FeatureRef, ctx: Context) -> list[ValidationError]:
+    """`reviewed` names a person and a day that is not in the future. The Schema checks the
+    shape (by and on for reviewed, neither for a draft)."""
+    review = ref.props["provenance"]["review"]
+    if review["state"] == "reviewed" and date.fromisoformat(review["on"]) > ctx.now.date():
+        return [err(ref.doc.path, f"{ref.pointer}/properties/provenance/review/on",
+                    "is in the future", ref.id)]
+    return []
+
+
 def check_evidence(docs: Sequence[Doc], ctx: Context) -> list[ValidationError]:
     all_features, out = index_features(docs)
     for d in docs:
@@ -382,6 +398,7 @@ def check_evidence(docs: Sequence[Doc], ctx: Context) -> list[ValidationError]:
                            "be checked"))
     for ref in all_features.values():
         out.extend(_check_identity(ref))
+        out.extend(_check_review(ref, ctx))
         out.extend(_check_geometry(ref, ctx))
         out.extend(_check_observations(ref, ctx, all_features))
         out.extend(_check_attribute_reads(ref, ctx))

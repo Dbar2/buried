@@ -85,9 +85,38 @@ export async function generateTypes(): Promise<string> {
   });
 }
 
+/**
+ * Generate web/src/evidence/finds.types.generated.ts from data/schema/finds.schema.json (spec 06
+ * task P1). Same options and the same deterministic output rule as the evidence types.
+ */
+export const FINDS_SCHEMA_PATH = fileURLToPath(
+  new URL('../../data/schema/finds.schema.json', import.meta.url),
+);
+export const FINDS_TYPES_PATH = fileURLToPath(
+  new URL('../src/evidence/finds.types.generated.ts', import.meta.url),
+);
+
+const FINDS_BANNER = `/* eslint-disable */
+/**
+ * GENERATED FILE. Do not edit by hand.
+ * Source: data/schema/finds.schema.json. Regenerate with \`npm run gen:types\` (from web/).
+ */`;
+
+export async function generateFindsTypes(): Promise<string> {
+  const schema = JSON.parse(await readFile(FINDS_SCHEMA_PATH, 'utf8')) as Schema;
+  return compile(forTypes(schema) as never, 'FindsFile', {
+    bannerComment: FINDS_BANNER,
+    additionalProperties: false,
+    unreachableDefinitions: true,
+    style: { singleQuote: true, semi: true, printWidth: 100 },
+  });
+}
+
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const text = await generateTypes();
   await mkdir(dirname(TYPES_PATH), { recursive: true });
   await writeFile(TYPES_PATH, text, 'utf8');
   console.log(`wrote ${TYPES_PATH}`);
+  await writeFile(FINDS_TYPES_PATH, await generateFindsTypes(), 'utf8');
+  console.log(`wrote ${FINDS_TYPES_PATH}`);
 }

@@ -48,6 +48,7 @@ def make_building(i: int) -> dict[str, Any]:
             "provenance": {
                 "origin_source": PLATE, "alignment_error_m": 4.3, "digitising_error_m": 1.0,
                 "confirmed_by": REVIEWER, "confirmed_at": "2026-11-13T14:42:16Z",
+                "review": {"state": "draft_rule"},
                 "crop_px": {"x": 2687 + i, "y": 3279, "width": 83, "height": 80},
             },
         },

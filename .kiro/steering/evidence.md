@@ -44,6 +44,14 @@ This file states the rules the schema and the code must follow.
 
 A feature with no observation, no source or no position error is invalid. The validator rejects it.
 
+**Review state (`provenance.review`, schema 1.2.0).** `state` is `reviewed`, `draft_rule` or
+`draft_hand`. `reviewed` means a named person looked at the feature against its source; it carries
+`by` (the person) and `on` (the day). `draft_rule` is a feature the rule-based extraction drew and
+`buried publish` wrote, and `draft_hand` is one traced by hand; neither has been reviewed, and a
+draft carries no `by` or `on`. `buried publish` writes `reviewed` from the decisions file's reviewer
+and date. `confirmed_by` and `confirmed_at` are the publishing record (who accepted the proposal
+into the file) and are never printed as a status.
+
 ## Visibility
 
 | Value | Meaning |

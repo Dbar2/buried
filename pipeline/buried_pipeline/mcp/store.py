@@ -180,24 +180,34 @@ class EvidenceStore:
     # --- places --------------------------------------------------------------------------------
 
     def find_places(self, query: Any, limit: Any = None, cursor: Any = None) -> dict[str, Any]:
-        """Address points whose full address contains every word of `query` (case-insensitive),
-        or the lot with that parcel id, each with the lots whose polygon contains the point.
-        Paged: `limit` rows at most, fewer when the result would pass MAX_RESULT_BYTES."""
+        """Finds (data/finds.json) and address points matching `query`, and the lot with that
+        parcel id.
+
+        A find matches when every word of the query occurs in its slug, tag, noun or lettering
+        (case-insensitive); it comes with each reading's lettering and crop, the feature's status
+        and the feature's `provenance.review` as the evidence file states it. An address point
+        matches when its full address contains every word; it comes with the lots whose polygon
+        contains it. One cursor pages the finds first and then the addresses; `returned` counts
+        both. Paged: `limit` rows at most, fewer when the result would pass MAX_RESULT_BYTES."""
         if not isinstance(query, str) or not query.strip():
             raise BadRequest("query must be a non-empty string")
         n = _clamp_limit(limit)
         words = query.lower().split()
         lots = self._layer(LOT_LAYER)["features"]
         lot_hit = [f for f in lots if str(f["id"]) == query.strip()]
+        finds = self._matching_finds(words)
         addresses = []
         for f in self._layer(ADDRESS_LAYER)["features"]:
             text = str(f["properties"].get("ADDRESS_FULL", ""))
             if all(w in text.lower() for w in words):
                 addresses.append((text, str(f["id"]), f))
         addresses.sort(key=lambda t: (t[0], t[1]))
-        start = _cursor(cursor, len(addresses))
-        rows = []
-        for text, fid, f in addresses[start : start + MAX_LIMIT]:
+        total = len(finds) + len(addresses)
+        start = _cursor(cursor, total)
+        find_rows = finds[start:]
+        first_address = max(0, start - len(finds))
+        rows: list[dict[str, Any]] = list(find_rows)
+        for text, fid, f in addresses[first_address : first_address + MAX_LIMIT]:
             point = self._geometry(ADDRESS_LAYER, f)
             rows.append(
                 {
@@ -211,6 +221,7 @@ class EvidenceStore:
             )
         base = {
             "query": query,
+            "find_matches": len(finds),
             "address_matches": len(addresses),
             "lots": [
                 {"lot_id": str(f["id"]), "area_m2": _round(self._geometry(LOT_LAYER, f).area),
@@ -218,12 +229,14 @@ class EvidenceStore:
                 for f in lot_hit
             ],
             "note": "The lots listed for an address are the polygons that contain the address "
-            "point. That is a geometric fact about two layers, not a finding about a lot.",
+            "point. That is a geometric fact about two layers, not a finding about a lot. A "
+            "find's lettering is as a named person read it from the plan; review is the "
+            "feature's provenance.review, and a draft has not been reviewed.",
             "coordinate_system": "EPSG:26917",
         }  # fmt: skip
         page, _ = _page(rows, None, n, base)
         end = start + len(page)
-        more = end < len(addresses)
+        more = end < total
         paging = {
             "start": start,
             "returned": len(page),
@@ -231,7 +244,62 @@ class EvidenceStore:
             "next_cursor": str(end) if more else None,
             **({"how_to_get_the_rest": HOW_TO_GET_THE_REST} if more else {}),
         }
-        return {**base, "addresses": page, **paging}
+        page_finds = [r for r in page if "find_id" in r]
+        page_addresses = [r for r in page if "address_id" in r]
+        return {**base, "finds": page_finds, "addresses": page_addresses, **paging}
+
+    def _finds(self) -> list[dict[str, Any]]:
+        path = self.data / "finds.json"
+        if not path.is_file():
+            return []
+        return list(self._cached("finds", path)["finds"])
+
+    def _feature(self, source: str, feature_id: str) -> dict[str, Any] | None:
+        path = self.data / "evidence" / f"{source}.geojson"
+        if not path.is_file():
+            return None
+        index_key = f"feature_index:{source}"
+        if index_key not in self._cache:
+            doc = self._cached(f"evidence:{source}", path)
+            self._cache[index_key] = {f["id"]: f for f in doc["features"]}
+        return self._cache[index_key].get(feature_id)
+
+    def _matching_finds(self, words: list[str]) -> list[dict[str, Any]]:
+        out = []
+        for find in sorted(self._finds(), key=lambda f: (f["order"], f["id"])):
+            lettering = [line for r in find["readings"] for line in r["lettered"]]
+            text = " ".join([find["slug"], find["tag"], find["noun"], *lettering]).lower()
+            if not all(w in text for w in words):
+                continue
+            readings = []
+            for r in find["readings"]:
+                feature = self._feature(r["source"], r["feature_id"])
+                props = feature["properties"] if feature else {}
+                readings.append(
+                    {
+                        "source": r["source"],
+                        "feature_id": r["feature_id"],
+                        "lettered": r["lettered"],
+                        "crop_px": r["crop_px"],
+                        "read_by": r["read_by"],
+                        "read_on": r["read_on"],
+                        "feature_status": props.get("status"),
+                        "review": props.get("provenance", {}).get("review"),
+                    }
+                )
+            out.append(
+                {
+                    "find_id": find["id"],
+                    "slug": find["slug"],
+                    "tag": find["tag"],
+                    "noun": find["noun"],
+                    "kind": find["kind"],
+                    "order": find["order"],
+                    "readings": readings,
+                    "source": "data/finds.json",
+                }
+            )
+        return out
 
     def _lots_containing(self, point: Point) -> list[str]:
         out = []

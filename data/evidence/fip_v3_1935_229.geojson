@@ -66,6 +66,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_00f61d0f4713",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -141,6 +144,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_017e97abe006",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "dark"
         },
         "status": "published"
@@ -212,6 +218,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_042d43cda59d",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -475,6 +484,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_0e3e522b620f",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -554,6 +566,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_0fd87c1be71e",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -705,6 +720,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_1353dd00d9f8",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -780,6 +798,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_1444344e35c4",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -891,6 +912,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_150aa297a626",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -1071,6 +1095,7 @@
         "confidence": "estimated",
         "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
         "kind": "building",
+        "merged_into": "bld_fip_v3_1935_229_0065",
         "observations": [
           {
             "method": "origin",
@@ -1094,9 +1119,13 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_1acc5fdb6a36",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
-        "status": "published"
+        "status": "merged",
+        "status_reason": "A fragment of a larger building that was later traced by hand as one outline."
       },
       "type": "Feature"
     },
@@ -1164,6 +1193,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_1faf8a161ef3",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "same_as": [
@@ -1233,6 +1265,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_2332b2539f7b",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -1320,6 +1355,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_27e99b7aca58",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -1415,6 +1453,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_2db452e4513f",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -1518,6 +1559,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_301ea791370c",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -1754,6 +1798,7 @@
         "confidence": "estimated",
         "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
         "kind": "building",
+        "merged_into": "bld_fip_v3_1935_229_0067",
         "observations": [
           {
             "method": "origin",
@@ -1777,9 +1822,13 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_3308a61c5032",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
-        "status": "published"
+        "status": "merged",
+        "status_reason": "A fragment of a larger building that was later traced by hand as one outline."
       },
       "type": "Feature"
     },
@@ -1880,6 +1929,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_3346fc1f9bb8",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -1955,6 +2007,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_3b80b986eb01",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -2018,6 +2073,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_3df1791cb9c2",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -2109,6 +2167,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_40cec48f08d8",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -2200,6 +2261,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_4542a7881def",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -2311,6 +2375,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_523ee09ba9b3",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -2425,6 +2492,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_57242ee0d5de",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -2534,6 +2604,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_5a3d2cd8bbe5",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -2636,6 +2709,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_5e642d26c4bf",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -2721,6 +2797,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_64a0bd7a0809",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "dark"
         },
         "status": "published"
@@ -2844,6 +2923,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_64d99b01c421",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -2943,6 +3025,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_6b07048d8e5c",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -3061,6 +3146,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_6dd545cc934e",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "dark"
         },
         "same_as": [
@@ -3190,6 +3278,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_6fc99542b165",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -3317,6 +3408,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_721b9e1924da",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -3437,6 +3531,7 @@
         "confidence": "estimated",
         "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
         "kind": "building",
+        "merged_into": "bld_fip_v3_1935_229_0068",
         "observations": [
           {
             "method": "origin",
@@ -3460,9 +3555,13 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_75f9e11f35a8",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
-        "status": "published"
+        "status": "merged",
+        "status_reason": "A fragment of a larger building that was later traced by hand as one outline."
       },
       "type": "Feature"
     },
@@ -3619,6 +3718,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_765d00626f87",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -3737,6 +3839,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_7667215ed712",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -3857,6 +3962,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_76cca3374b0f",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -3950,6 +4058,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_7e5786278890",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -4053,6 +4164,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_865cfb8bbdcc",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -4135,6 +4249,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_8eb6ccdea9e8",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -4247,6 +4364,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_91338455f298",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -4336,6 +4456,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_94f81fd1fd26",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "dark"
         },
         "status": "published"
@@ -4479,6 +4602,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_96c04550efb7",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "dark"
         },
         "status": "published"
@@ -4598,6 +4724,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_985d376fb146",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -4741,6 +4870,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_9a5a06eaad33",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -4808,6 +4940,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_a3419d944e75",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -4926,6 +5061,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_a542c797fa43",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "same_as": [
@@ -5047,6 +5185,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_a81f06bccc3e",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -5142,6 +5283,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_aa8e39077753",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -5236,6 +5380,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_aa9e6864c39f",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -5353,6 +5500,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_b32a05aff0d3",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -5432,6 +5582,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_b542725f5e10",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -5515,6 +5668,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_b5dc2d5ea57a",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "dark"
         },
         "status": "published"
@@ -5675,6 +5831,7 @@
         "confidence": "estimated",
         "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
         "kind": "building",
+        "merged_into": "bld_fip_v3_1935_229_0067",
         "observations": [
           {
             "method": "origin",
@@ -5698,9 +5855,13 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_b75994472b08",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
-        "status": "published"
+        "status": "merged",
+        "status_reason": "A fragment of a larger building that was later traced by hand as one outline."
       },
       "type": "Feature"
     },
@@ -5793,6 +5954,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_bfe9d1596920",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -5868,6 +6032,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_c1cdac542017",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -5954,6 +6121,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_c47758c17ee9",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -6031,6 +6201,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_c68e821146bb",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -6102,6 +6275,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_d1a102e3251b",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -6173,6 +6349,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_db4830ec4084",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -6252,6 +6431,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_e4aaa31b2b17",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "dark"
         },
         "status": "published"
@@ -6338,6 +6520,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_e5bc44b1629e",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "dark"
         },
         "same_as": [
@@ -6443,6 +6628,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_eb046cfc41f3",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -6522,6 +6710,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_f2de45ee0be1",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -6628,6 +6819,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_f92ced792393",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -6720,6 +6914,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1935_229",
           "proposal_id": "fip_v3_1935_229_p_fdec7ef759c2",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -6728,6 +6925,638 @@
             "method": "match_auto"
           }
         ],
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632486.986,
+              4835102.242
+            ],
+            [
+              632513.671,
+              4835071.666
+            ],
+            [
+              632525.188,
+              4835081.501
+            ],
+            [
+              632498.697,
+              4835112.135
+            ],
+            [
+              632486.986,
+              4835102.242
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0064",
+      "properties": {
+        "attributes": {
+          "storeys": 2,
+          "use": "Glove & Overall Fac.; Carhartt Hamilton (as lettered on the plate)"
+        },
+        "confidence": "documented",
+        "confidence_reason": "Footprint traced by hand from the plate outline; use and storeys (2 & basement) read from the plate lettering.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0101",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "attribute_reads": [
+            {
+              "attribute": "use",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 360,
+                "width": 270,
+                "x": 1947,
+                "y": 805
+              },
+              "read_by": "person"
+            },
+            {
+              "attribute": "storeys",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 360,
+                "width": 270,
+                "x": 1947,
+                "y": 805
+              },
+              "read_by": "person"
+            }
+          ],
+          "confirmed_at": "2026-11-13T18:40:27Z",
+          "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+          "crop_px": {
+            "height": 390,
+            "width": 300,
+            "x": 1932,
+            "y": 790
+          },
+          "digitising_error_m": 1.0,
+          "origin_source": "fip_v3_1935_229",
+          "review": {
+            "state": "draft_hand"
+          }
+        },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0101",
+            "method": "match_auto"
+          }
+        ],
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632487.704,
+              4835079.625
+            ],
+            [
+              632472.583,
+              4835066.578
+            ],
+            [
+              632493.672,
+              4835040.707
+            ],
+            [
+              632509.319,
+              4835054.973
+            ],
+            [
+              632487.704,
+              4835079.625
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0065",
+      "properties": {
+        "attributes": {
+          "storeys": 2,
+          "use": "Machine Shop; Wm. R. Perrin & Co. Limited (as lettered on the plate)"
+        },
+        "confidence": "documented",
+        "confidence_reason": "Footprint traced by hand from the plate outline as one block; use read from the plate lettering. The front part is lettered 2 storeys (stock room on the 2nd, part vacant); the height of the shop behind it is not read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0102",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "attribute_reads": [
+            {
+              "attribute": "use",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 325,
+                "width": 275,
+                "x": 1752,
+                "y": 1030
+              },
+              "read_by": "person"
+            },
+            {
+              "attribute": "storeys",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 325,
+                "width": 275,
+                "x": 1752,
+                "y": 1030
+              },
+              "read_by": "person"
+            }
+          ],
+          "confirmed_at": "2026-11-13T18:40:27Z",
+          "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+          "crop_px": {
+            "height": 355,
+            "width": 305,
+            "x": 1737,
+            "y": 1015
+          },
+          "digitising_error_m": 1.0,
+          "origin_source": "fip_v3_1935_229",
+          "review": {
+            "state": "draft_hand"
+          }
+        },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0102",
+            "method": "match_auto"
+          }
+        ],
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632405.118,
+              4834909.533
+            ],
+            [
+              632409.184,
+              4834896.355
+            ],
+            [
+              632437.388,
+              4834904.788
+            ],
+            [
+              632437.021,
+              4834906.084
+            ],
+            [
+              632427.281,
+              4834916.595
+            ],
+            [
+              632405.118,
+              4834909.533
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0066",
+      "properties": {
+        "attributes": {
+          "storeys": 1,
+          "use": "Coal Shed (as lettered on the plate)"
+        },
+        "confidence": "documented",
+        "confidence_reason": "Footprint traced by hand from the plate outline; use and storeys (1) read from the plate lettering. The north side is drawn dashed on the plate.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0103",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "attribute_reads": [
+            {
+              "attribute": "use",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 125,
+                "width": 255,
+                "x": 852,
+                "y": 2165
+              },
+              "read_by": "person"
+            },
+            {
+              "attribute": "storeys",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 125,
+                "width": 255,
+                "x": 852,
+                "y": 2165
+              },
+              "read_by": "person"
+            }
+          ],
+          "confirmed_at": "2026-11-13T18:40:27Z",
+          "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+          "crop_px": {
+            "height": 155,
+            "width": 285,
+            "x": 837,
+            "y": 2150
+          },
+          "digitising_error_m": 1.0,
+          "origin_source": "fip_v3_1935_229",
+          "review": {
+            "state": "draft_hand"
+          }
+        },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0103",
+            "method": "match_auto"
+          }
+        ],
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632341.351,
+              4835063.645
+            ],
+            [
+              632348.28,
+              4835039.166
+            ],
+            [
+              632372.161,
+              4835046.306
+            ],
+            [
+              632372.315,
+              4835045.764
+            ],
+            [
+              632383.596,
+              4835049.137
+            ],
+            [
+              632376.091,
+              4835074.16
+            ],
+            [
+              632341.351,
+              4835063.645
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0067",
+      "properties": {
+        "attributes": {
+          "storeys": 3,
+          "use": "Cork Fac.; Freyseng Cork Co. Ltd. (as lettered on the plate)"
+        },
+        "confidence": "documented",
+        "confidence_reason": "Footprint traced by hand from the plate outline as one block; use and storeys (3 & basement at the north end, 4 & basement at the south-west) read from the plate lettering. Storeys recorded as the lower figure.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0104",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "attribute_reads": [
+            {
+              "attribute": "use",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 225,
+                "width": 320,
+                "x": 687,
+                "y": 810
+              },
+              "read_by": "person"
+            },
+            {
+              "attribute": "storeys",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 225,
+                "width": 320,
+                "x": 687,
+                "y": 810
+              },
+              "read_by": "person"
+            }
+          ],
+          "confirmed_at": "2026-11-13T18:40:27Z",
+          "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+          "crop_px": {
+            "height": 255,
+            "width": 350,
+            "x": 672,
+            "y": 795
+          },
+          "digitising_error_m": 1.0,
+          "origin_source": "fip_v3_1935_229",
+          "review": {
+            "state": "draft_hand"
+          }
+        },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0104",
+            "method": "match_auto"
+          }
+        ],
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632559.651,
+              4834859.145
+            ],
+            [
+              632565.813,
+              4834840.317
+            ],
+            [
+              632575.249,
+              4834843.138
+            ],
+            [
+              632568.884,
+              4834862.111
+            ],
+            [
+              632559.651,
+              4834859.145
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0068",
+      "properties": {
+        "attributes": {
+          "storeys": 1,
+          "use": "Baptist Mission Hall (as lettered on the plate)"
+        },
+        "confidence": "documented",
+        "confidence_reason": "Footprint traced by hand from the plate outline; use and storeys (1 & basement) read from the plate lettering.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0105",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "attribute_reads": [
+            {
+              "attribute": "use",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 175,
+                "width": 100,
+                "x": 1977,
+                "y": 2920
+              },
+              "read_by": "person"
+            },
+            {
+              "attribute": "storeys",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 175,
+                "width": 100,
+                "x": 1977,
+                "y": 2920
+              },
+              "read_by": "person"
+            }
+          ],
+          "confirmed_at": "2026-11-13T18:40:27Z",
+          "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+          "crop_px": {
+            "height": 205,
+            "width": 130,
+            "x": 1962,
+            "y": 2905
+          },
+          "digitising_error_m": 1.0,
+          "origin_source": "fip_v3_1935_229",
+          "review": {
+            "state": "draft_hand"
+          }
+        },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0105",
+            "method": "match_auto"
+          }
+        ],
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632385.951,
+              4834922.773
+            ],
+            [
+              632390.588,
+              4834906.391
+            ],
+            [
+              632404.805,
+              4834910.641
+            ],
+            [
+              632409.184,
+              4834896.355
+            ],
+            [
+              632437.388,
+              4834904.788
+            ],
+            [
+              632437.021,
+              4834906.084
+            ],
+            [
+              632407.822,
+              4834939.961
+            ],
+            [
+              632404.687,
+              4834938.602
+            ],
+            [
+              632385.951,
+              4834922.773
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "use_fip_v3_1935_229_0001",
+      "properties": {
+        "attributes": {
+          "use": "Coal & Wood Yard; Northern Fuels Co. (as lettered on the plate)"
+        },
+        "confidence": "documented",
+        "confidence_reason": "Area traced by hand along the yard boundary drawn on the plate, including the coal shed; use read from the plate lettering.",
+        "kind": "land_use",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "attribute_reads": [
+            {
+              "attribute": "use",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 60,
+                "width": 250,
+                "x": 732,
+                "y": 2050
+              },
+              "read_by": "person"
+            }
+          ],
+          "confirmed_at": "2026-11-13T18:40:27Z",
+          "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+          "crop_px": {
+            "height": 375,
+            "width": 403,
+            "x": 716,
+            "y": 1926
+          },
+          "digitising_error_m": 1.0,
+          "origin_source": "fip_v3_1935_229",
+          "review": {
+            "state": "draft_hand"
+          }
+        },
         "status": "published"
       },
       "type": "Feature"
@@ -6831,6 +7660,6 @@
       ]
     }
   ],
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "type": "FeatureCollection"
 }
