@@ -30,7 +30,7 @@ steps they extend, then 17 and 18.
     Files: `data/schema/studio_api.schema.json`, `data/schema/studio_api_fixtures/valid/**`,
     `data/schema/studio_api_fixtures/invalid/**`.
     Requirements: 2.1, 2.5.
-  - [ ] 1.2 Implement the data version rule in Python and TypeScript, with a shared fixture tree and
+  - [x] 1.2 Implement the data version rule in Python and TypeScript, with a shared fixture tree and
     its expected hash; extend the Vite data plugin to write `data_version` into `/data/index.json`.
     Files: `pipeline/buried_pipeline/service/data_version.py`, `web/src/workspace/dataVersion.ts`,
     `web/vite/dataPlugin.ts`, `data/schema/studio_api_fixtures/data_version/**`,
@@ -302,12 +302,15 @@ steps they extend, then 17 and 18.
     `web/src/explorer/drapes.ts`, `web/src/explorer/coverage.ts`, `web/src/map/MapView2D.tsx`,
     `web/src/sources/SourcesPage.tsx`, and their tests.
     Requirements: 6.5, 6.6, 14.4, 15.1, 15.4, 15.5.
-  - [ ] 13.4 Implement `seen.ts` and the rise on Explorer mount; "View in Explorer" with the era
+  - [x] 13.4 Implement `seen.ts` and the rise on Explorer mount; "View in Explorer" with the era
     rule and the "No Explorer era" message.
     Files: `web/src/workspace/seen.ts`, `web/src/workspace/seen.test.ts`,
     `web/src/explorer/Explorer.tsx`, `web/src/studio/publish/PublishView.tsx`.
     Requirements: 15.2, 15.3.
-  - [ ] 13.5 **[PBT] S3** A workspace feature never appears as canon.
+    Session 019: the "View in Explorer" link is in `web/src/studio/publish/PublishPanel.tsx`, and the
+    Explorer reads `/?era=<id>` itself. The rise uses `buildAddFeatures` (see spec 03 task 12.1), not
+    `applyEvidenceUpdate`.
+  - [x] 13.5 **[PBT] S3** A workspace feature never appears as canon.
     Files: `web/src/workspace/merge.property.test.ts`.
     Requirements: 6.4, 6.5, 14.3 to 14.5, 15.5.
 

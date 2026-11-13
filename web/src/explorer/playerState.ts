@@ -14,6 +14,8 @@ export type PlayerState = {
   /** How many cameraChanged messages have arrived. The gate test waits for this to go up. */
   cameraSeq: number;
   camera: PayloadOf<'cameraChanged'> | null;
+  /** Feature ids sent by scene/addFeatures (they rise). The Studio end-to-end test reads this. */
+  addedFeatureIds: string[];
   /** Errors and dropped messages, newest last. */
   errors: string[];
 };
@@ -25,5 +27,6 @@ export const INITIAL_PLAYER_STATE: PlayerState = {
   markersSent: [],
   cameraSeq: 0,
   camera: null,
+  addedFeatureIds: [],
   errors: [],
 };

@@ -1,0 +1,330 @@
+/*
+ * The Studio: a working tool, calm and dense. Dark theme from tokens.css only. The plate is the hero
+ * and keeps its own colours; the chrome stays quiet. `lantern` marks primary actions only (design.md);
+ * the current proposal is drawn in `ink`, thicker, with a text label. No gradients, no shadows, no
+ * cards inside cards, no icons without text.
+ */
+.studio {
+  background: var(--night);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 26rem;
+  height: 100%;
+  min-height: 0;
+}
+
+.studio-message {
+  display: block;
+  padding: var(--space-4);
+}
+
+.studio-main {
+  min-height: 0;
+  min-width: 0;
+  position: relative;
+}
+
+.studio-empty {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+}
+
+.studio-side {
+  background: var(--fog);
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+.studio-side h1 {
+  font-size: 1.5rem;
+  margin-bottom: var(--space-3);
+}
+
+.studio-side h2 {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: var(--space-3) 0 var(--space-2);
+}
+
+.studio-side h3 {
+  align-items: baseline;
+  display: flex;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 var(--space-2);
+}
+
+.studio-side ul,
+.studio-side ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.small {
+  font-size: 0.875rem;
+}
+
+/* Buttons: a thin `muted` outline, no fill. */
+.studio button,
+.studio .button {
+  background: none;
+  border: 1px solid var(--muted);
+  color: var(--text);
+  cursor: pointer;
+  display: inline-block;
+  font: inherit;
+  padding: var(--space-1) var(--space-3);
+  text-decoration: none;
+}
+
+.studio button:hover:not(:disabled) {
+  border-color: var(--text);
+}
+
+.studio button:disabled {
+  color: var(--muted);
+  cursor: default;
+  opacity: 0.6;
+}
+
+.studio button[aria-pressed='true'],
+.studio button[aria-current='step'] {
+  border-color: var(--text);
+  font-weight: 600;
+}
+
+/* The primary action is the only `lantern` in the Studio chrome. */
+.studio .primary:not(:disabled) {
+  background: var(--lantern);
+  border-color: var(--lantern);
+  color: var(--night);
+  font-weight: 600;
+}
+
+.studio kbd {
+  border: 1px solid var(--muted);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  margin-left: var(--space-1);
+  padding: 0 0.3rem;
+}
+
+.studio .primary:not(:disabled) kbd {
+  border-color: var(--night);
+  color: var(--night);
+}
+
+.plate-picker li + li {
+  margin-top: var(--space-1);
+}
+
+.plate-picker button {
+  display: grid;
+  gap: 0;
+  text-align: left;
+  width: 100%;
+}
+
+.steps ol {
+  display: grid;
+  gap: var(--space-1);
+  grid-template-columns: repeat(3, 1fr);
+  margin: var(--space-3) 0;
+}
+
+.steps button {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+}
+
+.studio label {
+  display: grid;
+  gap: var(--space-1);
+  margin: var(--space-2) 0;
+}
+
+.studio label.check {
+  align-items: start;
+  display: flex;
+  gap: var(--space-2);
+}
+
+.studio input[type='text'],
+.studio input[type='number'] {
+  background: var(--night);
+  border: 1px solid var(--muted);
+  color: var(--text);
+  font: inherit;
+  padding: var(--space-1) var(--space-2);
+}
+
+/* Review panel */
+.counts {
+  border-bottom: 1px solid var(--present);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-2);
+  padding-bottom: var(--space-2);
+}
+
+.state {
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 400;
+  margin-left: auto;
+}
+
+.proposal-crop {
+  background: var(--night);
+  display: block;
+  height: 200px;
+  image-rendering: pixelated;
+  max-width: 100%;
+  width: 296px;
+}
+
+.facts {
+  display: grid;
+  gap: var(--space-1) var(--space-3);
+  grid-template-columns: max-content 1fr;
+  margin: var(--space-2) 0;
+}
+
+.facts dt {
+  color: var(--muted);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.weaknesses li {
+  border-left: 2px solid var(--muted);
+  margin: var(--space-1) 0;
+  padding-left: var(--space-2);
+}
+
+.proposal-list {
+  border-top: 1px solid var(--present);
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+.proposal-list summary {
+  cursor: pointer;
+}
+
+.proposal-list ul {
+  max-height: 14rem;
+  overflow-y: auto;
+}
+
+.proposal-list button {
+  border: 0;
+  display: block;
+  font-size: 0.875rem;
+  padding: 0.1rem var(--space-1);
+  text-align: left;
+  width: 100%;
+}
+
+.proposal-list button[aria-current='true'] {
+  border-left: 3px solid var(--ink);
+  font-weight: 600;
+}
+
+.key-legend {
+  border-top: 1px solid var(--present);
+  color: var(--muted);
+  display: grid;
+  gap: 0 var(--space-3);
+  grid-template-columns: repeat(2, 1fr);
+  margin: var(--space-3) 0 0;
+  padding-top: var(--space-2);
+}
+
+.key-legend div {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.key-legend dt,
+.key-legend dd {
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Publish panel */
+.blockers {
+  border-left: 3px solid var(--ink);
+  margin: var(--space-2) 0;
+  padding-left: var(--space-2);
+}
+
+.published {
+  border-top: 1px solid var(--present);
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+/* Plate stage */
+.plate-stage {
+  height: 100%;
+  position: relative;
+  width: 100%;
+}
+
+.plate-canvas {
+  display: block;
+  touch-action: none;
+}
+
+.plate-label {
+  background: var(--night);
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  font-size: 0.75rem;
+  padding: 0 var(--space-1);
+  pointer-events: none;
+  position: absolute;
+}
+
+.plate-tools {
+  background: var(--night);
+  bottom: var(--space-3);
+  display: flex;
+  gap: var(--space-1);
+  left: var(--space-3);
+  padding: var(--space-1);
+  position: absolute;
+}
+
+.plate-hint {
+  background: var(--night);
+  left: var(--space-3);
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+  position: absolute;
+  top: var(--space-3);
+}
+
+@media (max-width: 52rem) {
+  .studio {
+    grid-template-columns: 1fr;
+    grid-template-rows: 55% 45%;
+  }
+}

@@ -44,23 +44,38 @@ export class CardError extends Error {
   }
 }
 
-export function buildGateCard(entry: EraFeature, feature: Feature, sources: SourceIndex): GateCard {
+export function buildGateCard(
+  entry: EraFeature,
+  feature: Feature,
+  sources: SourceIndex,
+  origin: 'canon' | 'workspace' = 'canon',
+): GateCard {
   if (feature.id !== entry.id) throw new CardError(`Era list entry ${entry.id} does not match feature ${feature.id}`);
   const provenance = feature.properties.provenance;
-  const origin = sources.get(provenance.origin_source);
-  if (!origin) throw new CardError(`Source ${provenance.origin_source} is not in the registry`);
+  const source = sources.get(provenance.origin_source);
+  if (!source) throw new CardError(`Source ${provenance.origin_source} is not in the registry`);
 
   const kindName = entry.kind === 'building' ? 'Building' : entry.kind === 'water' ? 'Water' : 'Land use';
+  // A workspace feature says so, and says who confirmed it, in one row (spec 04 requirement 6.5).
+  const confirmation: CardRow[] =
+    origin === 'workspace'
+      ? [
+          { label: 'Origin', value: `From your workspace, confirmed by ${provenance.confirmed_by}. Not part of Buried's reviewed record.`, mono: false },
+          { label: 'Confirmed at', value: formatUtc(provenance.confirmed_at), mono: true, title: provenance.confirmed_at },
+        ]
+      : [
+          { label: 'Confirmed by', value: provenance.confirmed_by, mono: false },
+          { label: 'Confirmed at', value: formatUtc(provenance.confirmed_at), mono: true, title: provenance.confirmed_at },
+        ];
   return {
     heading: entry.attributes.use ?? kindName,
     rows: [
       { label: 'Feature', value: entry.id, mono: true },
       { label: 'Confidence', value: `${CONFIDENCE_LABELS[entry.confidence]}. ${entry.confidenceReason}`, mono: false },
       { label: 'Position', value: positionPhrase(entry.positionErrorM), mono: true },
-      { label: 'Read from', value: `${origin.title} (${origin.id})`, mono: false },
-      { label: 'Confirmed by', value: provenance.confirmed_by, mono: false },
-      { label: 'Confirmed at', value: formatUtc(provenance.confirmed_at), mono: true, title: provenance.confirmed_at },
-      { label: 'Attribution', value: origin.attribution_line, mono: false },
+      { label: 'Read from', value: `${source.title} (${source.id})`, mono: false },
+      ...confirmation,
+      { label: 'Attribution', value: source.attribution_line, mono: false },
     ],
   };
 }

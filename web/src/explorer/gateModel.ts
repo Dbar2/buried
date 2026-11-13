@@ -41,9 +41,11 @@ export type GateModel = {
   /** Today's buildings for scene/init, and the number left out because the bridge cannot carry them. */
   present: PresentBuilding[];
   presentSkipped: number;
+  /** Ids of the features that come from the visitor's workspace (spec 04). Empty when there are none. */
+  workspaceFeatureIds: ReadonlySet<string>;
 };
 
-export function buildGateModel(data: LoadedData): GateModel {
+export function buildGateModel(data: LoadedData, workspaceFeatureIds: ReadonlySet<string> = new Set()): GateModel {
   const order = eraOrder(data.project.eras);
   const gateEras = order.filter((era) => GATE_ERA_IDS.includes(era.id));
   if (gateEras.length !== GATE_ERA_IDS.length) {
@@ -95,5 +97,6 @@ export function buildGateModel(data: LoadedData): GateModel {
     initialView: view,
     present,
     presentSkipped,
+    workspaceFeatureIds,
   };
 }

@@ -23,6 +23,20 @@ describe('formatUtc', () => {
   });
 });
 
+describe('buildGateCard for a workspace feature (spec 04 requirement 6.5)', () => {
+  it('says it is from the workspace, who confirmed it, and that it is not part of the reviewed record', async () => {
+    const { data, list, byId } = await setup();
+    const entry = list.features.find((f) => f.id === 'bld_fip_v3_1911_229_0001') as NonNullable<(typeof list.features)[number]>;
+    const feature = byId.get('bld_fip_v3_1911_229_0001') as NonNullable<ReturnType<typeof byId.get>>;
+    const card = buildGateCard(entry, feature, data.sources, 'workspace');
+    const origin = card.rows.find((r) => r.label === 'Origin')?.value;
+    expect(origin).toBe("From your workspace, confirmed by Synthetic Reviewer. Not part of Buried's reviewed record.");
+    expect(card.rows.some((r) => r.label === 'Confirmed by')).toBe(false);
+    // a canon card has no such row
+    expect(buildGateCard(entry, feature, data.sources).rows.some((r) => r.label === 'Origin')).toBe(false);
+  });
+});
+
 describe('buildGateCard (requirement 24.3)', () => {
   it('shows the feature id, origin source, position phrase, who confirmed it and when, and the attribution line', async () => {
     const { data, list, byId } = await setup();

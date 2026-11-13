@@ -352,6 +352,12 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
     `unity/Assets/Buried/Runtime/Scene/RiseAnimator.cs`,
     `unity/Assets/Buried/Runtime/Scene/SceneController.cs`.
     Requirements: 22.1, 22.2.
+    Session 019, not ticked: bridge 0.4.0 adds `scene/addFeatures` (schema, fixtures, both parsers, the
+    writer) and the Player adds a batch to a loaded era that rises over 900 ms from the moment the era is
+    visible (`EraLayer.AddRising`, `DepthBlend.Added*`, reduced motion fades only). The Shell holds
+    unseen workspace features back from `scene/loadEra` and sends them with `buildAddFeatures`
+    (`gateScene.ts`). Still open: `sceneModel.ts` `applyEvidenceUpdate`, the "lost or changed entries
+    means a full `scene/loadEra`" rule, `RiseAnimator.cs` as its own type, and the test for it.
   - [ ] 12.2 **[PBT] E5** A feature is never drawn outside its evidence window.
     Files: `web/src/explorer/sceneModel.property.test.ts`.
     Requirements: 6.2, 6.3, 22.1.

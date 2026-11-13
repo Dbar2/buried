@@ -40,11 +40,30 @@ export function buildSceneInit(
   };
 }
 
-export function buildLoadEra(era: Pick<EraInfo, 'id'>, list: EraFeatureList, drapes: readonly Drape[]): MessageOf<'scene/loadEra'> {
+export function buildLoadEra(
+  era: Pick<EraInfo, 'id'>,
+  list: EraFeatureList,
+  drapes: readonly Drape[],
+  /** Feature ids to hold back; they arrive later by scene/addFeatures (see buildAddFeatures). */
+  exclude: ReadonlySet<string> = new Set(),
+): MessageOf<'scene/loadEra'> {
   return {
     type: 'scene/loadEra',
-    payload: { eraId: era.id, features: sceneFeaturesFor(list), drapes: [...drapes] },
+    payload: { eraId: era.id, features: sceneFeaturesFor(list).filter((f) => !exclude.has(f.id)), drapes: [...drapes] },
   };
+}
+
+/**
+ * The features of an Era list that were held back from loadEra, as one scene/addFeatures message, or
+ * null when there are none. They come from the same Era list, so each is inside its evidence window.
+ */
+export function buildAddFeatures(
+  era: Pick<EraInfo, 'id'>,
+  list: EraFeatureList,
+  only: ReadonlySet<string>,
+): MessageOf<'scene/addFeatures'> | null {
+  const features = sceneFeaturesFor(list).filter((f) => only.has(f.id));
+  return features.length === 0 ? null : { type: 'scene/addFeatures', payload: { eraId: era.id, features } };
 }
 
 export function buildSetDepth(depth: number): MessageOf<'scene/setDepth'> {

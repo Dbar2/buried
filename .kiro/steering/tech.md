@@ -225,8 +225,15 @@ invent commands; when one is added, record it here.
   - The Service API Schema is `data/schema/studio_api.schema.json`; its fixtures are in
     `data/schema/studio_api_fixtures/`. TypeScript types: `npx tsx scripts/genStudioApiTypes.ts`
     from `web/`, which writes `web/src/studio/service/types.generated.ts` (no `npm run` alias yet).
-  - Studio end-to-end tests (`npm run test:e2e:studio`) by spec 04 task 16.2. Report print tests
-    (`npm run test:e2e:report`) by spec 05 task 7.3.
+  - Studio end-to-end tests (`npm run test:e2e:studio`, from `web/`): builds, then runs
+    `playwright.studio.config.ts`, which starts the Studio service itself
+    (`uv --directory ../pipeline run --extra service uvicorn ... --port 8765`) beside `vite preview`;
+    `BURIED_SERVICE_URL` tells the preview where `/v1` goes (default `http://127.0.0.1:8000`; the dev
+    server and `vite preview` both proxy `/v1`, so the Studio calls the Service on its own origin).
+    Needs the plate rasters in `data/raw/`. Screenshots go to `web/e2e/output/studio-*.png`. The Studio
+    page is `/studio`; the Explorer opens at an era with `/?era=<era id>`. The Service limits
+    `POST /v1/publish` to 120 requests an hour per address, and the Studio's dry runs count.
+    Report print tests (`npm run test:e2e:report`) by spec 05 task 7.3.
 
 ## Model use in Kiro
 

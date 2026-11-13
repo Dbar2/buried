@@ -5,7 +5,7 @@ import { fetchBuildFiles, startUnity } from '../bridge/unityLoader';
 import type { UnityInstance } from '../bridge/unityLoader';
 import type { GateModel } from './gateModel';
 import type { CameraPose } from './cameraPose';
-import { buildLoadEra, buildMarkers, buildSceneInit, buildSetCamera, buildSetDepth } from './gateScene';
+import { buildAddFeatures, buildLoadEra, buildMarkers, buildSceneInit, buildSetCamera, buildSetDepth } from './gateScene';
 import { INITIAL_PLAYER_STATE } from './playerState';
 import type { PlayerState } from './playerState';
 
@@ -37,6 +37,13 @@ export type UnityViewProps = {
   onFeatureClicked: (featureId: string, eraId: string) => void;
   /** The Player cannot be used; the reason is fit to show. */
   onUnavailable: (reason: string) => void;
+  /**
+   * Workspace feature ids the visitor has not seen in the Explorer. Their eras load without them;
+   * once the Player is running they arrive by scene/addFeatures and rise (spec 04 requirement 15.2).
+   */
+  risingIds: ReadonlySet<string>;
+  /** Called with the ids that were sent by scene/addFeatures, so they can be recorded as seen. */
+  onRose: (ids: string[]) => void;
 };
 
 /**
@@ -130,7 +137,7 @@ export default function UnityView(props: UnityViewProps) {
           loaded.set(era.id, done);
           const list = model.lists.get(era.id);
           if (!list) throw new Error(`no Era list for ${era.id}`);
-          bridge.send(buildLoadEra(era, list, model.drapes.get(era.id) ?? []));
+          bridge.send(buildLoadEra(era, list, model.drapes.get(era.id) ?? [], latest.current.risingIds));
           await done.promise;
           if (disposed) return;
         }
@@ -142,6 +149,20 @@ export default function UnityView(props: UnityViewProps) {
         }
         update((s) => ({ ...s, running: true }));
         setRunning(true);
+
+        // Workspace features the visitor has not seen yet rise into the scene now.
+        const rose: string[] = [];
+        for (const era of model.order) {
+          const list = model.lists.get(era.id);
+          const add = list ? buildAddFeatures(era, list, latest.current.risingIds) : null;
+          if (!add) continue;
+          bridge.send(add);
+          rose.push(...add.payload.features.map((f) => f.id));
+        }
+        if (rose.length > 0) {
+          update((s) => ({ ...s, addedFeatureIds: [...new Set([...s.addedFeatureIds, ...rose])] }));
+          latest.current.onRose([...new Set(rose)]);
+        }
       } catch (error) {
         clearTimeout(timer);
         if (!disposed) latest.current.onUnavailable(error instanceof Error ? error.message : String(error));

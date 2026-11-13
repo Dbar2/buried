@@ -1,6 +1,11 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { browserFetchText, loadData } from '../data/loadData';
+import { openWorkspace } from '../workspace/db';
+import type { WorkspaceDb } from '../workspace/db';
+import { loadWorkspaceEvidence } from '../workspace/load';
+import { mergeForDisplay } from '../workspace/merge';
+import { unseenIds } from '../workspace/seen';
 import { Attribution, attributionLines } from './Attribution';
 import { DebugCamera } from './DebugCamera';
 import type { CameraPose } from './cameraPose';
@@ -24,7 +29,7 @@ const UnityView = lazy(() => import('./UnityView'));
 type LoadState =
   | { status: 'loading' }
   | { status: 'error'; message: string }
-  | { status: 'ready'; model: GateModel; problems: string[] };
+  | { status: 'ready'; model: GateModel; problems: string[]; rising: ReadonlySet<string>; db: WorkspaceDb | null };
 
 type Selection = { featureId: string; eraId: string };
 
@@ -50,9 +55,20 @@ export function Explorer() {
 
   useEffect(() => {
     let cancelled = false;
-    loadData(browserFetchText)
-      .then((data) => {
-        if (!cancelled) setLoad({ status: 'ready', model: buildGateModel(data), problems: data.problems });
+    (async () => {
+      const data = await loadData(browserFetchText);
+      // The visitor's workspace, if the browser has one: its features are shown beside canon, never
+      // in place of it (spec 04 requirement 14.4). A workspace that cannot be read is not an error.
+      const db = await openWorkspace().catch(() => null);
+      const workspace = await loadWorkspaceEvidence(db, data.evidence, data.sources);
+      const merged = mergeForDisplay(data.evidence, workspace.collections);
+      const seen = db ? await db.seenIds().catch(() => new Set<string>()) : new Set<string>();
+      const rising = new Set(unseenIds(merged.workspaceFeatureIds, seen));
+      const model = buildGateModel({ ...data, evidence: merged.collections }, merged.workspaceFeatureIds);
+      return { model, problems: [...data.problems, ...workspace.problems], rising, db };
+    })()
+      .then(({ model, problems, rising, db }) => {
+        if (!cancelled) setLoad({ status: 'ready', model, problems, rising, db });
       })
       .catch((error: unknown) => {
         if (!cancelled) setLoad({ status: 'error', message: error instanceof Error ? error.message : String(error) });
@@ -63,6 +79,18 @@ export function Explorer() {
   }, []);
 
   const model = load.status === 'ready' ? load.model : null;
+  const rose = useRef<string[]>([]);
+  const readyDb = load.status === 'ready' ? load.db : null;
+  const onRose = useCallback(
+    (ids: string[]) => {
+      rose.current = [...rose.current, ...ids];
+      void readyDb?.markSeen(ids, new Date().toISOString()).catch(() => {});
+    },
+    [readyDb],
+  );
+
+  // The deep link /?era=<id> opens the Explorer at that era (spec 04 requirement 15.3).
+  const deepLinkEra = useMemo(() => new URLSearchParams(window.location.search).get('era'), []);
 
   // Dig (requirement 10): the Shell owns the depth. `depth` is a fraction while a transition runs.
   const dig = useDepth(model?.order.length ?? 0);
@@ -86,6 +114,13 @@ export function Explorer() {
     },
     [goTo],
   );
+  const deepLinked = useRef(false);
+  useEffect(() => {
+    if (deepLinked.current || !model || deepLinkEra === null) return;
+    deepLinked.current = true;
+    const target = model.order.find((era) => era.id === deepLinkEra);
+    if (target) chooseEra(target.index);
+  }, [model, deepLinkEra, chooseEra]);
   const dragDepth = useCallback(
     (value: number) => {
       drag(value);
@@ -138,7 +173,7 @@ export function Explorer() {
     const entry = model.lists.get(selection.eraId)?.features.find((f) => f.id === selection.featureId);
     const feature = model.features.get(selection.featureId);
     if (!entry || !feature) return null;
-    return buildGateCard(entry, feature, model.sources);
+    return buildGateCard(entry, feature, model.sources, model.workspaceFeatureIds.has(selection.featureId) ? 'workspace' : 'canon');
   }, [model, selection]);
 
   const closeCard = useCallback(() => setSelection(null), []);
@@ -173,6 +208,8 @@ export function Explorer() {
           onPlayerState={setPlayer}
           onFeatureClicked={onFeatureClicked}
           onUnavailable={setUnavailable}
+          risingIds={load.rising}
+          onRose={onRose}
         />
       </Suspense>
     );
@@ -186,6 +223,8 @@ export function Explorer() {
       data-testid="view"
       data-player-ready={player.ready ? 'true' : 'false'}
       data-eras-loaded={player.eraLoaded.join(',')}
+      data-workspace-features={model ? model.workspaceFeatureIds.size : undefined}
+      data-workspace-rose={player.addedFeatureIds.length}
       data-camera={player.camera ? JSON.stringify({ viewProjection: player.camera.viewProjection, canvas: player.camera.canvas }) : undefined}
     >
       {stage}

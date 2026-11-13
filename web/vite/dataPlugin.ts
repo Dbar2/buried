@@ -6,10 +6,13 @@
  * Never raw/, work/, alignment/, schema/ or anything outside data/. /data/index.json is generated:
  * the names of the files in those four folders, so the shell can load them without a directory listing.
  */
-import { copyFileSync, createReadStream, existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { copyFileSync, createReadStream, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { extname, join, resolve, sep } from 'node:path';
 import type { Plugin, ResolvedConfig } from 'vite';
+import { VERSIONED_DIRECTORIES, VERSIONED_TOP_LEVEL, dataVersion } from '../src/workspace/dataVersion';
+import type { Sha256Hex } from '../src/workspace/dataVersion';
 
 export const ALLOWED_ROOT_FILES: readonly string[] = ['project.json', 'sources.json'];
 export const ALLOWED_DIRS = ['evidence', 'present', 'tiles', 'control'] as const;
@@ -76,6 +79,32 @@ export function listDataIndex(dataDir: string): DataIndex {
   return index;
 }
 
+/** The versioned files of data/ (the rule in src/workspace/dataVersion.ts), read from disk. */
+export function versionedFiles(dataDir: string): Array<[string, Uint8Array]> {
+  const out: Array<[string, Uint8Array]> = [];
+  for (const name of VERSIONED_TOP_LEVEL) {
+    const p = join(dataDir, name);
+    if (existsSync(p) && statSync(p).isFile()) out.push([name, readFileSync(p)]);
+  }
+  for (const [dir, suffix] of VERSIONED_DIRECTORIES) {
+    const folder = join(dataDir, dir);
+    if (!existsSync(folder)) continue;
+    for (const name of readdirSync(folder).sort()) {
+      const p = join(folder, name);
+      if (name.endsWith(suffix) && statSync(p).isFile()) out.push([`${dir}/${name}`, readFileSync(p)]);
+    }
+  }
+  return out;
+}
+
+export type DataIndexWithVersion = DataIndex & { data_version: string };
+
+/** The index served as /data/index.json: the file lists plus the canon data version (spec 04 2.6). */
+export function dataIndexWithVersion(dataDir: string): DataIndexWithVersion {
+  const sha256: Sha256Hex = (bytes) => createHash('sha256').update(bytes).digest('hex');
+  return { ...listDataIndex(dataDir), data_version: dataVersion(versionedFiles(dataDir), sha256) };
+}
+
 /** Copy the allowed files and a generated index.json into `outDir`. Returns the paths copied. */
 export function copyAllowedData(dataDir: string, outDir: string): string[] {
   const copied: string[] = [];
@@ -98,7 +127,7 @@ export function copyAllowedData(dataDir: string, outDir: string): string[] {
     }
   }
 
-  writeFileSync(join(outDir, 'index.json'), `${JSON.stringify(index, null, 2)}\n`);
+  writeFileSync(join(outDir, 'index.json'), `${JSON.stringify(dataIndexWithVersion(dataDir), null, 2)}\n`);
   copied.push('index.json');
   return copied;
 }
@@ -110,7 +139,7 @@ function handle(dataDir: string, req: IncomingMessage, res: ServerResponse, next
   if (relative === 'index.json') {
     res.setHeader('Content-Type', CONTENT_TYPES['.json'] as string);
     res.setHeader('Cache-Control', 'no-cache');
-    res.end(JSON.stringify(listDataIndex(dataDir)));
+    res.end(JSON.stringify(dataIndexWithVersion(dataDir)));
     return;
   }
 

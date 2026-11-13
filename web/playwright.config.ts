@@ -7,6 +7,8 @@ export default defineConfig({
   testDir: './e2e',
   // The helpers under e2e/support/ have vitest tests (*.test.ts); Playwright runs only *.spec.ts.
   testMatch: '**/*.spec.ts',
+  // The Studio test starts the Service too; it has its own config (playwright.studio.config.ts).
+  testIgnore: '**/studio*.spec.ts',
   timeout: 240_000,
   expect: { timeout: 20_000 },
   fullyParallel: false,

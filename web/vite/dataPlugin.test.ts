@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve, sep } from 'node:path';
 import fc from 'fast-check';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { ALLOWED_DIRS, copyAllowedData, listDataIndex, resolveAllowedPath } from './dataPlugin';
+import { ALLOWED_DIRS, copyAllowedData, dataIndexWithVersion, listDataIndex, resolveAllowedPath, versionedFiles } from './dataPlugin';
 
 let dataDir: string;
 let outDir: string;
@@ -115,6 +115,21 @@ describe('listDataIndex', () => {
 
   it('gives empty lists for folders that do not exist', () => {
     expect(listDataIndex(join(dataDir, 'nowhere'))).toEqual({ evidence: [], present: [], tiles: [], control: [] });
+  });
+});
+
+describe('dataIndexWithVersion', () => {
+  it('adds the data version: 64 hex digits, the same every time', () => {
+    const a = dataIndexWithVersion(dataDir);
+    expect(a.data_version).toMatch(/^[0-9a-f]{64}$/);
+    expect(dataIndexWithVersion(dataDir).data_version).toBe(a.data_version);
+    expect(a.evidence).toEqual(listDataIndex(dataDir).evidence);
+  });
+
+  it('counts the alignment records, which the plugin does not serve', () => {
+    const files = versionedFiles(dataDir).map(([path]) => path);
+    expect(files.some((p) => p.startsWith('alignment/')) || !existsSync(join(dataDir, 'alignment'))).toBe(true);
+    expect(files.every((p) => !p.startsWith('work/') && !p.startsWith('raw/'))).toBe(true);
   });
 });
 
