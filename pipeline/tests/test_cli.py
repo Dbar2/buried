@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from buried_pipeline.cli import NOT_IMPLEMENTED, build_parser, main
+from buried_pipeline.cli import build_parser, main
 from buried_pipeline.errors import PipelineError
 from buried_pipeline.paths import find_repo_root
 from tests.conftest import make_root
@@ -19,18 +19,18 @@ def test_all_subcommands_are_registered() -> None:
     }  # fmt: skip
 
 
-@pytest.mark.parametrize("command", NOT_IMPLEMENTED)
-def test_unimplemented_commands_exit_2(command: str, capsys: pytest.CaptureFixture[str]) -> None:
-    assert main([command]) == 2
-    assert "not implemented yet" in capsys.readouterr().err
+def test_match_without_evidence_exits_1(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    paths = make_root(tmp_path)
+    assert main(["--root", str(paths.root), "match"]) == 1
+    assert "No evidence files" in capsys.readouterr().err
 
 
-def test_aerial_candidates_not_implemented(
+def test_aerial_candidates_need_inspect_reports(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     paths = make_root(tmp_path)
-    assert main(["--root", str(paths.root), "fetch", "--aerial-candidates"]) == 2
-    assert "not implemented yet" in capsys.readouterr().err
+    assert main(["--root", str(paths.root), "fetch", "--aerial-candidates"]) == 1
+    assert "No inspect report" in capsys.readouterr().err
 
 
 def test_find_repo_root_walks_up(tmp_path: Path) -> None:

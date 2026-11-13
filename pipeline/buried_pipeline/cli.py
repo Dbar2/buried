@@ -15,7 +15,6 @@ from buried_pipeline.io.registry import load_registry
 from buried_pipeline.paths import Paths, find_repo_root
 from buried_pipeline.timeutil import utc_now
 
-NOT_IMPLEMENTED = ("match",)
 HttpFactory = Callable[[], HttpClient]
 
 
@@ -42,7 +41,7 @@ def build_parser() -> argparse.ArgumentParser:
     fetch.add_argument(
         "--aerial-candidates",
         action="store_true",
-        help="list 1947 aerial records covering the plates (not implemented yet)",
+        help="list the 1947 aerial records covering the plates (downloads no imagery)",
     )
 
     inspect = sub.add_parser("inspect", parents=[parent], help="report raster georeferencing")
@@ -110,9 +109,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="the decisions file (default: data/work/review/<SOURCE_ID>.json)",
     )
 
-    for name in NOT_IMPLEMENTED:
-        stub = sub.add_parser(name, parents=[parent], help="not implemented yet")
-        stub.add_argument("rest", nargs="*")
+    match = sub.add_parser(
+        "match",
+        parents=[parent],
+        help="add observations to published buildings from every other source that covers them",
+    )
+    match.add_argument(
+        "--decisions",
+        type=Path,
+        default=None,
+        help="the match decisions file (default: data/work/review/match.json, if it exists)",
+    )
     return parser
 
 
@@ -128,9 +135,6 @@ def main(
 ) -> int:
     args = build_parser().parse_args(argv)
     command: str = args.command
-    if command in NOT_IMPLEMENTED:
-        print(f"buried {command}: not implemented yet", file=sys.stderr)
-        return 2
     try:
         return _dispatch(command, args, http_factory or RealHttpClient, now)
     except PipelineError as exc:
@@ -152,8 +156,10 @@ def _dispatch(
 
     if command == "fetch":
         if args.aerial_candidates:
-            print("buried fetch --aerial-candidates: not implemented yet", file=sys.stderr)
-            return 2
+            from buried_pipeline.fetch.aerials import run_aerial_candidates
+
+            run_aerial_candidates(paths, registry, http_factory())
+            return 0
         from buried_pipeline.fetch.plates import fetch_plates
 
         results = fetch_plates(paths, registry, http_factory(), list(args.source_ids), now())
@@ -199,6 +205,15 @@ def _dispatch(
 
         run_publish(
             paths, registry, args.source_id, now(),
+            decisions_path=args.decisions.resolve() if args.decisions else None,
+        )  # fmt: skip
+        return 0
+
+    if command == "match":
+        from buried_pipeline.match.run import run_match
+
+        run_match(
+            paths, registry, now(),
             decisions_path=args.decisions.resolve() if args.decisions else None,
         )  # fmt: skip
         return 0

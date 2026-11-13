@@ -145,8 +145,12 @@ task 16), 7, 8, 16, 11, 9.
     Files: `pipeline/buried_pipeline/align/run.py`, `pipeline/tests/align/test_run.py`.
     Requirements: 5.1, 6.8.
 
-- [ ] 5. Find and fetch the 1947 aerials
-  - [ ] 5.1 Implement `buried fetch --aerial-candidates`: union bounds from inspect reports, ArcGIS
+- [x] 5. Find and fetch the 1947 aerials (session 020: four records touch the plates, two cover them
+    and are registered and fetched; see `sources.md`. The aerials' sidecar holds no `<SRS>`, only
+    ESRI's spatial reference (WKID 26917) in a GeodataXform block, so `inspect` now reads the CRS
+    from there and records `crs_source: pam_esri_xform`. Requirement 14.3 and the design's
+    georeferencing order list four `crs_source` values; the maintainer should add this fifth.)
+  - [x] 5.1 Implement `buried fetch --aerial-candidates`: union bounds from inspect reports, ArcGIS
     query through the HTTP client with `AERIAL_INDEX_URL`, `AERIAL_ID_FIELD = "Name"` and
     `AERIAL_ZIP_FIELD = "zip_url"` as in design.md, cap of 10, write
     `data/work/aerial_candidates.json` with `Name`, proposed source id, `zip_url`, `url`,
@@ -154,7 +158,7 @@ task 16), 7, 8, 16, 11, 9.
     Files: `pipeline/buried_pipeline/fetch/aerials.py`, `pipeline/buried_pipeline/cli.py`,
     `pipeline/tests/fetch/test_aerials.py`, `pipeline/tests/fixtures/fetch/aerial_index_*.json`.
     Requirements: 3.1, 3.2, 3.4.
-  - [ ] 5.2 Extend `buried fetch` to download registered `aerial_photograph` sources from their
+  - [x] 5.2 Extend `buried fetch` to download registered `aerial_photograph` sources from their
     stored `url`, with the same manifest, rights-date and idempotence rules. Aerial ids enter the
     Registry only after they are agreed in `sources.md`.
     Files: `pipeline/buried_pipeline/fetch/plates.py` (rename to `fetch/download.py` if clearer),
@@ -162,7 +166,12 @@ task 16), 7, 8, 16, 11, 9.
     Requirements: 2.1, 2.3 to 2.7, 3.3.
 
 - [ ] 6. Tile plates and aerials (needs spec 01 task 1 for the sidecar shape)
-    (Plates done in session 008; the parent stays open until aerial tiling follows task 5.)
+    (Plates done in session 008; the parent stays open until aerial tiling follows task 5.
+    Session 020 did not tile the two registered aerials: `tileSidecar` requires `transform` and
+    a positive `alignment_error_m`, and an aerial has no alignment record or measured error.
+    Tiling them needs a reviewed Schema change (an optional alignment error plus a statement
+    that none was measured, and the version bump with its generated web types) and a decision
+    on the Validator's "no alignment record, no tile" rule.)
   - [x] 6.1 Implement pure corner and bilinear-check functions.
     Files: `pipeline/buried_pipeline/tile/__init__.py`, `pipeline/buried_pipeline/tile/corners.py`,
     `pipeline/tests/tile/test_corners.py`.
@@ -331,51 +340,53 @@ task 16), 7, 8, 16, 11, 9.
     Files: `pipeline/buried_pipeline/present/run.py`, `pipeline/tests/present/test_run.py`.
     Requirements: 12.6.
 
-- [ ] 11. Match published buildings across sources (needs task 8 and spec 01 task 12)
-  - [ ] 11.1 Implement `match/rules.py` (pure): `MATCH_MIN = 0.5`, `COMPETE_MIN = 0.1`, `shrink`,
+- [x] 11. Match published buildings across sources (needs task 8 and spec 01 task 12)
+    (Session 020. The real run compared nothing: only `fip_v3_1911_229` has an evidence file and
+    no aerial is tiled. The command is proven on synthetic fixtures.)
+  - [x] 11.1 Implement `match/rules.py` (pure): `MATCH_MIN = 0.5`, `COMPETE_MIN = 0.1`, `shrink`,
     `grow`, the overlap score, and the per-pair outcome for plates (match candidate, absence, not
     covered, review with reason) and for aerials (not covered or pending).
     Files: `pipeline/buried_pipeline/match/__init__.py`, `pipeline/buried_pipeline/match/rules.py`,
     `pipeline/tests/match/test_rules.py`, `pipeline/tests/helpers/synthetic_evidence.py`.
     Requirements: 13.2 to 13.7, 13.13.
-  - [ ] 11.2 Implement `match/links.py` (pure): linked sets by union-find over person links plus
+  - [x] 11.2 Implement `match/links.py` (pure): linked sets by union-find over person links plus
     candidate links, and the same-origin check that sends a whole clashing set to review.
     Files: `pipeline/buried_pipeline/match/links.py`, `pipeline/tests/match/test_links.py`.
     Requirements: 13.6.
-  - [ ] 11.3 Implement `match/apply.py` (pure): strip `match_auto` results, apply the decisions
+  - [x] 11.3 Implement `match/apply.py` (pure): strip `match_auto` results, apply the decisions
     file (`link`, `no_link`, `observation`, each requiring `confirmed_by` and `confirmed_at`), write
     new results, sort observations and links.
     Files: `pipeline/buried_pipeline/match/apply.py`, `pipeline/tests/match/test_apply.py`.
     Requirements: 13.8 to 13.11.
-  - [ ] 11.4 Implement `buried match`: read evidence files, alignment records, tile sidecars and
+  - [x] 11.4 Implement `buried match`: read evidence files, alignment records, tile sidecars and
     the decisions file; run the steps in design.md "Run order inside match"; validate the whole
     would-be `data/` state; write all changed files atomically or nothing; write
     `data/work/match/review.json`; print counts per source pair.
     Files: `pipeline/buried_pipeline/match/run.py`, `pipeline/buried_pipeline/cli.py`,
     `pipeline/tests/match/test_run.py`.
     Requirements: 13.1, 13.12, 13.14.
-  - [ ] 11.5 **[PBT] M1** A match needs one clear, mutual winner.
+  - [x] 11.5 **[PBT] M1** A match needs one clear, mutual winner.
     Files: `pipeline/tests/match/test_match_properties.py`, `pipeline/tests/match/strategies.py`.
     Requirements: 13.2, 13.3.
-  - [ ] 11.6 **[PBT] M2** Absence only inside reviewed areas and with an empty core.
+  - [x] 11.6 **[PBT] M2** Absence only inside reviewed areas and with an empty core.
     Files: `pipeline/tests/match/test_match_properties.py`.
     Requirements: 13.4.
-  - [ ] 11.7 **[PBT] M3** Code never reads a photograph.
+  - [x] 11.7 **[PBT] M3** Code never reads a photograph.
     Files: `pipeline/tests/match/test_match_properties.py`.
     Requirements: 13.7, 13.8.
-  - [ ] 11.8 **[PBT] M4** Person decisions are never overridden.
+  - [x] 11.8 **[PBT] M4** Person decisions are never overridden.
     Files: `pipeline/tests/match/test_match_properties.py`.
     Requirements: 13.9, 13.10.
-  - [ ] 11.9 **[PBT] M5** Idempotence and order independence.
+  - [x] 11.9 **[PBT] M5** Idempotence and order independence.
     Files: `pipeline/tests/match/test_match_properties.py`.
     Requirements: 13.11.
-  - [ ] 11.10 **[PBT] M6** Linked sets stay one per origin source.
+  - [x] 11.10 **[PBT] M6** Linked sets stay one per origin source.
     Files: `pipeline/tests/match/test_match_properties.py`.
     Requirements: 13.6.
-  - [ ] 11.11 **[PBT] M7** Only observations and links change.
+  - [x] 11.11 **[PBT] M7** Only observations and links change.
     Files: `pipeline/tests/match/test_match_properties.py`.
     Requirements: 13.11.
-  - [ ] 11.12 Record `uv run buried match` in `.kiro/steering/tech.md`.
+  - [x] 11.12 Record `uv run buried match` in `.kiro/steering/tech.md`.
     Files: `.kiro/steering/tech.md`.
     Requirements: 1.8.
 

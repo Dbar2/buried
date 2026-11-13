@@ -147,7 +147,12 @@ invent commands; when one is added, record it here.
 - Pipeline (spec 02), all run from `pipeline/`:
   - Environment: `uv sync` (Python 3.12).
   - Tests: `uv run pytest`. Lint: `uv run ruff check .`.
-  - Fetch the showcase plates into `data/raw/`: `uv run buried fetch [SOURCE_ID ...]`.
+  - Fetch the showcase plates and the registered 1947 aerials into `data/raw/`:
+    `uv run buried fetch [SOURCE_ID ...]`. List the 1947 aerial records whose footprints touch
+    the plates (downloads no imagery; needs `buried inspect` reports of the plates; more than 10
+    records is an error): `uv run buried fetch --aerial-candidates`, which writes
+    `data/work/aerial_candidates.json`. A person lists the chosen ids in `sources.md`, then
+    registers them in `data/sources.json`.
   - Read georeferencing of fetched rasters: `uv run buried inspect [SOURCE_ID ...]`. Add
     `--propose-origin` to print the project origin and bounds (writes nothing).
   - Clip the present-day City of Toronto layers into `data/present/`:
@@ -183,7 +188,16 @@ invent commands; when one is added, record it here.
     Validator. Refuses: unregistered or unconfirmed source, a stale alignment record, no reviewed
     area, an undecided proposal inside a reviewed area, `material` without a read, `documented`
     without storeys. Prints counts. Running it twice gives the same file.
-  - `match` is registered and exits 2 with "not implemented yet" until its task lands.
+  - Add observations and links to published buildings from every other source that covers them:
+    `uv run buried match [--decisions PATH]`. Reads every `data/evidence/*.geojson`, the plates'
+    alignment records, the tile sidecars of registered aerials that have an alignment record, and
+    the decisions file (default `data/work/review/match.json`, optional; spec 02 design "Match
+    decisions file"). Writes only `observations` and `same_as` in the evidence files, and only
+    if the would-be `data/` state passes the Validator (otherwise nothing). Removes and
+    recomputes every `match_auto` result on each run, so running it twice gives the same bytes.
+    Writes `data/work/match/review.json` (cases for a person, and pending aerial checks) and
+    prints counts per source pair. Aerials without an alignment record or tile sidecar are
+    skipped and named. Code writes `not_covered` for an aerial and nothing else.
 - Unity (spec 03), run from the repository root with `tools/unity.sh` (headless Unity 6000.3.26f1;
   set `UNITY_BIN` to override the editor path; logs in `unity/Logs/`):
   - `tools/unity.sh exec Buried.Editor.Setup.Run`: creates the palette asset, URP assets, player

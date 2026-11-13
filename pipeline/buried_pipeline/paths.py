@@ -101,3 +101,12 @@ class Paths:
 
     def tile_sidecar(self, source_id: str) -> Path:
         return self.data / "tiles" / f"{source_id}.json"
+
+    @property
+    def match_decisions(self) -> Path:
+        """The match decisions file, written by a person (or by the Studio)."""
+        return self.work / "review" / "match.json"
+
+    @property
+    def match_review(self) -> Path:
+        return self.work / "match" / "review.json"
