@@ -1,5 +1,13 @@
 # Requirements: 03 Explorer
 
+> **Superseded in part by spec 06 (first visit, session 037).** Where they conflict, spec 06 and
+> the current `design.md` win. Wholly superseded: requirement 20 (Look) and requirement 26 (The
+> look pass). In part: 10 (on `/` and `/find/<slug>` the three-stop era ruler replaces the depth
+> gauge; the place page keeps it), 11 (the find card replaces the evidence card on those pages,
+> and a selected find is drawn in `lantern` everywhere), 13 (the lens is also dragged by pointer
+> and finger), 15 (search is no longer the landing; it moves to `/place`) and 19 (the block page
+> falls back to the flat sheet).
+
 ## Introduction
 
 The Explorer is the 3D part of Buried: a foggy neighbourhood at dusk that you dig through, where
