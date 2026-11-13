@@ -268,6 +268,27 @@ invent commands; when one is added, record it here.
     close-up measure is in `e2e/look.spec.ts` (`-g "ghost at close"`), which writes
     `look-ghost-close.png` and `look-ghost-contrast.json`. Studio export: the "Export a bundle for
     review" button after a workspace publish (spec 04 task 14).
+- Static site on Cloudflare Pages (spec 04 group 15, session 027), from `web/`:
+  - `npm run build` makes `web/dist/`, ready to upload as it is. `public/_headers` (copied into
+    `dist/`) gives `/assets/*` a year of caching, `/data/index.json` `no-cache`, and the three
+    Brotli Unity files (`unity.data.unityweb`, `unity.framework.js.unityweb`,
+    `unity.wasm.unityweb`) their type and `Content-Encoding: br`. If a host drops those headers
+    the Unity loader's JavaScript decompression fallback still starts the Player. `public/_redirects`
+    rewrites `/place`, `/report`, `/studio`, `/sources` and `/explorer` to `index.html` (status 200).
+    The build prints a size report (largest files, total); `npm run size [DIR]` prints it again.
+  - The Studio service address is `VITE_STUDIO_SERVICE_URL`, read when the site is built: an
+    `https://` address, or `/` for the page's own origin (the dev server and `vite preview` proxy
+    `/v1`; `npm run test:e2e:studio` builds with `/`). Unset in a production build, the Studio says
+    the service is unavailable and makes no request. The Service must list the site's origin in
+    `BURIED_ALLOWED_ORIGINS`.
+  - Deploy (maintainer; run from the repository root, after `tools/unity.sh build`):
+    `VITE_STUDIO_SERVICE_URL=https://<service host> npm --prefix web run build` then
+    `npx wrangler pages deploy web/dist --project-name <pages project> --branch main`. The project
+    name is the maintainer's to pick. Nothing has been deployed.
+  - Check: `npm run build`, then `npx playwright test -c playwright.hosting.config.ts`. It starts its
+    own `vite preview` on port 4174 (never reusing a server on 4173), loads `/place?lot=...`,
+    `/report`, `/sources` and `/studio` as first requests, and writes
+    `web/e2e/output/polish-landing.png`, `polish-place.png` and `polish-sources.png`.
 
 ## Model use in Kiro
 

@@ -1,7 +1,70 @@
 /*
  * The Sources page: plain text on the paper theme (the `--report-*` tokens), the whole photograph of
- * each plate under its entry. It reuses the `.report` base styles from report/report.css.
+ * each plate under its entry. These rules are the page's own and do not import report/report.css:
+ * a stylesheet shared by two lazy pages is built into a shared chunk that can load after the
+ * Report's print stylesheet and override it.
  */
+
+.sources-scroll {
+  background: var(--report-paper);
+  color: var(--report-ink);
+}
+
+.sources {
+  background: var(--report-paper);
+  color: var(--report-ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0 auto;
+  max-width: 52rem;
+  padding: var(--space-4);
+}
+
+.sources h1,
+.sources h2,
+.sources h3 {
+  color: var(--report-ink);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.sources h1 {
+  font-size: 1.875rem;
+  margin: var(--space-2) 0 var(--space-3);
+}
+
+.sources h2 {
+  border-top: 1px solid var(--report-rule);
+  font-size: 1.375rem;
+  margin: var(--space-4) 0 var(--space-2);
+  padding-top: var(--space-3);
+}
+
+.sources p {
+  margin: 0 0 var(--space-2);
+}
+
+.sources a {
+  color: var(--report-ink);
+  text-decoration: underline;
+}
+
+.sources :focus-visible {
+  outline: 2px solid var(--report-ink);
+  outline-offset: 2px;
+}
+
+.sources .mono {
+  font-family: var(--font-mono);
+  font-size: 0.9375em;
+}
+
+.sources .small {
+  color: var(--report-ink-soft);
+  font-size: 0.875rem;
+}
 
 .sources .source-entry {
   border-top: 1px solid var(--report-rule);

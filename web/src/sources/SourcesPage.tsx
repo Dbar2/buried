@@ -3,7 +3,6 @@ import { browserFetchText, parseIndex } from '../data/loadData';
 import type { FetchText } from '../data/loadData';
 import { parseContract, parseSourceRegistry, sourceYearsText } from '../evidence';
 import type { Source, TileSidecar } from '../evidence';
-import '../report/report.css';
 import './sources.css';
 
 /** Years as a source states them: "1911 to 1914", "1935", or "up to 2026" for a dataset. */
@@ -147,7 +146,7 @@ export function SourcesPage() {
   }, []);
 
   return (
-    <main className="report sources" data-testid="sources">
+    <main className="sources" data-testid="sources">
       {state.status === 'loading' && <p>Loading the source list.</p>}
       {state.status === 'error' && <p role="alert">The source list could not be loaded. {state.message}</p>}
       {state.status === 'ready' && <SourcesView data={state.data} />}

@@ -1,0 +1,9 @@
+# Cloudflare Pages rewrites (session 027): the app has no router library, so each page is
+# index.html and the script reads the path. A project with no top-level 404.html also gets this from
+# Pages itself; the rules say so in the repository. Status 200 is a rewrite, not a redirect, so the
+# address and the query (?lot=...) stay as they are.
+/place     /index.html  200
+/report    /index.html  200
+/studio    /index.html  200
+/sources   /index.html  200
+/explorer  /index.html  200
