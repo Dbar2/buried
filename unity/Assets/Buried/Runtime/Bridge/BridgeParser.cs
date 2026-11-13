@@ -46,6 +46,11 @@ namespace Buried.Interop
                 case BridgeMessageTypes.SceneSetDrapeMode: return new ParsedMessage(type, ParseSceneSetDrapeMode(payload));
                 case BridgeMessageTypes.SceneSetLantern: return new ParsedMessage(type, ParseSceneSetLantern(payload));
                 case BridgeMessageTypes.SceneShowEvidence: return new ParsedMessage(type, ParseSceneShowEvidence(payload));
+                case BridgeMessageTypes.SceneSetAnchors: return new ParsedMessage(type, ParseSceneSetAnchors(payload));
+                case BridgeMessageTypes.SceneRaise: return new ParsedMessage(type, ParseSceneRaise(payload));
+                case BridgeMessageTypes.SceneFrameFeature: return new ParsedMessage(type, ParseSceneFrameFeature(payload));
+                case BridgeMessageTypes.SceneAnchors: return new ParsedMessage(type, ParseSceneAnchors(payload));
+                case BridgeMessageTypes.SceneRaised: return new ParsedMessage(type, ParseSceneRaised(payload));
                 case BridgeMessageTypes.DebugMarkers: return new ParsedMessage(type, ParseDebugMarkers(payload));
                 case BridgeMessageTypes.DebugSetCamera: return new ParsedMessage(type, ParseDebugSetCamera(payload));
                 case BridgeMessageTypes.Ready: return new ParsedMessage(type, ParseReady(payload));
@@ -344,6 +349,78 @@ namespace Buried.Interop
                 on = on,
                 drape = drape,
             };
+        }
+
+        private static SceneSetAnchorsPayload ParseSceneSetAnchors(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.Exactly(o, p, "feature_ids");
+            var result = new SceneSetAnchorsPayload { feature_ids = new List<string>() };
+            JArray ids = JsonFields.ArrayAt(o, "feature_ids", p, 0, 64);
+            for (int i = 0; i < ids.Count; i++)
+            {
+                string ip = p + ".feature_ids[" + i + "]";
+                if (ids[i].Type != JTokenType.String) throw JsonFields.Fail(ip, "must be a string");
+                string id = ids[i].Value<string>();
+                if (!JsonFields.FeatureIdPattern.IsMatch(id)) throw JsonFields.Fail(ip, "\"" + id + "\" is not a feature id");
+                result.feature_ids.Add(id);
+            }
+            JsonFields.RequireUnique(result.feature_ids, p + ".feature_ids", "feature id");
+            return result;
+        }
+
+        private static SceneRaisePayload ParseSceneRaise(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.Exactly(o, p, "era_id", "first_feature_id", "animate");
+            return new SceneRaisePayload
+            {
+                era_id = JsonFields.Matching(o, "era_id", p, JsonFields.EraIdPattern),
+                first_feature_id = JsonFields.Matching(o, "first_feature_id", p, JsonFields.FeatureIdPattern),
+                animate = JsonFields.Boolean(o, "animate", p),
+            };
+        }
+
+        private static SceneRaisedPayload ParseSceneRaised(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.Exactly(o, p, "era_id");
+            return new SceneRaisedPayload { era_id = JsonFields.Matching(o, "era_id", p, JsonFields.EraIdPattern) };
+        }
+
+        private static SceneFrameFeaturePayload ParseSceneFrameFeature(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.Exactly(o, p, "feature_id");
+            return new SceneFrameFeaturePayload { feature_id = JsonFields.Matching(o, "feature_id", p, JsonFields.FeatureIdPattern) };
+        }
+
+        private static SceneAnchorsPayload ParseSceneAnchors(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.Exactly(o, p, "width", "height", "anchors");
+            var result = new SceneAnchorsPayload
+            {
+                width = JsonFields.NumberIn(o, "width", p, 0.0, 16384.0, true),
+                height = JsonFields.NumberIn(o, "height", p, 0.0, 16384.0, true),
+                anchors = new List<AnchorEntry>(),
+            };
+            JArray anchors = JsonFields.ArrayAt(o, "anchors", p, 0, 64);
+            for (int i = 0; i < anchors.Count; i++)
+            {
+                string ap = p + ".anchors[" + i + "]";
+                JObject a = JsonFields.Object(anchors[i], ap);
+                JsonFields.Exactly(a, ap, "feature_id", "x", "y", "on_screen");
+                result.anchors.Add(new AnchorEntry
+                {
+                    feature_id = JsonFields.Matching(a, "feature_id", ap, JsonFields.FeatureIdPattern),
+                    x = JsonFields.NumberIn(a, "x", ap, -1.0e6, 1.0e6),
+                    y = JsonFields.NumberIn(a, "y", ap, -1.0e6, 1.0e6),
+                    on_screen = JsonFields.Boolean(a, "on_screen", ap),
+                });
+            }
+            JsonFields.RequireUnique(result.anchors.Select(a => a.feature_id), p + ".anchors", "feature id");
+            return result;
         }
 
         private static DebugMarkersPayload ParseDebugMarkers(JObject o)

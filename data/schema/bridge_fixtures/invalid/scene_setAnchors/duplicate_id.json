@@ -1,0 +1,4 @@
+{
+  "type": "scene/setAnchors",
+  "payload": { "feature_ids": ["bld_fip_v3_1911_229_0001", "bld_fip_v3_1911_229_0001"] }
+}

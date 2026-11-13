@@ -3,6 +3,6 @@
   "payload": {
     "code": "debug_disabled",
     "message": "$2",
-    "messageType": "scene/setLantern"
+    "messageType": "scene/anchors"
   }
 }

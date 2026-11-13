@@ -1,0 +1,21 @@
+{
+  "type": "scene/anchors",
+  "payload": {
+    "width": 11716.043,
+    "height": 14615.205,
+    "anchors": [
+      {
+        "feature_id": "wtr_v_tk6d_98m_0001",
+        "x": -30266.954,
+        "y": -31626.895,
+        "on_screen": true
+      },
+      {
+        "feature_id": "use_44vh_e906t_b_y0092_0010",
+        "x": 99999.984,
+        "y": 84966.349,
+        "on_screen": true
+      }
+    ]
+  }
+}

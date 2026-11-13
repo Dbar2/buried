@@ -36,6 +36,11 @@ namespace Buried.Interop
                 case BridgeMessageTypes.SceneSetDrapeMode: payload = Write((SceneSetDrapeModePayload)message.payload); break;
                 case BridgeMessageTypes.SceneSetLantern: payload = Write((SceneSetLanternPayload)message.payload); break;
                 case BridgeMessageTypes.SceneShowEvidence: payload = Write((SceneShowEvidencePayload)message.payload); break;
+                case BridgeMessageTypes.SceneSetAnchors: payload = Write((SceneSetAnchorsPayload)message.payload); break;
+                case BridgeMessageTypes.SceneRaise: payload = Write((SceneRaisePayload)message.payload); break;
+                case BridgeMessageTypes.SceneRaised: payload = Write((SceneRaisedPayload)message.payload); break;
+                case BridgeMessageTypes.SceneFrameFeature: payload = Write((SceneFrameFeaturePayload)message.payload); break;
+                case BridgeMessageTypes.SceneAnchors: payload = Write((SceneAnchorsPayload)message.payload); break;
                 case BridgeMessageTypes.DebugMarkers: payload = Write((DebugMarkersPayload)message.payload); break;
                 case BridgeMessageTypes.DebugSetCamera: payload = Write((DebugSetCameraPayload)message.payload); break;
                 case BridgeMessageTypes.Ready: payload = Write((ReadyPayload)message.payload); break;
@@ -177,6 +182,44 @@ namespace Buried.Interop
                 ["radius"] = Num(p.radius),
                 ["eraId"] = p.eraId,
             };
+        }
+
+        private static JObject Write(SceneSetAnchorsPayload p)
+        {
+            var ids = new JArray();
+            foreach (string id in p.feature_ids) ids.Add(id);
+            return new JObject { ["feature_ids"] = ids };
+        }
+
+        private static JObject Write(SceneAnchorsPayload p)
+        {
+            var anchors = new JArray();
+            foreach (AnchorEntry a in p.anchors)
+            {
+                anchors.Add(new JObject
+                {
+                    ["feature_id"] = a.feature_id,
+                    ["x"] = Num(a.x),
+                    ["y"] = Num(a.y),
+                    ["on_screen"] = a.on_screen,
+                });
+            }
+            return new JObject { ["width"] = Num(p.width), ["height"] = Num(p.height), ["anchors"] = anchors };
+        }
+
+        private static JObject Write(SceneRaisePayload p)
+        {
+            return new JObject { ["era_id"] = p.era_id, ["first_feature_id"] = p.first_feature_id, ["animate"] = p.animate };
+        }
+
+        private static JObject Write(SceneRaisedPayload p)
+        {
+            return new JObject { ["era_id"] = p.era_id };
+        }
+
+        private static JObject Write(SceneFrameFeaturePayload p)
+        {
+            return new JObject { ["feature_id"] = p.feature_id };
         }
 
         private static JObject Write(SceneShowEvidencePayload p)

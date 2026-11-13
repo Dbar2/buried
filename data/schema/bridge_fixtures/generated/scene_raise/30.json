@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "key_ca",
+    "first_feature_id": "bld_jo1x2_a0_sp5q_741y_0749",
+    "animate": true
+  }
+}

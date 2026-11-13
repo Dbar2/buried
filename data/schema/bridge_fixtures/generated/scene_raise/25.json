@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "etz",
+    "first_feature_id": "wtr_bsltf_4ck_872_o1_1309",
+    "animate": true
+  }
+}

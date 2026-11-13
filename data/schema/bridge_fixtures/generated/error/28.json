@@ -3,6 +3,6 @@
   "payload": {
     "code": "debug_disabled",
     "message": "fG=X",
-    "messageType": "scene/focusLot"
+    "messageType": "cameraChanged"
   }
 }

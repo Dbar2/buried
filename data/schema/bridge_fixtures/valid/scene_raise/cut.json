@@ -1,0 +1,4 @@
+{
+  "type": "scene/raise",
+  "payload": { "era_id": "fip_1911", "first_feature_id": "bld_fip_v3_1911_229_0101", "animate": false }
+}

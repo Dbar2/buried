@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "vp_s5p_c3",
+    "first_feature_id": "wtr_0_msqk3h_tw23_09ivio_9990",
+    "animate": false
+  }
+}

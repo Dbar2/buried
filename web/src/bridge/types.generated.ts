@@ -6,6 +6,13 @@
  */
 
 /**
+ * <bld|wtr|use>_<origin source id>_<4 digits>.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "featureId".
+ */
+export type FeatureId = string;
+/**
  * The Envelope: exactly one of the message definitions below.
  *
  * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
@@ -21,10 +28,15 @@ export type BridgeMessage =
   | SceneSetDrapeModeMessage
   | SceneSetLanternMessage
   | SceneShowEvidenceMessage
+  | SceneSetAnchorsMessage
+  | SceneRaiseMessage
+  | SceneFrameFeatureMessage
   | DebugMarkersMessage
   | DebugSetCameraMessage
   | ReadyMessage
   | EraLoadedMessage
+  | SceneAnchorsMessage
+  | SceneRaisedMessage
   | FeatureClickedMessage
   | CameraChangedMessage
   | ErrorMessage;
@@ -55,13 +67,6 @@ export type Ring = [Position, Position, Position, Position, ...Position[]];
  */
 export type Position = [number, number];
 /**
- * <bld|wtr|use>_<origin source id>_<4 digits>.
- *
- * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
- * via the `definition` "featureId".
- */
-export type FeatureId = string;
-/**
  * Polygon, MultiPolygon, LineString or MultiLineString, positions only, in EPSG:26917 metres.
  *
  * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
@@ -81,6 +86,7 @@ export type SourceId = string;
  * One property per definition in the Bridge Schema.
  */
 export interface BridgeSchemaTypes {
+  anchorEntry?: AnchorEntry;
   bridgeMessage?: BridgeMessage;
   cameraChangedMessage?: CameraChangedMessage;
   cameraChangedPayload?: CameraChangedPayload;
@@ -116,16 +122,26 @@ export interface BridgeSchemaTypes {
   ring?: Ring;
   sceneAddFeaturesMessage?: SceneAddFeaturesMessage;
   sceneAddFeaturesPayload?: SceneAddFeaturesPayload;
+  sceneAnchorsMessage?: SceneAnchorsMessage;
+  sceneAnchorsPayload?: SceneAnchorsPayload;
   sceneBounds?: SceneBounds;
   sceneClearLotMessage?: SceneClearLotMessage;
   sceneClearLotPayload?: SceneClearLotPayload;
   sceneFeature?: SceneFeature;
   sceneFocusLotMessage?: SceneFocusLotMessage;
   sceneFocusLotPayload?: SceneFocusLotPayload;
+  sceneFrameFeatureMessage?: SceneFrameFeatureMessage;
+  sceneFrameFeaturePayload?: SceneFrameFeaturePayload;
   sceneInitMessage?: SceneInitMessage;
   sceneInitPayload?: SceneInitPayload;
   sceneLoadEraMessage?: SceneLoadEraMessage;
   sceneLoadEraPayload?: SceneLoadEraPayload;
+  sceneRaiseMessage?: SceneRaiseMessage;
+  sceneRaisePayload?: SceneRaisePayload;
+  sceneRaisedMessage?: SceneRaisedMessage;
+  sceneRaisedPayload?: SceneRaisedPayload;
+  sceneSetAnchorsMessage?: SceneSetAnchorsMessage;
+  sceneSetAnchorsPayload?: SceneSetAnchorsPayload;
   sceneSetDepthMessage?: SceneSetDepthMessage;
   sceneSetDepthPayload?: SceneSetDepthPayload;
   sceneSetDrapeModeMessage?: SceneSetDrapeModeMessage;
@@ -136,6 +152,18 @@ export interface BridgeSchemaTypes {
   sceneShowEvidencePayload?: SceneShowEvidencePayload;
   screenPoint?: ScreenPoint1;
   sourceId?: SourceId;
+}
+/**
+ * Where one feature's anchor is on the canvas, in CSS pixels from the top left. The anchor is the top centre of the feature's volume, or the ground centroid of a land-use area. on_screen is false behind the camera, outside the canvas, or for a feature the scene does not hold (then x and y are 0).
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "anchorEntry".
+ */
+export interface AnchorEntry {
+  feature_id: FeatureId;
+  x: number;
+  y: number;
+  on_screen: boolean;
 }
 /**
  * Shell to Player. Always the first message.
@@ -152,7 +180,7 @@ export interface SceneInitMessage {
  * via the `definition` "sceneInitPayload".
  */
 export interface SceneInitPayload {
-  bridgeVersion: '0.7.0';
+  bridgeVersion: '0.8.0';
   origin: OriginPoint;
   bounds: SceneBounds;
   initialView: Rect;
@@ -500,6 +528,64 @@ export interface Drape1 {
   kind?: 'plate' | 'aerial';
 }
 /**
+ * Shell to Player (0.8.0). The features whose screen anchors the Shell wants, in find order. Replaces the previous list. An empty list stops anchor reports. The Player answers with scene/anchors.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneSetAnchorsMessage".
+ */
+export interface SceneSetAnchorsMessage {
+  type: 'scene/setAnchors';
+  payload: SceneSetAnchorsPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneSetAnchorsPayload".
+ */
+export interface SceneSetAnchorsPayload {
+  /**
+   * In find order. Each id once (checked by both parsers). A feature the scene does not hold is reported with on_screen false.
+   *
+   * @maxItems 64
+   */
+  feature_ids: FeatureId[];
+}
+/**
+ * Shell to Player (0.8.0). Raise the past: Today's buildings sink to 1 m plinths over 600 ms, the sheet brightens, then each ghost of the era's features draws its edges on and rises, starting staggered by distance from the centroid of first_feature_id so the last starts by 1.5 s and everything has settled by 2.2 s. The camera does not move. With animate false, or with reduced motion from scene/init, the end state is reached at once. The Player answers with scene/raised. An era not named in scene/init is refused (era_not_initialised). A first_feature_id that is not in the era is not an error: the stagger then starts from the centroid of the era's features.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneRaiseMessage".
+ */
+export interface SceneRaiseMessage {
+  type: 'scene/raise';
+  payload: SceneRaisePayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneRaisePayload".
+ */
+export interface SceneRaisePayload {
+  era_id: string;
+  first_feature_id: FeatureId;
+  animate: boolean;
+}
+/**
+ * Shell to Player (0.8.0). "Show on the map": the camera flies (eased, 900 ms; a cut under reduced motion) to a pose that has the feature on screen, keeping heading and pitch. A feature the scene does not hold is refused (invalid_message).
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneFrameFeatureMessage".
+ */
+export interface SceneFrameFeatureMessage {
+  type: 'scene/frameFeature';
+  payload: SceneFrameFeaturePayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneFrameFeaturePayload".
+ */
+export interface SceneFrameFeaturePayload {
+  feature_id: FeatureId;
+}
+/**
  * Shell to Player. Only honoured when scene/init had debug: true.
  *
  * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
@@ -696,7 +782,7 @@ export interface ReadyMessage {
  * via the `definition` "readyPayload".
  */
 export interface ReadyPayload {
-  bridgeVersion: '0.7.0';
+  bridgeVersion: '0.8.0';
   unityVersion: string;
 }
 /**
@@ -718,6 +804,53 @@ export interface EraLoadedPayload {
   featureCount: number;
   drapeCount: number;
   failedDrapes: SourceId[];
+}
+/**
+ * Player to Shell (0.8.0). Where the requested features are on the canvas. Sent after scene/setAnchors, after scene/raised, after a resize and at most once per frame while the camera moves; never while nothing changes.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneAnchorsMessage".
+ */
+export interface SceneAnchorsMessage {
+  type: 'scene/anchors';
+  payload: SceneAnchorsPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneAnchorsPayload".
+ */
+export interface SceneAnchorsPayload {
+  /**
+   * The canvas width in CSS pixels.
+   */
+  width: number;
+  /**
+   * The canvas height in CSS pixels.
+   */
+  height: number;
+  /**
+   * One entry for each id of the last scene/setAnchors, in its order.
+   *
+   * @maxItems 64
+   */
+  anchors: AnchorEntry[];
+}
+/**
+ * Player to Shell (0.8.0). The raise of scene/raise has settled (immediately after scene/raise when it was cut).
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneRaisedMessage".
+ */
+export interface SceneRaisedMessage {
+  type: 'scene/raised';
+  payload: SceneRaisedPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneRaisedPayload".
+ */
+export interface SceneRaisedPayload {
+  era_id: string;
 }
 /**
  * Player to Shell. A click on a drawn feature.

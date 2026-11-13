@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "bsx3",
+    "first_feature_id": "wtr_4zc_0_46cl7_d9m_0008",
+    "animate": true
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "kd8e",
+    "first_feature_id": "bld_y_1794",
+    "animate": false
+  }
+}

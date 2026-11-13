@@ -1,0 +1,39 @@
+{
+  "type": "scene/anchors",
+  "payload": {
+    "width": 2448.347,
+    "height": 14936.987,
+    "anchors": [
+      {
+        "feature_id": "wtr_uvh_7277",
+        "x": -0.013,
+        "y": -58725.689,
+        "on_screen": false
+      },
+      {
+        "feature_id": "wtr_a401_7153",
+        "x": -59863.378,
+        "y": -34404.688,
+        "on_screen": true
+      },
+      {
+        "feature_id": "bld_u_z843t_2655",
+        "x": 97026.068,
+        "y": -99999.975,
+        "on_screen": true
+      },
+      {
+        "feature_id": "wtr_n402c_o56_n38r_zg_9815",
+        "x": 99999.996,
+        "y": -0.003,
+        "on_screen": true
+      },
+      {
+        "feature_id": "bld_k_7dh95_iq4gb_02ty_4330",
+        "x": 43519.973,
+        "y": -13045.259,
+        "on_screen": true
+      }
+    ]
+  }
+}

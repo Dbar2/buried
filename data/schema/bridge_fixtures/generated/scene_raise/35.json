@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "he_54_jp_5l",
+    "first_feature_id": "wtr_5vy_709_0p09j_0010",
+    "animate": false
+  }
+}

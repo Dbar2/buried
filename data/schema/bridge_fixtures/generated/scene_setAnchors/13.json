@@ -1,0 +1,12 @@
+{
+  "type": "scene/setAnchors",
+  "payload": {
+    "feature_ids": [
+      "use_801y_1p_2126",
+      "bld_7839s_3222",
+      "wtr_dh0_6683",
+      "use_lrt624_v_5d_n3_4327",
+      "bld_v82_54h37k_62_0u_8753"
+    ]
+  }
+}

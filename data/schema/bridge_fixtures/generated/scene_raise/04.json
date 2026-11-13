@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "85",
+    "first_feature_id": "use_ebp_bpbh7_5540",
+    "animate": true
+  }
+}

@@ -3,6 +3,6 @@
   "payload": {
     "code": "debug_disabled",
     "message": "( )",
-    "messageType": "scene/loadEra"
+    "messageType": "debug/markers"
   }
 }

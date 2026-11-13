@@ -117,9 +117,9 @@ namespace Buried.Tests
         }
 
         [Test]
-        public void ThePlayerSpeaksBridge070()
+        public void ThePlayerSpeaksBridge070OrLater()
         {
-            Assert.AreEqual("0.7.0", BridgeVersion.Value);
+            Assert.AreEqual("0.8.0", BridgeVersion.Value);
         }
 
         // ---- the sheet ----

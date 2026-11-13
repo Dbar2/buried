@@ -1,0 +1,9 @@
+{
+  "type": "scene/setAnchors",
+  "payload": {
+    "feature_ids": [
+      "bld_15a27_vmwiv_5849",
+      "use_s53_6205"
+    ]
+  }
+}

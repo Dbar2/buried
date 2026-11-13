@@ -3,6 +3,6 @@
   "payload": {
     "code": "mesh_build_failed",
     "message": "w#",
-    "messageType": "scene/focusLot"
+    "messageType": "scene/setAnchors"
   }
 }

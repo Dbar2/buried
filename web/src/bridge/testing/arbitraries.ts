@@ -185,6 +185,27 @@ export const messageArbitraries: Readonly<Record<MessageType, Arb<BridgeMessage>
       fc.record({ featureId: featureIdArb, on: fc.constant(false) }),
     ),
   ),
+  'scene/setAnchors': message(
+    'scene/setAnchors',
+    fc.record({ feature_ids: fc.uniqueArray(featureIdArb, { maxLength: 5 }) }),
+  ),
+  'scene/anchors': message(
+    'scene/anchors',
+    fc.record({
+      width: milli(0.001, 16384),
+      height: milli(0.001, 16384),
+      anchors: fc.uniqueArray(
+        fc.record({ feature_id: featureIdArb, x: milli(-100000, 100000), y: milli(-100000, 100000), on_screen: fc.boolean() }),
+        { selector: (a) => a.feature_id, maxLength: 5 },
+      ),
+    }),
+  ),
+  'scene/raise': message(
+    'scene/raise',
+    fc.record({ era_id: eraIdArb, first_feature_id: featureIdArb, animate: fc.boolean() }),
+  ),
+  'scene/raised': message('scene/raised', fc.record({ era_id: eraIdArb })),
+  'scene/frameFeature': message('scene/frameFeature', fc.record({ feature_id: featureIdArb })),
   'debug/markers': message(
     'debug/markers',
     fc.record({

@@ -1,7 +1,7 @@
 {
   "type": "ready",
   "payload": {
-    "bridgeVersion": "0.7.0",
+    "bridgeVersion": "0.8.0",
     "unityVersion": "..u.uo76.."
   }
 }

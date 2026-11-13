@@ -1,0 +1,11 @@
+{
+  "type": "scene/anchors",
+  "payload": {
+    "width": 1280,
+    "height": 800.5,
+    "anchors": [
+      { "feature_id": "bld_fip_v3_1911_229_0101", "x": 812.25, "y": 301.5, "on_screen": true },
+      { "feature_id": "bld_fip_v3_1911_229_0001", "x": -40, "y": 1200, "on_screen": false }
+    ]
+  }
+}

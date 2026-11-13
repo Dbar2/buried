@@ -3,6 +3,6 @@
   "payload": {
     "code": "invalid_message",
     "message": " ?aa;^'",
-    "messageType": "cameraChanged"
+    "messageType": "eraLoaded"
   }
 }

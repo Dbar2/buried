@@ -1,0 +1,21 @@
+{
+  "type": "scene/anchors",
+  "payload": {
+    "width": 0.016,
+    "height": 0.009,
+    "anchors": [
+      {
+        "feature_id": "use_4251u4_8160",
+        "x": 39257.313,
+        "y": 0.005,
+        "on_screen": true
+      },
+      {
+        "feature_id": "bld_788ggy_xelva_9990",
+        "x": -57291.204,
+        "y": 0.014,
+        "on_screen": true
+      }
+    ]
+  }
+}

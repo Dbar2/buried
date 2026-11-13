@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "a",
+    "first_feature_id": "use_t1_cwvx_0012",
+    "animate": true
+  }
+}

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://buried.invalid/schema/bridge.schema.json",
   "title": "Buried bridge messages",
-  "description": "Every message between the web shell and the Unity Player, bridge version 0.7.0 (the gate subset plus the look pass additions, the drape clip and scene/addFeatures of .kiro/specs/03-explorer; 0.5.0 adds scene/focusLot, scene/clearLot, scene/setDrapeMode, the optional sceneFeature.storeys and the optional drape.kind of session 023; 0.6.0 adds scene/setLantern and scene/showEvidence of session 028 and drops the lamp from the pinned lot; 0.7.0 adds land_use as a sceneFeature kind, session 034). A message is { type, payload }. All positions are EPSG:26917 metres, easting first. No property is named like a year or a date: the Player draws what it is told and never dates anything. Rules JSON Schema cannot express are checked by both parsers (web/src/bridge/bridge.ts and unity/Assets/Buried/Runtime/Bridge/BridgeParser.cs) and covered by the same invalid fixtures: every polygon ring is closed (first position equals last); scene/init eras have unique ids and indexes that are exactly 0 to n-1; scene/init initialView has minE < maxE and minN < maxN and lies inside bounds; scene/init present building ids, scene/loadEra and scene/addFeatures feature ids, scene/loadEra drape source ids and debug/markers ids are each unique; scene/showEvidence carries a drape when on is true and none when it is false. Every change to this file changes the bridge version.",
+  "description": "Every message between the web shell and the Unity Player, bridge version 0.8.0 (the gate subset plus the look pass additions, the drape clip and scene/addFeatures of .kiro/specs/03-explorer; 0.5.0 adds scene/focusLot, scene/clearLot, scene/setDrapeMode, the optional sceneFeature.storeys and the optional drape.kind of session 023; 0.6.0 adds scene/setLantern and scene/showEvidence of session 028 and drops the lamp from the pinned lot; 0.7.0 adds land_use as a sceneFeature kind, session 034; 0.8.0 adds scene/setAnchors, scene/anchors, scene/raise, scene/raised and scene/frameFeature of .kiro/specs/06-first-visit, session 040). A message is { type, payload }. All positions are EPSG:26917 metres, easting first. No property is named like a year or a date: the Player draws what it is told and never dates anything. Rules JSON Schema cannot express are checked by both parsers (web/src/bridge/bridge.ts and unity/Assets/Buried/Runtime/Bridge/BridgeParser.cs) and covered by the same invalid fixtures: every polygon ring is closed (first position equals last); scene/init eras have unique ids and indexes that are exactly 0 to n-1; scene/init initialView has minE < maxE and minN < maxN and lies inside bounds; scene/init present building ids, scene/loadEra and scene/addFeatures feature ids, scene/loadEra drape source ids and debug/markers ids are each unique; scene/showEvidence carries a drape when on is true and none when it is false; scene/setAnchors feature_ids and scene/anchors feature_id values are each unique. Every change to this file changes the bridge version.",
   "$ref": "#/$defs/bridgeMessage",
   "$defs": {
     "bridgeMessage": {
@@ -17,10 +17,15 @@
         { "$ref": "#/$defs/sceneSetDrapeModeMessage" },
         { "$ref": "#/$defs/sceneSetLanternMessage" },
         { "$ref": "#/$defs/sceneShowEvidenceMessage" },
+        { "$ref": "#/$defs/sceneSetAnchorsMessage" },
+        { "$ref": "#/$defs/sceneRaiseMessage" },
+        { "$ref": "#/$defs/sceneFrameFeatureMessage" },
         { "$ref": "#/$defs/debugMarkersMessage" },
         { "$ref": "#/$defs/debugSetCameraMessage" },
         { "$ref": "#/$defs/readyMessage" },
         { "$ref": "#/$defs/eraLoadedMessage" },
+        { "$ref": "#/$defs/sceneAnchorsMessage" },
+        { "$ref": "#/$defs/sceneRaisedMessage" },
         { "$ref": "#/$defs/featureClickedMessage" },
         { "$ref": "#/$defs/cameraChangedMessage" },
         { "$ref": "#/$defs/errorMessage" }
@@ -117,6 +122,36 @@
         "payload": { "$ref": "#/$defs/sceneShowEvidencePayload" }
       }
     },
+    "sceneSetAnchorsMessage": {
+      "description": "Shell to Player (0.8.0). The features whose screen anchors the Shell wants, in find order. Replaces the previous list. An empty list stops anchor reports. The Player answers with scene/anchors.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "scene/setAnchors" },
+        "payload": { "$ref": "#/$defs/sceneSetAnchorsPayload" }
+      }
+    },
+    "sceneRaiseMessage": {
+      "description": "Shell to Player (0.8.0). Raise the past: Today's buildings sink to 1 m plinths over 600 ms, the sheet brightens, then each ghost of the era's features draws its edges on and rises, starting staggered by distance from the centroid of first_feature_id so the last starts by 1.5 s and everything has settled by 2.2 s. The camera does not move. With animate false, or with reduced motion from scene/init, the end state is reached at once. The Player answers with scene/raised. An era not named in scene/init is refused (era_not_initialised). A first_feature_id that is not in the era is not an error: the stagger then starts from the centroid of the era's features.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "scene/raise" },
+        "payload": { "$ref": "#/$defs/sceneRaisePayload" }
+      }
+    },
+    "sceneFrameFeatureMessage": {
+      "description": "Shell to Player (0.8.0). \"Show on the map\": the camera flies (eased, 900 ms; a cut under reduced motion) to a pose that has the feature on screen, keeping heading and pitch. A feature the scene does not hold is refused (invalid_message).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "scene/frameFeature" },
+        "payload": { "$ref": "#/$defs/sceneFrameFeaturePayload" }
+      }
+    },
     "debugMarkersMessage": {
       "description": "Shell to Player. Only honoured when scene/init had debug: true.",
       "type": "object",
@@ -157,6 +192,26 @@
         "payload": { "$ref": "#/$defs/eraLoadedPayload" }
       }
     },
+    "sceneAnchorsMessage": {
+      "description": "Player to Shell (0.8.0). Where the requested features are on the canvas. Sent after scene/setAnchors, after scene/raised, after a resize and at most once per frame while the camera moves; never while nothing changes.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "scene/anchors" },
+        "payload": { "$ref": "#/$defs/sceneAnchorsPayload" }
+      }
+    },
+    "sceneRaisedMessage": {
+      "description": "Player to Shell (0.8.0). The raise of scene/raise has settled (immediately after scene/raise when it was cut).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "scene/raised" },
+        "payload": { "$ref": "#/$defs/sceneRaisedPayload" }
+      }
+    },
     "featureClickedMessage": {
       "description": "Player to Shell. A click on a drawn feature.",
       "type": "object",
@@ -193,7 +248,7 @@
       "additionalProperties": false,
       "required": ["bridgeVersion", "origin", "bounds", "initialView", "eras", "present", "reducedMotion", "debug"],
       "properties": {
-        "bridgeVersion": { "const": "0.7.0" },
+        "bridgeVersion": { "const": "0.8.0" },
         "origin": { "$ref": "#/$defs/originPoint" },
         "bounds": { "$ref": "#/$defs/sceneBounds" },
         "initialView": {
@@ -313,6 +368,60 @@
         }
       }
     },
+    "sceneSetAnchorsPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["feature_ids"],
+      "properties": {
+        "feature_ids": {
+          "description": "In find order. Each id once (checked by both parsers). A feature the scene does not hold is reported with on_screen false.",
+          "type": "array",
+          "maxItems": 64,
+          "items": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/featureId" }
+        }
+      }
+    },
+    "sceneAnchorsPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height", "anchors"],
+      "properties": {
+        "width": { "description": "The canvas width in CSS pixels.", "type": "number", "exclusiveMinimum": 0, "maximum": 16384 },
+        "height": { "description": "The canvas height in CSS pixels.", "type": "number", "exclusiveMinimum": 0, "maximum": 16384 },
+        "anchors": {
+          "description": "One entry for each id of the last scene/setAnchors, in its order.",
+          "type": "array",
+          "maxItems": 64,
+          "items": { "$ref": "#/$defs/anchorEntry" }
+        }
+      }
+    },
+    "sceneRaisePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["era_id", "first_feature_id", "animate"],
+      "properties": {
+        "era_id": { "type": "string", "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$" },
+        "first_feature_id": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/featureId" },
+        "animate": { "type": "boolean" }
+      }
+    },
+    "sceneRaisedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["era_id"],
+      "properties": {
+        "era_id": { "type": "string", "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$" }
+      }
+    },
+    "sceneFrameFeaturePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["feature_id"],
+      "properties": {
+        "feature_id": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/featureId" }
+      }
+    },
     "debugMarkersPayload": {
       "type": "object",
       "additionalProperties": false,
@@ -337,7 +446,7 @@
       "additionalProperties": false,
       "required": ["bridgeVersion", "unityVersion"],
       "properties": {
-        "bridgeVersion": { "const": "0.7.0" },
+        "bridgeVersion": { "const": "0.8.0" },
         "unityVersion": { "type": "string", "minLength": 1, "maxLength": 64 }
       }
     },
@@ -404,6 +513,18 @@
       }
     },
 
+    "anchorEntry": {
+      "description": "Where one feature's anchor is on the canvas, in CSS pixels from the top left. The anchor is the top centre of the feature's volume, or the ground centroid of a land-use area. on_screen is false behind the camera, outside the canvas, or for a feature the scene does not hold (then x and y are 0).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["feature_id", "x", "y", "on_screen"],
+      "properties": {
+        "feature_id": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/featureId" },
+        "x": { "type": "number", "minimum": -1000000, "maximum": 1000000 },
+        "y": { "type": "number", "minimum": -1000000, "maximum": 1000000 },
+        "on_screen": { "type": "boolean" }
+      }
+    },
     "originPoint": {
       "description": "The project origin (E0, N0) in EPSG:26917 metres, read by the Shell from data/project.json.",
       "type": "object",

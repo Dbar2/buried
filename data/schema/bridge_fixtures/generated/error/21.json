@@ -3,6 +3,6 @@
   "payload": {
     "code": "era_not_initialised",
     "message": "[gH",
-    "messageType": "featureClicked"
+    "messageType": "scene/raised"
   }
 }

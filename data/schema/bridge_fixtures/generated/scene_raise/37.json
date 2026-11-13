@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "4_x5y8",
+    "first_feature_id": "use_pl880_4422",
+    "animate": false
+  }
+}

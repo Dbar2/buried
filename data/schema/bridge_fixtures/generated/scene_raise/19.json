@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "p5d",
+    "first_feature_id": "bld_879zn_dk61f_3393",
+    "animate": false
+  }
+}

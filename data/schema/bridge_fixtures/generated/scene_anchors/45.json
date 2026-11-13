@@ -1,0 +1,39 @@
+{
+  "type": "scene/anchors",
+  "payload": {
+    "width": 16383.995,
+    "height": 0.024,
+    "anchors": [
+      {
+        "feature_id": "wtr_83k_rs93u3_7c_0834",
+        "x": 78911.87,
+        "y": -27031.953,
+        "on_screen": false
+      },
+      {
+        "feature_id": "use_f8r8u5_5231",
+        "x": -46461.373,
+        "y": -73547.091,
+        "on_screen": false
+      },
+      {
+        "feature_id": "wtr_4i9_4088",
+        "x": -27939.947,
+        "y": -47572.522,
+        "on_screen": false
+      },
+      {
+        "feature_id": "wtr_y_2139",
+        "x": 77358.908,
+        "y": -96354.45,
+        "on_screen": false
+      },
+      {
+        "feature_id": "use_8pol4_1006",
+        "x": 57719.802,
+        "y": 82149.051,
+        "on_screen": false
+      }
+    ]
+  }
+}
