@@ -45,7 +45,7 @@ describe('initialView (design.md "Initial view")', () => {
     expect(view.maxN).toBe(4835400 + INITIAL_VIEW_MARGIN_M);
   });
 
-  it('ignores land use, which the Player is never sent', () => {
+  it('ignores land use when it frames the view: the view is framed on the buildings', () => {
     const view = initialView(
       [listOf({ at: [632500, 4835000], size: [100, 100] }, { at: [633000, 4835500], size: [100, 100], kind: 'land_use' })],
       [],

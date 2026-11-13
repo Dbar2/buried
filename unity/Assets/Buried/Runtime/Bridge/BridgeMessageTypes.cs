@@ -15,12 +15,18 @@ namespace Buried.Interop
         public const string SceneSetDrapeMode = "scene/setDrapeMode";
         public const string SceneSetLantern = "scene/setLantern";
         public const string SceneShowEvidence = "scene/showEvidence";
+        public const string SceneSetAnchors = "scene/setAnchors";
+        public const string SceneRaise = "scene/raise";
+        public const string SceneFrameFeature = "scene/frameFeature";
+        public const string SceneSelectFeature = "scene/selectFeature";
         public const string DebugMarkers = "debug/markers";
         public const string DebugSetCamera = "debug/setCamera";
 
         // Player to Shell
         public const string Ready = "ready";
         public const string EraLoaded = "eraLoaded";
+        public const string SceneAnchors = "scene/anchors";
+        public const string SceneRaised = "scene/raised";
         public const string FeatureClicked = "featureClicked";
         public const string CameraChanged = "cameraChanged";
         public const string Error = "error";
@@ -28,9 +34,12 @@ namespace Buried.Interop
         public static readonly string[] ShellToPlayer =
         {
             SceneInit, SceneLoadEra, SceneAddFeatures, SceneSetDepth, SceneFocusLot, SceneClearLot, SceneSetDrapeMode, SceneSetLantern,
-            SceneShowEvidence, DebugMarkers, DebugSetCamera,
+            SceneShowEvidence, SceneSetAnchors, SceneRaise, SceneFrameFeature, SceneSelectFeature, DebugMarkers, DebugSetCamera,
         };
-        public static readonly string[] PlayerToShell = { Ready, EraLoaded, FeatureClicked, CameraChanged, Error };
+        public static readonly string[] PlayerToShell =
+        {
+            Ready, EraLoaded, SceneAnchors, SceneRaised, FeatureClicked, CameraChanged, Error,
+        };
 
         public static bool IsShellToPlayer(string type)
         {

@@ -11,5 +11,8 @@
   "confirmed_by": "fixture reviewer",
   "confirmed_at": "2026-11-12T10:00:00Z",
   "proposal_id": "prop_0001",
-  "extraction_params_id": "v1"
+  "extraction_params_id": "v1",
+  "review": {
+    "state": "draft_rule"
+  }
 }

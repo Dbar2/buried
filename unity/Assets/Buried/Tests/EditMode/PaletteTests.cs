@@ -12,8 +12,9 @@ namespace Buried.Tests
     public class PaletteTests
     {
         [Test]
-        public void TheTokensFileDefinesAllEightColours()
+        public void TheTokensFileDefinesAllElevenColours()
         {
+            Assert.AreEqual(11, BuriedPalette.TokenNames.Length);
             Dictionary<string, Color32> tokens = TokensCss.Parse(File.ReadAllText(TokensCss.DefaultPath));
             foreach (string name in BuriedPalette.TokenNames)
             {

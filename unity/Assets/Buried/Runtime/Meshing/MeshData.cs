@@ -18,6 +18,35 @@ namespace Buried.Meshing
         /// </summary>
         public readonly List<Vector4> tangents = new List<Vector4>();
 
+        /// <summary>
+        /// Optional second UV stream: for a ghost, the ground position (x, z in scene metres) of the centre of its
+        /// feature's footprint, the same for every vertex of the feature. The shader reads it to stagger the raise.
+        /// Either every vertex has one or none does.
+        /// </summary>
+        public readonly List<Vector2> uvs2 = new List<Vector2>();
+
+        /// <summary>Gives every vertex the same second UV.</summary>
+        public void SetUv2ForAll(Vector2 value)
+        {
+            uvs2.Clear();
+            for (int i = 0; i < vertices.Count; i++) uvs2.Add(value);
+        }
+
+        /// <summary>The centre of the box of the vertices on the ground plane (x, z), or zero for no vertices.</summary>
+        public Vector2 BoxCentreXZ()
+        {
+            if (vertices.Count == 0) return Vector2.zero;
+            float minX = float.PositiveInfinity, maxX = float.NegativeInfinity, minZ = float.PositiveInfinity, maxZ = float.NegativeInfinity;
+            foreach (Vector3 v in vertices)
+            {
+                if (v.x < minX) minX = v.x;
+                if (v.x > maxX) maxX = v.x;
+                if (v.z < minZ) minZ = v.z;
+                if (v.z > maxZ) maxZ = v.z;
+            }
+            return new Vector2((minX + maxX) * 0.5f, (minZ + maxZ) * 0.5f);
+        }
+
         public int VertexCount
         {
             get { return vertices.Count; }
@@ -55,11 +84,16 @@ namespace Buried.Meshing
             {
                 throw new System.InvalidOperationException("Cannot combine a mesh with tangents and one without.");
             }
+            if (vertices.Count > 0 && (uvs2.Count > 0) != (other.uvs2.Count > 0))
+            {
+                throw new System.InvalidOperationException("Cannot combine a mesh with a second UV stream and one without.");
+            }
             int offset = vertices.Count;
             vertices.AddRange(other.vertices);
             normals.AddRange(other.normals);
             uvs.AddRange(other.uvs);
             tangents.AddRange(other.tangents);
+            uvs2.AddRange(other.uvs2);
             foreach (int index in other.triangles) triangles.Add(index + offset);
         }
 
@@ -93,6 +127,7 @@ namespace Buried.Meshing
             mesh.SetNormals(normals);
             mesh.SetUVs(0, uvs);
             if (tangents.Count == vertices.Count && tangents.Count > 0) mesh.SetTangents(tangents);
+            if (uvs2.Count == vertices.Count && uvs2.Count > 0) mesh.SetUVs(1, uvs2);
             mesh.SetTriangles(triangles, 0);
             mesh.RecalculateBounds();
             return mesh;

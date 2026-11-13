@@ -16,3 +16,7 @@
   background: var(--parchment);
   color: var(--ink);
 }
+
+.lantern-toggle-word {
+  white-space: nowrap;
+}

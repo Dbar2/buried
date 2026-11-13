@@ -238,6 +238,17 @@
   right: auto;
 }
 
+/* The Lantern control sits in the gauge's column, above the gauge, so the two controls for moving
+   through time and looking through it are on the same edge. Its label wraps inside that column. */
+.view--place .lantern-toggle {
+  bottom: auto;
+  left: var(--space-3);
+  max-width: 10rem;
+  right: auto;
+  text-align: left;
+  top: var(--space-3);
+}
+
 .view--place .card {
   left: 11.5rem;
 }
@@ -355,6 +366,17 @@
 .place-card button.primary {
   background: var(--report-ink);
   color: var(--report-paper);
+}
+
+/* "Show the scan under this building" and "View original scan", side by side, wrapping on a narrow report. */
+.place-card-scan-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.place-card button[aria-pressed='true']:not(.primary) {
+  border-width: 2px;
 }
 
 .place-card button:focus-visible {
@@ -480,6 +502,13 @@
   .view--place .depth-gauge {
     left: var(--space-2);
     padding: var(--space-1);
+  }
+
+  .view--place .lantern-toggle {
+    font-size: 0.875rem;
+    left: var(--space-2);
+    max-width: 5rem;
+    min-height: 44px;
   }
 
   .view--place .depth-stop {

@@ -3,6 +3,7 @@
   "payload": {
     "eraId": "4k2",
     "features": [],
-    "drapes": []
+    "drapes": [],
+    "held": true
   }
 }

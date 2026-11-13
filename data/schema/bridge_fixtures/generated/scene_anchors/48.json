@@ -1,0 +1,21 @@
+{
+  "type": "scene/anchors",
+  "payload": {
+    "width": 5246.19,
+    "height": 537.235,
+    "anchors": [
+      {
+        "feature_id": "use_hoai_0009",
+        "x": -78924.068,
+        "y": -72818.341,
+        "on_screen": true
+      },
+      {
+        "feature_id": "wtr_8v3i_0003",
+        "x": 71266.209,
+        "y": -99999.987,
+        "on_screen": false
+      }
+    ]
+  }
+}

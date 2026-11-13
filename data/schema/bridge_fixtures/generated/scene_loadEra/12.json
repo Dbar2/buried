@@ -5,7 +5,7 @@
     "features": [
       {
         "id": "bld_iqv3_8kb5_4863",
-        "kind": "building",
+        "kind": "land_use",
         "geometry": {
           "type": "Polygon",
           "coordinates": [
@@ -52,7 +52,7 @@
       },
       {
         "id": "use_m_5025",
-        "kind": "water",
+        "kind": "land_use",
         "geometry": {
           "type": "MultiPolygon",
           "coordinates": [

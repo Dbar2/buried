@@ -1,0 +1,8 @@
+{
+  "type": "scene/setAnchors",
+  "payload": {
+    "feature_ids": [
+      "use_36ffo_p33z_5905"
+    ]
+  }
+}

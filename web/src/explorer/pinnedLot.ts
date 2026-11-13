@@ -42,6 +42,22 @@ export function buildClearLot(): MessageOf<'scene/clearLot'> {
   return { type: 'scene/clearLot', payload: {} };
 }
 
+/**
+ * Leaving the page: if a lot is pinned, send scene/clearLot and note that it is no longer pinned. A Player that is
+ * already gone, or never attached, refuses the message; there is then nothing to unpin and the refusal is swallowed.
+ * Returns whether a clear was sent.
+ */
+export function unpinOnLeave(pinned: { current: boolean }, send: (message: MessageOf<'scene/clearLot'>) => void): boolean {
+  if (!pinned.current) return false;
+  pinned.current = false;
+  try {
+    send(buildClearLot());
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** "View original scan" (mode 'original') and back (mode 'lit'), for one drape or, with no source, for all of them. */
 export function buildSetDrapeMode(mode: 'lit' | 'original', sourceId?: string): MessageOf<'scene/setDrapeMode'> {
   return { type: 'scene/setDrapeMode', payload: sourceId === undefined ? { mode } : { mode, sourceId } };

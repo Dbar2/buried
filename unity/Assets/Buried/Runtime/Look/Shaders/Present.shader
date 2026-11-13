@@ -17,6 +17,8 @@ Shader "Buried/Present"
         _SunGain ("Sun gain (sunward walls)", Range(0, 8)) = 0.5
         _RoofGain ("Roof gain (sky light)", Range(0, 4)) = 3.2
         _Alpha ("Alpha", Range(0, 1)) = 1
+        _Sink ("Sink toward a plinth (0 full height, 1 plinth)", Range(0, 1)) = 0
+        _PlinthM ("Plinth height (m)", Float) = 1
         [HideInInspector] _LensMode ("Lantern lens: 0 everywhere, 1 inside, 2 outside", Float) = 0
         [HideInInspector] _SrcBlend ("Src blend", Float) = 1
         [HideInInspector] _DstBlend ("Dst blend", Float) = 0
@@ -48,6 +50,8 @@ Shader "Buried/Present"
                 half _SunGain;
                 half _RoofGain;
                 half _Alpha;
+                half _Sink;
+                float _PlinthM;
                 half _LensMode;
             CBUFFER_END
 
@@ -67,7 +71,10 @@ Shader "Buried/Present"
             Varyings vert(Attributes input)
             {
                 Varyings output;
-                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                // Raise the past: every height above _PlinthM is pulled down to it, so a block sinks to a plinth.
+                float3 positionOS = input.positionOS.xyz;
+                positionOS.y = lerp(positionOS.y, min(positionOS.y, _PlinthM), _Sink);
+                float3 positionWS = TransformObjectToWorld(positionOS);
                 output.positionCS = TransformWorldToHClip(positionWS);
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 output.transmission = BuriedTransmission(positionWS);

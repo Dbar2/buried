@@ -13,8 +13,9 @@ namespace Buried.Scene
     /// <summary>
     /// Handles the Shell's messages and builds the scene from them. It draws what it is told: it never
     /// computes dates, confidence or lot relations, and it never filters the features of an era.
-    /// Bridge 0.6.0: scene/init, scene/loadEra, scene/addFeatures, scene/setDepth, scene/focusLot, scene/clearLot,
-    /// scene/setDrapeMode, scene/setLantern, scene/showEvidence, debug/markers and debug/setCamera.
+    /// Bridge 0.8.0: scene/init, scene/loadEra, scene/addFeatures, scene/setDepth, scene/focusLot, scene/clearLot,
+    /// scene/setDrapeMode, scene/setLantern, scene/showEvidence, scene/raise, scene/setAnchors, scene/frameFeature,
+    /// debug/markers and debug/setCamera.
     /// The depth is a fraction while the Shell tweens between eras; each era is drawn at its weight
     /// (DepthBlend) and the present buildings drain to a faint outline.
     /// </summary>
@@ -74,6 +75,17 @@ namespace Buried.Scene
         private EraLayer _evidenceEra;
         private DrapeLayer _evidencePatch;
         private int _evidenceGeneration;
+        private bool _blockCameraApplied;
+        private string _selectedFeatureId;
+
+        // Raise the past (bridge 0.8.0): the clock and what it pins, and the anchors the Shell asked for.
+        private readonly RaiseState _raise = new RaiseState();
+        private List<string> _anchorIds = new List<string>();
+        private bool _anchorsForce;
+        private bool _anchorsDirty;
+        private int _anchorCanvasW, _anchorCanvasH;
+        private SceneAnchorsPayload _lastAnchors;
+
         public void Configure(Bridge bridge, BuriedPalette palette, ShaderSet shaders, CameraRig rig)
         {
             _bridge = bridge;
@@ -133,6 +145,18 @@ namespace Buried.Scene
                         break;
                     case BridgeMessageTypes.SceneClearLot:
                         HandleClearLot();
+                        break;
+                    case BridgeMessageTypes.SceneRaise:
+                        HandleRaise((SceneRaisePayload)message.payload);
+                        break;
+                    case BridgeMessageTypes.SceneSetAnchors:
+                        HandleSetAnchors((SceneSetAnchorsPayload)message.payload);
+                        break;
+                    case BridgeMessageTypes.SceneFrameFeature:
+                        HandleFrameFeature((SceneFrameFeaturePayload)message.payload);
+                        break;
+                    case BridgeMessageTypes.SceneSelectFeature:
+                        HandleSelectFeature((SceneSelectFeaturePayload)message.payload);
                         break;
                     case BridgeMessageTypes.DebugMarkers:
                         HandleMarkers((DebugMarkersPayload)message.payload);
@@ -235,6 +259,13 @@ namespace Buried.Scene
             _poolTweening = false;
             _allLit = true;
             _litBySource.Clear();
+            _raise.Reset();
+            _blockCameraApplied = false;
+            _selectedFeatureId = null;
+            _anchorIds = new List<string>();
+            _anchorsForce = false;
+            _anchorsDirty = false;
+            _lastAnchors = null;
             _initialised = false;
         }
 
@@ -255,28 +286,30 @@ namespace Buried.Scene
             }
             float fogRadius = LookSettings.FogRadius(radius);
 
-            Color fog = _palette.fog;
+            Color fog = _palette.haze;
             // A vector, not a colour: Unity does not convert vectors, so the fog colour is exactly the
             // linear value of the palette colour that the materials get through their Color property.
             Color fogLinear = fog.linear;
             Shader.SetGlobalVector("_BuriedFogColor", new Vector4(fogLinear.r, fogLinear.g, fogLinear.b, 1f));
             Shader.SetGlobalFloat("_BuriedFogDensity", LookSettings.FogDensity(fogRadius));
+            Vector3 lamp = LookSettings.LampToward();
+            Shader.SetGlobalVector("_BuriedLampDir", new Vector4(lamp.x, lamp.y, lamp.z, 0f));
 
-            // Sky: night at the top, a lighter grey-blue band just above the horizon, and the `fog`
-            // colour at and below the horizon, which is the colour the fogged ground reaches far
-            // away, so the ground meets the sky without a hard line.
+            // Sky: `soot` at the top, a faint warm band just above the horizon, and the `haze` colour at and
+            // below the horizon, which is the colour the fogged table reaches far away, so the table meets the
+            // sky without a hard line (design.md: no visible edge of the world).
             _skyMaterial = new Material(_shaders.sky) { name = "Sky" };
-            _skyMaterial.SetColor("_Zenith", _palette.night);
-            _skyMaterial.SetColor("_Band", Color.Lerp(_palette.night, _palette.muted, LookSettings.HorizonMix));
-            _skyMaterial.SetColor("_Haze", _palette.fog);
+            _skyMaterial.SetColor("_Zenith", _palette.soot);
+            _skyMaterial.SetColor("_Band", Color.Lerp(_palette.haze, _palette.parchmentDim, LookSettings.HorizonMix));
+            _skyMaterial.SetColor("_Haze", _palette.haze);
             _skyMaterial.SetFloat("_BandElevation", LookSettings.SkyBandElevation);
             _skyMaterial.SetFloat("_ZenithElevation", LookSettings.SkyZenithElevation);
             RenderSettings.skybox = _skyMaterial;
 
-            // Ground: one big quad in the fog colour, so the edge of the coverage area dissolves.
+            // The table: one big quad in `soot` that the distance fog takes toward `haze`, so its edge dissolves.
             _groundMesh = GroundBuilder.Build((float)centre.X, (float)centre.Y, LookSettings.GroundHalfExtent(fogRadius)).ToMesh("Ground");
             _groundMaterial = new Material(_shaders.ghost) { name = "Ground" };
-            _groundMaterial.SetColor("_Color", fog);
+            _groundMaterial.SetColor("_Color", _palette.soot);
             _groundMaterial.SetFloat("_Shade", 0f);
             _groundMaterial.SetFloat("_Emission", 0f);
             _groundMaterial.SetFloat("_SrcBlend", (float)BlendMode.One);
@@ -310,7 +343,7 @@ namespace Buried.Scene
             SetLightPool(_defaultPoolCentre.x, _defaultPoolCentre.y, LookSettings.LightPoolRadiusM);
         }
 
-        private IEnumerator LoadEra(SceneLoadEraPayload payload)
+        public IEnumerator LoadEra(SceneLoadEraPayload payload)
         {
             int index;
             if (!_eraIndexById.TryGetValue(payload.eraId, out index))
@@ -336,6 +369,7 @@ namespace Buried.Scene
                 _ghostMaterials,
                 (featureId, reason) => _bridge.SendError(
                     BridgeErrorCodes.MeshBuildFailed, "feature " + featureId + ": " + reason, BridgeMessageTypes.SceneLoadEra));
+            if (payload.held) layer.Hold();
 
             var failed = new List<string>();
             int order = 0;
@@ -367,6 +401,7 @@ namespace Buried.Scene
                 {
                     DrapeLayer created = DrapeLayer.Create(layer.Parent, _frame, drape, texture, _shaders.drape, order, _palette);
                     created.SetLit(IsLit(drape.sourceId));
+                    created.SetGain(SheetGainFor(layer));
                     layer.AddDrape(created);
                 }
                 order++;
@@ -381,6 +416,9 @@ namespace Buried.Scene
             _layers[payload.eraId] = layer;
             layer.SetLensMode(LensModeFor(layer));
             layer.SetWeight(WeightFor(layer), _reducedMotion);
+            _anchorsDirty = true;
+            if (_selectedFeatureId != null && layer.HasFeature(_selectedFeatureId)) layer.SetSelected(_selectedFeatureId, _frame);
+            if (payload.held) ApplyBlockCamera();
 
             _bridge.Send(BridgeMessageTypes.EraLoaded, new EraLoadedPayload
             {
@@ -389,6 +427,28 @@ namespace Buried.Scene
                 drapeCount = layer.DrapeCount,
                 failedDrapes = failed,
             });
+        }
+
+        /// <summary>
+        /// The first visit's opening view (<see cref="BlockCamera"/>): taken when a held era is loaded, the first time and
+        /// only until the visitor has touched the view. A cut, not a flight: nothing has been shown yet.
+        /// </summary>
+        private void ApplyBlockCamera()
+        {
+            if (_blockCameraApplied || _rig.HasBeenMoved) return;
+            _blockCameraApplied = true;
+            float aspect = _camera.aspect > 0f ? _camera.aspect : BlockCamera.WideAspect;
+            BlockCamera.Spec spec = BlockCamera.For(aspect);
+            _rig.SetPose(spec.TargetX, spec.TargetZ, spec.DistanceM, spec.PitchDeg, spec.HeadingDeg);
+
+            // The lamp: its pool sits on the sheet toward the upper left of this view (west of the corner), wide enough
+            // that the whole sheet is lit and falls to its floor light only toward the table.
+            float heading = spec.HeadingDeg * Mathf.Deg2Rad;
+            var forward = new Vector2(Mathf.Sin(heading), Mathf.Cos(heading));
+            var right = new Vector2(Mathf.Cos(heading), -Mathf.Sin(heading));
+            Vector2 pool = new Vector2(BlockCamera.CornerX, BlockCamera.CornerZ) + (forward * 0.05f - right * 0.18f) * spec.DistanceM;
+            SetLightPool(pool.x, pool.y, LookSettings.LandingPoolRadiusM);
+            RequestCameraReport();
         }
 
         private void HandleAddFeatures(SceneAddFeaturesPayload payload)
@@ -431,6 +491,7 @@ namespace Buried.Scene
                 return;
             }
 
+            _raise.Unpin(); // the depth decides what is drawn again
             ApplyDepth(payload.depth);
 
             // The camera does not move on a depth change. While a transition runs (a fraction) nothing
@@ -452,9 +513,11 @@ namespace Buried.Scene
                 _lantern.Reset(); // the Lantern works from Today only
                 PushLens();
             }
-            if (_present != null) _present.SetStage(DepthBlend.Present(depth, _reducedMotion));
+            ApplyPresent();
             foreach (EraLayer layer in _layers.Values) layer.SetWeight(WeightFor(layer), _reducedMotion);
+            ApplySheetGains();
             RefreshLensModes();
+            _anchorsDirty = true;
             if (_evidencePatch != null && _evidenceEra != null) _evidencePatch.SetOpacity(_evidenceEra.Weight);
         }
 
@@ -464,7 +527,46 @@ namespace Buried.Scene
         private float WeightFor(EraLayer layer)
         {
             if (_lantern.Active && layer.EraId == _lantern.EraId) return 1f;
+            // The first visit: a held era shows its sheet whatever the depth, and a raised era stays whole until the
+            // Shell's next scene/setDepth takes over (the ghosts' own heights come from the raise clock).
+            if (layer.Held || (_raise.Pinned && layer.EraId == _raise.EraId)) return 1f;
             return DepthBlend.EraWeight(_depth, layer.Index);
+        }
+
+        /// <summary>
+        /// Today's buildings. Before any raise they drain to an outline as the depth deepens (Dig). After the first raise
+        /// they stay solid and sink to 1 m plinths: with the raise clock while it is pinned, then with the depth
+        /// (Today full height, any era a plinth).
+        /// </summary>
+        private void ApplyPresent()
+        {
+            if (_present == null) return;
+            if (!_raise.Used)
+            {
+                _present.SetStage(DepthBlend.Present(_depth, _reducedMotion));
+                _present.SetSink(0f);
+                return;
+            }
+            _present.SetStage(PresentLayer.StageAt(0.0, false));
+            float depthSink = (float)Math.Min(Math.Max(_depth, 0.0), 1.0);
+            _present.SetSink(_raise.Pinned ? _raise.Sink : depthSink);
+        }
+
+        /// <summary>The lit sheet's brightness: dim while held, rising with the plinths' sink in a raise, otherwise full.</summary>
+        private float SheetGainFor(EraLayer layer)
+        {
+            if (layer.Held) return LookSettings.LandingSheetGain;
+            if (_raise.Used && layer.EraId == _raise.EraId) return Mathf.Lerp(LookSettings.LandingSheetGain, 1f, _raise.Sink);
+            return 1f;
+        }
+
+        private void ApplySheetGains()
+        {
+            foreach (EraLayer layer in _layers.Values)
+            {
+                float gain = SheetGainFor(layer);
+                foreach (DrapeLayer drape in layer.Drapes) drape.SetGain(gain);
+            }
         }
 
         /// <summary>How an era meets the lens: the Lantern's era only inside it, Today only outside it, the others as they are.</summary>
@@ -791,6 +893,187 @@ namespace Buried.Scene
             RequestCameraReport();
         }
 
+        // ---- Raise the past and anchors (bridge 0.8.0, session 040) ----
+
+        /// <summary>
+        /// scene/raise: today's buildings sink to plinths, the sheet brightens and the era's ghosts stand up, nearest the
+        /// first find first (<see cref="RaiseSchedule"/>). The camera does not move. The Player runs the clock and sends
+        /// scene/raised when it has settled; with animate false or reduced motion it is over at once.
+        /// </summary>
+        private void HandleRaise(SceneRaisePayload payload)
+        {
+            EraLayer layer;
+            if (!_eraIndexById.ContainsKey(payload.era_id) || !_layers.TryGetValue(payload.era_id, out layer))
+            {
+                _bridge.SendError(
+                    BridgeErrorCodes.EraNotInitialised,
+                    "era \"" + payload.era_id + "\" is not listed in scene/init or has not been loaded with scene/loadEra",
+                    BridgeMessageTypes.SceneRaise);
+                return;
+            }
+
+            bool animate = payload.animate && !_reducedMotion;
+            layer.BeginRaise(payload.first_feature_id);
+            _raise.Start(payload.era_id, animate);
+            ApplyRaise();
+            if (!animate) FinishRaise();
+        }
+
+        /// <summary>Gives the scene what the raise clock says: the ghosts' clock, the plinths and the sheet.</summary>
+        private void ApplyRaise()
+        {
+            EraLayer layer;
+            if (_raise.EraId != null && _layers.TryGetValue(_raise.EraId, out layer))
+            {
+                layer.SetRaiseClock(_raise.Clock);
+                layer.SetWeight(WeightFor(layer), _reducedMotion);
+            }
+            ApplyPresent();
+            ApplySheetGains();
+        }
+
+        private void FinishRaise()
+        {
+            EraLayer layer;
+            if (_layers.TryGetValue(_raise.EraId, out layer)) layer.EndRaise();
+            ApplyRaise();
+            _bridge.Send(BridgeMessageTypes.SceneRaised, new SceneRaisedPayload { era_id = _raise.EraId });
+            _anchorsForce = true;
+        }
+
+        private void TickRaise(float deltaS)
+        {
+            if (!_raise.Active) return;
+            bool settled = _raise.Tick(deltaS);
+            ApplyRaise();
+            if (settled) FinishRaise();
+        }
+
+        /// <summary>scene/setAnchors: remembers the ids and reports their screen positions once.</summary>
+        private void HandleSetAnchors(SceneSetAnchorsPayload payload)
+        {
+            _anchorIds = new List<string>(payload.feature_ids);
+            _anchorsForce = true;
+        }
+
+        /// <summary>
+        /// scene/selectFeature: the selected find's edges turn `lantern`, thicker (spec 06 requirement 4.1). One feature at a
+        /// time; no feature_id clears it. A selection survives its era being loaded again.
+        /// </summary>
+        private void HandleSelectFeature(SceneSelectFeaturePayload payload)
+        {
+            foreach (EraLayer layer in _layers.Values) layer.ClearSelected();
+            _selectedFeatureId = null;
+            if (payload.feature_id == null) return;
+
+            EraLayer era = FindEraWithFeature(payload.feature_id);
+            if (era == null || !era.SetSelected(payload.feature_id, _frame))
+            {
+                _bridge.SendError(
+                    BridgeErrorCodes.InvalidMessage,
+                    "feature " + payload.feature_id + " is not drawn in any loaded era",
+                    BridgeMessageTypes.SceneSelectFeature);
+                return;
+            }
+            _selectedFeatureId = payload.feature_id;
+        }
+
+        /// <summary>
+        /// scene/frameFeature: flies (eased, a cut under reduced motion) to a pose that keeps heading and pitch and has the
+        /// feature's footprint, with <see cref="LookSettings.FrameFeaturePaddingM"/> around it, in view.
+        /// </summary>
+        private void HandleFrameFeature(SceneFrameFeaturePayload payload)
+        {
+            EraLayer era = FindEraWithFeature(payload.feature_id);
+            double minE, minN, maxE, maxN;
+            if (era == null || !era.TryGetFeatureBox(payload.feature_id, out minE, out minN, out maxE, out maxN))
+            {
+                _bridge.SendError(
+                    BridgeErrorCodes.InvalidMessage,
+                    "feature " + payload.feature_id + " is not drawn in any loaded era",
+                    BridgeMessageTypes.SceneFrameFeature);
+                return;
+            }
+
+            Vec2d min = _frame.ToLocal(minE, minN);
+            Vec2d max = _frame.ToLocal(maxE, maxN);
+            float aspect = _camera.aspect > 0f ? _camera.aspect : 1f;
+            CameraRigMath.Pose current = _rig.Pose;
+            CameraRigMath.Pose target = CameraRigMath.FramePose(
+                (float)min.X, (float)min.Y, (float)max.X, (float)max.Y, LookSettings.FrameFeaturePaddingM,
+                current.PitchDeg, current.HeadingDeg, LookSettings.CameraFovDeg, aspect);
+            _rig.FlyTo(target, _reducedMotion ? 0f : LookSettings.LotFlightS);
+            RequestCameraReport();
+            _anchorsDirty = true;
+        }
+
+        /// <summary>Reports the anchors now (tests and the editor's Still, which has no frame loop).</summary>
+        public void FlushAnchors()
+        {
+            _anchorsForce = true;
+            UpdateAnchors();
+        }
+
+        /// <summary>
+        /// The anchors the Shell asked for, projected with the camera's view-projection. Sent when asked for, after a raise,
+        /// and (while the camera moves or the canvas changes) when a position has moved by a hundredth of a pixel or more:
+        /// never while nothing changes.
+        /// </summary>
+        private void UpdateAnchors()
+        {
+            if (_anchorIds.Count == 0 || _camera == null) return;
+            int w = _camera.pixelWidth;
+            int h = _camera.pixelHeight;
+            if (w != _anchorCanvasW || h != _anchorCanvasH)
+            {
+                _anchorCanvasW = w;
+                _anchorCanvasH = h;
+                _anchorsDirty = true;
+            }
+            if (!_anchorsDirty && !_anchorsForce) return;
+
+            float scale = PixelScale();
+            float widthCss = w / scale;
+            float heightCss = h / scale;
+            Matrix4x4 vp = _camera.projectionMatrix * _camera.worldToCameraMatrix;
+            var payload = new SceneAnchorsPayload { width = widthCss, height = heightCss, anchors = new List<AnchorEntry>() };
+            foreach (string id in _anchorIds)
+            {
+                var entry = new AnchorEntry { feature_id = id };
+                EraLayer era = FindEraWithFeature(id);
+                Vector3 world;
+                if (era != null && era.TryGetAnchor(id, out world))
+                {
+                    float px, py;
+                    entry.on_screen = AnchorProjection.Project(vp, world, widthCss, heightCss, out px, out py);
+                    entry.x = px;
+                    entry.y = py;
+                }
+                payload.anchors.Add(entry);
+            }
+
+            bool changed = _anchorsForce || !SameAnchors(_lastAnchors, payload);
+            _anchorsForce = false;
+            _anchorsDirty = false;
+            if (!changed) return;
+            _lastAnchors = payload;
+            _bridge.Send(BridgeMessageTypes.SceneAnchors, payload);
+        }
+
+        private static bool SameAnchors(SceneAnchorsPayload a, SceneAnchorsPayload b)
+        {
+            if (a == null || b == null || a.anchors.Count != b.anchors.Count) return false;
+            if (Math.Abs(a.width - b.width) > 0.01 || Math.Abs(a.height - b.height) > 0.01) return false;
+            for (int i = 0; i < a.anchors.Count; i++)
+            {
+                AnchorEntry p = a.anchors[i];
+                AnchorEntry q = b.anchors[i];
+                if (p.feature_id != q.feature_id || p.on_screen != q.on_screen) return false;
+                if (Math.Abs(p.x - q.x) > 0.01 || Math.Abs(p.y - q.y) > 0.01) return false;
+            }
+            return true;
+        }
+
         // ---- Frame loop ----
 
         private void Update()
@@ -798,6 +1081,7 @@ namespace Buried.Scene
             if (!_initialised) return;
 
             TickLightPool();
+            TickRaise(Time.unscaledDeltaTime);
             if (_lantern.Active)
             {
                 _lantern.Tick(Time.unscaledDeltaTime, _reducedMotion);
@@ -817,7 +1101,7 @@ namespace Buried.Scene
                 {
                     EraLayer shown = LayerToPick(up);
                     string featureId;
-                    if (shown != null && _picker.TryPick(_camera, up, shown, out featureId))
+                    if (shown != null && !shown.Held && _picker.TryPick(_camera, up, shown, out featureId))
                     {
                         _bridge.Send(BridgeMessageTypes.FeatureClicked, new FeatureClickedPayload
                         {
@@ -832,16 +1116,23 @@ namespace Buried.Scene
         private void LateUpdate()
         {
             if (!_initialised) return;
-            if (_rig.ConsumeMoved()) _cameraDirty = true;
+            if (_rig.ConsumeMoved())
+            {
+                _cameraDirty = true;
+                _anchorsDirty = true;
+            }
             if (_cameraDirty && Time.unscaledTime - _lastCameraSent >= CameraReportIntervalS)
             {
                 SendCamera();
                 _cameraDirty = false;
             }
+            UpdateAnchors();
         }
 
         private EraLayer ShownLayer()
         {
+            EraLayer raised;
+            if (_raise.Pinned && _raise.EraId != null && _layers.TryGetValue(_raise.EraId, out raised)) return raised;
             foreach (EraLayer layer in _layers.Values)
             {
                 if (layer.Index == _shownIndex) return layer;

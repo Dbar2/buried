@@ -55,6 +55,8 @@ namespace Buried.Scene
         private sealed class ClassGroup
         {
             public readonly string Class;
+            /// <summary>True for land-use areas: hatched sheets, not volumes.</summary>
+            public readonly bool Area;
             public readonly List<MeshChunk> Chunks = new List<MeshChunk>();
             public readonly List<MeshData> EdgeChunks = new List<MeshData>();
             public readonly Material Fill;
@@ -62,11 +64,13 @@ namespace Buried.Scene
             private MeshChunk _chunk;
             private MeshData _edgeChunk;
 
-            public ClassGroup(string cls, GhostMaterials materials, string name)
+            public ClassGroup(string cls, GhostMaterials materials, string name, bool area)
             {
                 Class = cls;
-                Fill = new Material(materials.FillOf(cls)) { name = materials.FillOf(cls).name + " " + name };
-                Material edge = materials.EdgeOf(cls);
+                Area = area;
+                Material fill = area ? materials.AreaFillOf(cls) : materials.FillOf(cls);
+                Fill = new Material(fill) { name = fill.name + " " + name };
+                Material edge = area ? materials.AreaEdgeOf(cls) : materials.EdgeOf(cls);
                 if (edge != null) Edge = new Material(edge) { name = edge.name + " " + name };
             }
 
@@ -146,13 +150,40 @@ namespace Buried.Scene
             _materials = materials;
             var groups = new Dictionary<string, ClassGroup>();
             FeatureCount += Build(features, frame, groups, EraId, onFailure, false);
-            foreach (string cls in GhostMaterials.Classes)
+            foreach (string key in GroupKeys)
             {
                 ClassGroup group;
-                if (!groups.TryGetValue(cls, out group)) continue;
+                if (!groups.TryGetValue(key, out group)) continue;
                 _groups.Add(group);
                 AddRenderers(group, "");
             }
+        }
+
+        /// <summary>The key of a group: the confidence class, with a prefix for land-use areas (which draw with other materials).</summary>
+        private static string KeyOf(string cls, bool area)
+        {
+            return area ? AreaKeyPrefix + cls : cls;
+        }
+
+        private const string AreaKeyPrefix = "area ";
+
+        /// <summary>Every group key in draw order: the buildings' classes, then the areas'.</summary>
+        private static IEnumerable<string> GroupKeys
+        {
+            get
+            {
+                foreach (string cls in GhostMaterials.Classes) yield return KeyOf(cls, false);
+                foreach (string cls in GhostMaterials.Classes) yield return KeyOf(cls, true);
+            }
+        }
+
+        /// <summary>
+        /// The height a feature is built to. A land-use area is a flat sheet whatever height it was sent
+        /// (<see cref="Buried.Look.LookSettings.AreaHeightM"/>): nothing of it rises.
+        /// </summary>
+        private static float HeightOf(SceneFeatureDto feature)
+        {
+            return feature.kind == SceneFeatureDto.KindLandUse ? Buried.Look.LookSettings.AreaHeightM : (float)feature.heightM;
         }
 
         /// <summary>Builds the features into per-class groups. Returns how many were drawn.</summary>
@@ -167,7 +198,8 @@ namespace Buried.Scene
             int added = 0;
             foreach (SceneFeatureDto feature in features)
             {
-                if (feature.kind != SceneFeatureDto.KindBuilding) continue;
+                bool area = feature.kind == SceneFeatureDto.KindLandUse;
+                if (feature.kind != SceneFeatureDto.KindBuilding && !area) continue;
                 if (skipKnownIds && _ids.Contains(feature.id))
                 {
                     onFailure(feature.id, "the era already draws this feature");
@@ -177,12 +209,12 @@ namespace Buried.Scene
                 string cls = GhostMaterials.ClassOf(feature.confidence);
                 var options = FootprintBuilder.Options.Default;
                 options.Outline = GhostMaterials.HasOutline(cls);
-                options.Storeys = feature.storeys; // 0 when none is recorded: no storey lines, and no count is invented
+                options.Storeys = area ? 0 : feature.storeys; // 0 when none is recorded: no storey lines, and no count is invented
 
                 FootprintBuilder.Result built;
                 try
                 {
-                    built = FootprintBuilder.Build(feature.geometry, (float)feature.heightM, frame, options);
+                    built = FootprintBuilder.Build(feature.geometry, HeightOf(feature), frame, options);
                 }
                 catch (InvalidOperationException e)
                 {
@@ -196,11 +228,17 @@ namespace Buried.Scene
                 }
 
                 ClassGroup group;
-                if (!groups.TryGetValue(cls, out group))
+                string key = KeyOf(cls, area);
+                if (!groups.TryGetValue(key, out group))
                 {
-                    group = new ClassGroup(cls, _materials, groupName);
-                    groups[cls] = group;
+                    group = new ClassGroup(cls, _materials, groupName, area);
+                    groups[key] = group;
                 }
+                // The centre of the footprint, on every vertex of the feature (second UV): the raise staggers by it.
+                Vector2 centre = built.Fill.BoxCentreXZ();
+                built.Fill.SetUv2ForAll(centre);
+                built.Edges.SetUv2ForAll(centre);
+                _centres[feature.id] = centre;
                 group.Add(feature.id, built);
                 _ids.Add(feature.id);
                 _features[feature.id] = feature;
@@ -212,17 +250,19 @@ namespace Buried.Scene
         private void AddRenderers(ClassGroup group, string prefix)
         {
             SetLensMode(group);
+            string fillName = group.Area ? "Areas " : "Ghosts ";
+            string edgeName = group.Area ? "Area edges " : "Edges ";
             int n = 0;
             foreach (MeshChunk c in group.Chunks)
             {
-                MeshFilter filter = AddRenderer(prefix + "Ghosts " + group.Class + " " + n, c.BuildMesh("Ghosts " + EraId + " " + group.Class + " " + n), group.Fill);
+                MeshFilter filter = AddRenderer(prefix + fillName + group.Class + " " + n, c.BuildMesh(fillName + EraId + " " + group.Class + " " + n), group.Fill);
                 _chunkFilters[c] = filter;
                 n++;
             }
             n = 0;
             foreach (MeshData e in group.EdgeChunks)
             {
-                AddRenderer(prefix + "Edges " + group.Class + " " + n, e.ToMesh("Edges " + EraId + " " + group.Class + " " + n), group.Edge);
+                AddRenderer(prefix + edgeName + group.Class + " " + n, e.ToMesh(edgeName + EraId + " " + group.Class + " " + n), group.Edge);
                 n++;
             }
         }
@@ -247,15 +287,16 @@ namespace Buried.Scene
                 return 0;
             }
 
-            foreach (string cls in GhostMaterials.Classes)
+            foreach (string key in GroupKeys)
             {
                 ClassGroup group;
-                if (!groups.TryGetValue(cls, out group)) continue;
+                if (!groups.TryGetValue(key, out group)) continue;
                 batch.Groups.Add(group);
                 AddRenderers(group, "Added ");
             }
             _batches.Add(batch);
             FeatureCount += added;
+            if (Held) ApplyRaise(true, Vector2.zero, -1f, 0f);
             ApplyBatch(batch);
             return added;
         }
@@ -331,12 +372,204 @@ namespace Buried.Scene
             }
             foreach (DrapeLayer drape in _drapes) drape.SetLensMode(mode);
             if (_evidenceFill != null) LensMaterial.SetMode(_evidenceFill, mode);
+            if (_selectedFill != null)
+            {
+                LensMaterial.SetMode(_selectedFill, mode);
+                LensMaterial.SetMode(_selectedEdge, mode);
+            }
         }
 
         private void SetLensMode(ClassGroup group)
         {
             LensMaterial.SetMode(group.Fill, _lensMode);
             LensMaterial.SetMode(group.Edge, _lensMode);
+        }
+
+        // ---- Raise the past (bridge 0.8.0) ----
+
+        /// <summary>
+        /// True while the era is held for the first visit's landing: its ghosts are held down (not drawn and not clickable)
+        /// and its sheet is drawn dim, until scene/raise.
+        /// </summary>
+        public bool Held { get; private set; }
+
+        /// <summary>True from the start of a raise until it has settled: the ghosts stand up on their own clocks.</summary>
+        public bool Raising { get; private set; }
+
+        private readonly Dictionary<string, Vector2> _centres = new Dictionary<string, Vector2>();
+
+        /// <summary>The centre of a feature's footprint on the ground, in scene metres (x east, y north), if the era draws it.</summary>
+        public bool TryGetCentre(string featureId, out Vector2 centre)
+        {
+            return _centres.TryGetValue(featureId, out centre);
+        }
+
+        /// <summary>The centre of every feature this era draws (ghosts and areas), by id.</summary>
+        public IDictionary<string, Vector2> Centres
+        {
+            get { return _centres; }
+        }
+
+        /// <summary>The ground point the stagger starts from: the first find's centre, or the middle of the era's features when it has none.</summary>
+        public Vector2 RaiseOrigin(string firstFeatureId)
+        {
+            Vector2 centre;
+            if (firstFeatureId != null && _centres.TryGetValue(firstFeatureId, out centre)) return centre;
+            if (_centres.Count == 0) return Vector2.zero;
+            Vector2 sum = Vector2.zero;
+            foreach (Vector2 c in _centres.Values) sum += c;
+            return sum / _centres.Count;
+        }
+
+        /// <summary>The landing look: every ghost of this era is held down until <see cref="BeginRaise"/>.</summary>
+        public void Hold()
+        {
+            Held = true;
+            Raising = false;
+            ApplyRaise(true, Vector2.zero, -1f, 0f);
+            ApplySelection();
+        }
+
+        /// <summary>Starts the raise from the first find's centre. The clock is then set with <see cref="SetRaiseClock"/>.</summary>
+        public void BeginRaise(string firstFeatureId)
+        {
+            Held = false;
+            Raising = true;
+            _raiseOrigin = RaiseOrigin(firstFeatureId);
+            _raiseFarthest = RaiseSchedule.Farthest(_centres.Values, _raiseOrigin);
+            ApplyRaise(true, _raiseOrigin, 0f, _raiseFarthest);
+            ApplySelection();
+        }
+
+        private Vector2 _raiseOrigin;
+        private float _raiseFarthest;
+
+        /// <summary>Seconds since the raise started: each ghost is as far up as its own start says.</summary>
+        public void SetRaiseClock(float clockS)
+        {
+            if (Raising) ApplyRaise(true, _raiseOrigin, clockS, _raiseFarthest);
+        }
+
+        /// <summary>The raise has settled: every ghost is at full height and the shaders stop reading the clock.</summary>
+        public void EndRaise()
+        {
+            Held = false;
+            Raising = false;
+            ApplyRaise(false, Vector2.zero, -1f, 0f);
+            ApplySelection();
+        }
+
+        private void ApplyRaise(bool on, Vector2 origin, float clock, float farthest)
+        {
+            var parameters = new Vector4(origin.x, origin.y, clock, farthest);
+            foreach (ClassGroup group in AllGroups())
+            {
+                foreach (Material material in new[] { group.Fill, group.Edge })
+                {
+                    if (material == null) continue;
+                    material.SetFloat("_RaiseOn", on ? 1f : 0f);
+                    material.SetVector("_RaiseParams", parameters);
+                }
+            }
+        }
+
+        /// <summary>The height of a feature's volume (the anchor's y), or 0 for a land-use area, which is flat on the ground.</summary>
+        public bool TryGetAnchor(string featureId, out Vector3 world)
+        {
+            world = Vector3.zero;
+            SceneFeatureDto feature;
+            Vector2 centre;
+            if (!_features.TryGetValue(featureId, out feature) || !_centres.TryGetValue(featureId, out centre)) return false;
+            world = new Vector3(centre.x, feature.kind == SceneFeatureDto.KindLandUse ? 0f : HeightOf(feature), centre.y);
+            return true;
+        }
+
+        // ---- Selection (bridge 0.8.0, scene/selectFeature) ----
+
+        private string _selectedId;
+        private Material _selectedFill;
+        private Material _selectedEdge;
+        private Mesh _selectedFillMesh;
+        private Mesh _selectedEdgeMesh;
+        private GameObject _selectedObject;
+
+        /// <summary>The id of the selected feature of this era, or null.</summary>
+        public string SelectedId
+        {
+            get { return _selectedId; }
+        }
+
+        /// <summary>
+        /// Draws the feature selected: its edges again in `lantern`, thicker and with a faint emission, and a faint `lantern`
+        /// tint over its volume. A land-use area gets the same on the ground. The overlay waits (is not drawn) while the
+        /// era is held or being raised. Returns false when the era does not draw the feature or it cannot be built.
+        /// </summary>
+        public bool SetSelected(string featureId, ProjectFrame frame)
+        {
+            ClearSelected();
+            SceneFeatureDto feature;
+            if (!_features.TryGetValue(featureId, out feature) || _materials == null) return false;
+
+            var options = FootprintBuilder.Options.Default;
+            options.Outline = true;
+            options.Storeys = feature.kind == SceneFeatureDto.KindLandUse ? 0 : feature.storeys;
+            FootprintBuilder.Result built = FootprintBuilder.Build(feature.geometry, HeightOf(feature), frame, options);
+            if (built == null) return false;
+
+            _selectedId = featureId;
+            _selectedObject = new GameObject("Selected " + featureId);
+            _selectedObject.transform.SetParent(_root.transform, false);
+            _selectedFill = new Material(_materials.SelectedFill) { name = "Selected fill" };
+            _selectedEdge = new Material(_materials.SelectedEdge) { name = "Selected edge" };
+            _selectedFillMesh = built.Fill.ToMesh("Selected fill " + featureId);
+            _selectedEdgeMesh = built.Edges.ToMesh("Selected edges " + featureId);
+            AddSelectedRenderer("Fill", _selectedFillMesh, _selectedFill);
+            AddSelectedRenderer("Edges", _selectedEdgeMesh, _selectedEdge);
+            LensMaterial.SetMode(_selectedFill, _lensMode);
+            LensMaterial.SetMode(_selectedEdge, _lensMode);
+            ApplySelection();
+            return true;
+        }
+
+        private void AddSelectedRenderer(string name, Mesh mesh, Material material)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(_selectedObject.transform, false);
+            go.AddComponent<MeshFilter>().sharedMesh = mesh;
+            MeshRenderer renderer = go.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+        }
+
+        /// <summary>Takes the selection off.</summary>
+        public void ClearSelected()
+        {
+            if (_selectedId == null) return;
+            SceneObjects.Destroy(_selectedFillMesh);
+            SceneObjects.Destroy(_selectedEdgeMesh);
+            SceneObjects.Destroy(_selectedFill);
+            SceneObjects.Destroy(_selectedEdge);
+            SceneObjects.Destroy(_selectedObject);
+            _selectedId = null;
+            _selectedFill = null;
+            _selectedEdge = null;
+            _selectedFillMesh = null;
+            _selectedEdgeMesh = null;
+            _selectedObject = null;
+        }
+
+        /// <summary>The overlay follows the era's weight and rise, and waits while the era is held or rising.</summary>
+        private void ApplySelection()
+        {
+            if (_selectedId == null) return;
+            _selectedObject.SetActive(!Held && !Raising);
+            float alpha = DepthBlend.GhostAlpha(Weight);
+            float rise = DepthBlend.Rise(Weight, _reducedMotion);
+            _selectedFill.SetFloat("_Weight", alpha);
+            _selectedFill.SetFloat("_Rise", rise);
+            _selectedEdge.SetFloat("_Alpha", alpha);
+            _selectedEdge.SetFloat("_Rise", rise);
         }
 
         // ---- Show Evidence ----
@@ -400,7 +633,7 @@ namespace Buried.Scene
 
             var options = FootprintBuilder.Options.Default;
             options.Outline = false;
-            FootprintBuilder.Result built = FootprintBuilder.Build(feature.geometry, (float)feature.heightM, frame, options);
+            FootprintBuilder.Result built = FootprintBuilder.Build(feature.geometry, HeightOf(feature), frame, options);
             if (built == null) return false;
 
             _evidenceId = featureId;
@@ -490,6 +723,7 @@ namespace Buried.Scene
             _reducedMotion = reducedMotion;
             foreach (AddedBatch batch in _batches) ApplyBatch(batch);
             FollowEvidenceGroup();
+            ApplySelection();
         }
 
         public bool Raycast(Ray ray, out float distance, out string featureId)
@@ -520,6 +754,7 @@ namespace Buried.Scene
 
         public void Dispose()
         {
+            ClearSelected();
             ClearEvidence();
             foreach (DrapeLayer drape in _drapes) drape.Dispose();
             _drapes.Clear();

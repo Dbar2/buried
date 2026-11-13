@@ -5,7 +5,7 @@
     "features": [
       {
         "id": "wtr_13k9_51_7673",
-        "kind": "water",
+        "kind": "land_use",
         "geometry": {
           "type": "Polygon",
           "coordinates": [
@@ -190,6 +190,7 @@
           ]
         }
       }
-    ]
+    ],
+    "held": true
   }
 }

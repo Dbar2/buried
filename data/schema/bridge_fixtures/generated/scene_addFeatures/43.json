@@ -86,7 +86,7 @@
       },
       {
         "id": "wtr_60dwya_w_0990",
-        "kind": "building",
+        "kind": "water",
         "geometry": {
           "type": "Polygon",
           "coordinates": [
@@ -123,7 +123,7 @@
       },
       {
         "id": "wtr_6i2o_64_t6il_24v6_6865",
-        "kind": "water",
+        "kind": "land_use",
         "geometry": {
           "type": "Polygon",
           "coordinates": [
@@ -183,7 +183,7 @@
       },
       {
         "id": "bld_u_tgqt8_t74_089lm5_1268",
-        "kind": "water",
+        "kind": "land_use",
         "geometry": {
           "type": "MultiPolygon",
           "coordinates": [

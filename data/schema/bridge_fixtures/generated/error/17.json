@@ -3,6 +3,6 @@
   "payload": {
     "code": "bridge_version_mismatch",
     "message": "*\"C5{|97",
-    "messageType": "scene/setLantern"
+    "messageType": "scene/anchors"
   }
 }

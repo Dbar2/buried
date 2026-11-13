@@ -35,7 +35,7 @@
       },
       {
         "id": "bld_pdf5_2387",
-        "kind": "building",
+        "kind": "land_use",
         "geometry": {
           "type": "Polygon",
           "coordinates": [
@@ -69,7 +69,7 @@
       },
       {
         "id": "use_js93zw_i047_5p_o_2660",
-        "kind": "building",
+        "kind": "water",
         "geometry": {
           "type": "Polygon",
           "coordinates": [
@@ -189,6 +189,7 @@
         },
         "kind": "aerial"
       }
-    ]
+    ],
+    "held": true
   }
 }

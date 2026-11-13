@@ -1,0 +1,15 @@
+{
+  "type": "scene/anchors",
+  "payload": {
+    "width": 15831.621,
+    "height": 5802.257,
+    "anchors": [
+      {
+        "feature_id": "bld_913k9_73p580_3187",
+        "x": -99999.974,
+        "y": 99333.956,
+        "on_screen": false
+      }
+    ]
+  }
+}

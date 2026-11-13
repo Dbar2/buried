@@ -5,7 +5,7 @@
     "features": [
       {
         "id": "wtr_y_d660_5343",
-        "kind": "building",
+        "kind": "land_use",
         "geometry": {
           "type": "MultiPolygon",
           "coordinates": [
@@ -99,7 +99,7 @@
       },
       {
         "id": "use_mkp3c4_ol84_w7f2s_j7_4131",
-        "kind": "building",
+        "kind": "land_use",
         "geometry": {
           "type": "Polygon",
           "coordinates": [
@@ -158,7 +158,7 @@
       },
       {
         "id": "use_02tg66_75i_3838",
-        "kind": "water",
+        "kind": "building",
         "geometry": {
           "type": "MultiPolygon",
           "coordinates": [
@@ -193,6 +193,7 @@
         "storeys": 97
       }
     ],
-    "drapes": []
+    "drapes": [],
+    "held": true
   }
 }

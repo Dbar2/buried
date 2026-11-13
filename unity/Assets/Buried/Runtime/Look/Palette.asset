@@ -12,27 +12,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8924cf4349a64fa99bd270ba6ad30b3, type: 3}
   m_Name: Palette
   m_EditorClassIdentifier: Buried.Runtime::Buried.Look.BuriedPalette
-  night:
+  soot:
     serializedVersion: 2
-    rgba: 4279636238
-  fog:
+    rgba: 4279572242
+  haze:
     serializedVersion: 2
-    rgba: 4280885531
-  present:
+    rgba: 4280428063
+  block:
     serializedVersion: 2
-    rgba: 4282529582
+    rgba: 4281151787
+  parchment:
+    serializedVersion: 2
+    rgba: 4290895080
+  parchmentDim:
+    serializedVersion: 2
+    rgba: 4287274921
   ink:
     serializedVersion: 2
-    rgba: 4291354600
+    rgba: 4280230435
+  inkSoft:
+    serializedVersion: 2
+    rgba: 4283060823
+  rule:
+    serializedVersion: 2
+    rgba: 4284773242
+  copper:
+    serializedVersion: 2
+    rgba: 4285956973
   lantern:
     serializedVersion: 2
-    rgba: 4282492402
+    rgba: 4283147228
   water:
     serializedVersion: 2
     rgba: 4289966943
-  text:
-    serializedVersion: 2
-    rgba: 4293126893
-  muted:
-    serializedVersion: 2
-    rgba: 4289569690

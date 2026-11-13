@@ -1,0 +1,6 @@
+{
+  "type": "scene/selectFeature",
+  "payload": {
+    "feature_id": "wtr_0i55_0000"
+  }
+}

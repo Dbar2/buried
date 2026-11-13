@@ -1,0 +1,33 @@
+{
+  "type": "scene/anchors",
+  "payload": {
+    "width": 15547.034,
+    "height": 0.015,
+    "anchors": [
+      {
+        "feature_id": "use_m923a_p81_ncc_z0q6_9035",
+        "x": 0.015,
+        "y": -45919.546,
+        "on_screen": true
+      },
+      {
+        "feature_id": "use_69g_b_0007",
+        "x": 6392.495,
+        "y": -99999.994,
+        "on_screen": true
+      },
+      {
+        "feature_id": "wtr_3t3wdq_0009",
+        "x": -0.002,
+        "y": 99999.998,
+        "on_screen": false
+      },
+      {
+        "feature_id": "bld_z1jd_9993",
+        "x": 12914.973,
+        "y": 13803.146,
+        "on_screen": true
+      }
+    ]
+  }
+}

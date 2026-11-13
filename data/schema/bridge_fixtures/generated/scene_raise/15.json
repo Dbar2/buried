@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "kz_wsi08_b88p",
+    "first_feature_id": "bld_a401_1f9ux2_o_1574",
+    "animate": true
+  }
+}

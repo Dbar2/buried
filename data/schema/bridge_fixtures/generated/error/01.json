@@ -3,6 +3,6 @@
   "payload": {
     "code": "bounds_too_far",
     "message": "call",
-    "messageType": "scene/addFeatures"
+    "messageType": "cameraChanged"
   }
 }

@@ -76,6 +76,18 @@ export function lanternLabel(sources: SourceIndex, drapesInLens: readonly Pick<D
   return source ? `Lantern: ${plainSourceName(source).replace(/^the /, '')}` : 'Lantern';
 }
 
+/**
+ * The one line of help shown the first time the Lantern control is on screen (session 034). It names the keys and the
+ * touch gesture, and what is inside the circle in plain words ("the 1931-35 plan"); with no drape to name it says
+ * "an older view".
+ */
+export function lanternHelp(sources: SourceIndex, drapesInLens: readonly Pick<Drape, 'sourceId'>[]): string {
+  const first = drapesInLens[0];
+  const source = first ? sources.get(first.sourceId) : undefined;
+  const inside = source ? plainSourceName(source) : 'an older view';
+  return `Hold Space or press L (on a touch screen, press and hold) to see ${inside} inside a circle.`;
+}
+
 export function buildSetLantern(command: LensCommand): MessageOf<'scene/setLantern'> {
   return {
     type: 'scene/setLantern',

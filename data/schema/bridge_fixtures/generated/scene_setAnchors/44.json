@@ -1,0 +1,6 @@
+{
+  "type": "scene/setAnchors",
+  "payload": {
+    "feature_ids": []
+  }
+}

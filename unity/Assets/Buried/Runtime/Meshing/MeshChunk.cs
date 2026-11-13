@@ -75,6 +75,7 @@ namespace Buried.Meshing
             copy.normals.AddRange(_data.normals);
             copy.uvs.AddRange(_data.uvs);
             copy.tangents.AddRange(_data.tangents);
+            copy.uvs2.AddRange(_data.uvs2);
             foreach (Range r in _ranges)
             {
                 if (r.FeatureId == featureId) continue;

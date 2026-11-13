@@ -5,8 +5,8 @@ import { fetchBuildFiles, startUnity } from '../bridge/unityLoader';
 import type { UnityInstance } from '../bridge/unityLoader';
 import type { GateModel } from './gateModel';
 import type { CameraPose } from './cameraPose';
-import { buildAddFeatures, buildLoadEra, buildMarkers, buildSceneInit, buildSetCamera, buildSetDepth } from './gateScene';
-import { buildClearLot, buildFocusLot, buildSetDrapeMode } from './pinnedLot';
+import { buildAddFeatures, buildLoadEra, buildMarkers, buildSceneInit, buildSetCamera, buildSetDepth, listForPlayer } from './gateScene';
+import { buildClearLot, buildFocusLot, buildSetDrapeMode, unpinOnLeave } from './pinnedLot';
 import type { LotPolygon } from './pinnedLot';
 import { buildSetLantern, buildShowEvidence } from './lantern';
 import type { EvidenceCommand, LensCommand } from './lantern';
@@ -45,6 +45,11 @@ export type UnityViewProps = {
   evidence: EvidenceCommand | null;
   /** "View original scan": `original` shows the untouched rasters; `lit` is the default look. */
   drapeMode: 'lit' | 'original';
+  /**
+   * False leaves the land-use areas out of what the Player is sent (`?areas=0`, read when the Explorer mounts: the place
+   * page rewrites its address as the era changes, so the query is not there later). A debug aid for tests.
+   */
+  areas: boolean;
   onPlayerState: (state: PlayerState) => void;
   onFeatureClicked: (featureId: string, eraId: string) => void;
   /** The Player cannot be used; the reason is fit to show. */
@@ -71,6 +76,8 @@ export default function UnityView(props: UnityViewProps) {
   const latest = useRef(props);
   latest.current = props;
   const [running, setRunning] = useState(false);
+  // Whether a lot is pinned in the Player (scene/focusLot sent, scene/clearLot not yet).
+  const pinned = useRef(false);
 
   const update = useCallback((change: (previous: PlayerState) => PlayerState) => {
     stateRef.current = change(stateRef.current);
@@ -133,6 +140,8 @@ export default function UnityView(props: UnityViewProps) {
           void instance.Quit().catch(() => {});
           return;
         }
+        // ?areas=0 leaves the land-use areas out, so a test can compare the scene with and without them.
+        const areasWanted = latest.current.areas;
         bridge.attach(instance);
 
         await ready.promise;
@@ -147,8 +156,9 @@ export default function UnityView(props: UnityViewProps) {
         for (const era of model.order) {
           const done = deferred();
           loaded.set(era.id, done);
-          const list = model.lists.get(era.id);
-          if (!list) throw new Error(`no Era list for ${era.id}`);
+          const eraList = model.lists.get(era.id);
+          if (!eraList) throw new Error(`no Era list for ${era.id}`);
+          const list = listForPlayer(eraList, areasWanted);
           bridge.send(buildLoadEra(era, list, model.drapes.get(era.id) ?? [], latest.current.risingIds));
           await done.promise;
           if (disposed) return;
@@ -166,7 +176,7 @@ export default function UnityView(props: UnityViewProps) {
         const rose: string[] = [];
         for (const era of model.order) {
           const list = model.lists.get(era.id);
-          const add = list ? buildAddFeatures(era, list, latest.current.risingIds) : null;
+          const add = list ? buildAddFeatures(era, listForPlayer(list, areasWanted), latest.current.risingIds) : null;
           if (!add) continue;
           bridge.send(add);
           rose.push(...add.payload.features.map((f) => f.id));
@@ -184,6 +194,8 @@ export default function UnityView(props: UnityViewProps) {
     return () => {
       disposed = true;
       clearTimeout(timer);
+      // Leaving the page: the lot is unpinned before the Player goes.
+      unpinOnLeave(pinned, (message) => bridge.send(message));
       bridge.dispose();
       bridgeRef.current = null;
       if (instance) void instance.Quit().catch(() => {});
@@ -198,7 +210,6 @@ export default function UnityView(props: UnityViewProps) {
 
   const { cameraCommand, lot } = props;
   // The pinned lot (bridge 0.5.0): sent once the Player is running, and cleared again if the page drops it.
-  const pinned = useRef(false);
   useEffect(() => {
     if (!running) return;
     if (lot) {

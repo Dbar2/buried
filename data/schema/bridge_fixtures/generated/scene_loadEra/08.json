@@ -5,7 +5,7 @@
     "features": [
       {
         "id": "wtr_w0hg_9332",
-        "kind": "water",
+        "kind": "building",
         "geometry": {
           "type": "Polygon",
           "coordinates": [
@@ -95,6 +95,7 @@
         },
         "kind": "plate"
       }
-    ]
+    ],
+    "held": true
   }
 }

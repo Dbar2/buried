@@ -26,7 +26,7 @@ namespace Buried.Scene
             _material.SetFloat("_Emission", 1f);
             _material.SetFloat("_WidthPx", LookSettings.LensRimWidthCssPx);
             _material.SetFloat("_PixelScale", pixelScale);
-            _material.SetColor("_GlowColor", palette.night);
+            _material.SetColor("_GlowColor", palette.parchment);
             _material.SetFloat("_GlowPx", 1f);
             _material.SetFloat("_GlowAlpha", 1f);
             _material.SetFloat("_GlowMix", 1f);

@@ -5,7 +5,7 @@
     "features": [
       {
         "id": "wtr_q73_4894",
-        "kind": "building",
+        "kind": "land_use",
         "geometry": {
           "type": "Polygon",
           "coordinates": [
@@ -34,6 +34,7 @@
         "storeys": 43
       }
     ],
-    "drapes": []
+    "drapes": [],
+    "held": true
   }
 }

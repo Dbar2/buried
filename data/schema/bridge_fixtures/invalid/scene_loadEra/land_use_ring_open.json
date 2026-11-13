@@ -1,0 +1,19 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "1911",
+    "features": [
+      {
+        "id": "use_fip_v3_1911_229_0001",
+        "kind": "land_use",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[[632460, 4834970], [632490, 4834970], [632490, 4834992], [632460, 4834992], [632460, 4834971]]]
+        },
+        "confidence": "documented",
+        "heightM": 0.05
+      }
+    ],
+    "drapes": []
+  }
+}

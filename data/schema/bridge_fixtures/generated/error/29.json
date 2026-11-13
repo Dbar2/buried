@@ -3,6 +3,6 @@
   "payload": {
     "code": "unknown_type",
     "message": "QototyAzY",
-    "messageType": "debug/setCamera"
+    "messageType": "scene/addFeatures"
   }
 }

@@ -75,6 +75,12 @@ export async function canvasPng(page: Page): Promise<PNG> {
   return PNG.sync.read(await page.getByTestId('unity-canvas').screenshot());
 }
 
+/** The scene alone: DOM over the canvas (the gauge, the controls, the hint, the list) is hidden while the picture is taken. */
+export async function sceneOnlyPng(page: Page): Promise<PNG> {
+  const bytes = await page.getByTestId('unity-canvas').screenshot({ style: '.view > *:not(canvas) { visibility: hidden !important; }' });
+  return PNG.sync.read(bytes);
+}
+
 export async function freshPage(browser: Browser): Promise<{ page: Page; close: () => Promise<void> }> {
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 });
   const page = await context.newPage();

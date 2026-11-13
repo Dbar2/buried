@@ -78,6 +78,7 @@ const sceneFeatureArb = fc
   .tuple(
     fc.oneof(
       fc.record({ id: featureIdArb, kind: fc.constant('building'), geometry: polygonalGeometry, confidence: confidenceArb, heightM: heightArb }),
+      fc.record({ id: featureIdArb, kind: fc.constant('land_use'), geometry: polygonalGeometry, confidence: confidenceArb, heightM: heightArb }),
       fc.record({ id: featureIdArb, kind: fc.constant('water'), geometry: anyGeometry, confidence: confidenceArb, heightM: heightArb }),
     ),
     storeysArb,
@@ -146,11 +147,16 @@ export const messageArbitraries: Readonly<Record<MessageType, Arb<BridgeMessage>
   ),
   'scene/loadEra': message(
     'scene/loadEra',
-    fc.record({
-      eraId: eraIdArb,
-      features: fc.uniqueArray(sceneFeatureArb, { selector: (f) => f.id, maxLength: 4 }),
-      drapes: fc.uniqueArray(drapeArb, { selector: (d) => d.sourceId, maxLength: 2 }),
-    }),
+    fc
+      .tuple(
+        fc.record({
+          eraId: eraIdArb,
+          features: fc.uniqueArray(sceneFeatureArb, { selector: (f) => f.id, maxLength: 4 }),
+          drapes: fc.uniqueArray(drapeArb, { selector: (d) => d.sourceId, maxLength: 2 }),
+        }),
+        fc.option(fc.constant(true), { nil: undefined }),
+      )
+      .map(([payload, held]) => (held === undefined ? payload : { ...payload, held })),
   ),
   'scene/addFeatures': message(
     'scene/addFeatures',
@@ -183,6 +189,31 @@ export const messageArbitraries: Readonly<Record<MessageType, Arb<BridgeMessage>
       fc.record({ featureId: featureIdArb, on: fc.constant(true), drape: drapeArb }),
       fc.record({ featureId: featureIdArb, on: fc.constant(false) }),
     ),
+  ),
+  'scene/setAnchors': message(
+    'scene/setAnchors',
+    fc.record({ feature_ids: fc.uniqueArray(featureIdArb, { maxLength: 5 }) }),
+  ),
+  'scene/anchors': message(
+    'scene/anchors',
+    fc.record({
+      width: milli(0.001, 16384),
+      height: milli(0.001, 16384),
+      anchors: fc.uniqueArray(
+        fc.record({ feature_id: featureIdArb, x: milli(-100000, 100000), y: milli(-100000, 100000), on_screen: fc.boolean() }),
+        { selector: (a) => a.feature_id, maxLength: 5 },
+      ),
+    }),
+  ),
+  'scene/raise': message(
+    'scene/raise',
+    fc.record({ era_id: eraIdArb, first_feature_id: featureIdArb, animate: fc.boolean() }),
+  ),
+  'scene/raised': message('scene/raised', fc.record({ era_id: eraIdArb })),
+  'scene/frameFeature': message('scene/frameFeature', fc.record({ feature_id: featureIdArb })),
+  'scene/selectFeature': message(
+    'scene/selectFeature',
+    fc.option(featureIdArb, { nil: undefined }).map((id) => (id === undefined ? {} : { feature_id: id })),
   ),
   'debug/markers': message(
     'debug/markers',

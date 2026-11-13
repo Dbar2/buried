@@ -29,6 +29,10 @@ Shader "Buried/Edge"
         _DashPeriodPx ("Dash period, least (CSS px)", Float) = 11
         _DashOn ("Dash share of its period", Range(0.05, 0.95)) = 0.55
         [HideInInspector] _LensMode ("Lantern lens: 0 everywhere, 1 inside, 2 outside", Float) = 0
+        [HideInInspector] _RaiseOn ("Raise the past drives this line (0 or 1)", Float) = 0
+        [HideInInspector] _RaiseParams ("Raise: first find x, z, clock (s), farthest (m)", Vector) = (0, 0, -1, 0)
+        _Sink ("Sink toward a plinth (0 full height, 1 plinth)", Range(0, 1)) = 0
+        _PlinthM ("Plinth height (m)", Float) = 1
         [HideInInspector] _ZTest ("Z test", Float) = 4
         _Fogged ("Distance fog applies (1) or not (0)", Range(0, 1)) = 1
     }
@@ -68,6 +72,10 @@ Shader "Buried/Edge"
                 half _DashOn;
                 half _Fogged;
                 half _LensMode;
+                half _RaiseOn;
+                float4 _RaiseParams;
+                half _Sink;
+                float _PlinthM;
             CBUFFER_END
 
             struct Attributes
@@ -75,6 +83,7 @@ Shader "Buried/Edge"
                 float4 positionOS : POSITION;
                 float4 other : TANGENT;
                 float2 uv : TEXCOORD0;
+                float2 centre : TEXCOORD1;
             };
 
             struct Varyings
@@ -83,6 +92,7 @@ Shader "Buried/Edge"
                 float across : TEXCOORD0;
                 float transmission : TEXCOORD1;
                 float dashPhase : TEXCOORD2;
+                float raiseAlpha : TEXCOORD3;
             };
 
             Varyings vert(Attributes input)
@@ -91,8 +101,20 @@ Shader "Buried/Edge"
                 float3 hereOS = input.positionOS.xyz;
                 float3 thereOS = input.other.xyz;
                 float dashCoordinate = input.uv.x + hereOS.y; // before the rise: a corner dashes as it grows
-                hereOS.y *= _Rise; // ghosts rise from the ground (requirement 10.5); 1 for everything else
-                thereOS.y *= _Rise;
+                float raiseRise = 1.0;
+                output.raiseAlpha = 1.0;
+                if (_RaiseOn > 0.5)
+                {
+                    // Raise the past: the edges lead the fill (RaiseSchedule.EdgeAlpha) and grow from the ground.
+                    float p = BuriedRaiseProgress(input.centre, _RaiseParams);
+                    raiseRise = BuriedSmooth(p);
+                    output.raiseAlpha = BuriedSmooth(p / 0.5);
+                }
+                // Today's buildings sink toward a plinth: every height above _PlinthM is pulled down to it.
+                hereOS.y = lerp(hereOS.y, min(hereOS.y, _PlinthM), _Sink);
+                thereOS.y = lerp(thereOS.y, min(thereOS.y, _PlinthM), _Sink);
+                hereOS.y *= _Rise * raiseRise; // ghosts rise from the ground (requirement 10.5); 1 for everything else
+                thereOS.y *= _Rise * raiseRise;
                 float3 here = TransformObjectToWorld(hereOS);
                 float3 there = TransformObjectToWorld(thereOS);
                 float4 clipHere = TransformWorldToHClip(here);
@@ -138,7 +160,7 @@ Shader "Buried/Edge"
                 // 1 to 2 px ring stays visible instead of fading away across its width.
                 float casing = saturate(core + _GlowPx * _PixelScale - a + 0.5) * _GlowAlpha;
                 glowAlpha = lerp(glowAlpha, casing, step(0.5, _GlowMix));
-                float alpha = max(coreAlpha, glowAlpha) * _Alpha;
+                float alpha = max(coreAlpha, glowAlpha) * _Alpha * input.raiseAlpha;
                 half3 rgb = _Color.rgb * _Emission;
                 // The glow ring can take its own colour (_GlowMix 1): a ghost's `night` casing keeps its
                 // `ink` line readable over a pale draped plate. Nothing else sets it, so 0 is the old look.

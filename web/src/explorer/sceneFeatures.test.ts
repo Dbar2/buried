@@ -1,5 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
+import { checkMessage } from '../bridge/bridge';
 import { featuresForEra } from '../evidence';
 import type { EraFeature, Feature } from '../evidence';
 import {
@@ -11,6 +12,7 @@ import {
   showcaseSources,
 } from '../evidence/testing/fixtures';
 import {
+  AREA_SHEET_M,
   STOREY_HEIGHT_M,
   UNRECORDED_HEIGHT_M,
   WATER_RIBBON_MIN_M,
@@ -61,19 +63,28 @@ describe('toSceneFeature (requirement 6.4)', () => {
     expect(toSceneFeature(entryFor(narrow))?.heightM).toBe(WATER_RIBBON_MIN_M);
   });
 
-  it('sends no land-use area (requirement 6.5)', () => {
+  it('sends a land-use area (bridge 0.7.0), flat, with its confidence and no storeys', () => {
     const area = makeFeature(P1911, origin(), { kind: 'land_use' });
-    expect(toSceneFeature(entryFor(area))).toBeNull();
+    area.properties.confidence = 'estimated';
+    area.properties.attributes = { use: 'Coal yard' };
+    const entry = entryFor(area);
+    const scene = toSceneFeature(entry);
+    expect(scene.kind).toBe('land_use');
+    expect(scene.geometry).toBe(entry.geometry);
+    expect(scene.confidence).toBe('estimated');
+    expect(scene.heightM).toBe(AREA_SHEET_M);
+    expect(Object.keys(scene).sort().join()).toBe('confidence,geometry,heightM,id,kind');
+    expect(checkMessage({ type: 'scene/loadEra', payload: { eraId: '1911', features: [scene], drapes: [] } }).ok).toBe(true);
   });
 
-  it('keeps the order of the Era list and drops only land use', () => {
+  it('keeps the order of the Era list and drops nothing', () => {
     const features = [
       makeFeature(P1911, origin(), { seq: 1 }),
       makeFeature(P1911, origin(), { seq: 2, kind: 'land_use' }),
       makeFeature(P1911, origin(), { seq: 3, kind: 'water' }),
     ];
     const list = featuresForEra([makeCollection(P1911, features)], sources, ERA_1911);
-    expect(sceneFeaturesFor(list).map((f) => f.id)).toEqual([features[0]?.id, features[2]?.id]);
+    expect(sceneFeaturesFor(list).map((f) => f.id)).toEqual(features.map((f) => f.id));
   });
 });
 

@@ -14,13 +14,19 @@ export const STOREY_HEIGHT_M = 3.5;
 export const UNRECORDED_HEIGHT_M = 3.5;
 /** A water line is drawn at least this wide, and as wide as twice its position error. */
 export const WATER_RIBBON_MIN_M = 2.0;
+/**
+ * A land-use area is drawn as a flat sheet on the ground (bridge 0.7.0, session 034). The Schema asks for a
+ * `heightM` above 0, so the Shell sends this thickness in metres; the Player draws the sheet flat whatever it is sent.
+ */
+export const AREA_SHEET_M = 0.05;
 
-/** The scene feature for an Era list entry, or null for a kind the Player is not sent (land use). */
-export function toSceneFeature(entry: EraFeature): SceneFeature | null {
-  if (entry.kind === 'land_use') return null;
+/** The scene feature for an Era list entry: a building, water, or (bridge 0.7.0) a land-use area drawn flat. */
+export function toSceneFeature(entry: EraFeature): SceneFeature {
   let heightM: number;
   if (entry.kind === 'building') {
     heightM = entry.attributes.storeys !== undefined ? entry.attributes.storeys * STOREY_HEIGHT_M : UNRECORDED_HEIGHT_M;
+  } else if (entry.kind === 'land_use') {
+    heightM = AREA_SHEET_M;
   } else {
     heightM = Math.max(WATER_RIBBON_MIN_M, 2 * entry.positionErrorM);
   }
@@ -40,12 +46,7 @@ export function toSceneFeature(entry: EraFeature): SceneFeature | null {
   return feature;
 }
 
-/** Every drawable scene feature of an Era list, in the list's order. */
+/** Every scene feature of an Era list, in the list's order. */
 export function sceneFeaturesFor(list: EraFeatureList): SceneFeature[] {
-  const out: SceneFeature[] = [];
-  for (const entry of list.features) {
-    const feature = toSceneFeature(entry);
-    if (feature !== null) out.push(feature);
-  }
-  return out;
+  return list.features.map(toSceneFeature);
 }

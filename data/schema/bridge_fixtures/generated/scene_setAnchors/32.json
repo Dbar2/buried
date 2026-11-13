@@ -1,0 +1,8 @@
+{
+  "type": "scene/setAnchors",
+  "payload": {
+    "feature_ids": [
+      "use_6830_i5e_a_8111"
+    ]
+  }
+}

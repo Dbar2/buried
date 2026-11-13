@@ -1,0 +1,27 @@
+{
+  "type": "scene/anchors",
+  "payload": {
+    "width": 0.002,
+    "height": 16383.98,
+    "anchors": [
+      {
+        "feature_id": "bld_n8a3hz_5810",
+        "x": -0.001,
+        "y": 81111.436,
+        "on_screen": true
+      },
+      {
+        "feature_id": "bld_427c1_68mr_ko8j_o_6182",
+        "x": 667.64,
+        "y": -73989.664,
+        "on_screen": true
+      },
+      {
+        "feature_id": "wtr_9zdif8_9634",
+        "x": 72119.026,
+        "y": 99999.995,
+        "on_screen": false
+      }
+    ]
+  }
+}

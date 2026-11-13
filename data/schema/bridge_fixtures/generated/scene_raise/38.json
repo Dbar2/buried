@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "836_53",
+    "first_feature_id": "use_rsb4_0904",
+    "animate": true
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "type": "scene/setAnchors",
+  "payload": {
+    "feature_ids": [
+      "use_k_t1_5099",
+      "use_c_2792"
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "type": "scene/loadEra",
+  "payload": {
+    "eraId": "1911",
+    "features": [
+      {
+        "id": "bld_fip_v3_1911_229_0001",
+        "kind": "building",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[[632440, 4834980], [632452, 4834980], [632452, 4834990], [632440, 4834990], [632440, 4834980]]]
+        },
+        "confidence": "documented",
+        "heightM": 7
+      },
+      {
+        "id": "use_fip_v3_1911_229_0001",
+        "kind": "land_use",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[[632460, 4834970], [632490, 4834970], [632490, 4834992], [632460, 4834992], [632460, 4834970]]]
+        },
+        "confidence": "documented",
+        "heightM": 0.05
+      },
+      {
+        "id": "use_fip_v3_1911_229_0002",
+        "kind": "land_use",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [[[632500, 4834970], [632510, 4834970], [632510, 4834980], [632500, 4834980], [632500, 4834970]]],
+            [[[632520, 4834970], [632530, 4834970], [632530, 4834980], [632520, 4834980], [632520, 4834970]]]
+          ]
+        },
+        "confidence": "estimated",
+        "heightM": 0.05
+      }
+    ],
+    "drapes": []
+  }
+}

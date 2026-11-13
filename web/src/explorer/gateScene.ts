@@ -66,6 +66,14 @@ export function buildAddFeatures(
   return features.length === 0 ? null : { type: 'scene/addFeatures', payload: { eraId: era.id, features } };
 }
 
+/**
+ * The Era list as it goes to the Player. With `areas` false the land-use areas are left out (`?areas=0`, a debug
+ * aid like `?markers=0`, so a test can compare the scene with and without them); nothing else changes.
+ */
+export function listForPlayer(list: EraFeatureList, areas: boolean): EraFeatureList {
+  return areas ? list : { ...list, features: list.features.filter((f) => f.kind !== 'land_use') };
+}
+
 export function buildSetDepth(depth: number): MessageOf<'scene/setDepth'> {
   return { type: 'scene/setDepth', payload: { depth } };
 }

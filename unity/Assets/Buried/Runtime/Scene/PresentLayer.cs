@@ -69,12 +69,12 @@ namespace Buried.Scene
             _root.transform.SetParent(parent, false);
 
             _fill = new Material(fillShader) { name = "Present fill" };
-            _fill.SetColor("_Color", palette.present);
+            _fill.SetColor("_Color", palette.block);
             _fill.renderQueue = (int)RenderQueue.Geometry;
 
-            // Outline: `present` lightened toward `muted`. Cold, like the fill.
+            // Outline: `block` lightened toward `parchment-dim`. Cold, like the fill.
             _edge = new Material(edgeShader) { name = "Present edge" };
-            _edge.SetColor("_Color", Color.Lerp(palette.present, palette.muted, 0.5f));
+            _edge.SetColor("_Color", Color.Lerp(palette.block, palette.parchmentDim, 0.5f));
             _edge.SetFloat("_Emission", 1f);
             _edge.SetFloat("_GlowAlpha", 0f);
             _edge.SetFloat("_PixelScale", pixelScale);
@@ -83,7 +83,7 @@ namespace Buried.Scene
             // The roof line: a thin line of the same cold colour, lighter again, along the top of each
             // building. It is what keeps a dark, matte volume legible (design.md "The present").
             _roofEdge = new Material(edgeShader) { name = "Present roof edge" };
-            _roofEdge.SetColor("_Color", Color.Lerp(palette.present, palette.muted, 0.6f));
+            _roofEdge.SetColor("_Color", Color.Lerp(palette.block, palette.parchmentDim, 0.6f));
             _roofEdge.SetFloat("_Emission", 1f);
             _roofEdge.SetFloat("_GlowAlpha", 0f);
             _roofEdge.SetFloat("_WidthPx", LookSettings.PresentRoofEdgeWidthCssPx);
@@ -163,6 +163,22 @@ namespace Buried.Scene
             LensMaterial.SetMode(_edge, mode);
             LensMaterial.SetMode(_roofEdge, mode);
         }
+
+        /// <summary>
+        /// How far today's buildings have sunk toward 1 m plinths (0 full height, 1 plinths). The shaders pull every height
+        /// above <see cref="RaiseSchedule.PlinthM"/> down to it, so a block of any height ends 1 m high.
+        /// </summary>
+        public void SetSink(float sink)
+        {
+            Sink = Mathf.Clamp01(sink);
+            foreach (Material m in new[] { _fill, _edge, _roofEdge })
+            {
+                m.SetFloat("_Sink", Sink);
+                m.SetFloat("_PlinthM", RaiseSchedule.PlinthM);
+            }
+        }
+
+        public float Sink { get; private set; }
 
         public void SetStage(Stage stage)
         {

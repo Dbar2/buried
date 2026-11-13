@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { Explorer } from '../explorer/Explorer';
 import type { PlaceBinding, Selection, StageKind } from '../explorer/Explorer';
 import type { GateModel } from '../explorer/gateModel';
+import { evidenceCommand } from '../explorer/showEvidence';
 import { parseReportLink } from '../report/links';
 import { ReportView } from '../report/ReportView';
 import { useReportData, useReportModel } from '../report/useReportData';
@@ -32,6 +33,7 @@ export function PlacePage() {
   const [shown, setShown] = useState<{ id: string; label: string } | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
   const [original, setOriginal] = useState(false);
+  const [showEvidence, setShowEvidence] = useState(false);
   const [model, setModel] = useState<GateModel | null>(null);
   const [stage, setStage] = useState<StageKind>('pending');
   const reportModel = useReportModel(loaded, initial.lotId, initial.eraId, initial.version);
@@ -64,9 +66,11 @@ export function PlacePage() {
     [writeUrl],
   );
 
+  // Both card toggles end when the card closes (or another building is chosen).
   const onSelect = useCallback((next: Selection | null) => {
     setSelection(next);
     setOriginal(false);
+    setShowEvidence(false);
   }, []);
   const closeCard = useCallback(() => onSelect(null), [onSelect]);
 
@@ -82,10 +86,17 @@ export function PlacePage() {
     }
   }, [model, selection, entry, feature]);
   const canViewOriginal = card !== null && stage === 'player' && model !== null && selection !== null && (model.drapes.get(selection.eraId)?.length ?? 0) > 0;
+  // Show Evidence needs the building's era on screen (a selection ends when the era changes) and a scan of its source.
+  const canShowEvidence =
+    card !== null &&
+    stage === 'player' &&
+    model !== null &&
+    selection !== null &&
+    evidenceCommand(model, selection.featureId, model.order.find((e) => e.id === selection.eraId)?.index ?? null) !== null;
 
   const binding: PlaceBinding = useMemo(
-    () => ({ selection, onSelect, onModel: setModel, onEraShown, onStage: setStage, drapeMode: original ? 'original' : 'lit', eraRequest: request }),
-    [selection, onSelect, onEraShown, original, request],
+    () => ({ selection, onSelect, onModel: setModel, onEraShown, onStage: setStage, drapeMode: original ? 'original' : 'lit', showEvidence, eraRequest: request }),
+    [selection, onSelect, onEraShown, original, showEvidence, request],
   );
 
   return (
@@ -105,6 +116,9 @@ export function PlacePage() {
               canViewOriginal={canViewOriginal}
               original={original}
               onToggleOriginal={() => setOriginal((value) => !value)}
+              canShowEvidence={canShowEvidence}
+              evidenceShown={showEvidence && canShowEvidence}
+              onToggleEvidence={() => setShowEvidence((value) => !value)}
             />
           )}
           <div className="place-report-body" hidden={card !== null} data-testid="place-report-body">

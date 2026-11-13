@@ -1,0 +1,21 @@
+{
+  "type": "scene/anchors",
+  "payload": {
+    "width": 0.017,
+    "height": 0.02,
+    "anchors": [
+      {
+        "feature_id": "bld_4_165irw_6891",
+        "x": 68270.041,
+        "y": -3114.019,
+        "on_screen": false
+      },
+      {
+        "feature_id": "use_t3_0481",
+        "x": -47726.213,
+        "y": 94037.303,
+        "on_screen": true
+      }
+    ]
+  }
+}

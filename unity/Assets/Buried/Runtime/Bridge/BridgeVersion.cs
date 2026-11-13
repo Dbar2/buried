@@ -6,6 +6,6 @@ namespace Buried.Interop
     /// </summary>
     public static class BridgeVersion
     {
-        public const string Value = "0.6.0";
+        public const string Value = "0.8.0";
     }
 }

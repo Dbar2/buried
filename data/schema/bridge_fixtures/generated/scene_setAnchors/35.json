@@ -1,0 +1,8 @@
+{
+  "type": "scene/setAnchors",
+  "payload": {
+    "feature_ids": [
+      "wtr_e95b_2042"
+    ]
+  }
+}

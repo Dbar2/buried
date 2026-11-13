@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "6fit85_dfz_70",
+    "first_feature_id": "wtr_775bw1_7810",
+    "animate": false
+  }
+}

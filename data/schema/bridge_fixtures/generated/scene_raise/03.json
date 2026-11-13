@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "k1k",
+    "first_feature_id": "use_i12p91_2a215_3p10_0722",
+    "animate": true
+  }
+}

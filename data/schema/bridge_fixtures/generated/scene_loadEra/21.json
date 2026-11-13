@@ -5,7 +5,7 @@
     "features": [
       {
         "id": "use_95u88_z_0000",
-        "kind": "building",
+        "kind": "land_use",
         "geometry": {
           "type": "Polygon",
           "coordinates": [
@@ -140,7 +140,7 @@
       },
       {
         "id": "wtr_35v_6999",
-        "kind": "building",
+        "kind": "land_use",
         "geometry": {
           "type": "MultiPolygon",
           "coordinates": [
@@ -183,6 +183,7 @@
         "storeys": 99
       }
     ],
-    "drapes": []
+    "drapes": [],
+    "held": true
   }
 }

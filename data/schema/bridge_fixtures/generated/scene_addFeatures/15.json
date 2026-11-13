@@ -5,37 +5,42 @@
     "features": [
       {
         "id": "use_01321_ux2u_y7z_3_9998",
-        "kind": "water",
+        "kind": "building",
         "geometry": {
-          "type": "MultiLineString",
+          "type": "MultiPolygon",
           "coordinates": [
             [
               [
-                792704.679,
-                6632576.739
-              ],
-              [
-                398925.275,
-                7494664.514
-              ],
-              [
-                706130.023,
-                983725.627
-              ],
-              [
-                673309.599,
-                9083895.962
+                [
+                  754600.811,
+                  6621970.751
+                ],
+                [
+                  693697.214,
+                  2673857.979
+                ],
+                [
+                  481725.626,
+                  8695063.969
+                ],
+                [
+                  659961.37,
+                  7172243.908
+                ],
+                [
+                  754600.811,
+                  6621970.751
+                ]
               ]
             ]
           ]
         },
-        "confidence": "estimated",
-        "heightM": 999.997,
-        "storeys": 65
+        "confidence": "unknown",
+        "heightM": 999.991
       },
       {
         "id": "wtr_n38r_6090",
-        "kind": "water",
+        "kind": "building",
         "geometry": {
           "type": "MultiPolygon",
           "coordinates": [
@@ -95,7 +100,7 @@
       },
       {
         "id": "bld_y3_9990",
-        "kind": "building",
+        "kind": "land_use",
         "geometry": {
           "type": "MultiPolygon",
           "coordinates": [
@@ -135,7 +140,7 @@
       },
       {
         "id": "use_005x8_b_eac_8_9998",
-        "kind": "building",
+        "kind": "land_use",
         "geometry": {
           "type": "MultiPolygon",
           "coordinates": [

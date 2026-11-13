@@ -39,8 +39,13 @@ namespace Buried.Interop
             if (handler != null) handler(message);
         }
 
+        /// <summary>Raised for each Player-to-Shell message just before it is sent (the type and its payload DTO). For tests and diagnostics.</summary>
+        public event Action<string, object> Sent;
+
         public void Send(string type, object payload)
         {
+            var handler = Sent;
+            if (handler != null) handler(type, payload);
             JsBridge.Send(BridgeWriter.Write(type, payload));
         }
 

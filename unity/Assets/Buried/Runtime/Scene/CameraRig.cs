@@ -17,6 +17,7 @@ namespace Buried.Scene
         private float _minX, _maxX, _minZ, _maxZ;
         private CameraRigMath.Pose _pose;
         private bool _moved;
+        private bool _userMoved;
         private bool _dragging;
         private Vector3 _anchor;
         private float _lastPinch;
@@ -73,6 +74,7 @@ namespace Buried.Scene
                 (minX + maxX) * 0.5f, (minZ + maxZ) * 0.5f, distance, LookSettings.DefaultPitchDeg, LookSettings.DefaultHeadingDeg);
             _ready = true;
             _flying = false;
+            _userMoved = false;
             _defaultPose = CameraRigMath.ClampPose(_pose, _minX, _minZ, _maxX, _maxZ);
             Apply(_defaultPose);
         }
@@ -128,6 +130,12 @@ namespace Buried.Scene
             _camera.transform.rotation = CameraRigMath.Rotation(pose);
             _camera.transform.position = CameraRigMath.Position(pose);
             _moved = true;
+        }
+
+        /// <summary>True once the visitor has moved the view (a drag, the wheel, a pinch, + or -). A pose the Player sets itself does not count.</summary>
+        public bool HasBeenMoved
+        {
+            get { return _userMoved; }
         }
 
         /// <summary>True once if the camera moved since the last call.</summary>
@@ -215,6 +223,7 @@ namespace Buried.Scene
             if (changed)
             {
                 _flying = false; // the user moved the view: the flight stops where it is
+                _userMoved = true;
                 Apply(CameraRigMath.ClampPose(pose, _minX, _minZ, _maxX, _maxZ));
             }
             else if (_flying)

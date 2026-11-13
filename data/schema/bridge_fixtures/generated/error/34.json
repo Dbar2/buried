@@ -3,6 +3,6 @@
   "payload": {
     "code": "invalid_message",
     "message": "1}k:44I,",
-    "messageType": "scene/init"
+    "messageType": "scene/addFeatures"
   }
 }

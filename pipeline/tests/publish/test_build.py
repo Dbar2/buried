@@ -186,6 +186,18 @@ def test_material_needs_a_read_and_a_grey_tone_is_never_a_material(world: World)
     assert "tone_class" in prov
 
 
+def test_every_published_building_is_reviewed_by_the_decisions_reviewer_on_their_day(
+    world: World,
+) -> None:
+    plan = publish(world, decisions_doc([accept(i) for i in world.ids]))
+    assert plan.errors == []
+    assert plan.build.doc["schema_version"] == "1.2.0"
+    reviews = [f["properties"]["provenance"]["review"] for f in plan.build.doc["features"]]
+    assert reviews == [{"state": "reviewed", "by": "Test Reviewer", "on": "2026-11-12"}] * len(
+        world.ids
+    )
+
+
 def test_documented_needs_storeys(world: World) -> None:
     pid = world.ids[0]
     others = [accept(i) for i in world.ids[1:]]

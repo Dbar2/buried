@@ -1,0 +1,9 @@
+{
+  "type": "scene/setAnchors",
+  "payload": {
+    "feature_ids": [
+      "use_rpzy_df_y895u_4041",
+      "bld_s0i_49e_bg_4os_1879"
+    ]
+  }
+}

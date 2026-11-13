@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "62c_dht",
+    "first_feature_id": "wtr_b813_9998",
+    "animate": false
+  }
+}

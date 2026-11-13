@@ -1,0 +1,8 @@
+{
+  "type": "scene/setAnchors",
+  "payload": {
+    "feature_ids": [
+      "bld_nc9_m923a_p81_ncc_2721"
+    ]
+  }
+}

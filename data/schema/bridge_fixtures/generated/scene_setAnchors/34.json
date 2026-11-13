@@ -1,0 +1,8 @@
+{
+  "type": "scene/setAnchors",
+  "payload": {
+    "feature_ids": [
+      "bld_h_ez3180_1296"
+    ]
+  }
+}

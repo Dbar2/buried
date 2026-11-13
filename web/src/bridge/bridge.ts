@@ -28,10 +28,22 @@ export const SHELL_TO_PLAYER = [
   'scene/setDrapeMode',
   'scene/setLantern',
   'scene/showEvidence',
+  'scene/setAnchors',
+  'scene/raise',
+  'scene/frameFeature',
+  'scene/selectFeature',
   'debug/markers',
   'debug/setCamera',
 ] as const;
-export const PLAYER_TO_SHELL = ['ready', 'eraLoaded', 'featureClicked', 'cameraChanged', 'error'] as const;
+export const PLAYER_TO_SHELL = [
+  'ready',
+  'eraLoaded',
+  'scene/anchors',
+  'scene/raised',
+  'featureClicked',
+  'cameraChanged',
+  'error',
+] as const;
 export type ShellToPlayerType = (typeof SHELL_TO_PLAYER)[number];
 export type PlayerToShellType = (typeof PLAYER_TO_SHELL)[number];
 
@@ -138,6 +150,14 @@ export function semanticProblem(message: BridgeMessage): string | null {
       if (!p.on && p.drape !== undefined) return 'payload.drape must be absent when on is false';
       if (p.drape?.clip !== undefined && firstOpenRing(p.drape.clip)) return 'payload.drape has a clip ring that is not closed';
       return null;
+    }
+    case 'scene/setAnchors': {
+      const dup = firstDuplicate(message.payload.feature_ids);
+      return dup === null ? null : `payload.feature_ids has the feature id "${dup}" more than once`;
+    }
+    case 'scene/anchors': {
+      const dup = firstDuplicate(message.payload.anchors.map((a) => a.feature_id));
+      return dup === null ? null : `payload.anchors has the feature id "${dup}" more than once`;
     }
     case 'debug/markers': {
       const dup = firstDuplicate(message.payload.markers.map((m) => m.id));

@@ -5,6 +5,8 @@ namespace Buried.Interop
     {
         public const string KindBuilding = "building";
         public const string KindWater = "water";
+        /// <summary>A land-use area (bridge 0.7.0): polygon geometry, drawn flat on the ground.</summary>
+        public const string KindLandUse = "land_use";
 
         public string id;
         public string kind;

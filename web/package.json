@@ -20,6 +20,7 @@
     "gen:types": "tsx scripts/genTypes.ts",
     "gen:bridge-types": "tsx scripts/genBridgeTypes.ts",
     "gen:bridge-samples": "tsx scripts/genBridgeSamples.ts",
+    "gen:still-scene": "tsx scripts/genStillScene.ts",
     "gen:social-card": "tsx scripts/renderSocialCard.ts"
   },
   "devDependencies": {

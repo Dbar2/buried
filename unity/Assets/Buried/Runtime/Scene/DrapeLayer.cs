@@ -85,8 +85,8 @@ namespace Buried.Scene
             layer._material.renderQueue = BaseQueue + order;
             if (palette != null)
             {
-                layer._material.SetColor("_PaperColor", palette.ink);
-                layer._material.SetColor("_LineColor", palette.night);
+                layer._material.SetColor("_PaperColor", palette.parchment);
+                layer._material.SetColor("_LineColor", palette.ink);
                 layer._material.SetFloat("_ToneLine", LookSettings.ToneLineLuminance);
                 layer._material.SetFloat("_TonePaper", LookSettings.TonePaperLuminance);
                 layer._material.SetFloat("_LightFloor", LookSettings.LightFloor);
@@ -146,6 +146,15 @@ namespace Buried.Scene
         {
             SetLit(false);
             _material.SetFloat("_UseCoverage", 1f);
+        }
+
+        /// <summary>
+        /// The lit display's brightness, 0 to 1. The first visit draws its sheet dim until Raise brightens it
+        /// (<see cref="LookSettings.LandingSheetGain"/>). Only the lit display uses it.
+        /// </summary>
+        public void SetGain(float gain)
+        {
+            _material.SetFloat("_Gain", Mathf.Clamp01(gain));
         }
 
         /// <summary>0 draws everywhere, 1 only inside the Lantern's lens, 2 only outside it.</summary>

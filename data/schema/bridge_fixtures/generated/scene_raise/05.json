@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "ezz",
+    "first_feature_id": "use_4l_9987",
+    "animate": false
+  }
+}

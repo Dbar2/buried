@@ -40,40 +40,41 @@ generated types; W1 lands before U2.
 
 ## U: Unity and the bridge schema (the only group that edits `bridge.schema.json`)
 
-- [ ] U1 (video) Bridge 0.7.0. `data/schema/bridge.schema.json`: the five messages in design.md;
+- [x] U1 (video) Bridge 0.7.0. `data/schema/bridge.schema.json`: the five messages in design.md;
   `npm run gen:bridge-types` and `gen:bridge-samples` (U owns the generated TS and C# files);
-  EditMode parsing tests. R3, R5.4.
+  EditMode parsing tests. R3, R5.4. (Session 040: bridge 0.8.0, plus the optional `held` flag of `scene/loadEra` and
+  `scene/selectFeature`; see `docs/kiro-sessions/040-notes.md`.)
 - [ ] U2 (video) Lamp light, table and fog. Rerun `Buried.Editor.Setup.Run` for the palette
   asset (after W1); one warm key light from the upper left, the `--soot` table, `--haze` ground
   and distance fog. design.md "How the Unity scene looks".
 - [ ] U3 (video) The sheet: tone curve toward `--parchment` and `--ink`, plate border, brighten
-  on raise. U4 (video) Soot blocks: `--block` volumes that sink to 1 m plinths on raise (+
-  EditMode mesh test). U5 (video) Ghosts: `--parchment` translucent fill, `--copper` shade tint,
-  `--ink` edges and storey lines, confidence styles kept. R3.1.
-- [ ] U6 (video) Raise animation and `scene/raised`; stagger by distance from the first find (+
+  on raise (done except the plate border, session 040). U4 (video) Soot blocks: `--block` volumes that sink to 1 m plinths on raise (+
+  EditMode mesh test) (done). U5 (video) Ghosts: `--parchment` translucent fill, `--copper` shade tint,
+  `--ink` edges and storey lines, confidence styles kept. R3.1. (done)
+- [x] U6 (video) Raise animation and `scene/raised`; stagger by distance from the first find (+
   EditMode order test); reduced motion and `animate: false` cut. R3, R11.2.
-- [ ] U7 (video) Selection: `--lantern` edges, thicker, faint emission. R4.1.
-- [ ] U8 (video) Anchors: `scene/setAnchors`, `scene/anchors` on the rules in design.md, and
+- [x] U7 (video) Selection: `--lantern` edges, thicker, faint emission. R4.1.
+- [x] U8 (video) Anchors: `scene/setAnchors`, `scene/anchors` on the rules in design.md, and
   `scene/frameFeature` (+ EditMode projection test). R1.2, R5.4.
-- [ ] U9 (video) `Buried.Editor.Still.Render`: the two Stills and `block.json` into
+- [x] U9 (video) `Buried.Editor.Still.Render`: the two Stills and `block.json` into
   `web/public/still/` from `BlockCamera`. Record the command in `tech.md` "Commands" once the
-  other session's `tech.md` edit has landed. R2.1.
+  other session's `tech.md` edit has landed. R2.1. (The `tech.md` line has not landed yet: see the notes.)
 
 ## P: pipeline and data contract
 
-- [ ] P1 (video) Finds schema and validation. `data/schema/finds.schema.json`,
+- [x] P1 (video) Finds schema and validation. `data/schema/finds.schema.json`,
   `pipeline/buried_pipeline/validate/finds.py` in `buried validate` (+ P1 Hypothesis test,
   fixtures in `pipeline/tests/fixtures/finds/`); extend `npm run gen:types` to write
   `web/src/evidence/finds.types.generated.ts` (P owns that script change). R8.
-- [ ] P2 (video) Evidence schema 1.2.0 with `provenance.review` and its Validator rules;
+- [x] P2 (video) Evidence schema 1.2.0 with `provenance.review` and its Validator rules;
   `pipeline/buried_pipeline/migrate/review_state.py` run once over `data/evidence/*.geojson`;
   `buried publish` writes `reviewed`; regenerate `web/src/evidence/types.generated.ts`. R9.1,
   R9.3.
-- [ ] P3 (video) `data/finds.json` with the overall factory, the bank and the coal yard: crops on
+- [x] P3 (video) `data/finds.json` with the overall factory, the bank and the coal yard: crops on
   `fip_v3_1911_229`, lettering transcribed as lettered, checked by the maintainer, whose name goes
   in `read_by`. The coal yard needs a published `use_` or `bld_` feature; until one exists it
   waits and the page shows the finds that resolve. R8.
-- [ ] P4 (video, Kiro proof) MCP `find_places` returns matching finds (slug, tag, readings,
+- [x] P4 (video, Kiro proof) MCP `find_places` returns matching finds (slug, tag, readings,
   review state), paged under the 20 KB cap (+ test in `pipeline/tests/mcp`). R8.
 
 ## Maintainer

@@ -57,10 +57,10 @@ namespace Buried.Scene
             _root = new GameObject("Pinned lot");
             _root.transform.SetParent(parent, false);
 
-            // The outline: `lantern` over a `night` casing, on top of everything (ZTest Always) and with no fog, so
+            // The outline: `lantern` over an `ink` casing, on top of everything (ZTest Always) and with no fog, so
             // it is `lantern` wherever it is on screen.
             Material line = EdgeMaterial(shaders.edge, palette, pixelScale, LookSettings.LotOutlineWidthCssPx, 1f);
-            line.SetColor("_GlowColor", palette.night);
+            line.SetColor("_GlowColor", palette.ink);
             line.SetFloat("_GlowPx", LookSettings.LotOutlineCasingCssPx);
             line.SetFloat("_GlowAlpha", 1f);
             line.SetFloat("_GlowMix", 1f);

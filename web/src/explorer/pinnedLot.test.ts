@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { checkMessage } from '../bridge/bridge';
 import type { PresentLayer } from '../evidence';
-import { LOTS_SOURCE, buildClearLot, buildFocusLot, buildSetDrapeMode, lotPolygon } from './pinnedLot';
+import { LOTS_SOURCE, buildClearLot, buildFocusLot, buildSetDrapeMode, lotPolygon, unpinOnLeave } from './pinnedLot';
 
 const ring = (e: number, n: number): number[][] => [
   [e, n],
@@ -52,6 +52,23 @@ describe('the pinned lot', () => {
       const result = checkMessage(message);
       expect(result.ok, message.type).toBe(true);
     }
+  });
+
+  it('sends scene/clearLot once on leaving, only when a lot is pinned, and survives a Player that is gone', () => {
+    const sent: string[] = [];
+    const pinned = { current: true };
+    expect(unpinOnLeave(pinned, (m) => void sent.push(m.type))).toBe(true);
+    expect(sent).toEqual(['scene/clearLot']);
+    expect(pinned.current).toBe(false);
+    expect(unpinOnLeave(pinned, (m) => void sent.push(m.type))).toBe(false);
+    expect(sent).toHaveLength(1);
+    const gone = { current: true };
+    expect(
+      unpinOnLeave(gone, () => {
+        throw new Error('no Player attached');
+      }),
+    ).toBe(false);
+    expect(gone.current).toBe(false);
   });
 
   it('names a drape only when asked to', () => {

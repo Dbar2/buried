@@ -75,11 +75,23 @@ namespace Buried.Look
 
         // ---- Sun and ambient ----
 
-        public const float SunElevationDeg = 8f;
-        /// <summary>The sun shines from the west (azimuth 270 degrees), travelling east.</summary>
+        public const float SunElevationDeg = 38f;
+        /// <summary>The lamp shines from the west (azimuth 270 degrees), travelling east: upper left in the first visit's north-west view.</summary>
         public const float SunTravelHeadingDeg = 90f;
         public const float SunIntensity = 0.6f;
         public const float AmbientIntensity = 0.3f;
+
+        /// <summary>How far the lamp's colour goes from `parchment` toward `lantern` (the lamp is the scene's one warm light).</summary>
+        public const float LampWarmth = 0.5f;
+
+        /// <summary>The unit vector from a surface toward the lamp (Unity world: x east, y up, z north).</summary>
+        public static Vector3 LampToward()
+        {
+            return -(Quaternion.Euler(SunElevationDeg, SunTravelHeadingDeg, 0f) * Vector3.forward);
+        }
+
+        /// <summary>How far a face turned from the lamp goes toward `copper` (design.md: faces away from the lamp tinted toward copper).</summary>
+        public const float GhostCopperShade = 0.55f;
 
         // ---- Bloom (the only post effect; tone mapping is None) ----
 
@@ -106,7 +118,7 @@ namespace Buried.Look
         /// The ghost edge's glow ring is drawn in `night` at this alpha, so the `ink` line has a dark
         /// casing on a pale plate. It is the same 1 px wide ring, inside requirement 26.4.
         /// </summary>
-        public const float GhostEdgeCasingAlpha = 1.0f;
+        public const float GhostEdgeCasingAlpha = 0.3f;
 
         /// <summary>The casing's width each side of the line. Under the 2 px of requirement 26.4.</summary>
         public const float GhostEdgeCasingPx = 1.5f;
@@ -154,6 +166,9 @@ namespace Buried.Look
         public const float LotPitchDeg = 40f;
         public const float LotPaddingM = 40f;
 
+        /// <summary>"Show on the map" (scene/frameFeature): the room kept around the feature's footprint.</summary>
+        public const float FrameFeaturePaddingM = 25f;
+
         /// <summary>The lot's outline on the ground: a `lantern` line this wide, with a `night` casing.</summary>
         public const float LotOutlineWidthCssPx = 3f;
         public const float LotOutlineCasingCssPx = 1.5f;
@@ -172,8 +187,16 @@ namespace Buried.Look
         /// <summary>The light a point far from the pool still gets, as a share of full light.</summary>
         public const float LightFloor = 0.38f;
 
+        /// <summary>
+        /// The first visit's sheet before Raise: the lit display at this share of its brightness. Raise takes it to 1
+        /// with the sinking plinths (spec 06 requirement 3.1: "brighten the sheet").
+        /// </summary>
+        public const float LandingSheetGain = 0.75f;
+
         /// <summary>Radius (m) at which the pool has fallen to 1 / e: with no lot pinned, and around a pinned lot.</summary>
         public const float LightPoolRadiusM = 260f;
+        /// <summary>The first visit's lamp pool: wide enough that the whole sheet is lit.</summary>
+        public const float LandingPoolRadiusM = 320f;
         public const float LightPoolRadiusPinnedM = 150f;
 
         // ---- The Lantern and Show Evidence (session 028) ----
@@ -194,5 +217,49 @@ namespace Buried.Look
         /// <summary>Show Evidence: the untouched scan is shown this far (m) around the ghost's footprint box, and the ghost's own fill is left at this alpha.</summary>
         public const float EvidenceMarginM = 4f;
         public const float EvidenceFillAlpha = 0.05f;
+
+        // ---- The selected find (spec 06 requirement 4.1, session 040) ----
+
+        /// <summary>The selected edge is this many times as thick as a ghost's, and its emission is above 1 so that it, and only it, blooms.</summary>
+        public const float SelectedEdgeWidthFactor = 1.5f;
+        public const float SelectedEmission = 1.6f;
+
+        /// <summary>The faint `lantern` tint over the selected volume, and its own emission.</summary>
+        public const float SelectedFillAlpha = 0.14f;
+        public const float SelectedFillEmission = 0.3f;
+
+        /// <summary>The selection is drawn over the ghosts and their edges (queues 3000 and 3010).</summary>
+        public const int SelectedQueue = 3020;
+
+        // ---- Land-use areas (bridge 0.7.0, session 034) ----
+        // An area is drawn flat on the ground: diagonal `ink` stripes, each with a `night` casing so the stripes
+        // read on a pale plate and on the dark ground (and in a greyscale screenshot), over a faint `ink` tint,
+        // with the class's thin outline. It sits above the drapes and under every ghost.
+
+        /// <summary>The thickness of the sheet an area is drawn as. The Player ignores any height it is sent for an area.</summary>
+        public const float AreaHeightM = 0.05f;
+
+        /// <summary>Render queues: the fill is above the drapes (2900 and up, Show Evidence's patch at 2990) and the outline above the fill.</summary>
+        public const int AreaFillQueue = 2950;
+        public const int AreaEdgeQueue = 2955;
+
+        /// <summary>
+        /// The stripe period in metres, and the shortest it is allowed on screen in CSS pixels. Where the metre period
+        /// would be finer than the pixel period, the period doubles until it is not (octaves, so it does not shimmer).
+        /// </summary>
+        public const float AreaHatchPeriodM = 2.5f;
+        public const float AreaHatchPeriodCssPx = 12f;
+
+        /// <summary>A stripe's `ink` core as a share of the period, and the `night` casing each side of it as a share of the period.</summary>
+        public const float AreaHatchInkShare = 0.30f;
+        public const float AreaHatchCasingShare = 0.11f;
+
+        /// <summary>The alpha between the stripes, as a share of the stripe alpha.</summary>
+        public const float AreaHatchGapShare = 0.2f;
+
+        /// <summary>Stripe alpha by confidence class: low opacity, and lighter the less sure the record is.</summary>
+        public const float AreaDocumentedAlpha = 0.6f;
+        public const float AreaEstimatedAlpha = 0.4f;
+        public const float AreaUnknownAlpha = 0.26f;
     }
 }

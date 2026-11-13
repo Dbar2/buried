@@ -1,0 +1,8 @@
+{
+  "type": "scene/setAnchors",
+  "payload": {
+    "feature_ids": [
+      "use_k20_30_lzv5_c71v2_7009"
+    ]
+  }
+}

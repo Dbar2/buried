@@ -1,0 +1,9 @@
+{
+  "type": "scene/setAnchors",
+  "payload": {
+    "feature_ids": [
+      "use_xf_6637",
+      "bld_586_h7o8b_8542"
+    ]
+  }
+}

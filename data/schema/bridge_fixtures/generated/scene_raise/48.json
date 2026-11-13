@@ -1,0 +1,8 @@
+{
+  "type": "scene/raise",
+  "payload": {
+    "era_id": "jfe630_h",
+    "first_feature_id": "wtr_m_1728",
+    "animate": false
+  }
+}

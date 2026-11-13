@@ -135,6 +135,7 @@
         "confidence": "documented",
         "confidence_reason": "Synthetic fixture: footprint and storeys both stated.",
         "provenance": {
+          "review": { "state": "draft_rule" },
           "origin_source": "fip_v3_1911_229",
           "crop_px": {
             "x": 100,
@@ -201,6 +202,7 @@
         "confidence": "estimated",
         "confidence_reason": "Synthetic fixture: footprint and storeys both stated.",
         "provenance": {
+          "review": { "state": "draft_rule" },
           "origin_source": "fip_v3_1911_229",
           "crop_px": {
             "x": 100,
@@ -291,6 +293,7 @@
         "confidence": "unknown",
         "confidence_reason": "Synthetic fixture: footprint and storeys both stated.",
         "provenance": {
+          "review": { "state": "draft_rule" },
           "origin_source": "fip_v3_1911_229",
           "crop_px": {
             "x": 100,

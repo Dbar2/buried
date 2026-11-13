@@ -1,0 +1,8 @@
+{
+  "type": "scene/setAnchors",
+  "payload": {
+    "feature_ids": [
+      "bld_m1wvyt_iaall0_2010"
+    ]
+  }
+}

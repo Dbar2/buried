@@ -3,6 +3,6 @@
   "payload": {
     "code": "invalid_message",
     "message": "x",
-    "messageType": "debug/setCamera"
+    "messageType": "scene/setDrapeMode"
   }
 }

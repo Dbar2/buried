@@ -5,7 +5,7 @@
     "features": [
       {
         "id": "use_fw8gmc_74no_y_71i8_6163",
-        "kind": "building",
+        "kind": "water",
         "geometry": {
           "type": "MultiPolygon",
           "coordinates": [

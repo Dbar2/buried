@@ -82,6 +82,7 @@
         },
         "kind": "aerial"
       }
-    ]
+    ],
+    "held": true
   }
 }
