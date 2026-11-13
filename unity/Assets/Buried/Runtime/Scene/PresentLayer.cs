@@ -159,9 +159,9 @@ namespace Buried.Scene
         /// <summary>0 draws everywhere, 1 only inside the Lantern's lens, 2 only outside it (the Lantern keeps Today to the outside).</summary>
         public void SetLensMode(int mode)
         {
-            _fill.SetFloat("_LensMode", mode);
-            _edge.SetFloat("_LensMode", mode);
-            _roofEdge.SetFloat("_LensMode", mode);
+            LensMaterial.SetMode(_fill, mode);
+            LensMaterial.SetMode(_edge, mode);
+            LensMaterial.SetMode(_roofEdge, mode);
         }
 
         public void SetStage(Stage stage)

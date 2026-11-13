@@ -49,6 +49,23 @@ export function ncc(a: ArrayLike<number>, b: ArrayLike<number>): number {
 
 export type Image = { width: number; height: number; data: ArrayLike<number> };
 
+/**
+ * The correlation coefficient over the entries where `keep` is true. For a window that holds something the
+ * comparison is not about (the ghost's own outline lines drawn over the scan), which is left out. Returns 0
+ * when fewer than two entries are kept or either side has no variation.
+ */
+export function nccMasked(a: ArrayLike<number>, b: ArrayLike<number>, keep: ArrayLike<boolean>): number {
+  if (a.length !== b.length || a.length !== keep.length) throw new Error('nccMasked needs arrays of equal length');
+  const pickedA: number[] = [];
+  const pickedB: number[] = [];
+  for (let i = 0; i < a.length; i++) {
+    if (!keep[i]) continue;
+    pickedA.push(a[i] as number);
+    pickedB.push(b[i] as number);
+  }
+  return pickedA.length < 2 ? 0 : ncc(pickedA, pickedB);
+}
+
 /** The n x n window of an image whose top left pixel is (x0, y0), row by row. */
 export function window(image: Image, x0: number, y0: number, n: number): Float64Array {
   if (x0 < 0 || y0 < 0 || x0 + n > image.width || y0 + n > image.height) throw new Error('the window is outside the image');

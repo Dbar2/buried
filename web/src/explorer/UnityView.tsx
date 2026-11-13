@@ -8,6 +8,8 @@ import type { CameraPose } from './cameraPose';
 import { buildAddFeatures, buildLoadEra, buildMarkers, buildSceneInit, buildSetCamera, buildSetDepth } from './gateScene';
 import { buildClearLot, buildFocusLot } from './pinnedLot';
 import type { LotPolygon } from './pinnedLot';
+import { buildSetLantern, buildShowEvidence } from './lantern';
+import type { EvidenceCommand, LensCommand } from './lantern';
 import { INITIAL_PLAYER_STATE } from './playerState';
 import type { PlayerState } from './playerState';
 
@@ -37,6 +39,10 @@ export type UnityViewProps = {
   reducedMotion: boolean;
   /** The lot to pin (`/?lot=<id>`), or null for none. The Player outlines it, lights it and flies to it. */
   lot: LotPolygon | null;
+  /** The Lantern lens (bridge 0.6.0): null until it has been on once, then always the latest state. */
+  lantern: LensCommand | null;
+  /** Show Evidence (bridge 0.6.0): the ghost to make transparent and the drape to put beneath it, or null. */
+  evidence: EvidenceCommand | null;
   onPlayerState: (state: PlayerState) => void;
   onFeatureClicked: (featureId: string, eraId: string) => void;
   /** The Player cannot be used; the reason is fit to show. */
@@ -205,6 +211,29 @@ export default function UnityView(props: UnityViewProps) {
     if (!running || !debug || !cameraCommand) return;
     bridgeRef.current?.send(buildSetCamera(cameraCommand.pose));
   }, [running, debug, cameraCommand]);
+
+  // The Lantern (bridge 0.6.0): every change of the lens is one message.
+  const { lantern, evidence } = props;
+  useEffect(() => {
+    if (!running || !lantern) return;
+    bridgeRef.current?.send(buildSetLantern(lantern));
+  }, [running, lantern]);
+
+  // Show Evidence (bridge 0.6.0): on for one ghost at a time, off when it ends or another takes its place.
+  const evidenceOn = useRef<string | null>(null);
+  useEffect(() => {
+    if (!running) return;
+    const bridge = bridgeRef.current;
+    if (!bridge) return;
+    if (evidenceOn.current !== null && evidenceOn.current !== evidence?.featureId) {
+      bridge.send(buildShowEvidence(evidenceOn.current, null));
+      evidenceOn.current = null;
+    }
+    if (evidence && evidenceOn.current !== evidence.featureId) {
+      bridge.send(buildShowEvidence(evidence.featureId, evidence.drape));
+      evidenceOn.current = evidence.featureId;
+    }
+  }, [running, evidence]);
 
   return (
     <canvas

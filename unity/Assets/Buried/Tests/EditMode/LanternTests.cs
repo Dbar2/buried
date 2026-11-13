@@ -124,6 +124,31 @@ namespace Buried.Tests
             Assert.AreEqual(0f, lantern.Open, 0f);
         }
 
+        [Test]
+        public void TheClipIsCompiledOnlyIntoTheVariantOfAMaterialThatMeetsTheLens()
+        {
+            foreach (string shader in new[] { "Ghost.shader", "Edge.shader", "Present.shader", "Drape.shader" })
+            {
+                var material = new Material(Load(shader));
+                try
+                {
+                    Assert.IsFalse(material.IsKeywordEnabled(LensMaterial.Keyword), shader + ": no clip by default");
+                    LensMaterial.SetMode(material, 1);
+                    Assert.IsTrue(material.IsKeywordEnabled(LensMaterial.Keyword), shader + ": inside only");
+                    Assert.AreEqual(1f, material.GetFloat("_LensMode"));
+                    LensMaterial.SetMode(material, 2);
+                    Assert.IsTrue(material.IsKeywordEnabled(LensMaterial.Keyword), shader + ": outside only");
+                    Assert.AreEqual(2f, material.GetFloat("_LensMode"));
+                    LensMaterial.SetMode(material, 0);
+                    Assert.IsFalse(material.IsKeywordEnabled(LensMaterial.Keyword), shader + ": back to no clip");
+                }
+                finally
+                {
+                    Object.DestroyImmediate(material);
+                }
+            }
+        }
+
         // ---- The rim ----
 
         [Test]

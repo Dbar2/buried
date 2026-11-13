@@ -70,7 +70,7 @@ describe('the committed building outlines', () => {
     const message = {
       type: 'scene/init',
       payload: {
-        bridgeVersion: '0.5.0',
+        bridgeVersion: '0.6.0',
         origin: { easting: 632500, northing: 4835000 },
         bounds: { minE: 631900, minN: 4834400, maxE: 633200, maxN: 4835600 },
         initialView: { minE: 632000, minN: 4834500, maxE: 633100, maxN: 4835500 },

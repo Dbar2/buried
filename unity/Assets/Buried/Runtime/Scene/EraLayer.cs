@@ -211,8 +211,7 @@ namespace Buried.Scene
 
         private void AddRenderers(ClassGroup group, string prefix)
         {
-            group.Fill.SetFloat("_LensMode", _lensMode);
-            if (group.Edge != null) group.Edge.SetFloat("_LensMode", _lensMode);
+            SetLensMode(group);
             int n = 0;
             foreach (MeshChunk c in group.Chunks)
             {
@@ -331,13 +330,13 @@ namespace Buried.Scene
                 foreach (ClassGroup group in batch.Groups) SetLensMode(group);
             }
             foreach (DrapeLayer drape in _drapes) drape.SetLensMode(mode);
-            if (_evidenceFill != null) _evidenceFill.SetFloat("_LensMode", mode);
+            if (_evidenceFill != null) LensMaterial.SetMode(_evidenceFill, mode);
         }
 
         private void SetLensMode(ClassGroup group)
         {
-            group.Fill.SetFloat("_LensMode", _lensMode);
-            if (group.Edge != null) group.Edge.SetFloat("_LensMode", _lensMode);
+            LensMaterial.SetMode(group.Fill, _lensMode);
+            LensMaterial.SetMode(group.Edge, _lensMode);
         }
 
         // ---- Show Evidence ----
@@ -415,7 +414,7 @@ namespace Buried.Scene
             Color color = _evidenceFill.GetColor("_Color");
             color.a = Buried.Look.LookSettings.EvidenceFillAlpha;
             _evidenceFill.SetColor("_Color", color);
-            _evidenceFill.SetFloat("_LensMode", _lensMode);
+            LensMaterial.SetMode(_evidenceFill, _lensMode);
             _evidenceMesh = built.Fill.ToMesh("Evidence " + featureId);
             _evidenceObject = new GameObject("Evidence " + featureId);
             _evidenceObject.transform.SetParent(_root.transform, false);

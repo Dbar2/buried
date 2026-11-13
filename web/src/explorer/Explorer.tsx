@@ -20,6 +20,10 @@ import type { GateModel } from './gateModel';
 import { INITIAL_PLAYER_STATE } from './playerState';
 import type { PlayerState } from './playerState';
 import { lotPolygon } from './pinnedLot';
+import { lanternEra } from './lantern';
+import { LanternToggle } from './LanternToggle';
+import { evidenceCommand } from './showEvidence';
+import { useLantern } from './useLantern';
 import { PRESENT_BUILDINGS_SOURCE } from './presentBuildings';
 import { useDepth } from './useDepth';
 import { NO_WEBGL2_MESSAGE, hasWebGL2 } from './webgl';
@@ -118,6 +122,7 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
   const settledInfo = settled === null ? undefined : model?.order.find((era) => era.index === settled);
   const eraNote = settledInfo && model ? noImageryNote(settledInfo, model.lists.get(settledInfo.id), model.drapes.get(settledInfo.id)) : null;
 
+
   const { goTo, step, drag, release } = dig;
   const chooseEra = useCallback(
     (index: number) => {
@@ -146,6 +151,17 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
   // so the Player never sees it. Ctrl, Cmd or Shift with the wheel go on to the Player to zoom; the
   // page itself is kept from zooming.
   const viewRef = useRef<HTMLElement>(null);
+
+  // The Lantern (requirement 13): Space held, a long press, or the toggle, at Today only. `?lanternEra=<id>` picks
+  // the era inside the lens (default: the era at depth 1). Show Evidence: `?showEvidence=<feature id>` until the
+  // evidence card has its own button.
+  const lensEra = useMemo(
+    () => lanternEra(model?.order ?? [], new URLSearchParams(window.location.search).get('lanternEra')),
+    [model],
+  );
+  const lantern = useLantern({ viewRef, enabled: settled === 0 && player.running, eraId: lensEra });
+  const evidenceId = useMemo(() => new URLSearchParams(window.location.search).get('showEvidence'), []);
+  const evidence = useMemo(() => (model ? evidenceCommand(model, evidenceId, settled) : null), [model, evidenceId, settled]);
   const stepRef = useRef<(delta: number) => void>(() => {});
   stepRef.current = (delta: number) => {
     step(delta);
@@ -233,6 +249,8 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
           cameraCommand={debug ? cameraCommand : null}
           reducedMotion={reducedMotion}
           lot={pinnedLot}
+          lantern={lantern.command}
+          evidence={evidence}
           onPlayerState={setPlayer}
           onFeatureClicked={onFeatureClicked}
           onUnavailable={setUnavailable}
@@ -260,6 +278,7 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
       {stage}
 
       {!backdrop && model && <DepthGauge eras={model.order} index={dig.state.target} depth={depth} onChange={chooseEra} onDrag={dragDepth} onRelease={release} />}
+      {!backdrop && model && settled === 0 && lensEra !== null && <LanternToggle pressed={lantern.toggled} onToggle={lantern.toggle} />}
 
       {backdrop ? null : card ? (
         <EvidenceCard card={card} onClose={closeCard} />

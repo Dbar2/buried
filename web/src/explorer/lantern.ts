@@ -1,0 +1,74 @@
+/**
+ * The Lantern and Show Evidence messages (bridge 0.6.0) and the pure rules around them. The Shell decides when
+ * the lens is on and where it is; the Player draws it. Nothing here touches the DOM or the bridge.
+ */
+import type { MessageOf, PayloadOf } from '../bridge/bridge';
+import type { Drape } from './drapes';
+import type { EraInfo } from './eraOrder';
+
+/** The lens radius as a fraction of the canvas height (spec 03 design, "Lantern"). */
+export const LENS_RADIUS = 0.18;
+/** An arrow key moves the lens by this share of the canvas (requirement 13.7). */
+export const LENS_KEY_STEP = 0.05;
+/** A touch held this long without moving turns the lens on (design, "Lantern"). */
+export const LONG_PRESS_MS = 500;
+/** ... and moving more than this many pixels cancels it. */
+export const LONG_PRESS_SLOP_PX = 8;
+
+/** A point on the canvas, 0 to 1 from the left and from the top. */
+export type ScreenPoint = PayloadOf<'scene/setLantern'>['center'];
+
+export type LensCommand = { on: boolean; center: ScreenPoint; eraId: string };
+
+export type EvidenceCommand = { featureId: string; drape: Drape };
+
+const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
+
+/** The lens centre when the pointer has not been over the canvas: the middle of it. */
+export const CANVAS_CENTRE: ScreenPoint = { x: 0.5, y: 0.5 };
+
+/** A client position as a point on a canvas rectangle, clamped to the canvas. A zero-sized rectangle gives its centre. */
+export function toScreenPoint(clientX: number, clientY: number, rect: { left: number; top: number; width: number; height: number }): ScreenPoint {
+  if (rect.width <= 0 || rect.height <= 0) return CANVAS_CENTRE;
+  return { x: clamp01((clientX - rect.left) / rect.width), y: clamp01((clientY - rect.top) / rect.height) };
+}
+
+/** An arrow key moves the lens; any other key leaves it. */
+export function moveByKey(point: ScreenPoint, key: string): ScreenPoint {
+  switch (key) {
+    case 'ArrowLeft':
+      return { x: clamp01(point.x - LENS_KEY_STEP), y: point.y };
+    case 'ArrowRight':
+      return { x: clamp01(point.x + LENS_KEY_STEP), y: point.y };
+    case 'ArrowUp':
+      return { x: point.x, y: clamp01(point.y - LENS_KEY_STEP) };
+    case 'ArrowDown':
+      return { x: point.x, y: clamp01(point.y + LENS_KEY_STEP) };
+    default:
+      return point;
+  }
+}
+
+/**
+ * The era shown inside the lens: `requested` when it names a past era, else the era at depth 1
+ * (requirement 13.4). Null when the project has no past era.
+ */
+export function lanternEra(order: readonly Pick<EraInfo, 'id' | 'index'>[], requested: string | null): string | null {
+  const past = order.filter((era) => era.index > 0);
+  const named = requested === null ? undefined : past.find((era) => era.id === requested);
+  return (named ?? past.find((era) => era.index === 1) ?? past[0])?.id ?? null;
+}
+
+export function buildSetLantern(command: LensCommand): MessageOf<'scene/setLantern'> {
+  return {
+    type: 'scene/setLantern',
+    payload: { on: command.on, center: { x: command.center.x, y: command.center.y }, radius: LENS_RADIUS, eraId: command.eraId },
+  };
+}
+
+/** Show Evidence on, with the drape of the feature's origin source, or off. */
+export function buildShowEvidence(featureId: string, drape: Drape | null): MessageOf<'scene/showEvidence'> {
+  return drape === null
+    ? { type: 'scene/showEvidence', payload: { featureId, on: false } }
+    : { type: 'scene/showEvidence', payload: { featureId, on: true, drape } };
+}

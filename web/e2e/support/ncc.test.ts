@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { bestOffset, mean, ncc, stdDev, window } from './ncc';
+import { bestOffset, mean, ncc, nccMasked, stdDev, window } from './ncc';
 import type { Image } from './ncc';
 
 /** A smooth-ish deterministic texture, not periodic inside the sizes used here. */
@@ -105,5 +105,23 @@ describe('bestOffset', () => {
 
   it('refuses a window outside the image', () => {
     expect(() => bestOffset(expected, screen, 2, 2, n, 8)).toThrow();
+  });
+});
+
+describe('nccMasked', () => {
+  it('ignores the entries that are not kept', () => {
+    const a = [1, 2, 3, 4, 5, 6];
+    const b = [2, 4, 6, 8, 100, -50]; // the last two disagree completely
+    expect(nccMasked(a, b, [true, true, true, true, false, false])).toBeCloseTo(1, 12);
+    expect(nccMasked(a, b, [true, true, true, true, true, true])).toBeLessThan(0.5);
+  });
+
+  it('is 0 with fewer than two kept entries or with no variation', () => {
+    expect(nccMasked([1, 2], [3, 4], [true, false])).toBe(0);
+    expect(nccMasked([1, 1, 1], [1, 2, 3], [true, true, true])).toBe(0);
+  });
+
+  it('refuses arrays of different lengths', () => {
+    expect(() => nccMasked([1], [1, 2], [true])).toThrow();
   });
 });

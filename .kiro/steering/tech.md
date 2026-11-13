@@ -145,6 +145,11 @@ invent commands; when one is added, record it here.
     `art-estimated-close.png`, `art-today.png` and `art-*.json` (edge patterns, the pinned lot, frame times). The frame-time test also
     launches a GPU Chromium (`--use-angle=metal`) and holds that one to 60 fps, and 30 fps under 4x CPU throttling.
     Bridge 0.5.0 adds `scene/focusLot`, `scene/clearLot` and `scene/setDrapeMode`; the page `/?lot=<id>` pins a lot.
+  - Lantern and Show Evidence (session 028, bridge 0.6.0): `npx playwright test e2e/lantern.spec.ts` after `npm run build`. Writes
+    `web/e2e/output/lantern-today.png`, `evidence-bank.png` and `lantern-measures.json`, `evidence-measures.json`, `lantern-frame-times.json`.
+    The page takes `?lanternEra=<era id>` (the era inside the lens; default the era at depth 1) and `?showEvidence=<feature id>`
+    (until the evidence card has its own button). Space held, `L` (toggle), arrow keys and Escape drive the lens; the Lantern button
+    is the toggle for touch.
   - Look check (spec 03 task 16.7, requirement 26): `npx playwright test e2e/look.spec.ts` after
     `npm run build`. Opens the page without `?debug=1` at 1280 × 800 and saves
     `web/e2e/output/look-*.png` for the maintainer to judge against requirement 26. The web build
