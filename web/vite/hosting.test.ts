@@ -1,6 +1,6 @@
 /**
- * The static-host files (session 027): `public/_headers` and `public/_redirects` for Cloudflare
- * Pages, and the size report. The Unity build is gitignored, so the checks against its file names
+ * The static-host files (session 027): `public/_headers` for Cloudflare Pages, the absence of
+ * rewrite rules (session 031), and the size report. The Unity build is gitignored, so the checks against its file names
  * run only when `public/unity/build.json` exists.
  */
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
@@ -87,23 +87,33 @@ describe('public/_headers', () => {
   });
 });
 
-describe('public/_redirects', () => {
-  const lines = readFileSync(join(PUBLIC, '_redirects'), 'utf8')
-    .split('\n')
-    .filter((l) => l.trim() !== '' && !l.trim().startsWith('#'))
-    .map((l) => l.trim().split(/\s+/));
+/**
+ * Found on the live site (session 031): on Cloudflare Pages the rule `/place /index.html 200` did
+ * not rewrite; Pages answered `/place?lot=...` with a 308 to `/?lot=...`. With no top-level
+ * `404.html`, Pages serves `index.html` for unknown paths on its own, so the rewrite rules are gone.
+ */
+describe('page routes on Cloudflare Pages', () => {
+  const redirectsPath = join(PUBLIC, '_redirects');
+  const lines = existsSync(redirectsPath)
+    ? readFileSync(redirectsPath, 'utf8')
+        .split('\n')
+        .filter((l) => l.trim() !== '' && !l.trim().startsWith('#'))
+        .map((l) => l.trim().split(/\s+/))
+    : [];
 
-  it('rewrites each page route to index.html with status 200', () => {
-    for (const route of ['/place', '/report', '/studio', '/sources']) {
-      expect(lines, route).toContainEqual([route, '/index.html', '200']);
-    }
+  it('has no rewrite to /index.html in public/_redirects', () => {
+    for (const [, target] of lines) expect(target).not.toBe('/index.html');
   });
 
-  it('only rewrites; it never redirects a route away', () => {
-    for (const [, target, status] of lines) {
-      expect(target).toBe('/index.html');
-      expect(status).toBe('200');
-    }
+  it('has no 404.html in public/, so Pages serves index.html for unknown paths', () => {
+    expect(existsSync(join(PUBLIC, '404.html'))).toBe(false);
+  });
+
+  it.runIf(existsSync(join(PUBLIC, '..', 'dist', 'index.html')))('has no 404.html and no rewrite in the build', () => {
+    const dist = join(PUBLIC, '..', 'dist');
+    expect(existsSync(join(dist, '404.html'))).toBe(false);
+    const built = join(dist, '_redirects');
+    if (existsSync(built)) expect(readFileSync(built, 'utf8')).not.toMatch(/\/index\.html/);
   });
 });
 
