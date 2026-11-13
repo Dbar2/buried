@@ -6,11 +6,11 @@ generated types; W1 lands before U2.
 
 ## W: web (no file under `data/schema/`, no `*.generated.ts`)
 
-- [ ] W1 (video) Tokens and fonts. Rename and add tokens per design.md "Palette tokens" in
+- [x] W1 (video) Tokens and fonts. Rename and add tokens per design.md "Palette tokens" in
   `web/src/styles/tokens.css` and every `var(--...)` use; self-host Libre Baskerville and Source
   Sans 3, remove Fraunces and Inter files and `@font-face` rules; `web/src/styles/contrast.test.ts`
   checks every listed pair against its floor. R1, design.md.
-- [ ] W2 (video) Routes and header. `web/src/App.tsx`, `web/src/place/placeLink.ts` (+ test):
+- [x] W2 (video) Routes and header. `web/src/App.tsx`, `web/src/place/placeLink.ts` (+ test):
   `block`, `/find/<slug>`, `search` at `/place`, old `/?era=` links. `web/src/shell/Header.tsx`:
   wordmark and "Sources" only. `web/src/sources/SourcesPage.tsx`: the workshop link. R1.3, R7.3,
   R11.4.
