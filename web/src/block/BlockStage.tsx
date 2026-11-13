@@ -296,13 +296,34 @@ export function BlockStage(props: BlockStageProps) {
   );
 
   // ---- the Lantern ----------------------------------------------------------------------------------------------
+  // The Player draws the lens only at Today (it ignores `scene/setLantern` on at any other depth, session 040). So on a
+  // plan stop the Lantern first takes the ruler to Today and shows that plan inside the lens, and the lens is sent once
+  // the depth has settled at 0. Turning it off puts the ruler back. The Flat sheet has no such limit.
   const lens = useBlockLens(raised);
-  const lensEraId = eraId === 'today' ? RAISE_ERA_ID : 'today';
+  const [lensPlanEra, setLensPlanEra] = useState(RAISE_ERA_ID);
+  const lensReturnEra = useRef<string | null>(null);
+  useEffect(() => {
+    if (flat) return;
+    if (lens.on && eraId !== 'today') {
+      lensReturnEra.current = eraId;
+      setLensPlanEra(eraId);
+      onRulerChange('today');
+    } else if (!lens.on && lensReturnEra.current !== null) {
+      const back = lensReturnEra.current;
+      lensReturnEra.current = null;
+      if (eraId === 'today') onRulerChange(back);
+    }
+  }, [flat, lens.on, eraId, onRulerChange]);
+  const lensEraId = flat ? (eraId === 'today' ? RAISE_ERA_ID : 'today') : eraId === 'today' ? lensPlanEra : eraId;
+  const lensSendable = flat || dig.state.depth === 0;
   const [lensEverOn, setLensEverOn] = useState(false);
   useEffect(() => {
     if (lens.on) setLensEverOn(true);
   }, [lens.on]);
-  const lensCmd = useMemo<LensCommand | null>(() => (!lens.on && !lensEverOn ? null : { on: lens.on, center: lens.center, eraId: lensEraId }), [lens.on, lens.center, lensEverOn, lensEraId]);
+  const lensCmd = useMemo<LensCommand | null>(
+    () => (!lens.on && !lensEverOn ? null : { on: lens.on && lensSendable, center: lens.center, eraId: lensEraId }),
+    [lens.on, lensSendable, lens.center, lensEverOn, lensEraId],
+  );
   const lensLabel = model ? (lensEraId === 'today' ? 'Lantern: today' : lanternLabel(model.sources, model.drapes.get(lensEraId) ?? [])) : 'Lantern';
 
   // ---- the list -------------------------------------------------------------------------------------------------

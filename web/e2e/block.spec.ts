@@ -120,14 +120,25 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
     await page.getByTestId('raise-button').click();
     await raised(page);
     await expect(page.getByTestId('lens-ring')).toHaveCount(0);
+    const ignored: string[] = [];
+    page.on('console', (message) => {
+      if (message.text().includes('setLantern ignored')) ignored.push(message.text());
+    });
     await page.keyboard.press('l');
     await expect(page.getByTestId('lens-ring')).toBeVisible();
+    // The Player draws the lens only at Today: the ruler goes there and the 1911 plan shows inside the lens.
+    await expect(page.getByTestId('block-page')).toHaveAttribute('data-era', 'today');
+    await expect(page.getByTestId('lens-control')).toHaveText(/1911/);
     await page.keyboard.press('ArrowRight');
+    await page.waitForTimeout(1500);
     await page.screenshot({ path: join(OUTPUT, 'block-lantern-1440.png') });
     await page.keyboard.press('Escape');
     await expect(page.getByTestId('lens-ring')).toHaveCount(0);
+    await expect(page.getByTestId('block-page')).toHaveAttribute('data-era', '1911');
     await page.getByTestId('lens-control').click();
     await expect(page.getByTestId('lens-ring')).toBeVisible();
+    await page.waitForTimeout(1500);
+    expect(ignored, 'the Player took every lens message').toEqual([]);
   });
 
   test('/find/overall-factory opens raised on the factory without the animation, and a bad slug opens the landing', async ({ page }) => {
