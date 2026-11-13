@@ -54,8 +54,8 @@ describe('the Block page at first paint (WebGL available, nothing loaded yet)', 
     for (const id of ['find-card', 'era-ruler', 'lens-control', 'bottom-sheet', 'tag-row']) expect(html).not.toContain(`data-testid="${id}"`);
   });
 
-  it('shows no Still, and no tags, until it has the Still and the anchors', () => {
-    expect(html).not.toContain('data-testid="still"');
+  it('shows the Still at first paint, before block.json has loaded, and no pinned tags until it has the anchors', () => {
+    expect(html).toMatch(/data-testid="still" data-kind="wide" data-faded="false"/);
     expect(html).not.toContain('data-testid="tag-layer"><svg class="tag-strings" aria-hidden="true" focusable="false"><g');
   });
 });

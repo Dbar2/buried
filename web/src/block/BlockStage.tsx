@@ -322,7 +322,25 @@ export function BlockStage(props: BlockStageProps) {
 
   // ---- what is on screen ----------------------------------------------------------------------------------------
   const playerWanted = webgl2 && !flat && afterPaint && model !== null;
-  const stillFaded = player.running && !flat;
+  // The Still stays until the Player has loaded the held era (not merely drawn a first frame) and has had two
+  // animation frames to draw it; then it fades (requirement 2.3).
+  const heldLoaded = player.running && player.eraLoaded.includes(RAISE_ERA_ID);
+  const [heldDrawn, setHeldDrawn] = useState(false);
+  useEffect(() => {
+    if (!heldLoaded) {
+      setHeldDrawn(false);
+      return;
+    }
+    let second = 0;
+    const first = window.requestAnimationFrame(() => {
+      second = window.requestAnimationFrame(() => setHeldDrawn(true));
+    });
+    return () => {
+      window.cancelAnimationFrame(first);
+      window.cancelAnimationFrame(second);
+    };
+  }, [heldLoaded]);
+  const stillFaded = heldDrawn && !flat;
   const introVisible = !routeFind && (raise.phase === 'still' || raise.phase === 'waiting' || raise.phase === 'ready' || (flat && !raise.pressed));
   const binding: BlockBinding = {
     holdEraId: RAISE_ERA_ID,
@@ -371,6 +389,7 @@ export function BlockStage(props: BlockStageProps) {
       data-phone={rects.phone}
       data-era={eraId}
       data-flat={flat}
+      data-held-loaded={heldLoaded}
     >
       <SetPageTitle page="block" />
       <div className="block-scene">
@@ -410,7 +429,7 @@ export function BlockStage(props: BlockStageProps) {
             />
           </Suspense>
         ) : null}
-        {still && !flat ? <StillPicture sources={STILL_SOURCES} kind={stillKind} faded={stillFaded} /> : null}
+        {!flat ? <StillPicture sources={STILL_SOURCES} kind={stillKind} faded={stillFaded} /> : null}
       </div>
 
       <FindTags mode="pinned" items={items} layout={tagLayoutResult} selectedId={raised ? selectedSlug : null} onSelect={(slug) => select({ kind: 'find', slug })} />

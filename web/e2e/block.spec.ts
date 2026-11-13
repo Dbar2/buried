@@ -49,6 +49,42 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
     await page.screenshot({ path: join(OUTPUT, 'block-raised-1440.png') });
   });
 
+  test('the Still is on screen at first paint, whatever else is slow', async ({ page }) => {
+    // block.json (the anchors) is held back for 3 s: the picture itself must not wait for it.
+    await page.route('**/still/block.json', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await route.continue();
+    });
+    await page.goto('/');
+    const still = page.getByTestId('still');
+    await expect(still).toBeVisible({ timeout: 1500 });
+    await expect(still).toHaveAttribute('data-faded', 'false');
+    await expect.poll(() => still.locator('img').evaluate((img: HTMLImageElement) => img.naturalWidth), { timeout: 3000 }).toBeGreaterThan(0);
+  });
+
+  test('the Still is not faded before the Player reports the held era loaded', async ({ page }) => {
+    test.setTimeout(PLAYER_TIMEOUT + 60_000);
+    await page.addInitScript(() => {
+      const w = window as unknown as { __stillEarly: number; __stillFadedSeen: boolean };
+      w.__stillEarly = 0;
+      w.__stillFadedSeen = false;
+      const check = () => {
+        const still = document.querySelector('[data-testid="still"]');
+        const stage = document.querySelector('[data-testid="block-page"]');
+        if (still?.getAttribute('data-faded') === 'true') {
+          w.__stillFadedSeen = true;
+          if (stage?.getAttribute('data-held-loaded') !== 'true') w.__stillEarly += 1;
+        }
+      };
+      new MutationObserver(check).observe(document, { subtree: true, attributes: true, childList: true });
+    });
+    await page.goto('/');
+    await expect(page.getByTestId('still')).toHaveAttribute('data-faded', 'true', { timeout: PLAYER_TIMEOUT });
+    await expect(page.getByTestId('block-page')).toHaveAttribute('data-held-loaded', 'true');
+    expect(await page.evaluate(() => (window as unknown as { __stillEarly: number }).__stillEarly)).toBe(0);
+    expect(await page.evaluate(() => (window as unknown as { __stillFadedSeen: boolean }).__stillFadedSeen)).toBe(true);
+  });
+
   test('the ruler moves the era, and 1935 adds the one line about the 1931-35 plan', async ({ page }) => {
     test.setTimeout(PLAYER_TIMEOUT + 60_000);
     await page.goto('/');
