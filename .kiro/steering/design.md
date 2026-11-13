@@ -32,7 +32,7 @@ from it and an EditMode test compares the two. No raw hex values in components o
 |---|---|---|
 | `--soot` | `#121715` | The table, sky, page background on the dark theme |
 | `--haze` | `#1F2622` | Ground fog, the header band, the phone sheet's backing |
-| `--block` | `#2B312D` | Today's buildings and their plinths (matte, cold) |
+| `--block` | `#2B312D` | Today's buildings (matte, cold) and, after Raise, their thin outline |
 | `--parchment` | `#E8DCC1` | The sheet, the catalogue card, tags, text on soot, ghost fill |
 | `--parchment-dim` | `#A99F8A` | Secondary text on soot or haze |
 | `--ink` | `#23221F` | Text and lines on parchment, ghost edges, storey lines |
@@ -88,7 +88,8 @@ Report theme (light paper) keeps its near-monochrome tokens in `tokens.css`: `--
 
 ## Motion
 
-- Raise: today's blocks sink to plinths (600 ms), the sheet brightens, then ghosts rise
+- Raise: today's blocks sink flat to a thin `--block` outline at about 35 per cent (600 ms), the
+  sheet brightens, then ghosts rise
   staggered, nearest the first find first. Each ghost's ink edges draw on, then its fill comes
   up. Everything has settled by 2.2 s.
 - Era change: 600 to 900 ms crossfade of sheet and ghosts.
@@ -180,7 +181,8 @@ and labels appear in the scene, the evidence card, the list view and the Report.
 - **Fog.** A thin ground fog in `--haze`, low over the table, and distance fog that dissolves the
   table's edge. No visible edge of the world. No fog particles.
 - **The present.** Today's buildings are matte `--block` volumes on the sheet, no texture or
-  windows. After Raise they sink to plinths 1 m high so the ghosts read over them.
+  windows. After Raise they sink flat and stay as a thin `--block` outline at about 35 per cent, so the
+  ghosts read over them.
 - **The past.** Ghosts are plain volumes: a translucent `--parchment` fill, faces away from the
   lamp tinted toward `--copper`, crisp `--ink` edges and one horizontal `--ink` line per
   documented storey. No windows, chimneys, cornices or roofs: no source gives them. No bloom, no

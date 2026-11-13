@@ -1,42 +1,39 @@
-# Demo script (target 2:55, limit 3:00)
+# Demo script (target 2:50, limit 3:00)
 
-Everything here exists today except where marked "(to confirm)". Sessions 029 to 034 have briefs but no notes files, so the shots that depend on them (the card, land-use areas, the Lantern label) need a dry run first.
+Written for the first visit rebuilt on Nov 13 (sessions 037 to 046). Everything is recorded on the live site, `https://buried.pages.dev`, except the hook shot. Anything the files do not settle is marked "(to confirm)"; check each on the first dry run. The shape follows section E of `docs/research/gpt-what-it-takes-to-win-2026-11-13.md`, cut to what exists.
 
 ## Before recording
 
-Record every shot on one origin. The Studio workspace is stored in the browser per origin, so the 2A Percy St shot only shows the traced area if it runs where the Studio ran. Use the local site, not `https://buried.pages.dev`, because the Studio service is not deployed.
-
-From the repository root, in three terminals:
-
-1. `uv --directory pipeline run buried fetch fip_v3_1911_229` (once; writes `data/raw/`).
-2. From `pipeline/`: `uv sync --extra service`, then `uv run uvicorn buried_pipeline.service.app:create_app --factory --port 8000`.
-3. From `web/`: `npm run build`, then `npm run preview` (it proxies `/v1` to `http://127.0.0.1:8000`). Use the address it prints.
-
-Never open plate 232 in this video. Use a window of 1280 x 800.
+- Use a fresh browser profile. The scene hint and the Lantern hint show once per browser, and the page remembers having shown them.
+- Confirm the live site serves the new first visit: `/` shows "Something used to stand here." and the button "Raise the past". It has served it since the afternoon of Nov 13.
+- No Studio, no service and no `data/raw/` are needed. The Studio service is not deployed and the Studio is not in this video.
+- The status line on every card will read "Status: draft, not yet reviewed", because no feature is reviewed (13 draft by hand, 162 draft by rule). Record it as it is. If the maintainer reviews the three finds before recording (task M1 in spec 06), re-read the shots and the voice-over: the factory's card would then read "reviewed by NAME, DATE".
+- Do not open plate 232 (1935) anywhere in the video.
+- Desktop shots at 1280 x 800. The phone shot is Chromium device mode at 390 x 844 with touch on.
+- Press "Raise the past" only after the Still has faded and the scene is live; allow a few seconds on a cold load. A press before that reads "Lighting the lamp" and plays when the Player is ready.
+- Sessions 045 and 046 changed the card, the ruler and the Lantern strip after the last full dry run of this script. Re-read each shot against the live page.
+- Say nothing about 1947 (it is not on the ruler), water, Align, or user-test results (none are recorded in the repository).
 
 ## Shot list
 
 | Time | Shot | URL or command | Voice-over |
 |---|---|---|---|
-| 0:00 to 0:10 | The landing: dusk backdrop, wordmark, one field, three example addresses. Hold still for 3 seconds. | `/` | "Buried rebuilds a Toronto block from fire insurance plans, and every building comes with its evidence. It starts with one question: what was here?" |
-| 0:10 to 0:20 | Type `541 Queen St E`, press Enter. An exact match goes straight to the place page. | Field on `/` | "Type an address." |
-| 0:20 to 0:35 | The place page. The camera flies to the lot, outlined in amber. The report opens on the right with its first line, "Buried screens; it doesn't certify." | `/place?lot=5446981` (to confirm: that id is the lot holding the 1911 bank, session 023; read the real id from the address bar) | "The scene is on the left and the report is on the right. The report says what the plans show for this lot, and what they cannot tell you." |
-| 0:35 to 0:55 | Dig. Focus the depth gauge and press Down three times: Today, 1947, 1935, 1911. Pause on 1947 so the line "No 1947 imagery loaded yet" is readable. Pause on 1911. | Keys on the gauge | "Going deeper goes back in time. We have no 1947 imagery loaded yet, and the page says so. At 1911, buildings from the 1911 plan appear. Most were traced by a rule and not checked one by one, and the page marks them as estimated." |
-| 0:55 to 1:10 | Up three times to Today. Hold Space (or press `L`) and sweep the pointer across the bank's lot. The Lantern button reads "Lantern: 1931-35 plan" (to confirm, session 033). | Keys on the gauge | "Hold space and a lens shows the 1931 to 1935 plan inside it and today outside." |
-| 1:10 to 1:30 | Down to 1911. Click the bank, `bld_fip_v3_1911_229_0001`. The card opens in the report column: crop of the untouched scan, confidence with its reason, "Positioned within about" a figure in metres, a "Confirmed by" line. Click "View original scan". | Click in scene. Fallback: `/?era=<era id>&showEvidence=bld_fip_v3_1911_229_0001` (era id to confirm) | "Click a building and the card shows the scan it came from, how sure we are, and who confirmed it. This one says 'gate draft, unreviewed', because that is what the record says." |
-| 1:30 to 1:40 | The Studio. Pick "Plate 229, 1911 edition, revised to 1914". Click Extract. Outlines draw on in sequence. | `/studio` | "In the Studio, a person picks a plate. Buried proposes outlines with plain image processing. It never decides." |
-| 1:40 to 1:55 | "Trace an area". Click vertices around the yard lettered "COAL & WOOD YARD" near Sumach St. Press Enter. Type the use exactly as printed, `COAL & WOOD YARD`. Drag the crop around the lettering. Save. | Studio, Review step | "For past land use, the reviewer outlines the yard and types what the plate letters. The crop it was read from stays with it." |
-| 1:55 to 2:05 | Set the reviewed area. Enter a reviewer name, `Demo reviewer`. Publish. The message reads "Published to your workspace on this device. It is not part of Buried's reviewed record." | Studio, Publish | "Publishing needs a name and a reviewed area. It goes to this browser only, and the page says so." |
-| 2:05 to 2:20 | Search `2A Percy St`. Scroll the report to "What the land was used for". The yard appears as lettered on the 1911 plan, under "From your workspace". | `/` then the field (to confirm: the traced yard touches or lies near the 2A Percy St lot; if not, pick the nearest address from the examples) | "Search a nearby address and the traced yard shows up as what the 1911 plan letters here. The wording is built from the record, not written by a model." |
-| 2:20 to 2:32 | The Report print view. Open the report page for the same lot and press Cmd+P. One page, paper theme, sources at the bottom. | `/report?lot=<lot id>&era=<era id>` (ids to confirm). Fallback: `npx playwright test e2e/report.spec.ts` from `web/`, then open `web/e2e/output/report-letter.pdf` | "The report prints on one page. It lists what was checked and ends with a pointer to Ontario Dig Authority. Buried screens. It doesn't certify." |
-| 2:32 to 2:39 | Show a spec. Open `.kiro/specs/02-pipeline/tasks.md` at task 1.6, a ticked `[PBT]` task. | Editor | "Kiro built this from five specs. A task is ticked only when its tests pass." |
-| 2:39 to 2:46 | A hook blocking a write. Start a builder session and ask it to create `pipeline/tests/fixtures/extract/probe.json` containing `fip_v3_1935_232`. The write is refused with a message. | `kiro-cli chat --agent builder` (command name to confirm). Show `.kiro/hooks/held-out.json` first. Fallback: `uv --directory pipeline run pytest tests/hooks/test_held_out_write.py` | "Plate 232 is held out. A hook stops agents writing it into tuning files." |
-| 2:46 to 2:53 | The plate-qa report: scroll `docs/qa/fip_v3_1911_229.md` to "Published features outside the control hull" (30 inside, 70 outside). | Editor | "An agent wrote this from the MCP server: 70 of 100 features sit outside the measured area." |
-| 2:53 to 2:55 | End card: wordmark and tagline. | `/` | "Forgotten maps, rebuilt with proof." |
+| 0:00 to 0:10 | The live landing: the 1911 sheet on a dark table, today's buildings as soot blocks, "Something used to stand here." Hold for 3 seconds, then move to the button. | `https://buried.pages.dev/` | "This Toronto block had buildings that are gone. The fire insurance plans drew them. Buried raises them, and shows the map that proves each one." |
+| 0:10 to 0:22 | Press "Raise the past". Today's buildings sink to thin outlines and the 1911 plan's buildings stand up as ghosts, staggered, in about two seconds. The camera stays still. | Button | "Press one button. Today sinks, and the buildings on the 1911 plan stand up." |
+| 0:22 to 0:42 | The Glove & Overall Factory selects itself. Let the leader line and the card settle. Point at the name as lettered, the crop, "Seen on: 1911 plan, sheet 229", "Positioned within about" a figure (to confirm the figure), and "Status: draft, not yet reviewed". | Automatic after Raise | "The first find is the Glove and Overall Factory, named exactly as the plan letters it, with the crop it was read from. The card says how closely it is placed. And it says plainly: draft, not yet reviewed. A person has not checked this one yet." |
+| 0:42 to 1:02 | Click "Show the original sheet" for two seconds, then back. Press the "Coal yard" tag in the top row. Move the era ruler to 1935 (Right arrow, or click). Read the line the card adds. | Tag, ruler | "Any find can be compared across plans. The coal yard is lettered J. W. Corson and Company on the 1911 plan. On the 1931 to 35 plan it is lettered Northern Fuels Company. The ruler says so, and shows its source." (to confirm the exact ruler wording and which lettered line it quotes) |
+| 1:02 to 1:14 | Move the ruler back to 1911. Press "Lantern". Drag the lens across the block: today inside the lens at a plan stop. | Button, drag | "The Lantern is a lens. Drag it, and the other era shows inside." (to confirm what the lens shows at the 1911 stop: the Player draws Today inside it, and the ruler moves to Today while it is on) |
+| 1:14 to 1:26 | The phone: reload at 390 px, press Raise, select a find. The card is a bottom sheet; drag it up. | Device mode on the live URL | "On a phone the card is a sheet. Same finds, same evidence." |
+| 1:26 to 1:36 | On a find, press "Share this find". Open the copied link in a new tab: it opens raised on that find. | `/find/coal-yard` (to confirm: the slug is `coal-yard` in `data/finds.json`) | "Every find has a link that opens straight on it." |
+| 1:36 to 1:54 | "Full record" on a card. The Report opens: "Buried screens; it doesn't certify." at the top. Scroll once, then Cmd+P: one page, paper theme, sources at the bottom. | `/report?lot=<lot id>&era=<era id>` (ids to confirm: read them from the address bar after "Full record") | "Full record opens the report for that lot. It says what the records show, what they cannot tell you, and points to Ontario Dig Authority before any dig. It prints on one page." |
+| 1:54 to 2:08 | Kiro proof 1, the spec. Open `.kiro/specs/06-first-visit/tasks.md` and scroll the three groups: W, U, P. Then show the git worktrees (`git worktree list`, to confirm the names). | Editor, terminal | "This redesign was one short spec, split into three task groups: web, Unity and pipeline. We built them at the same time in three worktrees." |
+| 2:08 to 2:26 | Kiro proof 2, a property test that caught a mistake. Open the test `test_published_areas_never_reach_outside_the_map_area` (file path to confirm, under `pipeline/tests/`), showing the `@example` with x0 557, y0 10. Then `docs/kiro-sessions/038-notes.md`, "The failing property test". | Editor | "A property test failed. The code was right and the test's generator was wrong: it attached a lettering crop that ran off the plate. We fixed the generator and kept the counterexample." |
+| 2:26 to 2:40 | Kiro proof 3, the held-out hook. Show `.kiro/hooks/held-out.json`. In a builder session, ask it to create `pipeline/tests/fixtures/extract/probe.json` containing `fip_v3_1935_232`. The write is refused with the hook's message. | `kiro-cli chat --agent builder` (command name to confirm). Fallback: `uv --directory pipeline run pytest tests/hooks/test_held_out_write.py` (path to confirm). Recorded locally, not on the live site. | "Plate 232 is held out, so we never tuned on it. A hook refuses any agent write that puts it in a tuning file." |
+| 2:40 to 2:50 | End on the live landing with the URL in view. | `https://buried.pages.dev/` | "Buried. Forgotten maps, rebuilt with proof. Try it at buried dot pages dot dev." |
 
 ## Notes
 
-- The voice-over is about 340 words, at no more than 2.5 words a second in any shot. If the cut runs long, drop the 0:55 shot first.
-- The Studio shots need `data/raw/fip_v3_1911_229/` on disk. Extraction takes under a second.
+- The voice-over is about 330 words. No shot needs more than 2.5 words a second. If the cut runs long, shorten the Lantern shot first, then the phone shot.
 - The hook's refusal wording comes from its script (exit code 2). Check it on the first dry run.
-- Do not narrate anything about 1947 buildings, the water layer or Align. None of them exists yet.
+- Proof 1 is a still of readable files. Proof 2 and proof 3 each need the artefact readable on screen for at least three seconds.
+- The research file asks for the real user-test results in the last seconds. None exist in the repository, so the script does not claim any. If a test is run before recording, add one sentence to the final shot from its notes.

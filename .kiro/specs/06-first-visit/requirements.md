@@ -33,7 +33,8 @@ Flat sheet with one line saying the 3D view did not start, and SHALL play a pend
 ## Requirement 3: Raise
 
 3.1 WHEN "Raise the past" is pressed, THE Shell SHALL send one raise message; THE Player SHALL
-sink today's buildings to plinths, brighten the sheet and raise the 1911 plan's published features
+sink today's buildings flat, leaving a thin `--block` outline at about 35 per cent (session 043),
+brighten the sheet and raise the 1911 plan's published features
 as ghosts, staggered nearest the first find first, settled within 2.2 s. The camera SHALL NOT move.
 3.2 WHEN the raise ends, THE Player SHALL report it, and THE Shell SHALL select the find with the
 lowest `order` and set the era ruler to 1911.
@@ -43,8 +44,8 @@ lowest `order` and set the era ruler to 1911.
 4.1 WHEN a find is selected, THE Player SHALL draw its edges in `--lantern`, and THE Shell SHALL
 open the card and draw a leader line from the anchor to it.
 4.2 THE card for a find SHALL show, in order: "LETTERED ON THE <PLAN> PLAN"; every lettered line,
-quoted as lettered; the untouched lettering crop; "Seen on: <plan>, sheet <N>"; "Placed within
-about X m"; "Status: ..." (R9); "Show the original sheet"; "Share this find"; "Full record".
+quoted as lettered; the untouched lettering crop; "Seen on: <plan>, sheet <N>"; "Positioned within
+about X m" (the existing wording function, as built in sessions 041 and 042); "Status: ..." (R9); "Show the original sheet"; "Share this find"; "Full record".
 4.3 IF a lettered line contains a banned word, THEN THE card SHALL NOT quote it and SHALL say
 "Lettering shown in the crop".
 4.4 "Show the original sheet" SHALL turn on Show Evidence for the feature and offer the untouched
