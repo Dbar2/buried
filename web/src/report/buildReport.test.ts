@@ -47,6 +47,32 @@ describe('outside coverage', () => {
   });
 });
 
+describe('a core-sample row says what its own plan shows (spec 06 requirement 10)', () => {
+  const row = (collections: ReturnType<typeof linkedBuildingOnLot>, eraId: string): string[] =>
+    report(buildReport(inputs(collections))).coreSample.find((b) => b.eraId === eraId)!.sentences.map((s) => s.text);
+
+  it('names the 1911 plan only as "First drawn on" in the 1935 row of an outline the 1935 plan shows clearly', () => {
+    const f = makeFeature(P1911, [obs(P1911, true, 'clear', 'origin'), obs(P1935, true, 'clear', 'person')], { seq: 1, at: [E0 + 6, N0 + 10], size: [8, 8] });
+    const texts = row([plateCollection(P1911, [f]), plateCollection(P1935, [])], '1935');
+    expect(texts).toContain('A building outline sits on this lot.');
+    expect(texts).toContain('First drawn on the 1911 plan; drawn again on the 1931-35 plan.');
+    expect(texts.join(' ')).not.toMatch(/read from|traced automatically from/);
+    // The 1911 row still says what the 1911 plan shows.
+    expect(row([plateCollection(P1911, [f]), plateCollection(P1935, [])], '1911')).toContain('A building outline read from the 1911 plan sits on this lot.');
+  });
+
+  it('says nothing about the 1911 plan in the 1935 row when the 1935 plan does not show the outline clearly', () => {
+    const f = makeFeature(P1911, [obs(P1911, true, 'clear', 'origin'), obs(P1935, false, 'obscured', 'person'), obs(AERIAL, true, 'clear', 'person')], {
+      seq: 1,
+      at: [E0 + 6, N0 + 10],
+      size: [8, 8],
+    });
+    const texts = row([plateCollection(P1911, [f]), plateCollection(P1935, [])], '1935');
+    expect(texts.join(' ')).not.toContain('1911');
+    expect(texts.join(' ')).not.toMatch(/sits on this lot|read from the/);
+  });
+});
+
 describe('a lot with a building drawn on it', () => {
   const r = report(buildReport(inputs(linkedBuildingOnLot())));
 
@@ -96,6 +122,14 @@ describe('a lot with a building drawn on it', () => {
     // Plain words in the body: no id and no plate number in the band's sentences.
     expect(texts.join(' ')).not.toMatch(/fip_|_229|plate/);
     expect(y1911.target).toEqual({ eraId: '1911', lotId: LOT_ID });
+  });
+
+  it('has a 1935 row that says what the 1935 plan shows, and names the 1911 plan only as "First drawn on"', () => {
+    const y1935 = r.coreSample.find((b) => b.eraId === '1935')!;
+    const text = y1935.sentences.map((s) => s.text).join(' ');
+    expect(text).not.toMatch(/read from the 1911 plan|traced automatically from the 1911 plan/);
+    // Wherever the 1911 plan is named in this row, it is inside the "First drawn on" phrase.
+    expect(text.replace(/First drawn on the 1911 plan/g, '')).not.toContain('1911');
   });
 
   it('lists the place, the sources and the links', () => {

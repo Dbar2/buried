@@ -15,14 +15,17 @@
  * position error, so that band never says "on this lot".
  */
 import {
+  clearPresenceSourceIds,
   featuresForEra,
+  FIRST_DRAWN_ON,
   lotRelation,
   originPhrase,
+  outlineAttribution,
   plainSourceName,
   plainSourceNumbers,
   provenanceFacts,
 } from '../evidence';
-import type { Era, EraFeature, Feature, FeatureCollection, LotRelation, PolygonalGeometry, PresentLayer, Source, SourceIndex, TileSidecar } from '../evidence';
+import type { Era, EraFeature, Feature, FeatureCollection, LotRelation, OutlineAttribution, PolygonalGeometry, PresentLayer, Source, SourceIndex, TileSidecar } from '../evidence';
 import { eraOrder } from '../explorer/eraOrder';
 import { aerialCoversLot, lotCoverage } from './coverage';
 import { confirmationKey, confirmationOf, confirmedSentences } from './confirmed';
@@ -164,13 +167,18 @@ function claimsSlot(text: string, claims: RelationClaim[], numbers: string[]): S
   return { text, claims, numbers };
 }
 
-type Item = { entry: EraFeature; relation: LotRelation; feature: Feature | undefined };
+type Item = { entry: EraFeature; relation: LotRelation; feature: Feature | undefined; attribution: OutlineAttribution };
 
-/** One sentence and its "checked" line for the items that share a kind, relation, source and provenance. */
-function outlineSentences(items: Item[], which: 'on' | 'near', sources: SourceIndex): Sentence[] {
+/**
+ * One sentence and its "checked" line for the items that share a kind, relation, source and provenance.
+ * A row for plan X says what plan X shows (spec 06 requirement 10): an outline first read from X
+ * is "read from the 1911 plan"; one first read from another plan is named only as "First drawn on the
+ * <Y> plan; drawn again on the <X> plan." in a second sentence. An outline X does not show clearly
+ * has no sentence here (`not_shown` items are filtered out before this).
+ */
+function outlineSentences(items: Item[], which: 'on' | 'near'): Sentence[] {
   const first = items[0] as Item;
   const facts = first.feature ? provenanceFacts(first.feature) : { tracedAutomatically: false };
-  const origin = first.feature ? sources.get(first.feature.properties.provenance.origin_source) : undefined;
   const water = first.entry.kind === 'water';
   const n = items.length;
   const noun = water ? 'water feature' : 'building outline';
@@ -187,10 +195,17 @@ function outlineSentences(items: Item[], which: 'on' | 'near', sources: SourceIn
       [String(widest)],
     );
   }
-  return [
-    sentence`${subject} ${words(originPhrase(facts))} ${planSlot(origin)} ${verb} ${rel}.`,
-    ...confirmedSentences(items.flatMap((i) => (i.feature ? [i.feature] : []))),
-  ];
+  const attribution = first.attribution;
+  const lead: Sentence[] =
+    attribution.kind === 'read_here'
+      ? [sentence`${subject} ${words(originPhrase(facts))} ${planSlot(attribution.plan)} ${verb} ${rel}.`]
+      : attribution.kind === 'drawn_again'
+        ? [
+            sentence`${subject} ${verb} ${rel}.`,
+            sentence`${words(FIRST_DRAWN_ON)} ${planSlot(attribution.first)}; drawn again on ${planSlot(attribution.again)}.`,
+          ]
+        : [];
+  return [...lead, ...confirmedSentences(items.flatMap((i) => (i.feature ? [i.feature] : [])))];
 }
 
 function pastBand(input: CoreSampleInput, era: Era, plates: readonly Source[]): Band {
@@ -220,7 +235,18 @@ function pastBand(input: CoreSampleInput, era: Era, plates: readonly Source[]): 
   const areas: Item[] = [];
   for (const entry of list.features) {
     const r = relation(entry, input);
-    const item = { entry, relation: r, feature: featureById.get(entry.id) };
+    const feature = featureById.get(entry.id);
+    // Where this row's plan(s) show the outline clearly, counting every member of its linked set.
+    const members = entry.linkedIds.flatMap((id) => {
+      const m = featureById.get(id);
+      return m ? [m] : [];
+    });
+    const attribution = outlineAttribution({
+      origin: feature ? input.sources.get(feature.properties.provenance.origin_source) : undefined,
+      rowPlans: containing,
+      clearOn: clearPresenceSourceIds(members),
+    });
+    const item: Item = { entry, relation: r, feature, attribution };
     if (entry.kind === 'water' && (r.kind === 'on' || r.withinM <= WATER_RADIUS_M)) water.push(item);
     // A land-use area is drawn hatched in the picture; its use is quoted once in "What the land was used for".
     else if (entry.kind === 'land_use') {
@@ -229,17 +255,20 @@ function pastBand(input: CoreSampleInput, era: Era, plates: readonly Source[]): 
   }
 
   const sentences: Sentence[] = [];
-  // Items that share kind, relation, source and provenance read as one sentence.
+  // Items that share kind, relation, source and provenance read as one sentence. An item this row's
+  // plan does not show clearly has no sentence: the row says only what its own plan shows.
   const groups = new Map<string, Item[]>();
   for (const item of [...buildings, ...water]) {
+    if (item.attribution.kind === 'not_shown') continue;
     const facts = item.feature ? provenanceFacts(item.feature) : { tracedAutomatically: false };
     const confirmation = item.feature ? confirmationKey(confirmationOf(item.feature)) : '';
-    const key = [item.relation.kind === 'on' ? 0 : 1, item.entry.kind === 'water' ? 1 : 0, item.feature?.properties.provenance.origin_source ?? '', facts.tracedAutomatically, confirmation].join('|');
+    const attributed = item.attribution.kind === 'drawn_again' ? `again:${item.attribution.first.id}:${item.attribution.again.id}` : 'here';
+    const key = [item.relation.kind === 'on' ? 0 : 1, item.entry.kind === 'water' ? 1 : 0, item.feature?.properties.provenance.origin_source ?? '', attributed, facts.tracedAutomatically, confirmation].join('|');
     groups.set(key, [...(groups.get(key) ?? []), item]);
   }
   for (const key of [...groups.keys()].sort(byString)) {
     const items = (groups.get(key) as Item[]).sort((a, b) => byString(a.entry.id, b.entry.id));
-    sentences.push(...outlineSentences(items, (items[0] as Item).relation.kind, input.sources));
+    sentences.push(...outlineSentences(items, (items[0] as Item).relation.kind));
   }
 
   // A use lettered on a plan is quoted once, in "What the land was used for", not in each era's band.
@@ -254,6 +283,13 @@ function pastBand(input: CoreSampleInput, era: Era, plates: readonly Source[]): 
     }
   }
   if (!covered) sentences.push(fixed('Not covered by these records.'));
+  // Outlines are in this era's window, but this row's own plan does not show them clearly: say what
+  // the plan is and that nothing here is read from it, and name no other plan.
+  const notShownOnly = buildings.length + water.length > 0 && [...buildings, ...water].every((i) => i.attribution.kind === 'not_shown');
+  if (covered && notShownOnly && platesCover.length > 0) {
+    const names = platesCover.map((r) => planSlot(r.source));
+    sentences.push(sentence`From ${joined(names, ' and ')}. No outline at this lot is read from it.`);
+  }
 
   // Records of this era that would be in range but whose sources disagree.
   const review = list.needsReview.filter((featureId) => {
