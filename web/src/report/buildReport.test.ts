@@ -106,7 +106,7 @@ describe('a lot with a building drawn on it', () => {
       'present_toronto_property_boundaries_2026',
     ]);
     expect(r.links.share).toBe(`https://buried.example/report?lot=${LOT_ID}&era=1911&v=abcdef012345`);
-    expect(r.links.live).toBe(`https://buried.example/?lot=${LOT_ID}&era=1911`);
+    expect(r.links.live).toBe(`https://buried.example/place?lot=${LOT_ID}&era=1911`);
     expect(r.dataVersion).toHaveLength(64);
   });
 

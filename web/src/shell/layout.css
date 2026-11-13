@@ -5,6 +5,7 @@
  */
 .page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: var(--header-height) 1fr;
   height: 100%;
 }
@@ -91,6 +92,25 @@
 :where(.site-header, .view, .studio) :focus-visible {
   outline: 2px solid var(--lantern);
   outline-offset: 2px;
+}
+
+/* A narrow screen: the header keeps the wordmark and the nav; the address is in the report. */
+@media (max-width: 560px) {
+  .site-header {
+    padding: 0 var(--space-3);
+  }
+
+  .wordmark {
+    font-size: 1.375rem;
+  }
+
+  .header-address {
+    display: none;
+  }
+
+  .site-nav {
+    gap: var(--space-3);
+  }
 }
 
 /* The view fills the window under the header. */

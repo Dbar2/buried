@@ -22,6 +22,7 @@ import type { PlayerState } from './playerState';
 import { PRESENT_BUILDINGS_SOURCE } from './presentBuildings';
 import { useDepth } from './useDepth';
 import { NO_WEBGL2_MESSAGE, hasWebGL2 } from './webgl';
+import { Loading } from '../shell/Mark';
 
 // The Player is loaded on demand, so the Sources page and (later) the Report never pull it in.
 const UnityView = lazy(() => import('./UnityView'));
@@ -34,11 +35,18 @@ type LoadState =
 type Selection = { featureId: string; eraId: string };
 
 /**
+ * `full` is the Explorer page. `place` is the scene on the place page: the same view with the depth
+ * gauge on its left edge (design.md "Place page layout"). `backdrop` is the dusk scene behind the
+ * landing: nothing on top of it, hidden from assistive technology, and not a target for the pointer.
+ */
+export type ExplorerVariant = 'full' | 'place' | 'backdrop';
+
+/**
  * The Explorer: the Player filling the view, the depth gauge on its right edge, the evidence card
  * at its left edge and the attribution lines along its bottom edge (design.md "Layout"). The list
  * view, search and 2D map come in later task groups.
  */
-export function Explorer() {
+export function Explorer({ variant = 'full', era: requestedEra = null }: { variant?: ExplorerVariant; era?: string | null }) {
   const debug = useMemo(() => new URLSearchParams(window.location.search).get('debug') === '1', []);
   const reducedMotion = useMemo(
     () => typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -114,13 +122,14 @@ export function Explorer() {
     },
     [goTo],
   );
-  const deepLinked = useRef(false);
+  const appliedEra = useRef<string | null>(null);
   useEffect(() => {
-    if (deepLinked.current || !model || deepLinkEra === null) return;
-    deepLinked.current = true;
-    const target = model.order.find((era) => era.id === deepLinkEra);
+    const wanted = requestedEra ?? deepLinkEra;
+    if (!model || wanted === null || appliedEra.current === wanted) return;
+    appliedEra.current = wanted;
+    const target = model.order.find((era) => era.id === wanted);
     if (target) chooseEra(target.index);
-  }, [model, deepLinkEra, chooseEra]);
+  }, [model, requestedEra, deepLinkEra, chooseEra]);
   const dragDepth = useCallback(
     (value: number) => {
       drag(value);
@@ -187,9 +196,17 @@ export function Explorer() {
     return ids;
   }, [model, currentEra, player.eraLoaded]);
 
+  const backdrop = variant === 'backdrop';
   let stage: ReactNode;
-  if (load.status === 'loading') {
-    stage = <p className="stage-message">Loading the records.</p>;
+  if (backdrop && (load.status !== 'ready' || !webgl2 || unavailable !== null)) {
+    // Behind the landing a missing scene is just the dusk colour: no message over the search field.
+    stage = null;
+  } else if (load.status === 'loading') {
+    stage = (
+      <div className="stage-message">
+        <Loading text="Loading the records." />
+      </div>
+    );
   } else if (load.status === 'error') {
     stage = <p className="stage-message">The records could not be loaded. {load.message}</p>;
   } else if (!webgl2) {
@@ -198,7 +215,13 @@ export function Explorer() {
     stage = <p className="stage-message">The 3D view did not load: {unavailable}</p>;
   } else {
     stage = (
-      <Suspense fallback={<p className="stage-message">Loading the 3D view.</p>}>
+      <Suspense
+        fallback={
+          <div className="stage-message">
+            <Loading text="Loading the 3D view." />
+          </div>
+        }
+      >
         <UnityView
           model={load.model}
           depth={depth}
@@ -215,11 +238,13 @@ export function Explorer() {
     );
   }
 
+  const Wrapper = (backdrop ? 'div' : 'main') as 'main';
   return (
-    <main
+    <Wrapper
       ref={viewRef}
-      className="view"
-      aria-label="Explorer"
+      className={variant === 'full' ? 'view' : `view view--${variant}`}
+      aria-label={backdrop ? undefined : 'Explorer'}
+      aria-hidden={backdrop ? true : undefined}
       data-testid="view"
       data-player-ready={player.ready ? 'true' : 'false'}
       data-eras-loaded={player.eraLoaded.join(',')}
@@ -229,9 +254,9 @@ export function Explorer() {
     >
       {stage}
 
-      {model && <DepthGauge eras={model.order} index={dig.state.target} depth={depth} onChange={chooseEra} onDrag={dragDepth} onRelease={release} />}
+      {!backdrop && model && <DepthGauge eras={model.order} index={dig.state.target} depth={depth} onChange={chooseEra} onDrag={dragDepth} onRelease={release} />}
 
-      {card ? (
+      {backdrop ? null : card ? (
         <EvidenceCard card={card} onClose={closeCard} />
       ) : eraNote ? (
         <p className="view-hint view-note" role="status" data-testid="era-note">
@@ -241,7 +266,7 @@ export function Explorer() {
         model && <p className="view-hint">Click a building in the 3D view to see the evidence behind it.</p>
       )}
 
-      {load.status === 'ready' && load.problems.length > 0 && (
+      {!backdrop && load.status === 'ready' && load.problems.length > 0 && (
         <div role="status" className="view-notes" data-testid="data-problems">
           {load.problems.map((problem) => (
             <p key={problem}>{problem}</p>
@@ -249,12 +274,14 @@ export function Explorer() {
         </div>
       )}
 
-      <p role="status" aria-live="polite" className="visually-hidden" data-testid="era-announcement">
-        {announcementFor(announcedEra)}
-      </p>
-      {model && <Attribution lines={attributionLines(visibleSources, model.sources)} />}
+      {!backdrop && (
+        <p role="status" aria-live="polite" className="visually-hidden" data-testid="era-announcement">
+          {announcementFor(announcedEra)}
+        </p>
+      )}
+      {!backdrop && model && <Attribution lines={attributionLines(visibleSources, model.sources)} />}
       {debug && <DebugState depth={depth} player={player} />}
       {debug && <DebugCamera onPose={sendPose} />}
-    </main>
+    </Wrapper>
   );
 }

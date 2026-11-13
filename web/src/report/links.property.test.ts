@@ -30,7 +30,7 @@ describe('R11 share links round-trip', () => {
   });
 
   it('carries no workspace data: a live link has only the lot and era', () => {
-    expect(liveLink(ORIGIN, 'lot_a', '1935')).toBe('https://buried.example/?lot=lot_a&era=1935');
+    expect(liveLink(ORIGIN, 'lot_a', '1935')).toBe('https://buried.example/place?lot=lot_a&era=1935');
     expect(versionPrefix('not hex')).toBe('');
     expect(shareLink(ORIGIN, 'lot_a', '1911', 'zz')).toBe('https://buried.example/report?lot=lot_a&era=1911');
   });

@@ -2,7 +2,7 @@
  * Share link and live link (spec 05 design "Links").
  *
  *   share  <origin>/report?lot=<lot id>&era=<era id>&v=<first 12 hex of the data version>
- *   live   <origin>/?lot=<lot id>&era=<era id>
+ *   live   <origin>/place?lot=<lot id>&era=<era id>
  *
  * Nothing else goes in a link, so nothing from a visitor's workspace can. Unknown parameters are
  * ignored when parsing. A lot id that cannot be decoded gives `lotId: null`, and the Report then
@@ -31,7 +31,7 @@ export function shareLink(siteOrigin: string, lotId: string, eraId: string | nul
 }
 
 export function liveLink(siteOrigin: string, lotId: string, eraId: string | null): string {
-  return `${siteOrigin}/?${query(lotId, eraId, null)}`;
+  return `${siteOrigin}/place?${query(lotId, eraId, null)}`;
 }
 
 /** Parse a query string (with or without the leading "?"). */
