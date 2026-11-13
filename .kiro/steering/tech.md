@@ -244,16 +244,49 @@ invent commands; when one is added, record it here.
     `POST /v1/publish`. Plate rasters are read from `data/raw/<id>/` on the machine the Service
     runs on; the image has none, so extract and publish need the plate fetch (spec 04 task 4).
     The Service writes nothing under `data/`.
-    Plate fetch for a Service with an empty `data/raw/` (session 025, spec 04 task 4.1 fetch part):
-    `buried_pipeline.service.plates.PlateFetcher.ensure(source_id, live=False)` downloads one
+    Plate fetch for a Service with an empty `data/raw/` (sessions 025 and 026, spec 04 task 4.1 fetch
+    part): `buried_pipeline.service.plates.PlateFetcher.ensure(source_id, live=False)` downloads one
     registered plate into a cache directory laid out like `data/raw/`, checks size and SHA-256
     against a manifest when one has an entry, and refuses any other host. The held-out plate needs
-    `live=True`. No endpoint or cache setting calls it yet.
+    `live=True`. Set `BURIED_CACHE_DIR` (the Docker image sets `/var/cache/buried`) and
+    `POST /v1/extract` and `POST /v1/publish` fetch the plate they are asked about when it is in
+    neither `data/raw/` nor the cache, always as a live request, never at startup and never from a
+    listing. A fetched raster must hash to the `plate_ref` of the request or the request is a 404.
+    `BURIED_PLATE_MANIFEST` (optional) names a manifest in the shape of `data/raw/manifest.json`;
+    the cache directory's own `manifest.json` is read as well. `GET /v1/plates/registered` never
+    reads the held-out plate's raster: its `plate_ref` comes from a manifest or is null. Another
+    plate not on the machine also has a null `plate_ref` unless a manifest has it, and the Studio
+    will not start on a plate with a null `plate_ref`.
   - Tests: `uv run pytest tests/service`. Docker image (spec 04 task 3.4), from the repository
     root: `docker build -f pipeline/Dockerfile .`. Its context is set by
     `pipeline/Dockerfile.dockerignore` (BuildKit reads it next to the Dockerfile; a
     `pipeline/.dockerignore` would not be read for a root context). The image build and deploy
-    steps are not yet run or recorded (spec 04 task 15.2).
+    steps have not been run (spec 04 task 15.2). Deploy steps for the Service, to run by the
+    maintainer (session 026; `pipeline/railway.json` holds the build and health check settings):
+    1. Railway: new project, "Deploy from GitHub repo", this repository, the branch to deploy.
+       Service settings: root directory the repository root (the image copies `data/`), "Config
+       file path" `/pipeline/railway.json` (builder Dockerfile, `pipeline/Dockerfile`, health
+       check `/v1/health`). Confirm in the first build log that BuildKit read
+       `pipeline/Dockerfile.dockerignore`: the image must hold no raster and no `data/work/` file.
+    2. Variables: `BURIED_ALLOWED_ORIGINS` = the site's origin, e.g. `https://<project>.pages.dev`
+       (no trailing slash; comma-separated for more); leave `BURIED_TEST_MODE`,
+       `BURIED_LABEL_PROVIDER` and `BURIED_TEST_PLATES_DIR` unset. Railway sets `PORT`; the image
+       listens on it. `BURIED_CACHE_DIR` is already `/var/cache/buried` in the image.
+    3. Optional: a volume mounted at `/var/cache/buried`, so a restart keeps fetched plates. For
+       the Studio to start on a plate the Service must know its `plate_ref` before it has the
+       raster: copy `data/raw/manifest.json` from a machine that ran `buried fetch` into that volume
+       as `manifest.json` (or point `BURIED_PLATE_MANIFEST` at it). Without it every `plate_ref` is
+       null and the Studio says the Service does not hold the plate.
+    4. Check: `curl https://<service>.up.railway.app/v1/health` shows a `data_version` equal to
+       `uv --directory pipeline run python -c "from pathlib import Path; from
+       buried_pipeline.service.data_version import data_version_of as v; print(v(Path('../data')))"`
+       run from the repository root at the deployed commit, and
+       `curl .../v1/plates/registered` lists the four plates.
+    5. Cloudflare Pages: set `VITE_STUDIO_SERVICE_URL` to the Service URL, deploy the site from
+       the same commit, then open `/studio`.
+    Not verified: that Railway reads `pipeline/Dockerfile.dockerignore` for a root-directory build
+    (BuildKit does; Railway's wrapper was not checked), the first image build, and a live
+    fetch from the U of T host.
   - The Service API Schema is `data/schema/studio_api.schema.json`; its fixtures are in
     `data/schema/studio_api_fixtures/`. TypeScript types: `npx tsx scripts/genStudioApiTypes.ts`
     from `web/`, which writes `web/src/studio/service/types.generated.ts` (no `npm run` alias yet).

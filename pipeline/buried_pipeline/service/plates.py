@@ -30,7 +30,8 @@ import threading
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+from typing import Any
 from urllib.parse import urlsplit
 
 from buried_pipeline.errors import PipelineError
@@ -42,6 +43,7 @@ from buried_pipeline.fetch.manifest import (
 )
 from buried_pipeline.fetch.plates import PLATE_ID_RE, PLATE_TYPE, check_plate_url
 from buried_pipeline.fetch.zipsafe import extract_safely
+from buried_pipeline.inspect.georef import IGNORED_NAME_PARTS, RASTER_SUFFIXES
 from buried_pipeline.io.http import HttpClient
 from buried_pipeline.io.registry import Registry, Source
 from buried_pipeline.timeutil import rfc3339, utc_now
@@ -65,6 +67,18 @@ class PlateFiles:
     status: str  # "downloaded" or "cached"
     zip_bytes: int
     files: int
+
+
+def manifest_raster_ref(entry: dict[str, Any]) -> str | None:
+    """The SHA-256 of the raster in a manifest entry: the one TIFF or JPEG file that is not a
+    thumbnail (the rule `find_raster` applies on disk). None when there is not exactly one."""
+    found = [
+        rec["sha256"]
+        for rec in entry["files"]
+        if PurePosixPath(rec["path"]).suffix.lower() in RASTER_SUFFIXES
+        and not any(part in PurePosixPath(rec["path"]).name.lower() for part in IGNORED_NAME_PARTS)
+    ]
+    return found[0] if len(found) == 1 else None
 
 
 def check_host(url: str) -> None:

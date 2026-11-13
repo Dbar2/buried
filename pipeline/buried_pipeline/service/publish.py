@@ -17,6 +17,7 @@ from buried_pipeline.errors import PipelineError
 from buried_pipeline.publish.decisions import PublishRefusal
 from buried_pipeline.publish.run import prepare_publish
 from buried_pipeline.service.errors import ServiceError
+from buried_pipeline.service.plates import FetchRefused
 from buried_pipeline.service.snapshot import Snapshot
 
 WORKSPACE_KEYS = (
@@ -34,6 +35,18 @@ def _error(reason: str, review_item_id: str | None = None, path: str = "decision
     return out
 
 
+def _fetch_for_publish(snap: Snapshot, source_id: str) -> None:
+    """Publishing needs the plate's georeferencing, so a Service with no copy fetches it, on this
+    request and no other time (a person is publishing it, so the request is live)."""
+    assert snap.fetcher is not None
+    try:
+        snap.fetcher.ensure(source_id, live=True)
+    except FetchRefused as exc:
+        raise ServiceError("not_allowed", f"{source_id} cannot be fetched: {exc}") from exc
+    except PipelineError as exc:
+        raise ServiceError("upstream_failed", f"fetching {source_id} failed: {exc}") from exc
+
+
 def publish(snap: Snapshot, body: dict[str, Any], now: datetime) -> dict[str, Any]:
     if any(body["workspace"][k] for k in WORKSPACE_KEYS):
         raise ServiceError(
@@ -44,6 +57,8 @@ def publish(snap: Snapshot, body: dict[str, Any], now: datetime) -> dict[str, An
     source_id = body["source_id"]
     if not snap.registry.has(source_id):
         raise ServiceError("not_found", f"{source_id} is not in the Registry")
+    if snap.raster_of(source_id) is None and snap.fetcher is not None:
+        _fetch_for_publish(snap, source_id)
     if snap.raster_of(source_id) is None:
         raise ServiceError("not_found", f"the raster for {source_id} is not available to this "
                            "Service, and publishing needs its georeferencing")
@@ -62,7 +77,8 @@ def publish(snap: Snapshot, body: dict[str, Any], now: datetime) -> dict[str, An
 
     try:
         plan = prepare_publish(
-            snap.paths, snap.registry, snap.schema, source_id, body["decisions"], now, proposals
+            snap.paths, snap.registry, snap.schema, source_id, body["decisions"], now, proposals,
+            raster=snap.raster_of(source_id),
         )
     except PublishRefusal as refusal:
         return {"ok": False, "errors": [

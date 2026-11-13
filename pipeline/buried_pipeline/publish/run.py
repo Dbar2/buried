@@ -54,9 +54,11 @@ def prepare_publish(
     decisions_doc: Any,
     now: datetime,
     proposals_doc: dict[str, Any] | None = None,
+    raster: Path | None = None,
 ) -> PublishPlan:
     """Build and validate. Raises `PipelineError` (a `PublishRefusal` for refusals that name
-    proposals) when the inputs cannot be used; returns validation errors in the plan."""
+    proposals) when the inputs cannot be used; returns validation errors in the plan. `raster` is
+    the plate's file when it is not in `data/raw/` (the Studio service's fetch cache)."""
     source = registry.get(source_id)  # 10.9: unregistered
     check_source(source)  # 10.9: attribution not confirmed, not a plate
     record = load_alignment(paths, schema, source_id)
@@ -64,7 +66,7 @@ def prepare_publish(
         raise PipelineError(f"{source_id}: the alignment record is not measured; nothing is "
                             "published from a plate with no measured alignment error")
 
-    info = read_raster_info(find_raster(paths.raw_source_dir(source_id)))
+    info = read_raster_info(raster or find_raster(paths.raw_source_dir(source_id)))
     decisions = parse_decisions(decisions_doc, source_id)
     if proposals_doc is None:
         proposals_doc = read_json(

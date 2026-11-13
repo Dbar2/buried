@@ -15,7 +15,12 @@ COPY data /app/data
 
 ENV PATH="/app/pipeline/.venv/bin:${PATH}" \
     BURIED_REPO_ROOT=/app \
+    BURIED_CACHE_DIR=/var/cache/buried \
     PYTHONUNBUFFERED=1
+
+# Plates are fetched on demand into this folder (the image carries no raster). Mount a volume
+# here to keep them across restarts.
+RUN mkdir -p /var/cache/buried
 
 # Railway sets PORT.
 CMD ["sh", "-c", "uvicorn buried_pipeline.service.app:create_app --factory --host 0.0.0.0 --port ${PORT:-8000}"]
