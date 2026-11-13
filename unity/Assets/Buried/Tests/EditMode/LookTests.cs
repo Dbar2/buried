@@ -105,6 +105,30 @@ namespace Buried.Tests
         }
 
         [Test]
+        public void ThePresentKeepsAThinRoofLineWhileItsFillIsSolidAndTheWireframeTakesOverAsItDrains()
+        {
+            PresentLayer.Stage today = PresentLayer.StageAt(0.0, false);
+            Assert.AreEqual(LookSettings.PresentRoofEdgeAlpha, PresentLayer.RoofEdgeAlpha(today), 1e-6f, "Today: the roof line alone");
+            Assert.Greater(PresentLayer.RoofEdgeAlpha(today), 0.3f, "visible");
+            Assert.Less(LookSettings.PresentRoofEdgeWidthCssPx, LookSettings.EdgeWidthCssPx, "thinner than a ghost's line");
+
+            PresentLayer.Stage wire = PresentLayer.StageAt(0.5, false);
+            Assert.AreEqual(1f, PresentLayer.RoofEdgeAlpha(wire), 1e-6f, "the wireframe's own edge, at full strength");
+
+            PresentLayer.Stage faint = PresentLayer.StageAt(1.0, false);
+            Assert.AreEqual(LookSettings.PresentFaintEdgeAlpha, PresentLayer.RoofEdgeAlpha(faint), 1e-6f, "a faint outline once drained");
+
+            // It never rises above the stronger of the two parts as the depth moves.
+            for (int i = 0; i <= 100; i++)
+            {
+                PresentLayer.Stage s = PresentLayer.StageAt(i / 100.0, false);
+                float roof = PresentLayer.RoofEdgeAlpha(s);
+                Assert.GreaterOrEqual(roof, s.EdgeAlpha - 1e-6f);
+                Assert.LessOrEqual(roof, 1f + 1e-6f);
+            }
+        }
+
+        [Test]
         public void ReducedMotionCrossfadesStraightToTheFaintOutline()
         {
             PresentLayer.Stage half = PresentLayer.StageAt(0.5, true);

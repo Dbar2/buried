@@ -141,6 +141,10 @@ invent commands; when one is added, record it here.
     the debug-only form and correlates the canvas with the tile's own pixels. Results go to
     `web/e2e/output/drape-ncc.json`. `DRAPE_MARGIN_M` overrides the inside-the-map-area margin for a
     measuring run (the default is the design's 25 m). Helper tests: `npm test` runs `e2e/support/*.test.ts`.
+  - Art pass (session 023): `npx playwright test e2e/art.spec.ts` after `npm run build`. Writes `web/e2e/output/art-1911-pinned.png`,
+    `art-estimated-close.png`, `art-today.png` and `art-*.json` (edge patterns, the pinned lot, frame times). The frame-time test also
+    launches a GPU Chromium (`--use-angle=metal`) and holds that one to 60 fps, and 30 fps under 4x CPU throttling.
+    Bridge 0.5.0 adds `scene/focusLot`, `scene/clearLot` and `scene/setDrapeMode`; the page `/?lot=<id>` pins a lot.
   - Look check (spec 03 task 16.7, requirement 26): `npx playwright test e2e/look.spec.ts` after
     `npm run build`. Opens the page without `?debug=1` at 1280 × 800 and saves
     `web/e2e/output/look-*.png` for the maintainer to judge against requirement 26. The web build

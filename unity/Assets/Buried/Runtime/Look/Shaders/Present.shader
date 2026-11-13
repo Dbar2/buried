@@ -1,14 +1,21 @@
 // Today's buildings: matte `present` volumes lit by the sun only (cold light, no warm source), no
 // texture, no windows (requirement 20.3). Opaque when fully drawn; the blend properties let a
 // later depth transition fade the fill. Distance fog toward the fog colour.
+//
+// Session 023: near the camera the walls are darker than the fog (a leeward wall is about a quarter
+// of `present`, a sunward one about two fifths) and dissolve into it with distance, which is what the
+// fog does to anything that is not already the fog colour. The roof keeps more of the sky light, so
+// it is the lightest face and reads against the ground (look.spec.ts holds roofs to 1.35 : 1). A thin
+// lighter line along each roof (PresentLayer, Buried/Edge) keeps the volume legible. Same cold hue
+// throughout; no warm light and no texture.
 Shader "Buried/Present"
 {
     Properties
     {
         _Color ("Colour", Color) = (1, 1, 1, 1)
-        _Ambient ("Leeward wall light", Range(0, 4)) = 1.5
-        _SunGain ("Sun gain (sunward walls)", Range(0, 8)) = 4.5
-        _RoofGain ("Roof gain (sky light)", Range(0, 4)) = 2.3
+        _Ambient ("Leeward wall light", Range(0, 4)) = 0.28
+        _SunGain ("Sun gain (sunward walls)", Range(0, 8)) = 0.5
+        _RoofGain ("Roof gain (sky light)", Range(0, 4)) = 3.2
         _Alpha ("Alpha", Range(0, 1)) = 1
         [HideInInspector] _SrcBlend ("Src blend", Float) = 1
         [HideInInspector] _DstBlend ("Dst blend", Float) = 0

@@ -53,6 +53,7 @@ namespace Buried.Scene
         private readonly List<MeshRenderer> _fillRenderers = new List<MeshRenderer>();
         private readonly Material _fill;
         private readonly Material _edge;
+        private readonly Material _roofEdge;
 
         public PresentLayer(
             Transform parent,
@@ -79,16 +80,30 @@ namespace Buried.Scene
             _edge.SetFloat("_PixelScale", pixelScale);
             _edge.renderQueue = (int)RenderQueue.Geometry + 800;
 
+            // The roof line: a thin line of the same cold colour, lighter again, along the top of each
+            // building. It is what keeps a dark, matte volume legible (design.md "The present").
+            _roofEdge = new Material(edgeShader) { name = "Present roof edge" };
+            _roofEdge.SetColor("_Color", Color.Lerp(palette.present, palette.muted, 0.6f));
+            _roofEdge.SetFloat("_Emission", 1f);
+            _roofEdge.SetFloat("_GlowAlpha", 0f);
+            _roofEdge.SetFloat("_WidthPx", LookSettings.PresentRoofEdgeWidthCssPx);
+            _roofEdge.SetFloat("_PixelScale", pixelScale);
+            _roofEdge.renderQueue = (int)RenderQueue.Geometry + 801;
+
             var fills = new List<MeshData>();
             var edges = new List<MeshData>();
+            var roofs = new List<MeshData>();
             MeshData fill = null;
             MeshData edge = null;
+            MeshData roof = null;
+            var options = FootprintBuilder.Options.Default;
+            options.RoofLine = true;
             foreach (PresentBuildingDto building in buildings)
             {
                 FootprintBuilder.Result built;
                 try
                 {
-                    built = FootprintBuilder.Build(building.geometry, (float)building.heightM, frame);
+                    built = FootprintBuilder.Build(building.geometry, (float)building.heightM, frame, options);
                 }
                 catch (InvalidOperationException e)
                 {
@@ -112,11 +127,18 @@ namespace Buried.Scene
                     edges.Add(edge);
                 }
                 edge.Append(built.Edges);
+                if (roof == null || roof.VertexCount + built.Roof.VertexCount > MeshChunk.MaxVertices)
+                {
+                    roof = new MeshData();
+                    roofs.Add(roof);
+                }
+                roof.Append(built.Roof);
                 BuildingCount++;
             }
 
             for (int i = 0; i < fills.Count; i++) _fillRenderers.Add(AddRenderer("Fill " + i, fills[i].ToMesh("Present fill " + i), _fill));
             for (int i = 0; i < edges.Count; i++) AddRenderer("Edges " + i, edges[i].ToMesh("Present edges " + i), _edge);
+            for (int i = 0; i < roofs.Count; i++) AddRenderer("Roof edges " + i, roofs[i].ToMesh("Present roof edges " + i), _roofEdge);
 
             SetStage(StageAt(0.0, false));
         }
@@ -144,18 +166,23 @@ namespace Buried.Scene
             _fill.renderQueue = opaque ? (int)RenderQueue.Geometry : (int)RenderQueue.Transparent - 600;
             foreach (MeshRenderer renderer in _fillRenderers) renderer.enabled = stage.FillAlpha > 0.001f;
             _edge.SetFloat("_Alpha", stage.EdgeAlpha);
+            _roofEdge.SetFloat("_Alpha", RoofEdgeAlpha(stage));
+        }
+
+        /// <summary>The roof line's alpha at a stage: solid-fill strength while the fill is drawn, then the wireframe's own edge alpha.</summary>
+        public static float RoofEdgeAlpha(Stage stage)
+        {
+            return Mathf.Max(stage.EdgeAlpha, LookSettings.PresentRoofEdgeAlpha * stage.FillAlpha);
         }
 
         public void Dispose()
         {
-            foreach (Mesh mesh in _meshes)
-            {
-                if (mesh != null) UnityEngine.Object.Destroy(mesh);
-            }
+            foreach (Mesh mesh in _meshes) SceneObjects.Destroy(mesh);
             _meshes.Clear();
-            if (_root != null) UnityEngine.Object.Destroy(_root);
-            if (_fill != null) UnityEngine.Object.Destroy(_fill);
-            if (_edge != null) UnityEngine.Object.Destroy(_edge);
+            SceneObjects.Destroy(_root);
+            SceneObjects.Destroy(_fill);
+            SceneObjects.Destroy(_edge);
+            SceneObjects.Destroy(_roofEdge);
         }
     }
 }
