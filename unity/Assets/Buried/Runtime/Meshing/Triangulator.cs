@@ -22,8 +22,33 @@ namespace Buried.Meshing
     /// </summary>
     public static class Triangulator
     {
-        /// <summary>Twice a triangle's area below which a vertex is treated as collinear.</summary>
-        private const double DegenerateCross = 1e-9;
+        /// <summary>
+        /// A triangle whose height over its longest edge is below this (metres) is treated as collinear. The mesh
+        /// stores float32 positions, which at 50 m from the origin are only good to about 4e-6 m, so a
+        /// sliver thinner than that has no stable normal: bld_fip_v3_1935_229_0009 produced a cap
+        /// triangle 13 m long and 3e-7 m high whose stored normal was zero. 2e-5 m (0.02 mm) is five
+        /// float steps, and a hundredth of PolygonPrep.CollinearToleranceM.
+        /// </summary>
+        private const double SliverHeightM = 2e-5;
+
+        /// <summary>Twice a triangle's area below which it is treated as collinear whatever its edge lengths (Unity's normalized returns zero under 1e-5).</summary>
+        private const double DegenerateCross = 2e-5;
+
+        /// <summary>True when the corners are collinear, or so close to it that float32 storage would not keep the triangle's normal.</summary>
+        private static bool IsDegenerate(Vec2d a, Vec2d b, Vec2d c)
+        {
+            double cross = Math.Abs(Cross(a, b, c));
+            if (cross < DegenerateCross) return true;
+            double longest = Math.Max(Math.Max(Length(a, b), Length(b, c)), Length(c, a));
+            return cross < SliverHeightM * longest;
+        }
+
+        private static double Length(Vec2d a, Vec2d b)
+        {
+            double dx = a.X - b.X;
+            double dy = a.Y - b.Y;
+            return Math.Sqrt(dx * dx + dy * dy);
+        }
 
         public static List<int> Triangulate(PreparedPolygon polygon, out List<Vec2d> vertices)
         {
@@ -245,7 +270,7 @@ namespace Buried.Meshing
                     int ci = s;
                     int ni = (s + 1) % n;
                     double cross = Cross(v[idx[pi]], v[idx[ci]], v[idx[ni]]);
-                    if (Math.Abs(cross) < DegenerateCross)
+                    if (IsDegenerate(v[idx[pi]], v[idx[ci]], v[idx[ni]]))
                     {
                         idx.RemoveAt(ci);
                         progressed = true;
@@ -282,7 +307,7 @@ namespace Buried.Meshing
                 if (!progressed) throw new InvalidOperationException("The polygon cannot be triangulated.");
             }
 
-            if (idx.Count == 3 && Cross(v[idx[0]], v[idx[1]], v[idx[2]]) >= DegenerateCross)
+            if (idx.Count == 3 && !IsDegenerate(v[idx[0]], v[idx[1]], v[idx[2]]) && Cross(v[idx[0]], v[idx[1]], v[idx[2]]) > 0.0)
             {
                 triangles.Add(idx[0]);
                 triangles.Add(idx[1]);
