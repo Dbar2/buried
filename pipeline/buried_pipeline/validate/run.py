@@ -70,6 +70,34 @@ def read_files(
     return loaded, errors
 
 
+def validate_would_be(
+    paths: Paths,
+    replacements: dict[Path, object],
+    now: datetime,
+    schema: SchemaSet | None = None,
+) -> list[ValidationError]:
+    """Validate the `data/` tree as it would be if each file in `replacements` (path to parsed
+    document) took the place of the file on disk (or was added). Nothing is written.
+
+    Reports only the errors on the replaced files, judged against the whole tree, as
+    `buried validate PATH` does. This is the check publish runs before it writes (spec 02 req 10.8).
+    """
+    schema = schema or load_schema(paths.root)
+    replaced = {p.resolve(): doc for p, doc in replacements.items()}
+    on_disk = [p for p in contract_files(paths) if p.resolve() not in replaced]
+    loaded, read_errors = read_files(paths, on_disk)
+    shown: set[str] = set()
+    for p, doc in replaced.items():
+        def_name = def_for_path(p, paths.data)
+        if def_name is None:
+            read_errors.append(err(display_path(paths, p), "/", "not a contract file"))
+            continue
+        shown.add(display_path(paths, p))
+        loaded.append(LoadedFile(display_path(paths, p), p.stem, def_name, doc))
+    report = validate_files(loaded, schema, now)
+    return sorted({e for e in [*report.errors, *read_errors] if e.path in shown})
+
+
 def run_validate(
     paths: Paths,
     requested: Sequence[Path],

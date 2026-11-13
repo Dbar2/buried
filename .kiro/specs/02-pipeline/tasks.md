@@ -235,8 +235,8 @@ task 16), 7, 8, 16, 11, 9.
     Files: `.kiro/steering/tech.md`.
     Requirements: 1.8.
 
-- [ ] 8. Publish accepted proposals (needs spec 01 task 4)
-  - [ ] 8.1 Implement `publish/build.py` (pure): decisions to features per design.md, id
+- [x] 8. Publish accepted proposals (needs spec 01 task 4)
+  - [x] 8.1 Implement `publish/build.py` (pure): decisions to features per design.md, id
     allocation, skip already-published proposal ids, digitising term and position error rule,
     origin observation with `method: origin`, confidence rule, `mapped_area` from the map area,
     reviewed areas with `covers`, `tone_class` into provenance, attribute reads with their crops,
@@ -244,33 +244,33 @@ task 16), 7, 8, 16, 11, 9.
     Files: `pipeline/buried_pipeline/publish/__init__.py`, `pipeline/buried_pipeline/publish/build.py`,
     `pipeline/tests/publish/test_build.py`.
     Requirements: 10.2, 10.4 to 10.7, 10.10, 10.11, 17.3, 20.3.
-  - [ ] 8.2 Implement `buried publish <SOURCE_ID>`: refusals (unregistered, attribution not
+  - [x] 8.2 Implement `buried publish <SOURCE_ID>`: refusals (unregistered, attribution not
     confirmed, stale alignment), in-process validation of the would-be `data/` state, atomic write,
     printed counts.
     Files: `pipeline/buried_pipeline/publish/run.py`, `pipeline/buried_pipeline/cli.py`,
     `pipeline/tests/publish/test_run.py`.
     Requirements: 10.1, 10.3, 10.8, 10.9.
-  - [ ] 8.3 **[PBT] U1** Publish writes a valid file or nothing.
+  - [x] 8.3 **[PBT] U1** Publish writes a valid file or nothing.
     Files: `pipeline/tests/publish/test_publish_properties.py`, `pipeline/tests/publish/strategies.py`.
     Requirements: 10.8.
-  - [ ] 8.4 **[PBT] U2** Only accepted, confirmed proposals are published.
+  - [x] 8.4 **[PBT] U2** Only accepted, confirmed proposals are published.
     Files: `pipeline/tests/publish/test_publish_properties.py`.
     Requirements: 10.2.
-  - [ ] 8.5 **[PBT] U3** Idempotence.
+  - [x] 8.5 **[PBT] U3** Idempotence.
     Files: `pipeline/tests/publish/test_publish_properties.py`.
     Requirements: 10.7.
-  - [ ] 8.6 **[PBT] U4** Ids are never reused or renumbered.
+  - [x] 8.6 **[PBT] U4** Ids are never reused or renumbered.
     Files: `pipeline/tests/publish/test_publish_properties.py`.
     Requirements: 10.6.
-  - [ ] 8.7 **[PBT] U5** Every published feature's position error is at least the root-sum-square
+  - [x] 8.7 **[PBT] U5** Every published feature's position error is at least the root-sum-square
     of the alignment error and the digitising term, rounded up to 0.1 m, and never below the
     reviewer's value.
     Files: `pipeline/tests/publish/test_publish_properties.py`.
     Requirements: 10.4.
-  - [ ] 8.8 Record `uv run buried publish <SOURCE_ID>` in `.kiro/steering/tech.md`.
+  - [x] 8.8 Record `uv run buried publish <SOURCE_ID>` in `.kiro/steering/tech.md`.
     Files: `.kiro/steering/tech.md`.
     Requirements: 1.8.
-  - [ ] 8.9 **[PBT] U6** Reviewed areas are kept across publish runs, and `mapped_area` is set
+  - [x] 8.9 **[PBT] U6** Reviewed areas are kept across publish runs, and `mapped_area` is set
     whenever reviewed areas exist.
     Files: `pipeline/tests/publish/test_publish_properties.py`.
     Requirements: 10.10.

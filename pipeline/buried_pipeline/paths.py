@@ -91,3 +91,13 @@ class Paths:
 
     def extract_preview(self, source_id: str) -> Path:
         return self.work / "extract" / f"{source_id}_preview.jpg"
+
+    def review_file(self, source_id: str) -> Path:
+        """The reviewer's decisions file, written by a person (or by the Studio)."""
+        return self.work / "review" / f"{source_id}.json"
+
+    def evidence_file(self, source_id: str) -> Path:
+        return self.data / "evidence" / f"{source_id}.geojson"
+
+    def tile_sidecar(self, source_id: str) -> Path:
+        return self.data / "tiles" / f"{source_id}.json"

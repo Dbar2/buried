@@ -15,7 +15,7 @@ from buried_pipeline.io.registry import load_registry
 from buried_pipeline.paths import Paths, find_repo_root
 from buried_pipeline.timeutil import utc_now
 
-NOT_IMPLEMENTED = ("publish", "match")
+NOT_IMPLEMENTED = ("match",)
 HttpFactory = Callable[[], HttpClient]
 
 
@@ -96,6 +96,19 @@ def build_parser() -> argparse.ArgumentParser:
         help="check the contract files under data/ against the Schema and the cross-file rules",
     )
     validate.add_argument("paths", nargs="*", type=Path, metavar="PATH")
+
+    publish = sub.add_parser(
+        "publish",
+        parents=[parent],
+        help="write accepted proposals as evidence (needs a reviewer's decisions file)",
+    )
+    publish.add_argument("source_id", metavar="SOURCE_ID")
+    publish.add_argument(
+        "--decisions",
+        type=Path,
+        default=None,
+        help="the decisions file (default: data/work/review/<SOURCE_ID>.json)",
+    )
 
     for name in NOT_IMPLEMENTED:
         stub = sub.add_parser(name, parents=[parent], help="not implemented yet")
@@ -179,6 +192,15 @@ def _dispatch(
         from buried_pipeline.extract.run import run_extract
 
         run_extract(paths, registry, args.source_id, preview=args.preview)
+        return 0
+
+    if command == "publish":
+        from buried_pipeline.publish.run import run_publish
+
+        run_publish(
+            paths, registry, args.source_id, now(),
+            decisions_path=args.decisions.resolve() if args.decisions else None,
+        )  # fmt: skip
         return 0
 
     if command == "control-crops":

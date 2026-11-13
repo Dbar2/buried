@@ -175,8 +175,15 @@ invent commands; when one is added, record it here.
     `data/work/extract/<id>_preview.jpg`: the map area with every proposal outlined, coloured by
     quality band (a debugging aid, spec 02 requirement 21). Thresholds are in
     `pipeline/buried_pipeline/extract/params/v1.json`.
-  - `publish` and `match` are registered and exit 2 with "not
-    implemented yet" until their tasks land.
+  - Write accepted proposals as evidence: `uv run buried publish <SOURCE_ID> [--decisions PATH]`.
+    Reads `data/work/proposals/<id>.geojson`, the decisions file (default
+    `data/work/review/<id>.json`, spec 02 design "Decisions file"; the Studio's v2 file is read
+    for accept and reject only) and the alignment record, then writes
+    `data/evidence/<id>.geojson` atomically, only if the would-be `data/` state passes the
+    Validator. Refuses: unregistered or unconfirmed source, a stale alignment record, no reviewed
+    area, an undecided proposal inside a reviewed area, `material` without a read, `documented`
+    without storeys. Prints counts. Running it twice gives the same file.
+  - `match` is registered and exits 2 with "not implemented yet" until its task lands.
 - Unity (spec 03), run from the repository root with `tools/unity.sh` (headless Unity 6000.3.26f1;
   set `UNITY_BIN` to override the editor path; logs in `unity/Logs/`):
   - `tools/unity.sh exec Buried.Editor.Setup.Run`: creates the palette asset, URP assets, player
