@@ -1,0 +1,7 @@
+{
+  "type": "scene/addFeatures",
+  "payload": {
+    "eraId": "key_ca",
+    "features": []
+  }
+}

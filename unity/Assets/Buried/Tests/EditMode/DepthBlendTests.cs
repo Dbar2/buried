@@ -103,6 +103,21 @@ namespace Buried.Tests
         }
 
         [Test]
+        public void AddedFeaturesRiseOverNineHundredMillisecondsAndOnlyFadeUnderReducedMotion()
+        {
+            Assert.AreEqual(0f, DepthBlend.AddedProgress(0f), Tol);
+            Assert.AreEqual(0.5f, DepthBlend.AddedProgress(0.45f), Tol);
+            Assert.AreEqual(1f, DepthBlend.AddedProgress(5f), Tol);
+            Assert.AreEqual(0f, DepthBlend.AddedRise(0f, false), Tol);
+            Assert.AreEqual(0.5f, DepthBlend.AddedRise(0.5f, false), Tol);
+            Assert.AreEqual(1f, DepthBlend.AddedRise(1f, false), Tol);
+            Assert.AreEqual(1f, DepthBlend.AddedRise(0f, true), Tol, "reduced motion: no rise");
+            Assert.AreEqual(0f, DepthBlend.AddedAlpha(0f), Tol);
+            Assert.AreEqual(0.25f, DepthBlend.AddedAlpha(0.25f), Tol, "reduced motion still fades");
+            Assert.AreEqual(1f, DepthBlend.AddedAlpha(1f), Tol);
+        }
+
+        [Test]
         public void GhostsRiseFromTheGroundInNormalMotion()
         {
             Assert.AreEqual(0f, DepthBlend.Rise(0f, false), Tol);

@@ -1,0 +1,22 @@
+{
+  "type": "scene/addFeatures",
+  "payload": {
+    "eraId": "1911",
+    "features": [
+      {
+        "id": "bld_fip_v3_1911_229_0100",
+        "kind": "building",
+        "geometry": { "type": "Polygon", "coordinates": [[[632440, 4834980], [632452, 4834980], [632452, 4834990], [632440, 4834990], [632440, 4834980]]] },
+        "confidence": "documented",
+        "heightM": 3.5
+      },
+      {
+        "id": "bld_fip_v3_1911_229_0100",
+        "kind": "building",
+        "geometry": { "type": "Polygon", "coordinates": [[[632460, 4834980], [632470, 4834980], [632470, 4834990], [632460, 4834990], [632460, 4834980]]] },
+        "confidence": "documented",
+        "heightM": 3.5
+      }
+    ]
+  }
+}

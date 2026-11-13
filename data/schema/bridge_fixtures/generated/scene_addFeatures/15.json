@@ -1,0 +1,132 @@
+{
+  "type": "scene/addFeatures",
+  "payload": {
+    "eraId": "kz_wsi08_b88p",
+    "features": [
+      {
+        "id": "use_01321_ux2u_y7z_3_9998",
+        "kind": "water",
+        "geometry": {
+          "type": "MultiLineString",
+          "coordinates": [
+            [
+              [
+                792704.679,
+                6632576.739
+              ],
+              [
+                398925.275,
+                7494664.514
+              ],
+              [
+                706130.023,
+                983725.627
+              ],
+              [
+                673309.599,
+                9083895.962
+              ]
+            ]
+          ]
+        },
+        "confidence": "estimated",
+        "heightM": 999.997
+      },
+      {
+        "id": "use_6_1q5z_9995",
+        "kind": "building",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  403252.038,
+                  2890101.222
+                ],
+                [
+                  541789.45,
+                  9390444.114
+                ],
+                [
+                  745315.029,
+                  1105458.886
+                ],
+                [
+                  403252.038,
+                  2890101.222
+                ]
+              ]
+            ]
+          ]
+        },
+        "confidence": "unknown",
+        "heightM": 678.69
+      },
+      {
+        "id": "bld_q4g_6473",
+        "kind": "water",
+        "geometry": {
+          "type": "MultiLineString",
+          "coordinates": [
+            [
+              [
+                226480.957,
+                6838114.337
+              ],
+              [
+                622144.053,
+                1019434.261
+              ],
+              [
+                571364.329,
+                7438487.284
+              ]
+            ]
+          ]
+        },
+        "confidence": "unknown",
+        "heightM": 190.574
+      },
+      {
+        "id": "use_8of_14s_qdzot2_v5ycab_0010",
+        "kind": "building",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  466774.671,
+                  4828669.928
+                ],
+                [
+                  769751.851,
+                  7434493.938
+                ],
+                [
+                  757856.334,
+                  413653.983
+                ],
+                [
+                  205932.927,
+                  1820023.55
+                ],
+                [
+                  770936.255,
+                  2489511.036
+                ],
+                [
+                  466774.671,
+                  4828669.928
+                ]
+              ]
+            ]
+          ]
+        },
+        "confidence": "unknown",
+        "heightM": 578.21
+      }
+    ]
+  }
+}

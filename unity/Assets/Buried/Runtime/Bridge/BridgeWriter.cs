@@ -29,6 +29,7 @@ namespace Buried.Interop
             {
                 case BridgeMessageTypes.SceneInit: payload = Write((SceneInitPayload)message.payload); break;
                 case BridgeMessageTypes.SceneLoadEra: payload = Write((SceneLoadEraPayload)message.payload); break;
+                case BridgeMessageTypes.SceneAddFeatures: payload = Write((SceneAddFeaturesPayload)message.payload); break;
                 case BridgeMessageTypes.SceneSetDepth: payload = Write((SceneSetDepthPayload)message.payload); break;
                 case BridgeMessageTypes.DebugMarkers: payload = Write((DebugMarkersPayload)message.payload); break;
                 case BridgeMessageTypes.DebugSetCamera: payload = Write((DebugSetCameraPayload)message.payload); break;
@@ -131,10 +132,10 @@ namespace Buried.Interop
             };
         }
 
-        private static JObject Write(SceneLoadEraPayload p)
+        private static JArray WriteFeatures(List<SceneFeatureDto> list)
         {
             var features = new JArray();
-            foreach (SceneFeatureDto f in p.features)
+            foreach (SceneFeatureDto f in list)
             {
                 features.Add(new JObject
                 {
@@ -145,6 +146,17 @@ namespace Buried.Interop
                     ["heightM"] = Num(f.heightM),
                 });
             }
+            return features;
+        }
+
+        private static JObject Write(SceneAddFeaturesPayload p)
+        {
+            return new JObject { ["eraId"] = p.eraId, ["features"] = WriteFeatures(p.features) };
+        }
+
+        private static JObject Write(SceneLoadEraPayload p)
+        {
+            JArray features = WriteFeatures(p.features);
             var drapes = new JArray();
             foreach (DrapeDto d in p.drapes)
             {

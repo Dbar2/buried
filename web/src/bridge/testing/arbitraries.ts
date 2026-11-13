@@ -143,6 +143,13 @@ export const messageArbitraries: Readonly<Record<MessageType, Arb<BridgeMessage>
       drapes: fc.uniqueArray(drapeArb, { selector: (d) => d.sourceId, maxLength: 2 }),
     }),
   ),
+  'scene/addFeatures': message(
+    'scene/addFeatures',
+    fc.record({
+      eraId: eraIdArb,
+      features: fc.uniqueArray(sceneFeatureArb, { selector: (f) => f.id, maxLength: 4 }),
+    }),
+  ),
   'scene/setDepth': message('scene/setDepth', fc.record({ depth: milli(0, 64) })),
   'debug/markers': message(
     'debug/markers',

@@ -53,6 +53,31 @@ namespace Buried.Scene
             return Mathf.Clamp01(weight);
         }
 
+        /// <summary>How long features added by scene/addFeatures take to rise (requirement 22.2).</summary>
+        public const float AddedRiseSeconds = 0.9f;
+
+        /// <summary>Progress (0 to 1) of an added batch after <paramref name="elapsedSeconds"/>.</summary>
+        public static float AddedProgress(float elapsedSeconds)
+        {
+            return Mathf.Clamp01(elapsedSeconds / AddedRiseSeconds);
+        }
+
+        /// <summary>
+        /// The extra vertical scale of an added batch at <paramref name="progress"/>: it rises from the
+        /// ground. With reduced motion it does not rise (requirement 18.2); only its alpha changes.
+        /// </summary>
+        public static float AddedRise(float progress, bool reducedMotion)
+        {
+            if (reducedMotion) return 1f;
+            return SmoothStep(0f, 1f, progress);
+        }
+
+        /// <summary>The extra alpha factor of an added batch: it fades in as it rises.</summary>
+        public static float AddedAlpha(float progress)
+        {
+            return Mathf.Clamp01(progress);
+        }
+
         /// <summary>Below this weight an era draws nothing and its objects are switched off.</summary>
         public const float VisibleWeight = 0.0005f;
 

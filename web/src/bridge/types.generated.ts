@@ -14,6 +14,7 @@
 export type BridgeMessage =
   | SceneInitMessage
   | SceneLoadEraMessage
+  | SceneAddFeaturesMessage
   | SceneSetDepthMessage
   | DebugMarkersMessage
   | DebugSetCameraMessage
@@ -108,6 +109,8 @@ export interface BridgeSchemaTypes {
   readyPayload?: ReadyPayload;
   rect?: Rect1;
   ring?: Ring;
+  sceneAddFeaturesMessage?: SceneAddFeaturesMessage;
+  sceneAddFeaturesPayload?: SceneAddFeaturesPayload;
   sceneBounds?: SceneBounds;
   sceneFeature?: SceneFeature;
   sceneInitMessage?: SceneInitMessage;
@@ -133,7 +136,7 @@ export interface SceneInitMessage {
  * via the `definition` "sceneInitPayload".
  */
 export interface SceneInitPayload {
-  bridgeVersion: '0.3.0';
+  bridgeVersion: '0.4.0';
   origin: OriginPoint;
   bounds: SceneBounds;
   initialView: Rect;
@@ -310,6 +313,24 @@ export interface PolygonGeometry1 {
    * @minItems 1
    */
   coordinates: [Ring, ...Ring[]];
+}
+/**
+ * Shell to Player. Adds features to an era that was already loaded; they rise from the ground (fade only under reduced motion). The Shell sends only features the era does not hold yet.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneAddFeaturesMessage".
+ */
+export interface SceneAddFeaturesMessage {
+  type: 'scene/addFeatures';
+  payload: SceneAddFeaturesPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneAddFeaturesPayload".
+ */
+export interface SceneAddFeaturesPayload {
+  eraId: string;
+  features: SceneFeature[];
 }
 /**
  * Shell to Player. Which era is shown.
@@ -528,7 +549,7 @@ export interface ReadyMessage {
  * via the `definition` "readyPayload".
  */
 export interface ReadyPayload {
-  bridgeVersion: '0.3.0';
+  bridgeVersion: '0.4.0';
   unityVersion: string;
 }
 /**

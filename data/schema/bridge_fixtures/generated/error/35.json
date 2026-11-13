@@ -3,6 +3,6 @@
   "payload": {
     "code": "bounds_too_far",
     "message": "K`Q",
-    "messageType": "ready"
+    "messageType": "eraLoaded"
   }
 }

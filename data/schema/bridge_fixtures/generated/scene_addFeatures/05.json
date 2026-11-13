@@ -1,0 +1,37 @@
+{
+  "type": "scene/addFeatures",
+  "payload": {
+    "eraId": "ezz",
+    "features": [
+      {
+        "id": "wtr_q73_4894",
+        "kind": "building",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                169275.673,
+                4551024.532
+              ],
+              [
+                350375.064,
+                218210.928
+              ],
+              [
+                395718.072,
+                4165134.235
+              ],
+              [
+                169275.673,
+                4551024.532
+              ]
+            ]
+          ]
+        },
+        "confidence": "documented",
+        "heightM": 300.809
+      }
+    ]
+  }
+}

@@ -30,6 +30,22 @@ namespace Buried.Scene
         private readonly List<MeshData> _edgeChunks = new List<MeshData>();
         private readonly List<Mesh> _meshes = new List<Mesh>();
         private readonly List<DrapeLayer> _drapes = new List<DrapeLayer>();
+        private readonly HashSet<string> _ids = new HashSet<string>();
+        private readonly List<AddedBatch> _batches = new List<AddedBatch>();
+        private bool _reducedMotion;
+
+        /// <summary>
+        /// One scene/addFeatures call: its own meshes and material copies, so that it can rise on its
+        /// own clock while the era sits at any weight (requirement 22.2).
+        /// </summary>
+        private sealed class AddedBatch
+        {
+            public readonly List<MeshChunk> Chunks = new List<MeshChunk>();
+            public Material Fill;
+            public Material Edge;
+            public float Start = float.NaN;
+            public float Progress;
+        }
 
         // This era's own copies of the ghost materials, so that its weight can change without touching
         // another era's (two eras are drawn at once between them).
@@ -94,6 +110,7 @@ namespace Buried.Scene
                     _chunks.Add(chunk);
                 }
                 chunk.Add(feature.id, built.Fill);
+                _ids.Add(feature.id);
 
                 if (edgeChunk == null || edgeChunk.VertexCount + built.Edges.VertexCount > MeshChunk.MaxVertices)
                 {
@@ -116,6 +133,124 @@ namespace Buried.Scene
                 AddRenderer("Edges " + n, e.ToMesh("Edges " + EraId + " " + n), _edge);
                 n++;
             }
+        }
+
+        /// <summary>
+        /// Adds features to a loaded era (scene/addFeatures). They rise from the ground over 900 ms
+        /// once the era is visible, or only fade under reduced motion. A feature whose id the era
+        /// already draws is reported and skipped: the Shell sends only new features. Returns the number
+        /// of features drawn.
+        /// </summary>
+        public int AddRising(
+            IEnumerable<SceneFeatureDto> features,
+            ProjectFrame frame,
+            Action<string, string> onFailure)
+        {
+            var batch = new AddedBatch();
+            var edgeChunks = new List<MeshData>();
+            MeshChunk chunk = null;
+            MeshData edgeChunk = null;
+            int added = 0;
+            foreach (SceneFeatureDto feature in features)
+            {
+                if (feature.kind != SceneFeatureDto.KindBuilding) continue;
+                if (_ids.Contains(feature.id))
+                {
+                    onFailure(feature.id, "the era already draws this feature");
+                    continue;
+                }
+
+                FootprintBuilder.Result built;
+                try
+                {
+                    built = FootprintBuilder.Build(feature.geometry, (float)feature.heightM, frame);
+                }
+                catch (InvalidOperationException e)
+                {
+                    onFailure(feature.id, e.Message);
+                    continue;
+                }
+                if (built == null)
+                {
+                    onFailure(feature.id, "the footprint has no area after cleaning");
+                    continue;
+                }
+
+                if (chunk == null || !chunk.CanTake(built.Fill))
+                {
+                    chunk = new MeshChunk();
+                    batch.Chunks.Add(chunk);
+                }
+                chunk.Add(feature.id, built.Fill);
+                _ids.Add(feature.id);
+
+                if (edgeChunk == null || edgeChunk.VertexCount + built.Edges.VertexCount > MeshChunk.MaxVertices)
+                {
+                    edgeChunk = new MeshData();
+                    edgeChunks.Add(edgeChunk);
+                }
+                edgeChunk.Append(built.Edges);
+                added++;
+            }
+            if (added == 0) return 0;
+
+            batch.Fill = new Material(_fill) { name = _fill.name + " added" };
+            batch.Edge = new Material(_edge) { name = _edge.name + " added" };
+            int n = 0;
+            foreach (MeshChunk c in batch.Chunks)
+            {
+                AddRenderer("Added ghosts " + n, c.BuildMesh("Added ghosts " + EraId + " " + n), batch.Fill);
+                n++;
+            }
+            n = 0;
+            foreach (MeshData e in edgeChunks)
+            {
+                AddRenderer("Added edges " + n, e.ToMesh("Added edges " + EraId + " " + n), batch.Edge);
+                n++;
+            }
+            _batches.Add(batch);
+            FeatureCount += added;
+            ApplyBatch(batch);
+            return added;
+        }
+
+        /// <summary>True while a batch added by scene/addFeatures is still rising.</summary>
+        public bool IsRising
+        {
+            get
+            {
+                foreach (AddedBatch b in _batches)
+                {
+                    if (b.Progress < 1f) return true;
+                }
+                return false;
+            }
+        }
+
+        /// <summary>Advances the rise of added batches. A batch starts when the era first has weight.</summary>
+        public void Tick(float now)
+        {
+            foreach (AddedBatch batch in _batches)
+            {
+                if (batch.Progress >= 1f) continue;
+                if (float.IsNaN(batch.Start))
+                {
+                    if (Weight <= DepthBlend.VisibleWeight) continue;
+                    batch.Start = now;
+                }
+                batch.Progress = DepthBlend.AddedProgress(now - batch.Start);
+                ApplyBatch(batch);
+            }
+        }
+
+        private void ApplyBatch(AddedBatch batch)
+        {
+            float alpha = DepthBlend.GhostAlpha(Weight) * DepthBlend.AddedAlpha(batch.Progress);
+            float rise = DepthBlend.Rise(Weight, _reducedMotion) * DepthBlend.AddedRise(batch.Progress, _reducedMotion);
+            batch.Fill.SetFloat("_Weight", alpha);
+            batch.Fill.SetFloat("_Rise", rise);
+            batch.Edge.SetFloat("_Alpha", alpha);
+            batch.Edge.SetFloat("_Rise", rise);
         }
 
         private void AddRenderer(string name, Mesh mesh, Material material)
@@ -163,6 +298,8 @@ namespace Buried.Scene
             }
             float opacity = DepthBlend.DrapeOpacity(Weight);
             foreach (DrapeLayer drape in _drapes) drape.SetOpacity(opacity);
+            _reducedMotion = reducedMotion;
+            foreach (AddedBatch batch in _batches) ApplyBatch(batch);
         }
 
         public bool Raycast(Ray ray, out float distance, out string featureId)
@@ -179,6 +316,19 @@ namespace Buried.Scene
                     featureId = id;
                 }
             }
+            foreach (AddedBatch batch in _batches)
+            {
+                foreach (MeshChunk chunk in batch.Chunks)
+                {
+                    float d;
+                    string id;
+                    if (chunk.Raycast(ray, out d, out id) && d < distance)
+                    {
+                        distance = d;
+                        featureId = id;
+                    }
+                }
+            }
             return featureId != null;
         }
 
@@ -193,6 +343,12 @@ namespace Buried.Scene
             _meshes.Clear();
             if (_fill != null) UnityEngine.Object.Destroy(_fill);
             if (_edge != null) UnityEngine.Object.Destroy(_edge);
+            foreach (AddedBatch batch in _batches)
+            {
+                if (batch.Fill != null) UnityEngine.Object.Destroy(batch.Fill);
+                if (batch.Edge != null) UnityEngine.Object.Destroy(batch.Edge);
+            }
+            _batches.Clear();
             if (_root != null) UnityEngine.Object.Destroy(_root);
         }
     }

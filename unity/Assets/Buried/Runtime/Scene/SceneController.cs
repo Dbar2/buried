@@ -13,7 +13,7 @@ namespace Buried.Scene
     /// <summary>
     /// Handles the Shell's messages and builds the scene from them. It draws what it is told: it never
     /// computes dates, confidence or lot relations, and it never filters the features of an era.
-    /// Bridge 0.3.0: scene/init, scene/loadEra, scene/setDepth, debug/markers and debug/setCamera.
+    /// Bridge 0.4.0: scene/init, scene/loadEra, scene/addFeatures, scene/setDepth, debug/markers and debug/setCamera.
     /// The depth is a fraction while the Shell tweens between eras; each era is drawn at its weight
     /// (DepthBlend) and the present buildings drain to a faint outline.
     /// </summary>
@@ -93,6 +93,9 @@ namespace Buried.Scene
                 {
                     case BridgeMessageTypes.SceneLoadEra:
                         StartCoroutine(LoadEra((SceneLoadEraPayload)message.payload));
+                        break;
+                    case BridgeMessageTypes.SceneAddFeatures:
+                        HandleAddFeatures((SceneAddFeaturesPayload)message.payload);
                         break;
                     case BridgeMessageTypes.SceneSetDepth:
                         HandleSetDepth((SceneSetDepthPayload)message.payload);
@@ -350,6 +353,35 @@ namespace Buried.Scene
             });
         }
 
+        private void HandleAddFeatures(SceneAddFeaturesPayload payload)
+        {
+            int index;
+            if (!_eraIndexById.TryGetValue(payload.eraId, out index))
+            {
+                _bridge.SendError(
+                    BridgeErrorCodes.EraNotInitialised,
+                    "era \"" + payload.eraId + "\" was not listed in scene/init",
+                    BridgeMessageTypes.SceneAddFeatures);
+                return;
+            }
+
+            EraLayer layer;
+            if (!_layers.TryGetValue(payload.eraId, out layer))
+            {
+                _bridge.SendError(
+                    BridgeErrorCodes.EraNotInitialised,
+                    "era \"" + payload.eraId + "\" has not been loaded with scene/loadEra",
+                    BridgeMessageTypes.SceneAddFeatures);
+                return;
+            }
+
+            layer.AddRising(
+                payload.features,
+                _frame,
+                (featureId, reason) => _bridge.SendError(
+                    BridgeErrorCodes.MeshBuildFailed, "feature " + featureId + ": " + reason, BridgeMessageTypes.SceneAddFeatures));
+        }
+
         private void HandleSetDepth(SceneSetDepthPayload payload)
         {
             if (payload.depth > _eraCount - 1)
@@ -410,6 +442,11 @@ namespace Buried.Scene
         private void Update()
         {
             if (!_initialised) return;
+
+            foreach (EraLayer layer in _layers.Values)
+            {
+                if (layer.IsRising) layer.Tick(Time.unscaledTime);
+            }
 
             if (Input.GetMouseButtonDown(0)) _pointerDown = Input.mousePosition;
             if (Input.GetMouseButtonUp(0))

@@ -3,6 +3,6 @@
   "payload": {
     "code": "unknown_type",
     "message": "",
-    "messageType": "featureClicked"
+    "messageType": "eraLoaded"
   }
 }

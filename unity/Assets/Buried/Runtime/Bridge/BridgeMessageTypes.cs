@@ -8,6 +8,7 @@ namespace Buried.Interop
         // Shell to Player
         public const string SceneInit = "scene/init";
         public const string SceneLoadEra = "scene/loadEra";
+        public const string SceneAddFeatures = "scene/addFeatures";
         public const string SceneSetDepth = "scene/setDepth";
         public const string DebugMarkers = "debug/markers";
         public const string DebugSetCamera = "debug/setCamera";
@@ -19,7 +20,7 @@ namespace Buried.Interop
         public const string CameraChanged = "cameraChanged";
         public const string Error = "error";
 
-        public static readonly string[] ShellToPlayer = { SceneInit, SceneLoadEra, SceneSetDepth, DebugMarkers, DebugSetCamera };
+        public static readonly string[] ShellToPlayer = { SceneInit, SceneLoadEra, SceneAddFeatures, SceneSetDepth, DebugMarkers, DebugSetCamera };
         public static readonly string[] PlayerToShell = { Ready, EraLoaded, FeatureClicked, CameraChanged, Error };
 
         public static bool IsShellToPlayer(string type)

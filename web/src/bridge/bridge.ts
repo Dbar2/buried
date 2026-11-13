@@ -18,7 +18,14 @@ export type MessageType = BridgeMessage['type'];
 export type MessageOf<T extends MessageType> = Extract<BridgeMessage, { type: T }>;
 export type PayloadOf<T extends MessageType> = MessageOf<T>['payload'];
 
-export const SHELL_TO_PLAYER = ['scene/init', 'scene/loadEra', 'scene/setDepth', 'debug/markers', 'debug/setCamera'] as const;
+export const SHELL_TO_PLAYER = [
+  'scene/init',
+  'scene/loadEra',
+  'scene/addFeatures',
+  'scene/setDepth',
+  'debug/markers',
+  'debug/setCamera',
+] as const;
 export const PLAYER_TO_SHELL = ['ready', 'eraLoaded', 'featureClicked', 'cameraChanged', 'error'] as const;
 export type ShellToPlayerType = (typeof SHELL_TO_PLAYER)[number];
 export type PlayerToShellType = (typeof PLAYER_TO_SHELL)[number];
@@ -109,6 +116,13 @@ export function semanticProblem(message: BridgeMessage): string | null {
       if (dupDrape !== null) return `payload.drapes has the source id "${dupDrape}" more than once`;
       if (p.features.some((f) => firstOpenRing(f.geometry))) return 'payload.features has a ring that is not closed';
       if (p.drapes.some((d) => d.clip !== undefined && firstOpenRing(d.clip))) return 'payload.drapes has a clip ring that is not closed';
+      return null;
+    }
+    case 'scene/addFeatures': {
+      const p = message.payload;
+      const dupFeature = firstDuplicate(p.features.map((f) => f.id));
+      if (dupFeature !== null) return `payload.features has the feature id "${dupFeature}" more than once`;
+      if (p.features.some((f) => firstOpenRing(f.geometry))) return 'payload.features has a ring that is not closed';
       return null;
     }
     case 'debug/markers': {

@@ -39,6 +39,7 @@ namespace Buried.Interop
             {
                 case BridgeMessageTypes.SceneInit: return new ParsedMessage(type, ParseSceneInit(payload));
                 case BridgeMessageTypes.SceneLoadEra: return new ParsedMessage(type, ParseSceneLoadEra(payload));
+                case BridgeMessageTypes.SceneAddFeatures: return new ParsedMessage(type, ParseSceneAddFeatures(payload));
                 case BridgeMessageTypes.SceneSetDepth: return new ParsedMessage(type, ParseSceneSetDepth(payload));
                 case BridgeMessageTypes.DebugMarkers: return new ParsedMessage(type, ParseDebugMarkers(payload));
                 case BridgeMessageTypes.DebugSetCamera: return new ParsedMessage(type, ParseDebugSetCamera(payload));
@@ -201,6 +202,24 @@ namespace Buried.Interop
             JArray drapes = JsonFields.ArrayAt(o, "drapes", p);
             for (int i = 0; i < drapes.Count; i++) result.drapes.Add(ParseDrape(drapes[i], p + ".drapes[" + i + "]"));
             JsonFields.RequireUnique(result.drapes.Select(d => d.sourceId), p + ".drapes", "source id");
+            return result;
+        }
+
+        private static SceneAddFeaturesPayload ParseSceneAddFeatures(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.Exactly(o, p, "eraId", "features");
+            var result = new SceneAddFeaturesPayload
+            {
+                eraId = JsonFields.Matching(o, "eraId", p, JsonFields.EraIdPattern),
+                features = new List<SceneFeatureDto>(),
+            };
+            JArray features = JsonFields.ArrayAt(o, "features", p);
+            for (int i = 0; i < features.Count; i++)
+            {
+                result.features.Add(ParseSceneFeature(features[i], p + ".features[" + i + "]"));
+            }
+            JsonFields.RequireUnique(result.features.Select(f => f.id), p + ".features", "feature id");
             return result;
         }
 

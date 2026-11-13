@@ -1,0 +1,39 @@
+{
+  "type": "scene/addFeatures",
+  "payload": {
+    "eraId": "a",
+    "features": [
+      {
+        "id": "use_fcag5_7pz_1125",
+        "kind": "water",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  502983.759,
+                  59280.305
+                ],
+                [
+                  579678.29,
+                  6206934.69
+                ],
+                [
+                  685942.226,
+                  4654557.594
+                ],
+                [
+                  502983.759,
+                  59280.305
+                ]
+              ]
+            ]
+          ]
+        },
+        "confidence": "unknown",
+        "heightM": 479.58
+      }
+    ]
+  }
+}
