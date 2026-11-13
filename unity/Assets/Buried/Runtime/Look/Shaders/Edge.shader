@@ -35,6 +35,10 @@ Shader "Buried/Edge"
         _PlinthM ("Plinth height (m)", Float) = 1
         [HideInInspector] _ZTest ("Z test", Float) = 4
         _Fogged ("Distance fog applies (1) or not (0)", Range(0, 1)) = 1
+        _StoreyAlpha ("A storey line's alpha, as a share of the edge's", Range(0, 1)) = 1
+        _StoreyFade ("Storey lines fade out between these camera distances (m): near, far (0 far: no fade)", Vector) = (0, 0, 0, 0)
+        _HeldAlpha ("Held (before Raise): alpha of the flat outline a ghost's edge makes on the ground", Range(0, 1)) = 0
+        _HeldColor ("Held outline colour", Color) = (0.43, 0.51, 0.46, 1)
     }
     SubShader
     {
@@ -76,11 +80,16 @@ Shader "Buried/Edge"
                 float4 _RaiseParams;
                 half _Sink;
                 float _PlinthM;
+                half _StoreyAlpha;
+                float4 _StoreyFade;
+                half _HeldAlpha;
+                half4 _HeldColor;
             CBUFFER_END
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
+                float3 normalOS : NORMAL;
                 float4 other : TANGENT;
                 float2 uv : TEXCOORD0;
                 float2 centre : TEXCOORD1;
@@ -93,6 +102,8 @@ Shader "Buried/Edge"
                 float transmission : TEXCOORD1;
                 float dashPhase : TEXCOORD2;
                 float raiseAlpha : TEXCOORD3;
+                float lineAlpha : TEXCOORD4;
+                float heldMix : TEXCOORD5;
             };
 
             Varyings vert(Attributes input)
@@ -103,12 +114,15 @@ Shader "Buried/Edge"
                 float dashCoordinate = input.uv.x + hereOS.y; // before the rise: a corner dashes as it grows
                 float raiseRise = 1.0;
                 output.raiseAlpha = 1.0;
+                output.heldMix = 0.0;
                 if (_RaiseOn > 0.5)
                 {
                     // Raise the past: the edges lead the fill (RaiseSchedule.EdgeAlpha) and grow from the ground.
                     float p = BuriedRaiseProgress(input.centre, _RaiseParams);
                     raiseRise = BuriedSmooth(p);
                     output.raiseAlpha = BuriedSmooth(p / 0.5);
+                    // Before the ghost stands, its edges lie flat on the paper as a faint outline (session 043).
+                    output.heldMix = 1.0 - output.raiseAlpha;
                 }
                 // Today's buildings sink toward a plinth: every height above _PlinthM is pulled down to it.
                 hereOS.y = lerp(hereOS.y, min(hereOS.y, _PlinthM), _Sink);
@@ -139,6 +153,15 @@ Shader "Buried/Edge"
                 output.across = side * halfWidth;
                 output.transmission = BuriedTransmission(here);
 
+                // A storey line (EdgeMeshBuilder marks it with normal.x = 1) is a hairline: a share of the edge's alpha, fading
+                // out with distance so it does not alias into noise from far away.
+                float storey = step(0.5, input.normalOS.x);
+                float cameraDistance = distance(_WorldSpaceCameraPos, here);
+                float fade = _StoreyFade.y > _StoreyFade.x
+                    ? saturate((_StoreyFade.y - cameraDistance) / (_StoreyFade.y - _StoreyFade.x))
+                    : 1.0;
+                output.lineAlpha = lerp(1.0, _StoreyAlpha * fade, storey);
+
                 // Metres per device pixel at this vertex, from the projection's vertical scale.
                 float tanHalfFov = 1.0 / max(abs(UNITY_MATRIX_P._m11), 1e-4);
                 float metresPerPixel = distance(_WorldSpaceCameraPos, here) * 2.0 * tanHalfFov / _ScreenParams.y;
@@ -160,12 +183,16 @@ Shader "Buried/Edge"
                 // 1 to 2 px ring stays visible instead of fading away across its width.
                 float casing = saturate(core + _GlowPx * _PixelScale - a + 0.5) * _GlowAlpha;
                 glowAlpha = lerp(glowAlpha, casing, step(0.5, _GlowMix));
-                float alpha = max(coreAlpha, glowAlpha) * _Alpha * input.raiseAlpha;
+                float alpha = max(coreAlpha, glowAlpha) * _Alpha * input.raiseAlpha * input.lineAlpha;
                 half3 rgb = _Color.rgb * _Emission;
                 // The glow ring can take its own colour (_GlowMix 1): a ghost's `night` casing keeps its
                 // `ink` line readable over a pale draped plate. Nothing else sets it, so 0 is the old look.
                 float inGlow = step(core, a) * _GlowMix;
                 rgb = lerp(rgb, _GlowColor.rgb, inGlow);
+                // Held: a thin flat outline in the held colour, no casing, until the ghost's own edges take over.
+                float heldAlpha = coreAlpha * _HeldAlpha * _Alpha * input.heldMix;
+                alpha = max(alpha * (1.0 - input.heldMix), heldAlpha);
+                rgb = lerp(rgb, _HeldColor.rgb, input.heldMix);
                 rgb = lerp(rgb, BuriedApplyFog(rgb, input.transmission), _Fogged);
                 return half4(rgb, alpha);
             }

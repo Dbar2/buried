@@ -27,6 +27,12 @@ Shader "Buried/Drape"
         _LightFloor ("Light far from the pool", Range(0, 1)) = 0.38
         _Gain ("Sheet brightness of the lit display (the first visit dims it until Raise)", Range(0, 1)) = 1
         _SheetFogRelief ("How far the distance fog is kept off the lit sheet", Range(0, 1)) = 0.6
+        _WarmTint ("Lit sheet: tint under the pool (the lamp's colour, normalised)", Color) = (1, 1, 1, 1)
+        _CoolTint ("Lit sheet: tint far from the pool (cool ambient)", Color) = (1, 1, 1, 1)
+        _SheetMode ("0 a draped raster, 1 the first visit's page (crisp edge, ink rule), 2 its contact shadow", Float) = 0
+        _SheetSize ("Page: width and height in metres", Vector) = (1, 1, 0, 0)
+        _SheetRule ("Page: ink rule inset (m), width (m), alpha", Vector) = (1.4, 0.35, 0.8, 0)
+        _ShadowShift ("Shadow: throw x, y (m), peak alpha, softness (m)", Vector) = (1.6, 1.6, 0.6, 1.8)
         [HideInInspector] _LensMode ("Lantern lens: 0 everywhere, 1 inside, 2 outside", Float) = 0
     }
     SubShader
@@ -66,6 +72,12 @@ Shader "Buried/Drape"
                 half _LightFloor;
                 half _Gain;
                 half _SheetFogRelief;
+                half4 _WarmTint;
+                half4 _CoolTint;
+                half _SheetMode;
+                float4 _SheetSize;
+                float4 _SheetRule;
+                float4 _ShadowShift;
                 half _LensMode;
             CBUFFER_END
 
@@ -94,8 +106,19 @@ Shader "Buried/Drape"
             half4 frag(Varyings input) : SV_Target
             {
                 BuriedLensClip(input.positionCS, _LensMode);
-                half4 c = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+                if (_SheetMode > 1.5)
+                {
+                    // The page's contact shadow on the table: its uv is metres from the page's top-left corner, down-positive.
+                    // Full under the page (which covers it), then soft beyond its edge, thrown along the lamp's travel.
+                    float2 q = input.uv - _ShadowShift.xy;
+                    float2 outside = max(max(-q, q - _SheetSize.xy), 0.0);
+                    float d = length(outside);
+                    half shadow = _ShadowShift.z * exp(-d / max(_ShadowShift.w, 1e-3));
+                    return half4(_LineColor.rgb, shadow * saturate(BuriedTransmission(input.positionWS) * 1.5));
+                }
+                half4 c = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, saturate(input.uv));
                 half3 rgb = c.rgb;
+                half3 lightMul = half3(1.0, 1.0, 1.0);
                 if (_Lit > 0.5)
                 {
                     // The tone curve: the scan's luminance, smoothly, from line work to paper.
@@ -104,16 +127,29 @@ Shader "Buried/Drape"
                     half3 toned = lerp(_LineColor.rgb, _PaperColor.rgb, t);
                     rgb = lerp(rgb, toned, _Recolour);
 
-                    // One light pool, brightest at its centre, falling off to the floor.
+                    // One light pool, brightest at its centre, falling off to the floor. Under the pool the light is the
+                    // lamp's warm colour; far from it only the cool ambient is left.
                     float2 fromPool = input.positionWS.xz - _BuriedLightPool.xy;
                     float radius = max(_BuriedLightPool.z, 1.0);
                     half pool = exp(-dot(fromPool, fromPool) / (radius * radius));
-                    rgb *= lerp(_LightFloor, 1.0, pool) * _Gain;
+                    lightMul = lerp(_LightFloor, 1.0, pool) * _Gain * lerp(_CoolTint.rgb, _WarmTint.rgb, pool);
+                    rgb *= lightMul;
                 }
                 float2 maskUv = (input.positionWS.xz - _MaskRect.xy) * _MaskRect.zw;
                 half2 m = SAMPLE_TEXTURE2D(_MaskTex, sampler_MaskTex, maskUv).rg;
                 half mask = lerp(m.r, m.g, _UseCoverage);
                 half fog = lerp(saturate(BuriedTransmission(input.positionWS)), 1.0, _UseCoverage);
+                if (_SheetMode > 0.5)
+                {
+                    // The page: the mesh is exactly the tile's rectangle, so there is no mask and a crisp edge; a thin ink rule
+                    // runs just inside the edge.
+                    mask = 1.0;
+                    float2 metres = float2(input.uv.x * _SheetSize.x, (1.0 - input.uv.y) * _SheetSize.y);
+                    float edge = min(min(metres.x, _SheetSize.x - metres.x), min(metres.y, _SheetSize.y - metres.y));
+                    float aa = max(fwidth(edge), 1e-3);
+                    float rule = 1.0 - smoothstep(0.5 * _SheetRule.y, 0.5 * _SheetRule.y + aa, abs(edge - _SheetRule.x));
+                    rgb = lerp(rgb, _LineColor.rgb * lightMul, rule * _SheetRule.z);
+                }
                 if (_Lit > 0.5)
                 {
                     // The lantern lights the sheet through the fog: under the pool the distance fog hardly

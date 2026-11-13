@@ -4,16 +4,40 @@
     "height": 1000,
     "anchors": [
       {
-        "feature_id": "bld_fip_v3_1911_229_0001",
-        "x": 1025.4,
-        "y": 486.2,
+        "feature_id": "bld_fip_v3_1911_229_0101",
+        "x": 874.5,
+        "y": 353.8,
         "on_screen": true
       },
       {
-        "feature_id": "bld_fip_v3_1911_229_0101",
-        "x": 991.1,
-        "y": 487.3,
+        "feature_id": "bld_fip_v3_1911_229_0001",
+        "x": 943.6,
+        "y": 329.0,
         "on_screen": true
+      },
+      {
+        "feature_id": "use_fip_v3_1911_229_0001",
+        "x": -184.7,
+        "y": 1081.3,
+        "on_screen": false
+      },
+      {
+        "feature_id": "bld_fip_v3_1911_229_0102",
+        "x": 768.9,
+        "y": 466.4,
+        "on_screen": true
+      },
+      {
+        "feature_id": "bld_fip_v3_1911_229_0104",
+        "x": 121.0,
+        "y": 334.4,
+        "on_screen": true
+      },
+      {
+        "feature_id": "bld_fip_v3_1911_229_0105",
+        "x": 874.0,
+        "y": 2417.7,
+        "on_screen": false
       }
     ]
   },
@@ -22,15 +46,39 @@
     "height": 1600,
     "anchors": [
       {
-        "feature_id": "bld_fip_v3_1911_229_0001",
-        "x": 469.8,
-        "y": 750.4,
+        "feature_id": "bld_fip_v3_1911_229_0101",
+        "x": 390.4,
+        "y": 462.0,
         "on_screen": true
       },
       {
-        "feature_id": "bld_fip_v3_1911_229_0101",
-        "x": 380.8,
-        "y": 753.6,
+        "feature_id": "bld_fip_v3_1911_229_0001",
+        "x": 457.0,
+        "y": 439.8,
+        "on_screen": true
+      },
+      {
+        "feature_id": "use_fip_v3_1911_229_0001",
+        "x": -455.3,
+        "y": 996.7,
+        "on_screen": false
+      },
+      {
+        "feature_id": "bld_fip_v3_1911_229_0102",
+        "x": 289.3,
+        "y": 558.4,
+        "on_screen": true
+      },
+      {
+        "feature_id": "bld_fip_v3_1911_229_0104",
+        "x": -313.6,
+        "y": 443.6,
+        "on_screen": false
+      },
+      {
+        "feature_id": "bld_fip_v3_1911_229_0105",
+        "x": 324.0,
+        "y": 1571.0,
         "on_screen": true
       }
     ]

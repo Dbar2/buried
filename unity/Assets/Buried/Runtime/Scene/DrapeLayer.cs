@@ -161,10 +161,128 @@ namespace Buried.Scene
         public void SetLensMode(int mode)
         {
             LensMaterial.SetMode(_material, mode);
+            if (_shadowMaterial != null) LensMaterial.SetMode(_shadowMaterial, mode);
+            if (_wallMaterial != null) LensMaterial.SetMode(_wallMaterial, mode);
+        }
+
+        // ---- The page (session 043) ----
+
+        private readonly List<GameObject> _pageObjects = new List<GameObject>();
+        private readonly List<Mesh> _pageMeshes = new List<Mesh>();
+        private Material _shadowMaterial;
+        private Material _wallMaterial;
+
+        /// <summary>
+        /// Makes this drape the first visit's page: the whole tile with a crisp edge and a thin ink rule just inside it, about
+        /// <see cref="LookSettings.SheetThicknessM"/> of paper below it (its four sides, shaded by the lamp) and a soft contact
+        /// shadow on the table, thrown along the lamp's travel. The table must sit that far below the sheet (the caller lowers it).
+        /// </summary>
+        public void MakePage(Transform parent, ProjectFrame frame, DrapeDto drape, BuriedPalette palette, Shader ghostShader)
+        {
+            DrapeCornersDto c = drape.corners;
+            Vec2d tl = frame.ToLocal(c.topLeft[0], c.topLeft[1]);
+            Vec2d tr = frame.ToLocal(c.topRight[0], c.topRight[1]);
+            Vec2d br = frame.ToLocal(c.bottomRight[0], c.bottomRight[1]);
+            Vec2d bl = frame.ToLocal(c.bottomLeft[0], c.bottomLeft[1]);
+            double width = System.Math.Sqrt((tr.X - tl.X) * (tr.X - tl.X) + (tr.Y - tl.Y) * (tr.Y - tl.Y));
+            double height = System.Math.Sqrt((bl.X - tl.X) * (bl.X - tl.X) + (bl.Y - tl.Y) * (bl.Y - tl.Y));
+            var uHat = new Vector2((float)((tr.X - tl.X) / width), (float)((tr.Y - tl.Y) / width));
+            var vHat = new Vector2((float)((bl.X - tl.X) / height), (float)((bl.Y - tl.Y) / height));
+            var origin = new Vector2((float)tl.X, (float)tl.Y);
+
+            // The page itself: a crisp edge, an ink rule, and the lamp's warm light under the pool.
+            _material.SetFloat("_SheetMode", 1f);
+            _material.SetVector("_SheetSize", new Vector4((float)width, (float)height, 0f, 0f));
+            _material.SetVector(
+                "_SheetRule",
+                new Vector4(LookSettings.SheetRuleInsetM, LookSettings.SheetRuleWidthM, LookSettings.SheetRuleAlpha, 0f));
+            _material.SetColor("_WarmTint", Color.Lerp(Color.white, palette.lantern, 0.55f * LookSettings.SheetWarmth));
+            _material.SetColor("_CoolTint", Color.Lerp(Color.white, palette.copper, 0.6f * LookSettings.SheetCoolness));
+
+            float t = LookSettings.SheetThicknessM;
+            Vector3 Pt(float a, float b, float y)
+            {
+                Vector2 p = origin + uHat * a + vHat * b;
+                return new Vector3(p.x, y, p.y);
+            }
+
+            // The sides of the paper, from the sheet down to the table: normals point out of the page.
+            var walls = new MeshData();
+            float w = (float)width, h = (float)height;
+            AddWall(walls, Pt(0f, 0f, 0f), Pt(w, 0f, 0f), t, -vHat);
+            AddWall(walls, Pt(w, 0f, 0f), Pt(w, h, 0f), t, uHat);
+            AddWall(walls, Pt(w, h, 0f), Pt(0f, h, 0f), t, vHat);
+            AddWall(walls, Pt(0f, h, 0f), Pt(0f, 0f, 0f), t, -uHat);
+            Color side = (Color)palette.parchment * LookSettings.SheetSideBrightness;
+            side.a = 1f;
+            _wallMaterial = new Material(ghostShader) { name = "Page sides " + SourceId };
+            _wallMaterial.SetColor("_Color", side);
+            _wallMaterial.SetColor("_ShadeColor", palette.copper);
+            _wallMaterial.SetFloat("_Shade", 0.6f);
+            _wallMaterial.SetFloat("_ShadeMix", 0.7f);
+            _wallMaterial.SetFloat("_Emission", 0f);
+            _wallMaterial.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.One);
+            _wallMaterial.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.Zero);
+            _wallMaterial.SetFloat("_ZWrite", 1f);
+            _wallMaterial.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Off);
+            _wallMaterial.renderQueue = 2000;
+            AddPageObject(parent, "Page sides", walls.ToMesh("Page sides " + SourceId), _wallMaterial);
+
+            // The contact shadow: a quad on the table, a margin larger than the page, whose uv is metres from the page's corner.
+            float m = LookSettings.SheetShadowMarginM;
+            var shadow = new MeshData();
+            Vector2[] ab = { new Vector2(-m, -m), new Vector2(w + m, -m), new Vector2(w + m, h + m), new Vector2(-m, h + m) };
+            for (int i = 0; i < 4; i++) shadow.AddVertex(Pt(ab[i].x, ab[i].y, -t + 0.01f), Vector3.up, ab[i]);
+            shadow.AddTriangle(0, 2, 1);
+            shadow.AddTriangle(0, 3, 2);
+            _shadowMaterial = new Material(_material.shader) { name = "Page shadow " + SourceId };
+            _shadowMaterial.SetFloat("_SheetMode", 2f);
+            _shadowMaterial.SetFloat("_Lit", 0f);
+            _shadowMaterial.SetColor("_LineColor", Color.black);
+            _shadowMaterial.SetVector("_SheetSize", new Vector4(w, h, 0f, 0f));
+            // The throw is along the lamp's travel, in the page's own metres (u along the top edge, v down the side).
+            Vector3 lamp = LookSettings.LampToward();
+            var travel = new Vector2(-lamp.x, -lamp.z).normalized * LookSettings.SheetShadowThrowM;
+            _shadowMaterial.SetVector(
+                "_ShadowShift",
+                new Vector4(Vector2.Dot(travel, uHat), Vector2.Dot(travel, vHat), LookSettings.SheetShadowAlpha, LookSettings.SheetShadowSoftM));
+            _shadowMaterial.SetTexture("_MaskTex", _maskTexture);
+            _shadowMaterial.renderQueue = BaseQueue - 5;
+            AddPageObject(parent, "Page shadow", shadow.ToMesh("Page shadow " + SourceId), _shadowMaterial);
+        }
+
+        private static void AddWall(MeshData mesh, Vector3 a, Vector3 b, float thickness, Vector2 outward)
+        {
+            var n = new Vector3(outward.x, 0f, outward.y);
+            int i0 = mesh.AddVertex(a, n, new Vector2(0f, 1f));
+            int i1 = mesh.AddVertex(b, n, new Vector2(1f, 1f));
+            int i2 = mesh.AddVertex(b + Vector3.down * thickness, n, new Vector2(1f, 0f));
+            int i3 = mesh.AddVertex(a + Vector3.down * thickness, n, new Vector2(0f, 0f));
+            mesh.AddTriangle(i0, i1, i2);
+            mesh.AddTriangle(i0, i2, i3);
+        }
+
+        private void AddPageObject(Transform parent, string name, Mesh mesh, Material material)
+        {
+            var go = new GameObject(name + " " + SourceId);
+            go.transform.SetParent(parent, false);
+            go.AddComponent<MeshFilter>().sharedMesh = mesh;
+            MeshRenderer renderer = go.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+            _pageObjects.Add(go);
+            _pageMeshes.Add(mesh);
         }
 
         public void Dispose()
         {
+            foreach (GameObject go in _pageObjects) SceneObjects.Destroy(go);
+            foreach (Mesh mesh in _pageMeshes) SceneObjects.Destroy(mesh);
+            _pageObjects.Clear();
+            _pageMeshes.Clear();
+            SceneObjects.Destroy(_shadowMaterial);
+            SceneObjects.Destroy(_wallMaterial);
             SceneObjects.Destroy(_root);
             SceneObjects.Destroy(_mesh);
             SceneObjects.Destroy(_material);

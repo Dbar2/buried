@@ -5,8 +5,8 @@
  *
  * Run from web/:  npm run gen:still-scene
  * Output: data/work/still/scene.json (gitignored), read by Unity. The ids whose anchors the Still records are the
- * ones named by data/finds.json when it exists, else the bank and the factory of the brief
- * (`bld_fip_v3_1911_229_0001`, `bld_fip_v3_1911_229_0101`) that the 1911 era holds.
+ * feature ids of every reading in data/finds.json (in find order) that the 1911 era holds, else the bank and the
+ * factory of the brief (`bld_fip_v3_1911_229_0001`, `bld_fip_v3_1911_229_0101`).
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -33,11 +33,12 @@ const heldIds = new Set(loadEra.payload.features.map((f) => f.id));
 let wanted: string[] = FALLBACK_IDS;
 const findsPath = join(REPOSITORY_DATA, 'finds.json');
 if (existsSync(findsPath)) {
-  const finds = JSON.parse(readFileSync(findsPath, 'utf8')) as { finds?: { feature_id?: string; order?: number }[] };
+  type Reading = { source?: string; feature_id?: string };
+  const finds = JSON.parse(readFileSync(findsPath, 'utf8')) as { finds?: { order?: number; readings?: Reading[] }[] };
   const ids = (finds.finds ?? [])
     .slice()
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-    .map((f) => f.feature_id)
+    .flatMap((f) => (f.readings ?? []).map((r) => r.feature_id))
     .filter((id): id is string => typeof id === 'string');
   if (ids.length > 0) wanted = ids;
 }

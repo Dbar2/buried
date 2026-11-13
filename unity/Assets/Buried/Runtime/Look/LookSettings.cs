@@ -75,9 +75,12 @@ namespace Buried.Look
 
         // ---- Sun and ambient ----
 
-        public const float SunElevationDeg = 38f;
-        /// <summary>The lamp shines from the west (azimuth 270 degrees), travelling east: upper left in the first visit's north-west view.</summary>
-        public const float SunTravelHeadingDeg = 90f;
+        public const float SunElevationDeg = 32f;
+        /// <summary>
+        /// The lamp travels toward heading 105 degrees (east-south-east), so it stands to the west-north-west: upper left of the first
+        /// visit's view, which looks along the plate's own up (heading 342.5). Shadows fall to the lower right (session 043).
+        /// </summary>
+        public const float SunTravelHeadingDeg = 105f;
         public const float SunIntensity = 0.6f;
         public const float AmbientIntensity = 0.3f;
 
@@ -91,7 +94,7 @@ namespace Buried.Look
         }
 
         /// <summary>How far a face turned from the lamp goes toward `copper` (design.md: faces away from the lamp tinted toward copper).</summary>
-        public const float GhostCopperShade = 0.55f;
+        public const float GhostCopperShade = 0.8f;
 
         // ---- Bloom (the only post effect; tone mapping is None) ----
 
@@ -106,22 +109,41 @@ namespace Buried.Look
         /// did not read against a draped plate at close range. Still translucent, and the glow stays
         /// at 1 px, inside requirement 26.4.
         /// </summary>
-        public const float GhostFillAlpha = 0.45f;
-        public const float GhostEmission = 0.15f;
+        public const float GhostFillAlpha = 0.55f;
+        public const float GhostEmission = 0.3f;
 
-        /// <summary>Edge width in CSS pixels, the glow on each side beyond it, and the edge emission.</summary>
-        public const float EdgeWidthCssPx = 2.5f;
+        /// <summary>
+        /// Edge width in CSS pixels, the glow on each side beyond it, and the edge emission. Session 043: the width came down from 2.5
+        /// to 1.3 (a ghost's edge is at most about 1.5 px at the opening distance), and the fill went up from 0.45 to 0.55, so a ghost
+        /// reads as a pale volume and not as dark hatching.
+        /// </summary>
+        public const float EdgeWidthCssPx = 1.3f;
         public const float EdgeGlowPx = 1.0f;
         public const float EdgeGlowAlpha = 0.35f;
+
+        /// <summary>
+        /// Storey lines (session 043): a hairline at this share of an edge's alpha, fading to nothing between these two camera
+        /// distances (m), so they do not alias into noise at the opening distance.
+        /// </summary>
+        public const float StoreyLineAlpha = 0.4f;
+        public const float StoreyFadeNearM = 220f;
+        public const float StoreyFadeFarM = 420f;
+
+        /// <summary>
+        /// Before Raise the held era's features show as flat `copper` outlines on the paper, at this alpha and this width (CSS px):
+        /// no fill, no height (session 043).
+        /// </summary>
+        public const float HeldOutlineAlpha = 0.55f;
+        public const float HeldOutlineWidthCssPx = 1.0f;
 
         /// <summary>
         /// The ghost edge's glow ring is drawn in `night` at this alpha, so the `ink` line has a dark
         /// casing on a pale plate. It is the same 1 px wide ring, inside requirement 26.4.
         /// </summary>
-        public const float GhostEdgeCasingAlpha = 0.3f;
+        public const float GhostEdgeCasingAlpha = 0.25f;
 
         /// <summary>The casing's width each side of the line. Under the 2 px of requirement 26.4.</summary>
-        public const float GhostEdgeCasingPx = 1.5f;
+        public const float GhostEdgeCasingPx = 0.8f;
         public const float EdgeEmission = 1.2f;
 
         /// <summary>Alpha of the present buildings' outline once the depth has left Today (DepthBlend).</summary>
@@ -141,7 +163,7 @@ namespace Buried.Look
         // fill; unknown has no line at all and a soft volume that thins toward the roof.
 
         /// <summary>Estimated fill alpha: about half of the documented fill.</summary>
-        public const float EstimatedFillAlpha = 0.22f;
+        public const float EstimatedFillAlpha = 0.2f;
 
         /// <summary>
         /// A dash's share of its period, the shortest period in metres, and the shortest period on screen
@@ -195,9 +217,48 @@ namespace Buried.Look
 
         /// <summary>Radius (m) at which the pool has fallen to 1 / e: with no lot pinned, and around a pinned lot.</summary>
         public const float LightPoolRadiusM = 260f;
-        /// <summary>The first visit's lamp pool: wide enough that the whole sheet is lit.</summary>
-        public const float LandingPoolRadiusM = 320f;
+        /// <summary>The first visit's lamp pool: a pool on the Queen and River corner that the sheet falls away from toward its far edges and its lower left.</summary>
+        public const float LandingPoolRadiusM = 85f;
         public const float LightPoolRadiusPinnedM = 150f;
+
+        // ---- The sheet as a page (session 043) ----
+
+        /// <summary>The paper's thickness (the table sits this far below the sheet), the ink rule's inset from the edge and its width, in metres.</summary>
+        public const float SheetThicknessM = 0.4f;
+        public const float SheetRuleInsetM = 1.4f;
+        public const float SheetRuleWidthM = 0.35f;
+        public const float SheetRuleAlpha = 0.8f;
+
+        /// <summary>The contact shadow on the table: how far it is thrown along the lamp's travel (m), how soft it is (m) and how dark.</summary>
+        public const float SheetShadowThrowM = 1.6f;
+        public const float SheetShadowSoftM = 1.8f;
+        public const float SheetShadowAlpha = 0.65f;
+        public const float SheetShadowMarginM = 12f;
+
+        /// <summary>The paper's side is this share of `parchment`, shaded toward `copper` away from the lamp.</summary>
+        public const float SheetSideBrightness = 0.7f;
+
+        /// <summary>How far the lamp's warmth tints the paper under the pool, and how cool the paper is far from it (shadows lean to `copper`).</summary>
+        public const float SheetWarmth = 0.35f;
+        public const float SheetCoolness = 0.2f;
+
+        /// <summary>The first visit's fog is this share of the project's: the table beside the sheet stays `soot` and only the far edge takes `haze`.</summary>
+        public const float BlockFogShare = 0.1f;
+
+        // ---- Today's buildings after Raise (session 043) ----
+
+        /// <summary>Today's buildings sink flat to this height and stay as a thin `block` outline at this alpha. (This replaces the 1 m plinth.)</summary>
+        public const float PresentSunkHeightM = 0.05f;
+        public const float PresentSunkEdgeAlpha = 0.35f;
+
+        /// <summary>The shadow of a standing block on the paper: its colour is `soot`, at this alpha; it is cast along the lamp's travel.</summary>
+        public const float PresentShadowAlpha = 0.5f;
+        public const int PresentShadowQueue = 2950;
+
+        /// <summary>A block's roof takes this much of the lamp's warm light.</summary>
+        public const float PresentTopWarm = 0.25f;
+        public const float PresentPageRoofGain = 1.2f;
+        public const float PresentPageWallLight = 0.9f;
 
         // ---- The Lantern and Show Evidence (session 028) ----
 
@@ -221,12 +282,17 @@ namespace Buried.Look
         // ---- The selected find (spec 06 requirement 4.1, session 040) ----
 
         /// <summary>The selected edge is this many times as thick as a ghost's, and its emission is above 1 so that it, and only it, blooms.</summary>
-        public const float SelectedEdgeWidthFactor = 1.5f;
+        public const float SelectedEdgeWidthFactor = 2.4f;
         public const float SelectedEmission = 1.6f;
 
         /// <summary>The faint `lantern` tint over the selected volume, and its own emission.</summary>
-        public const float SelectedFillAlpha = 0.14f;
-        public const float SelectedFillEmission = 0.3f;
+        public const float SelectedFillAlpha = 0.26f;
+        public const float SelectedFillEmission = 0.35f;
+
+        /// <summary>The soft pool of `lantern` light on the paper around the selected find's foot: its peak alpha and its reach beyond the footprint (m).</summary>
+        public const float SelectedGlowAlpha = 0.55f;
+        public const float SelectedGlowReachM = 9f;
+        public const int SelectedGlowQueue = 2960;
 
         /// <summary>The selection is drawn over the ghosts and their edges (queues 3000 and 3010).</summary>
         public const int SelectedQueue = 3020;
@@ -258,8 +324,8 @@ namespace Buried.Look
         public const float AreaHatchGapShare = 0.2f;
 
         /// <summary>Stripe alpha by confidence class: low opacity, and lighter the less sure the record is.</summary>
-        public const float AreaDocumentedAlpha = 0.6f;
-        public const float AreaEstimatedAlpha = 0.4f;
-        public const float AreaUnknownAlpha = 0.26f;
+        public const float AreaDocumentedAlpha = 0.34f;
+        public const float AreaEstimatedAlpha = 0.24f;
+        public const float AreaUnknownAlpha = 0.16f;
     }
 }

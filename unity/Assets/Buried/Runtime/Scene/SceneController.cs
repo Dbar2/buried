@@ -261,6 +261,7 @@ namespace Buried.Scene
             _litBySource.Clear();
             _raise.Reset();
             _blockCameraApplied = false;
+            if (_camera != null) _camera.fieldOfView = LookSettings.CameraFovDeg; // the first visit's long lens ends with its scene
             _selectedFeatureId = null;
             _anchorIds = new List<string>();
             _anchorsForce = false;
@@ -399,9 +400,11 @@ namespace Buried.Scene
                 }
                 else
                 {
-                    DrapeLayer created = DrapeLayer.Create(layer.Parent, _frame, drape, texture, _shaders.drape, order, _palette);
+                    DrapeDto sheet = payload.held ? WithoutClip(drape) : drape;
+                    DrapeLayer created = DrapeLayer.Create(layer.Parent, _frame, sheet, texture, _shaders.drape, order, _palette);
                     created.SetLit(IsLit(drape.sourceId));
                     created.SetGain(SheetGainFor(layer));
+                    if (payload.held) BuildPage(created, layer, sheet);
                     layer.AddDrape(created);
                 }
                 order++;
@@ -430,6 +433,45 @@ namespace Buried.Scene
         }
 
         /// <summary>
+        /// The first visit's sheet is the whole page (the tile's four corners), not the map-area polygon: this is the drape without its clip.
+        /// </summary>
+        private static DrapeDto WithoutClip(DrapeDto drape)
+        {
+            return new DrapeDto
+            {
+                sourceId = drape.sourceId,
+                url = drape.url,
+                corners = drape.corners,
+                widthPx = drape.widthPx,
+                heightPx = drape.heightPx,
+                kind = drape.kind,
+                clip = null,
+            };
+        }
+
+        /// <summary>
+        /// The held era's sheet becomes a page with paper edges (<see cref="DrapeLayer.MakePage"/>), the table drops by the
+        /// paper's thickness, and today's buildings outside the page are not drawn at all: the table is empty.
+        /// </summary>
+        private void BuildPage(DrapeLayer page, EraLayer layer, DrapeDto drape)
+        {
+            page.MakePage(layer.Parent, _frame, drape, _palette, _shaders.ghost);
+            if (_ground != null) _ground.transform.position = new Vector3(0f, -LookSettings.SheetThicknessM, 0f);
+            // The table writes depth on the page, so the sky does not paint over it: it is `soot`, and only its far edge takes the fog.
+            if (_groundMaterial != null)
+            {
+                _groundMaterial.SetFloat("_ZWrite", 1f);
+                _groundMaterial.SetFloat("_FogPerFragment", 1f); // the table's one huge quad takes its fog at each pixel: soot near, haze only far off
+            }
+            if (_present != null)
+            {
+                DrapeCornersDto c = drape.corners;
+                _present.RestrictTo(new List<double[]> { c.topLeft, c.topRight, c.bottomRight, c.bottomLeft });
+                ApplyPresent();
+            }
+        }
+
+        /// <summary>
         /// The first visit's opening view (<see cref="BlockCamera"/>): taken when a held era is loaded, the first time and
         /// only until the visitor has touched the view. A cut, not a flight: nothing has been shown yet.
         /// </summary>
@@ -439,15 +481,13 @@ namespace Buried.Scene
             _blockCameraApplied = true;
             float aspect = _camera.aspect > 0f ? _camera.aspect : BlockCamera.WideAspect;
             BlockCamera.Spec spec = BlockCamera.For(aspect);
+            _camera.fieldOfView = BlockCamera.FovDeg;
+            Shader.SetGlobalFloat("_BuriedFogDensity", Shader.GetGlobalFloat("_BuriedFogDensity") * LookSettings.BlockFogShare);
             _rig.SetPose(spec.TargetX, spec.TargetZ, spec.DistanceM, spec.PitchDeg, spec.HeadingDeg);
 
-            // The lamp: its pool sits on the sheet toward the upper left of this view (west of the corner), wide enough
-            // that the whole sheet is lit and falls to its floor light only toward the table.
-            float heading = spec.HeadingDeg * Mathf.Deg2Rad;
-            var forward = new Vector2(Mathf.Sin(heading), Mathf.Cos(heading));
-            var right = new Vector2(Mathf.Cos(heading), -Mathf.Sin(heading));
-            Vector2 pool = new Vector2(BlockCamera.CornerX, BlockCamera.CornerZ) + (forward * 0.05f - right * 0.18f) * spec.DistanceM;
-            SetLightPool(pool.x, pool.y, LookSettings.LandingPoolRadiusM);
+            // The lamp's pool sits on the Queen and River corner: the brightest thing in the frame. The sheet falls away from it
+            // toward the lower left and the far edges.
+            SetLightPool(BlockCamera.CornerX - 12f, BlockCamera.CornerZ - 4f, LookSettings.LandingPoolRadiusM);
             RequestCameraReport();
         }
 
@@ -535,8 +575,8 @@ namespace Buried.Scene
 
         /// <summary>
         /// Today's buildings. Before any raise they drain to an outline as the depth deepens (Dig). After the first raise
-        /// they stay solid and sink to 1 m plinths: with the raise clock while it is pinned, then with the depth
-        /// (Today full height, any era a plinth).
+        /// they sink flat and stay as a thin `block` outline on the paper (session 043; this replaces the 1 m plinth): with the
+        /// raise clock while it is pinned, then with the depth (Today full height, any era sunk).
         /// </summary>
         private void ApplyPresent()
         {
@@ -547,9 +587,8 @@ namespace Buried.Scene
                 _present.SetSink(0f);
                 return;
             }
-            _present.SetStage(PresentLayer.StageAt(0.0, false));
             float depthSink = (float)Math.Min(Math.Max(_depth, 0.0), 1.0);
-            _present.SetSink(_raise.Pinned ? _raise.Sink : depthSink);
+            _present.SetSunk(_raise.Pinned ? _raise.Sink : depthSink);
         }
 
         /// <summary>The lit sheet's brightness: dim while held, rising with the plinths' sink in a raise, otherwise full.</summary>
@@ -844,7 +883,7 @@ namespace Buried.Scene
             float aspect = _camera.aspect > 0f ? _camera.aspect : 1f;
             CameraRigMath.Pose target = CameraRigMath.FramePose(
                 b.xMin, b.yMin, b.xMax, b.yMax, LookSettings.LotPaddingM, LookSettings.LotPitchDeg, LookSettings.DefaultHeadingDeg,
-                LookSettings.CameraFovDeg, aspect);
+                _camera.fieldOfView, aspect);
             float duration = _reducedMotion ? 0f : LookSettings.LotFlightS;
             _rig.FlyTo(target, duration);
             MoveLightPool(pin.Centre.x, pin.Centre.y, LookSettings.LightPoolRadiusPinnedM, duration);
@@ -1001,7 +1040,7 @@ namespace Buried.Scene
             CameraRigMath.Pose current = _rig.Pose;
             CameraRigMath.Pose target = CameraRigMath.FramePose(
                 (float)min.X, (float)min.Y, (float)max.X, (float)max.Y, LookSettings.FrameFeaturePaddingM,
-                current.PitchDeg, current.HeadingDeg, LookSettings.CameraFovDeg, aspect);
+                current.PitchDeg, current.HeadingDeg, _camera.fieldOfView, aspect);
             _rig.FlyTo(target, _reducedMotion ? 0f : LookSettings.LotFlightS);
             RequestCameraReport();
             _anchorsDirty = true;

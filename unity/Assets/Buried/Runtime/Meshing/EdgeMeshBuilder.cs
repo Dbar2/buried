@@ -137,19 +137,23 @@ namespace Buried.Meshing
                     for (int k = 1; k <= floors; k++)
                     {
                         float y = FloorLineHeight(heightM, storeys, k);
-                        AddSegment(mesh, new Vector3(pBase.x, y, pBase.z), new Vector3(qBase.x, y, qBase.z), along, next);
+                        AddSegment(mesh, new Vector3(pBase.x, y, pBase.z), new Vector3(qBase.x, y, qBase.z), along, next, true);
                     }
                 }
                 along = next;
             }
         }
 
-        private static void AddSegment(MeshData mesh, Vector3 a, Vector3 b, float alongA, float alongB)
+        /// <summary>A floor line's vertices carry this normal (x = 1); every other segment's normal is up. Edge.shader reads it to draw a hairline.</summary>
+        public static readonly Vector3 StoreyNormal = new Vector3(1f, 0f, 0f);
+
+        private static void AddSegment(MeshData mesh, Vector3 a, Vector3 b, float alongA, float alongB, bool storeyLine = false)
         {
-            int a0 = mesh.AddVertex(a, Vector3.up, new Vector2(alongA, -1f), new Vector4(b.x, b.y, b.z, 1f));
-            int a1 = mesh.AddVertex(a, Vector3.up, new Vector2(alongA, -1f), new Vector4(b.x, b.y, b.z, -1f));
-            int b0 = mesh.AddVertex(b, Vector3.up, new Vector2(alongB, 1f), new Vector4(a.x, a.y, a.z, 1f));
-            int b1 = mesh.AddVertex(b, Vector3.up, new Vector2(alongB, 1f), new Vector4(a.x, a.y, a.z, -1f));
+            Vector3 n = storeyLine ? StoreyNormal : Vector3.up;
+            int a0 = mesh.AddVertex(a, n, new Vector2(alongA, -1f), new Vector4(b.x, b.y, b.z, 1f));
+            int a1 = mesh.AddVertex(a, n, new Vector2(alongA, -1f), new Vector4(b.x, b.y, b.z, -1f));
+            int b0 = mesh.AddVertex(b, n, new Vector2(alongB, 1f), new Vector4(a.x, a.y, a.z, 1f));
+            int b1 = mesh.AddVertex(b, n, new Vector2(alongB, 1f), new Vector4(a.x, a.y, a.z, -1f));
             mesh.AddTriangle(a0, b0, a1);
             mesh.AddTriangle(a1, b0, b1);
         }

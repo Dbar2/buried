@@ -376,6 +376,7 @@ namespace Buried.Scene
             {
                 LensMaterial.SetMode(_selectedFill, mode);
                 LensMaterial.SetMode(_selectedEdge, mode);
+                if (_selectedGlow != null) LensMaterial.SetMode(_selectedGlow, mode);
             }
         }
 
@@ -489,8 +490,10 @@ namespace Buried.Scene
         private string _selectedId;
         private Material _selectedFill;
         private Material _selectedEdge;
+        private Material _selectedGlow;
         private Mesh _selectedFillMesh;
         private Mesh _selectedEdgeMesh;
+        private Mesh _selectedGlowMesh;
         private GameObject _selectedObject;
 
         /// <summary>The id of the selected feature of this era, or null.</summary>
@@ -527,6 +530,28 @@ namespace Buried.Scene
             AddSelectedRenderer("Edges", _selectedEdgeMesh, _selectedEdge);
             LensMaterial.SetMode(_selectedFill, _lensMode);
             LensMaterial.SetMode(_selectedEdge, _lensMode);
+
+            // A soft pool of `lantern` light on the paper around the foot (a land-use area is flat and gets the same pool).
+            double minE, minN, maxE, maxN;
+            Vector2 centre;
+            if (TryGetFeatureBox(featureId, out minE, out minN, out maxE, out maxN) && _centres.TryGetValue(featureId, out centre))
+            {
+                Vec2d lo = frame.ToLocal(minE, minN);
+                Vec2d hi = frame.ToLocal(maxE, maxN);
+                float reach = 0.5f * (float)Math.Max(Math.Abs(hi.X - lo.X), Math.Abs(hi.Y - lo.Y)) * 1.2f
+                    + Buried.Look.LookSettings.SelectedGlowReachM;
+                var quad = new MeshData();
+                Vector2[] corners = { new Vector2(-1f, -1f), new Vector2(1f, -1f), new Vector2(1f, 1f), new Vector2(-1f, 1f) };
+                foreach (Vector2 c in corners) quad.AddVertex(new Vector3(centre.x + c.x * reach, 0.06f, centre.y + c.y * reach), Vector3.up, c);
+                quad.AddTriangle(0, 2, 1);
+                quad.AddTriangle(0, 3, 2);
+                quad.SetUv2ForAll(centre);
+                _selectedGlow = new Material(_materials.SelectedGlow) { name = "Selected glow" };
+                _selectedGlow.SetFloat("_GlowRadius", reach * 1.41f);
+                _selectedGlowMesh = quad.ToMesh("Selected glow " + featureId);
+                AddSelectedRenderer("Glow", _selectedGlowMesh, _selectedGlow);
+                LensMaterial.SetMode(_selectedGlow, _lensMode);
+            }
             ApplySelection();
             return true;
         }
@@ -548,14 +573,18 @@ namespace Buried.Scene
             if (_selectedId == null) return;
             SceneObjects.Destroy(_selectedFillMesh);
             SceneObjects.Destroy(_selectedEdgeMesh);
+            SceneObjects.Destroy(_selectedGlowMesh);
             SceneObjects.Destroy(_selectedFill);
             SceneObjects.Destroy(_selectedEdge);
+            SceneObjects.Destroy(_selectedGlow);
             SceneObjects.Destroy(_selectedObject);
             _selectedId = null;
             _selectedFill = null;
             _selectedEdge = null;
+            _selectedGlow = null;
             _selectedFillMesh = null;
             _selectedEdgeMesh = null;
+            _selectedGlowMesh = null;
             _selectedObject = null;
         }
 
@@ -570,6 +599,7 @@ namespace Buried.Scene
             _selectedFill.SetFloat("_Rise", rise);
             _selectedEdge.SetFloat("_Alpha", alpha);
             _selectedEdge.SetFloat("_Rise", rise);
+            if (_selectedGlow != null) _selectedGlow.SetFloat("_Weight", alpha);
         }
 
         // ---- Show Evidence ----

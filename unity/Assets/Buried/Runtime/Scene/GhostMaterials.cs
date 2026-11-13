@@ -45,6 +45,7 @@ namespace Buried.Scene
             // Estimated: the same line, dashed, over a lighter fill.
             _estimatedFill = Fill("Ghost fill (estimated)", shaders.ghost, parchment, LookSettings.EstimatedFillAlpha, palette);
             _estimatedEdge = Edge("Ghost edge (estimated)", shaders.edge, palette, pixelScale);
+            _estimatedEdge.SetColor("_Color", palette.rule); // the 162 rule-drawn drafts are quieter than the hand-traced buildings
             _estimatedEdge.SetFloat("_DashPeriod", LookSettings.DashPeriodM);
             _estimatedEdge.SetFloat("_DashPeriodPx", LookSettings.DashPeriodCssPx);
             _estimatedEdge.SetFloat("_DashOn", LookSettings.DashOnFraction);
@@ -59,9 +60,11 @@ namespace Buried.Scene
             // Land-use areas (bridge 0.7.0): the same classes drawn flat as hatched sheets, with the class's outline.
             _documentedAreaFill = AreaFill("Area fill", shaders.ghost, palette, LookSettings.AreaDocumentedAlpha, pixelScale);
             _documentedAreaEdge = Edge("Area edge", shaders.edge, palette, pixelScale);
+            _documentedAreaEdge.SetColor("_Color", palette.copper);
             _documentedAreaEdge.renderQueue = LookSettings.AreaEdgeQueue;
             _estimatedAreaFill = AreaFill("Area fill (estimated)", shaders.ghost, palette, LookSettings.AreaEstimatedAlpha, pixelScale);
             _estimatedAreaEdge = Edge("Area edge (estimated)", shaders.edge, palette, pixelScale);
+            _estimatedAreaEdge.SetColor("_Color", palette.copper);
             _estimatedAreaEdge.renderQueue = LookSettings.AreaEdgeQueue;
             _estimatedAreaEdge.SetFloat("_DashPeriod", LookSettings.DashPeriodM);
             _estimatedAreaEdge.SetFloat("_DashPeriodPx", LookSettings.DashPeriodCssPx);
@@ -82,10 +85,29 @@ namespace Buried.Scene
             _selectedFill.SetFloat("_ShadeMix", 0f);
             _selectedFill.SetFloat("_Emission", LookSettings.SelectedFillEmission);
             _selectedFill.renderQueue = LookSettings.SelectedQueue - 5;
+
+            // The soft pool of `lantern` light on the paper around the selected find's foot (session 043).
+            Color glow = palette.lantern;
+            glow.a = LookSettings.SelectedGlowAlpha;
+            _selectedGlow = Fill("Selected glow", shaders.ghost, glow, LookSettings.SelectedGlowAlpha, palette);
+            _selectedGlow.SetColor("_Color", glow);
+            _selectedGlow.SetFloat("_Shade", 0f);
+            _selectedGlow.SetFloat("_ShadeMix", 0f);
+            _selectedGlow.SetFloat("_Emission", 0.25f);
+            _selectedGlow.SetFloat("_Glow", 1f);
+            _selectedGlow.SetFloat("_Cull", (float)CullMode.Off);
+            _selectedGlow.renderQueue = LookSettings.SelectedGlowQueue;
         }
 
+        private readonly Material _selectedGlow;
         private readonly Material _selectedFill;
         private readonly Material _selectedEdge;
+
+        /// <summary>The base material of the pool of light under the selected feature (the ghost shader's glow mode).</summary>
+        public Material SelectedGlow
+        {
+            get { return _selectedGlow; }
+        }
 
         /// <summary>The base materials of the selected feature's overlay: a faint `lantern` tint and its thick `lantern` edge.</summary>
         public Material SelectedFill
@@ -126,7 +148,7 @@ namespace Buried.Scene
             var material = new Material(shader) { name = name };
             material.SetColor("_Color", fill);
             material.SetColor("_ShadeColor", palette.copper);
-            material.SetFloat("_Shade", 0.35f);
+            material.SetFloat("_Shade", 0.5f);
             material.SetFloat("_ShadeMix", LookSettings.GhostCopperShade);
             material.SetFloat("_Emission", LookSettings.GhostEmission);
             material.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
@@ -151,6 +173,11 @@ namespace Buried.Scene
             material.SetColor("_GlowColor", palette.parchment);
             material.SetFloat("_GlowMix", 1f);
             material.SetFloat("_PixelScale", pixelScale);
+            // Storey lines are hairlines that fade with distance; before Raise a ghost's edges lie flat as `copper` outlines.
+            material.SetFloat("_StoreyAlpha", LookSettings.StoreyLineAlpha);
+            material.SetVector("_StoreyFade", new Vector4(LookSettings.StoreyFadeNearM, LookSettings.StoreyFadeFarM, 0f, 0f));
+            material.SetFloat("_HeldAlpha", LookSettings.HeldOutlineAlpha);
+            material.SetColor("_HeldColor", palette.copper);
             material.renderQueue = 3010;
             return material;
         }
@@ -224,6 +251,7 @@ namespace Buried.Scene
             Destroy(_unknownAreaFill);
             Destroy(_selectedFill);
             Destroy(_selectedEdge);
+            Destroy(_selectedGlow);
         }
 
         private static void Destroy(Material material)

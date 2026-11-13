@@ -44,12 +44,15 @@ generated types; W1 lands before U2.
   `npm run gen:bridge-types` and `gen:bridge-samples` (U owns the generated TS and C# files);
   EditMode parsing tests. R3, R5.4. (Session 040: bridge 0.8.0, plus the optional `held` flag of `scene/loadEra` and
   `scene/selectFeature`; see `docs/kiro-sessions/040-notes.md`.)
-- [ ] U2 (video) Lamp light, table and fog. Rerun `Buried.Editor.Setup.Run` for the palette
+- [x] U2 (video) Lamp light, table and fog. Rerun `Buried.Editor.Setup.Run` for the palette
   asset (after W1); one warm key light from the upper left, the `--soot` table, `--haze` ground
-  and distance fog. design.md "How the Unity scene looks".
-- [ ] U3 (video) The sheet: tone curve toward `--parchment` and `--ink`, plate border, brighten
-  on raise (done except the plate border, session 040). U4 (video) Soot blocks: `--block` volumes that sink to 1 m plinths on raise (+
-  EditMode mesh test) (done). U5 (video) Ghosts: `--parchment` translucent fill, `--copper` shade tint,
+  and distance fog. design.md "How the Unity scene looks". (Session 043: lamp from the upper left of the opening view, soot
+  table with fog at each pixel, a pool of light on the Queen and River corner.)
+- [x] U3 (video) The sheet: tone curve toward `--parchment` and `--ink`, plate border, brighten
+  on raise (session 043: the whole tile as a page with 0.4 m of paper edge, an ink rule inside it and a contact shadow).
+  U4 (video) Soot blocks: `--block` volumes that sink on raise (+
+  EditMode mesh test) (done; session 043: they sink flat to a thin `--block` outline at 35 per cent, not to 1 m plinths).
+  U5 (video) Ghosts: `--parchment` translucent fill, `--copper` shade tint,
   `--ink` edges and storey lines, confidence styles kept. R3.1. (done)
 - [x] U6 (video) Raise animation and `scene/raised`; stagger by distance from the first find (+
   EditMode order test); reduced motion and `animate: false` cut. R3, R11.2.

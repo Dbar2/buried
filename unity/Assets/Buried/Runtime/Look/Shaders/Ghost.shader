@@ -28,6 +28,9 @@ Shader "Buried/Ghost"
         _HatchCasing ("Hatch: share of the period of the casing each side", Range(0, 0.3)) = 0.09
         _HatchGap ("Hatch: alpha between the stripes, as a share of the stripe alpha", Range(0, 1)) = 0.2
         _CasingColor ("Hatch: casing colour", Color) = (0, 0, 0, 1)
+        _Glow ("A soft pool of light on the ground (0 or 1)", Range(0, 1)) = 0
+        _GlowRadius ("Glow: radius from the feature's centre (m)", Float) = 20
+        _FogPerFragment ("Fog is worked out at each pixel, not at each vertex (the table: one huge quad)", Range(0, 1)) = 0
         [HideInInspector] _LensMode ("Lantern lens: 0 everywhere, 1 inside, 2 outside", Float) = 0
         [HideInInspector] _RaiseOn ("Raise the past drives this ghost (0 or 1)", Float) = 0
         [HideInInspector] _RaiseParams ("Raise: first find x, z, clock (s), farthest (m)", Vector) = (0, 0, -1, 0)
@@ -72,6 +75,9 @@ Shader "Buried/Ghost"
                 half _HatchCasing;
                 half _HatchGap;
                 half4 _CasingColor;
+                half _Glow;
+                float _GlowRadius;
+                half _FogPerFragment;
                 half _LensMode;
                 half _RaiseOn;
                 float4 _RaiseParams;
@@ -92,6 +98,7 @@ Shader "Buried/Ghost"
                 float3 positionWS : TEXCOORD2;
                 float heightOS : TEXCOORD3;
                 float raiseFill : TEXCOORD4;
+                float2 centre : TEXCOORD5;
             };
 
             Varyings vert(Attributes input)
@@ -115,12 +122,20 @@ Shader "Buried/Ghost"
                 output.positionCS = TransformWorldToHClip(positionWS);
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 output.transmission = BuriedTransmission(positionWS);
+                output.centre = input.centre;
                 return output;
             }
 
             half4 frag(Varyings input) : SV_Target
             {
                 BuriedLensClip(input.positionCS, _LensMode);
+                if (_Glow > 0.5)
+                {
+                    // The selected find's pool of light on the paper: brightest at the footprint's centre, gone at _GlowRadius.
+                    float f = saturate(1.0 - distance(input.positionWS.xz, input.centre) / max(_GlowRadius, 1e-3));
+                    f = f * f * (3.0 - 2.0 * f);
+                    return half4(_Color.rgb * (1.0 + _Emission), _Color.a * f * _Weight);
+                }
                 if (_Hatch > 0.5)
                 {
                     // A land-use area: diagonal stripes on the ground, an `ink` core with a casing each side (so the
@@ -149,7 +164,7 @@ Shader "Buried/Ghost"
                 half lit = saturate(dot(n, normalize(_BuriedLampDir.xyz + 1e-5)));
                 half3 rgb = _Color.rgb * lerp(1.0, 0.6 + 0.4 * lit, _Shade);
                 rgb = lerp(rgb, _ShadeColor.rgb * (0.6 + 0.4 * lit), (1.0 - lit) * _ShadeMix) + _Color.rgb * _Emission;
-                rgb = BuriedApplyFog(rgb, input.transmission);
+                rgb = BuriedApplyFog(rgb, lerp(input.transmission, BuriedTransmission(input.positionWS), _FogPerFragment));
 
                 half alpha = _Color.a * _Weight * input.raiseFill;
                 if (_Soft > 0.5)

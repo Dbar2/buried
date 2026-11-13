@@ -29,12 +29,29 @@ namespace Buried.Scene
         public const float WideAspect = 1.6f;
         public const float TallAspect = 39f / 80f;
 
+        /// <summary>
+        /// The lens of the opening view (session 043): a long lens, so the block reads as a miniature on a desk. The Player sets
+        /// it when it takes the pose and puts <see cref="Buried.Look.LookSettings.CameraFovDeg"/> back on the next scene/init.
+        /// </summary>
+        public const float FovDeg = 33f;
+
         /// <summary>The corner the pose is built around, in metres from the origin: the middle of the bank's footprint.</summary>
         public const float CornerX = 8.5f;
         public const float CornerZ = 111f;
 
-        public static readonly Spec Wide = new Spec { TargetX = -65f, TargetZ = 37f, DistanceM = 420f, PitchDeg = 30f, HeadingDeg = 315f };
-        public static readonly Spec Tall = new Spec { TargetX = 2f, TargetZ = 97f, DistanceM = 260f, PitchDeg = 35f, HeadingDeg = 315f };
+        /// <summary>The middle of the overall factory's footprint (`bld_fip_v3_1911_229_0101`), a little south-west of the bank.</summary>
+        public const float FactoryX = -2.4f;
+        public const float FactoryZ = 99f;
+
+        /// <summary>
+        /// The heading that puts the plate's own "up" (from the sheet's bottom edge to its top edge) at the top of the frame:
+        /// the bearing of `bottom_left` to `top_left` in data/tiles/fip_v3_1911_229.json, which is 342.5 degrees (17.5 degrees
+        /// west of north). The lettering then reads the right way up, left to right.
+        /// </summary>
+        public const float PlateUpHeadingDeg = 342.5f;
+
+        public static readonly Spec Wide = new Spec { TargetX = -5.4f, TargetZ = 61.3f, DistanceM = 300f, PitchDeg = 40f, HeadingDeg = PlateUpHeadingDeg };
+        public static readonly Spec Tall = new Spec { TargetX = 27.3f, TargetZ = 4.6f, DistanceM = 480f, PitchDeg = 40f, HeadingDeg = PlateUpHeadingDeg };
 
         /// <summary>The pose for a canvas of this shape: the tall one below square, the wide one otherwise.</summary>
         public static Spec For(float aspect)
