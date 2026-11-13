@@ -7,6 +7,7 @@
  * "traced automatically" only when its provenance names an extraction parameter set.
  */
 import type { Feature, Source } from './types.generated';
+import type { SourceIndex } from './sources';
 
 /** The year or years a plan or photograph is called by: "1911", "1931-35", "1947". */
 export function plainYears(source: Pick<Source, 'id' | 'year_from' | 'year_to'>): string {
@@ -48,4 +49,22 @@ export function provenanceFacts(feature: Pick<Feature, 'properties'>): Provenanc
 /** "traced automatically from" or "read from", the verb phrase before a plain source name. */
 export function originPhrase(facts: ProvenanceFacts): string {
   return facts.tracedAutomatically ? 'traced automatically from' : 'read from';
+}
+
+const SOURCE_ID_TOKEN = /\b(?:fip|aerial|present|ws_upload)_[a-z0-9_]*[a-z0-9]/g;
+
+/**
+ * A recorded confidence reason in plain words. The record's own text can hold a source id ("Area and
+ * use traced by a person from fip_v3_1911_229"). A body sentence names the source as "the 1911 plan"
+ * and does not say who traced it: that comes only from the record's "Confirmed by" line. So a
+ * registered id becomes its plain name, an id nobody registered becomes "the source", and "traced by
+ * a person" becomes "traced". Text with no id and no such phrase is returned unchanged.
+ */
+export function plainReason(reason: string, sources: SourceIndex): string {
+  return reason
+    .replace(SOURCE_ID_TOKEN, (token) => {
+      const source = sources.get(token);
+      return source ? plainSourceName(source) : 'the source';
+    })
+    .replace(/\btraced by a person\b/gi, (m) => (m.charAt(0) === 'T' ? 'Traced' : 'traced'));
 }

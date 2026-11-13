@@ -3,6 +3,7 @@
  *
  * The per-era list is the payload the shell sends to Unity. Unity does not filter it by date.
  */
+import { areaPhrases } from './areaWording';
 import { datePhrases, summariseSet } from './dates';
 import type { Dated, DateSummary } from './dates';
 import { linkedSets } from './links';
@@ -130,7 +131,8 @@ export function featuresForEra(
       confidenceReason: p.confidence_reason,
       attributes: { ...p.attributes },
       dates: summary,
-      phrases: datePhrases(summary),
+      // An area is not built: it is lettered on a plan (areaWording.ts).
+      phrases: p.kind === 'land_use' ? areaPhrases(summary, sources) : datePhrases(summary),
       sourceIds: citedSources(set, drawn),
       linkedIds: [...set.memberIds],
     });

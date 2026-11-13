@@ -6,7 +6,7 @@
  * Wording comes from the Evidence Library: the position phrase is `positionPhrase`, never written here.
  */
 import type { EraFeature, Feature, SourceIndex } from '../evidence';
-import { positionPhrase } from '../evidence';
+import { plainReason, positionPhrase } from '../evidence';
 
 export type CardRow = {
   label: string;
@@ -71,7 +71,7 @@ export function buildGateCard(
     heading: entry.attributes.use ?? kindName,
     rows: [
       { label: 'Feature', value: entry.id, mono: true },
-      { label: 'Confidence', value: `${CONFIDENCE_LABELS[entry.confidence]}. ${entry.confidenceReason}`, mono: false },
+      { label: 'Confidence', value: `${CONFIDENCE_LABELS[entry.confidence]}. ${plainReason(entry.confidenceReason, sources)}`, mono: false },
       { label: 'Position', value: positionPhrase(entry.positionErrorM), mono: true },
       { label: 'Read from', value: `${source.title} (${source.id})`, mono: false },
       ...confirmation,

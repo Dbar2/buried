@@ -8,7 +8,7 @@
  * It never says a person checked or reviewed anything beyond that line. Text that carries a banned
  * word is not reproduced (product rule 1); the card names the record instead.
  */
-import { findBannedWords, plainSourceName, positionPhrase } from '../evidence';
+import { findBannedWords, plainReason, plainSourceName, positionPhrase } from '../evidence';
 import type { EraFeature, Feature, PolygonalGeometry, SourceIndex, TileSidecar } from '../evidence';
 import { CONFIDENCE_LABELS } from '../explorer/gateCard';
 import { confirmationOf, confirmedSentence } from '../report/confirmed';
@@ -109,7 +109,7 @@ export function buildPlaceCard(
     rows.push({ key: 'storeys', label: 'Storeys as read', value: String(entry.attributes.storeys), mono: true });
   }
   rows.push(
-    { key: 'confidence', label: 'Confidence', value: quoted(`${CONFIDENCE_LABELS[entry.confidence]}. ${entry.confidenceReason}`, 'Confidence'), mono: false },
+    { key: 'confidence', label: 'Confidence', value: quoted(`${CONFIDENCE_LABELS[entry.confidence]}. ${plainReason(entry.confidenceReason, sources)}`, 'Confidence'), mono: false },
     { key: 'position', label: 'Position', value: positionPhrase(entry.positionErrorM), mono: true },
     { key: 'confirmed', label: 'Record', value: confirmedSentence(confirmationOf(feature)).text, mono: false },
   );

@@ -17,6 +17,7 @@ import {
   findBannedWords,
   linkedSets,
   lotRelation,
+  plainReason,
   plainSourceName,
   summariseSet,
 } from '../evidence';
@@ -137,9 +138,9 @@ function sourceListSlot(sourceIds: readonly string[], sources: SourceIndex): Slo
   return listOf(ordered.map((sourceId) => plan(sources.get(sourceId))));
 }
 
-function confidenceEntry(feature: Feature): ConfidenceEntry {
+function confidenceEntry(feature: Feature, sources: SourceIndex): ConfidenceEntry {
   const c = feature.properties.confidence;
-  const reason = feature.properties.confidence_reason;
+  const reason = plainReason(feature.properties.confidence_reason, sources);
   return {
     label: c === 'documented' ? 'Documented' : c === 'estimated' ? 'Estimated' : 'Unknown',
     reason: findBannedWords(reason).length > 0 ? 'The reason is recorded in the evidence file.' : reason,
@@ -147,10 +148,10 @@ function confidenceEntry(feature: Feature): ConfidenceEntry {
   };
 }
 
-function confidenceEntries(members: readonly Feature[]): ConfidenceEntry[] {
+function confidenceEntries(members: readonly Feature[], sources: SourceIndex): ConfidenceEntry[] {
   const seen = new Map<string, ConfidenceEntry>();
   for (const m of members) {
-    const e = confidenceEntry(m);
+    const e = confidenceEntry(m, sources);
     seen.set(`${e.label}|${e.reason}`, e);
   }
   return [...seen.values()];
@@ -188,7 +189,7 @@ function makeReportFinding(
   return {
     finding,
     sentences,
-    confidence: confidenceEntries(parts.members),
+    confidence: confidenceEntries(parts.members, input.sources),
     featureIds,
     sortKey: {
       near: parts.relation.kind === 'on' ? 0 : 1,
@@ -263,7 +264,7 @@ function waterFinding(info: SetInfo, input: GroupsInput): ReportFinding {
     sentence`Water${labelled} is drawn ${rel} on ${sourceListSlot(info.originIds, input.sources)}.`,
     ...datedSentences(info),
     sentence`${position(info.claim.properties.position_error_m)}.`,
-    confidenceSentence(confidenceEntry(info.claim)),
+    confidenceSentence(confidenceEntry(info.claim, input.sources)),
   ];
   return makeReportFinding(input, { status: statusOf([info]), sentences, sourceIds: info.sourceIds, members: info.set.members, relation: info.relation });
 }
@@ -277,7 +278,7 @@ function structureFinding(info: SetInfo, input: GroupsInput): ReportFinding {
     ...datedSentences(info),
     storeys !== undefined ? sentence`Storeys: ${{ text: String(storeys), numbers: [String(storeys)] }}.` : sentence`Storeys: not recorded.`,
     sentence`${position(info.claim.properties.position_error_m)}.`,
-    confidenceSentence(confidenceEntry(info.claim)),
+    confidenceSentence(confidenceEntry(info.claim, input.sources)),
   ];
   return makeReportFinding(input, { status: statusOf([info]), sentences, sourceIds: info.sourceIds, members: info.set.members, relation: info.relation });
 }

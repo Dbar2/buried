@@ -10,6 +10,7 @@ export type {
   Visibility,
 } from './dates';
 export { datePhrases, summariseDates, summariseSet } from './dates';
+export { areaPhrases } from './areaWording';
 export type { EraFeature, EraFeatureList, EraRange } from './eras';
 export { drawnMember, featuresForEra, isDrawnInEra } from './eras';
 export { linkedSets } from './links';
@@ -36,6 +37,7 @@ export type { ContractOf, DefName, ValidationResult } from './schema';
 export { indexSources, sourceYearsText } from './sources';
 export {
   originPhrase,
+  plainReason,
   plainSourceName,
   plainSourceNumbers,
   plainYears,
