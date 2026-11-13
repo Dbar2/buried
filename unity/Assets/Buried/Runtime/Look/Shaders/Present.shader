@@ -5,7 +5,7 @@
 // Session 023: near the camera the walls are darker than the fog (a leeward wall is about a quarter
 // of `present`, a sunward one about two fifths) and dissolve into it with distance, which is what the
 // fog does to anything that is not already the fog colour. The roof keeps more of the sky light, so
-// it is the lightest face and reads against the ground (look.spec.ts holds roofs to 1.35 : 1). A thin
+// it is the lightest face and reads against the ground (look.spec.ts holds roofs to 1.35 : 1; 3.4 in session 046, when the measure was 1.34 at 3.2). A thin
 // lighter line along each roof (PresentLayer, Buried/Edge) keeps the volume legible. Same cold hue
 // throughout; no warm light and no texture.
 Shader "Buried/Present"
@@ -15,7 +15,7 @@ Shader "Buried/Present"
         _Color ("Colour", Color) = (1, 1, 1, 1)
         _Ambient ("Leeward wall light", Range(0, 4)) = 0.28
         _SunGain ("Sun gain (sunward walls)", Range(0, 8)) = 0.5
-        _RoofGain ("Roof gain (sky light)", Range(0, 4)) = 3.2
+        _RoofGain ("Roof gain (sky light)", Range(0, 4)) = 3.4
         _Alpha ("Alpha", Range(0, 1)) = 1
         _Sink ("Sink toward a plinth (0 full height, 1 plinth)", Range(0, 1)) = 0
         _PlinthM ("Plinth height (m)", Float) = 1

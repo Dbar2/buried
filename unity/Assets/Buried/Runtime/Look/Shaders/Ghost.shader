@@ -16,6 +16,7 @@ Shader "Buried/Ghost"
         _ShadeColor ("Colour of the faces turned from the lamp", Color) = (0.43, 0.51, 0.46, 1)
         _ShadeMix ("How far a face turned from the lamp goes to that colour", Range(0, 1)) = 0
         _Emission ("Self-illumination", Range(0, 1)) = 0
+        _TopLift ("How far a roof is lifted toward white (a ghost reads lighter than the paper it stands on)", Range(0, 1)) = 0
         _Weight ("Era weight (alpha factor)", Range(0, 1)) = 1
         _Rise ("Vertical scale about y = 0", Range(0, 1)) = 1
         _Soft ("Soft volume (0 or 1)", Range(0, 1)) = 0
@@ -63,6 +64,7 @@ Shader "Buried/Ghost"
                 half4 _ShadeColor;
                 half _ShadeMix;
                 half _Emission;
+                half _TopLift;
                 half _Weight;
                 float _Rise;
                 half _Soft;
@@ -160,10 +162,16 @@ Shader "Buried/Ghost"
                     return half4(hatchRgb, hatchAlpha);
                 }
                 half3 n = normalize(input.normalWS);
-                // The one lamp: faces turned from it take `copper` (_ShadeColor), faces toward it keep the fill colour.
-                half lit = saturate(dot(n, normalize(_BuriedLampDir.xyz + 1e-5)));
-                half3 rgb = _Color.rgb * lerp(1.0, 0.6 + 0.4 * lit, _Shade);
-                rgb = lerp(rgb, _ShadeColor.rgb * (0.6 + 0.4 * lit), (1.0 - lit) * _ShadeMix) + _Color.rgb * _Emission;
+                // The one lamp. Wrapped (half-Lambert) light, so no face goes black: a roof is lit, a wall toward the lamp
+                // is lit, and a wall turned from it takes `copper` (_ShadeColor), more the more it turns (session 046).
+                half wrap = saturate(dot(n, normalize(_BuriedLampDir.xyz + 1e-5)) * 0.5 + 0.5);
+                half3 rgb = _Color.rgb * lerp(1.0, 0.7 + 0.3 * wrap, _Shade);
+                // A roof is a pale solid: lifted toward white, lighter than the lit paper around it. Kept under 1 so it never blooms.
+                half roof = saturate(n.y);
+                rgb = lerp(rgb, lerp(_Color.rgb, half3(1.0, 1.0, 1.0), 0.5), roof * _TopLift);
+                rgb = lerp(rgb, _ShadeColor.rgb * (0.62 + 0.3 * wrap), (1.0 - wrap) * _ShadeMix);
+                rgb += _Color.rgb * _Emission * (1.0 - roof * _TopLift);
+                rgb = lerp(rgb, min(rgb, 0.97), step(0.001, _TopLift));
                 rgb = BuriedApplyFog(rgb, lerp(input.transmission, BuriedTransmission(input.positionWS), _FogPerFragment));
 
                 half alpha = _Color.a * _Weight * input.raiseFill;

@@ -344,12 +344,12 @@ const wcag = (c: readonly number[]): number => {
 function ghostSegments(camera: Camera, storeys: number): Seg[] {
   const at = (p: number[], y: number): [number, number] =>
     projectPoint(camera.viewProjection, camera.canvas, (p[0] as number) - ORIGIN[0], y, (p[1] as number) - ORIGIN[1]) as [number, number];
-  const roof = storeys * 3.5;
+  const roof = storeys * 3.6; // session 046: 3.6 m a storey
   const segments: Seg[] = [];
   for (let i = 0; i < bankRing.length - 1; i++) {
     const p = bankRing[i] as number[];
     const q = bankRing[i + 1] as number[];
-    for (let k = 0; k <= storeys; k++) segments.push([at(p, k * 3.5), at(q, k * 3.5)]);
+    for (let k = 0; k <= storeys; k++) segments.push([at(p, k * 3.6), at(q, k * 3.6)]);
     segments.push([at(p, 0), at(p, roof)]);
   }
   return segments;
@@ -459,7 +459,7 @@ test('Show Evidence puts the untouched scan beneath the bank and leaves the rest
     expect(y0 + WINDOW, 'the correlation window is inside the patch (bottom)').toBeLessThanOrEqual(patchBox.bottom);
 
     // Its outline is kept.
-    const line = roofLineShare(evidencePng, camera, storeys * 3.5);
+    const line = roofLineShare(evidencePng, camera, storeys * 3.6);
 
     const measures = {
       patchBoxPx: patchBox,

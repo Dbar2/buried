@@ -329,7 +329,7 @@ namespace Buried.Tests
             Vector3 anchor;
             Assert.IsTrue(layer.TryGetAnchor("bld_x_0001", out anchor));
             Assert.AreEqual(5f, anchor.x, 1e-3f);
-            Assert.AreEqual(12f, anchor.y, 1e-3f);
+            Assert.AreEqual(LookSettings.UnreadStoreysHeightM, anchor.y, 1e-3f, "session 046: a building with no storeys read is 4.5 m high, whatever heightM the Shell sent (12)");
             Assert.AreEqual(5f, anchor.z, 1e-3f);
             Assert.IsFalse(layer.TryGetAnchor("bld_x_9999", out anchor));
 

@@ -301,7 +301,9 @@ namespace Buried.Scene
             // sky without a hard line (design.md: no visible edge of the world).
             _skyMaterial = new Material(_shaders.sky) { name = "Sky" };
             _skyMaterial.SetColor("_Zenith", _palette.soot);
-            _skyMaterial.SetColor("_Band", Color.Lerp(_palette.haze, _palette.parchmentDim, LookSettings.HorizonMix));
+            // The band leans cool (`haze` toward `copper`, not toward the warm `parchment-dim`): the one lamp is the scene's only warm light
+            // (session 046).
+            _skyMaterial.SetColor("_Band", Color.Lerp(_palette.haze, _palette.copper, LookSettings.HorizonMix));
             _skyMaterial.SetColor("_Haze", _palette.haze);
             _skyMaterial.SetFloat("_BandElevation", LookSettings.SkyBandElevation);
             _skyMaterial.SetFloat("_ZenithElevation", LookSettings.SkyZenithElevation);

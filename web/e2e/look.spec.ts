@@ -226,7 +226,8 @@ test('26.1 the published building is in the middle third of the canvas', async (
     cx += (x0 + x1) * cross;
     cy += (y0 + y1) * cross;
   }
-  const roof = ((building as NonNullable<typeof building>).properties.attributes.storeys ?? 1) * 3.5;
+  const recorded = (building as NonNullable<typeof building>).properties.attributes.storeys;
+  const roof = recorded !== undefined ? recorded * 3.6 : 4.5; // session 046: 3.6 m a storey, 4.5 m when none is read
   const centre = projectToPixels(camera, cx / (3 * area), cy / (3 * area), roof);
   expect(centre.x, 'building x').toBeGreaterThan(w / 3);
   expect(centre.x, 'building x').toBeLessThan((2 * w) / 3);
@@ -410,7 +411,7 @@ test('26.6 / (e) the wordmark is Fraunces, the gauge years and the card id are I
   const ring = (collection.features[0] as NonNullable<(typeof collection.features)[number]>).geometry.coordinates[0] as number[][];
   const cx = ring.reduce((s, p) => s + (p[0] as number), 0) / ring.length;
   const cy = ring.reduce((s, p) => s + (p[1] as number), 0) / ring.length;
-  const at = projectToPixels(camera, cx, cy, 3.5);
+  const at = projectToPixels(camera, cx, cy, 4.5);
   const box = await page.getByTestId('unity-canvas').boundingBox();
   expect(box).not.toBeNull();
   await page.mouse.move((box as { x: number }).x + at.x, (box as { y: number }).y + at.y);
@@ -549,7 +550,7 @@ test('the ghost at close range reads against the plate (contrast measured)', asy
     const ring = building.geometry.coordinates[0] as number[][];
     const cx = ring.reduce((s, p) => s + (p[0] as number), 0) / ring.length;
     const cy = ring.reduce((s, p) => s + (p[1] as number), 0) / ring.length;
-    const roof = (building.properties.attributes.storeys ?? 1) * 3.5;
+    const roof = building.properties.attributes.storeys !== undefined ? building.properties.attributes.storeys * 3.6 : 4.5; // session 046
 
     await close.getByTestId('debug-camera-input').fill(JSON.stringify({ target: [cx, cy], distanceM: 45, pitchDeg: 55, headingDeg: 20 }));
     await close.getByTestId('debug-camera-send').evaluate((button) => (button as HTMLButtonElement).click());

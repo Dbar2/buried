@@ -241,7 +241,7 @@ namespace Buried.Tests
             Assert.AreEqual(lantern.g, edge.GetColor("_Color").g, 1e-3f);
             Assert.Greater(edge.GetFloat("_WidthPx"), ghostEdge.GetFloat("_WidthPx"), "thicker than a ghost's edge: never colour alone");
             Assert.Greater(edge.GetFloat("_Emission"), LookSettings.BloomThreshold, "a faint emission that blooms");
-            Assert.Less(selected.Find("Fill").GetComponent<MeshRenderer>().sharedMaterial.GetColor("_Color").a, 0.3f, "the tint is faint");
+            Assert.Less(selected.Find("Fill").GetComponent<MeshRenderer>().sharedMaterial.GetColor("_Color").a, 0.8f, "the tint is translucent (session 046: stronger than the old 0.3)");
 
             _bridge.Receive("{\"type\":\"scene/selectFeature\",\"payload\":{\"feature_id\":\"bld_x_0003\"}}");
             Assert.IsNull(_root.transform.Find("Era 1911/Selected bld_x_0002"), "one selection at a time");

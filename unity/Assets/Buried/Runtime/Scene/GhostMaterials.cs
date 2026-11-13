@@ -45,7 +45,10 @@ namespace Buried.Scene
             // Estimated: the same line, dashed, over a lighter fill.
             _estimatedFill = Fill("Ghost fill (estimated)", shaders.ghost, parchment, LookSettings.EstimatedFillAlpha, palette);
             _estimatedEdge = Edge("Ghost edge (estimated)", shaders.edge, palette, pixelScale);
-            _estimatedEdge.SetColor("_Color", palette.rule); // the 162 rule-drawn drafts are quieter than the hand-traced buildings
+            // `ink`, as design.md says: a `rule` line was too faint on the paper to tell a dashed line from none (session 046).
+            // A segment under DashMinSegmentCssPx on screen is solid; the small drafts also lose every line but their roof (EraLayer).
+            _estimatedEdge.SetColor("_Color", Color.Lerp(palette.ink, palette.rule, LookSettings.EstimatedEdgeSoftness));
+            _estimatedEdge.SetFloat("_DashMinSegPx", LookSettings.DashMinSegmentCssPx);
             _estimatedEdge.SetFloat("_DashPeriod", LookSettings.DashPeriodM);
             _estimatedEdge.SetFloat("_DashPeriodPx", LookSettings.DashPeriodCssPx);
             _estimatedEdge.SetFloat("_DashOn", LookSettings.DashOnFraction);
@@ -53,6 +56,7 @@ namespace Buried.Scene
             // Unknown: a fog volume. No edge material: an unknown ghost is drawn without an outline.
             _unknownFill = Fill("Ghost fill (unknown)", shaders.ghost, parchment, LookSettings.UnknownFillAlpha, palette);
             _unknownFill.SetFloat("_Shade", 0.15f);
+            _unknownFill.SetFloat("_TopLift", 0f);
             _unknownFill.SetFloat("_Soft", 1f);
             _unknownFill.SetFloat("_SoftHeight", LookSettings.UnknownFadeHeightM);
             _unknownFill.SetFloat("_SoftRoofShare", LookSettings.UnknownRoofShare);
@@ -81,8 +85,12 @@ namespace Buried.Scene
             _selectedEdge.renderQueue = LookSettings.SelectedQueue;
             Color tint = palette.lantern;
             _selectedFill = Fill("Selected fill", shaders.ghost, tint, LookSettings.SelectedFillAlpha, palette);
-            _selectedFill.SetFloat("_Shade", 0f);
-            _selectedFill.SetFloat("_ShadeMix", 0f);
+            // Lit from the lamp like a ghost: a bright `lantern` roof, a lit side, and sides turned from the lamp in a deep amber
+            // (`lantern` toward `ink`), so the selected volume is the strongest warm thing in the frame (session 046).
+            _selectedFill.SetFloat("_Shade", 0.45f);
+            _selectedFill.SetFloat("_ShadeMix", LookSettings.SelectedShadeMix);
+            _selectedFill.SetColor("_ShadeColor", Color.Lerp(palette.lantern, palette.ink, LookSettings.SelectedShadeToInk));
+            _selectedFill.SetFloat("_TopLift", LookSettings.SelectedTopLift);
             _selectedFill.SetFloat("_Emission", LookSettings.SelectedFillEmission);
             _selectedFill.renderQueue = LookSettings.SelectedQueue - 5;
 
@@ -93,7 +101,7 @@ namespace Buried.Scene
             _selectedGlow.SetColor("_Color", glow);
             _selectedGlow.SetFloat("_Shade", 0f);
             _selectedGlow.SetFloat("_ShadeMix", 0f);
-            _selectedGlow.SetFloat("_Emission", 0.25f);
+            _selectedGlow.SetFloat("_Emission", 0.45f);
             _selectedGlow.SetFloat("_Glow", 1f);
             _selectedGlow.SetFloat("_Cull", (float)CullMode.Off);
             _selectedGlow.renderQueue = LookSettings.SelectedGlowQueue;
@@ -151,6 +159,7 @@ namespace Buried.Scene
             material.SetFloat("_Shade", 0.5f);
             material.SetFloat("_ShadeMix", LookSettings.GhostCopperShade);
             material.SetFloat("_Emission", LookSettings.GhostEmission);
+            material.SetFloat("_TopLift", LookSettings.GhostTopLift);
             material.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
             material.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
             material.SetFloat("_ZWrite", 0f);

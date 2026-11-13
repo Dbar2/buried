@@ -69,9 +69,10 @@ namespace Buried.Look
 
         /// <summary>
         /// sin(elevation) at which the sky has become `night`. The default view's top edge is about
-        /// 8 degrees above the horizon (sin = 0.139), so the top rows of the canvas are `night`.
+        /// 8 degrees above the horizon (sin = 0.139) and the top 5 per cent of the canvas spans 5.5 to 8 degrees, so the sky is
+        /// `soot` from 4.6 degrees (session 046; it was 6.9 degrees, which left those rows a little lighter than `soot`).
         /// </summary>
-        public const float SkyZenithElevation = 0.12f;
+        public const float SkyZenithElevation = 0.08f;
 
         // ---- Sun and ambient ----
 
@@ -94,7 +95,7 @@ namespace Buried.Look
         }
 
         /// <summary>How far a face turned from the lamp goes toward `copper` (design.md: faces away from the lamp tinted toward copper).</summary>
-        public const float GhostCopperShade = 0.8f;
+        public const float GhostCopperShade = 0.9f;
 
         // ---- Bloom (the only post effect; tone mapping is None) ----
 
@@ -109,8 +110,35 @@ namespace Buried.Look
         /// did not read against a draped plate at close range. Still translucent, and the glow stays
         /// at 1 px, inside requirement 26.4.
         /// </summary>
-        public const float GhostFillAlpha = 0.55f;
+        public const float GhostFillAlpha = 0.70f;
         public const float GhostEmission = 0.3f;
+
+        /// <summary>
+        /// Display heights (session 046): 3.6 m for each recorded storey, 4.5 m for a building whose storeys are not read. The Player
+        /// builds every building to these (EraLayer.HeightOf), whatever <c>heightM</c> the Shell sends: the Shell's own constants
+        /// (web/src/explorer/sceneFeatures.ts, 3.5 and 3.5) are older and are not read for a building.
+        /// </summary>
+        public const float StoreyHeightM = 3.6f;
+        public const float UnreadStoreysHeightM = 4.5f;
+
+        /// <summary>The display height of a building with this many recorded storeys (0: none read).</summary>
+        public static float BuildingHeightM(int storeys)
+        {
+            return storeys > 0 ? storeys * StoreyHeightM : UnreadStoreysHeightM;
+        }
+
+        /// <summary>
+        /// An estimated building under this footprint area (m2) is drawn as a pale filled volume with its top outline and nothing
+        /// else, and a dashed line is dashed only along a segment longer than <see cref="DashMinSegmentCssPx"/> on screen (session 046).
+        /// </summary>
+        public const float SmallFeatureAreaM2 = 60f;
+        public const float DashMinSegmentCssPx = 12f;
+
+        /// <summary>How far a ghost's roof is lifted toward white, so it reads lighter than the lit paper it stands on.</summary>
+        public const float GhostTopLift = 0.55f;
+
+        /// <summary>An estimated edge is `ink` this far toward `rule`: a little quieter than a documented one, still well over 2.4 : 1 on the paper.</summary>
+        public const float EstimatedEdgeSoftness = 0f;
 
         /// <summary>
         /// Edge width in CSS pixels, the glow on each side beyond it, and the edge emission. Session 043: the width came down from 2.5
@@ -133,7 +161,7 @@ namespace Buried.Look
         /// Before Raise the held era's features show as flat `copper` outlines on the paper, at this alpha and this width (CSS px):
         /// no fill, no height (session 043).
         /// </summary>
-        public const float HeldOutlineAlpha = 0.55f;
+        public const float HeldOutlineAlpha = 0.7f;
         public const float HeldOutlineWidthCssPx = 1.0f;
 
         /// <summary>
@@ -163,7 +191,7 @@ namespace Buried.Look
         // fill; unknown has no line at all and a soft volume that thins toward the roof.
 
         /// <summary>Estimated fill alpha: about half of the documented fill.</summary>
-        public const float EstimatedFillAlpha = 0.2f;
+        public const float EstimatedFillAlpha = 0.45f;
 
         /// <summary>
         /// A dash's share of its period, the shortest period in metres, and the shortest period on screen
@@ -207,18 +235,18 @@ namespace Buried.Look
         public const float TonePaperLuminance = 0.60f;
 
         /// <summary>The light a point far from the pool still gets, as a share of full light.</summary>
-        public const float LightFloor = 0.38f;
+        public const float LightFloor = 0.32f;
 
         /// <summary>
         /// The first visit's sheet before Raise: the lit display at this share of its brightness. Raise takes it to 1
         /// with the sinking plinths (spec 06 requirement 3.1: "brighten the sheet").
         /// </summary>
-        public const float LandingSheetGain = 0.75f;
+        public const float LandingSheetGain = 0.85f;
 
         /// <summary>Radius (m) at which the pool has fallen to 1 / e: with no lot pinned, and around a pinned lot.</summary>
         public const float LightPoolRadiusM = 260f;
         /// <summary>The first visit's lamp pool: a pool on the Queen and River corner that the sheet falls away from toward its far edges and its lower left.</summary>
-        public const float LandingPoolRadiusM = 85f;
+        public const float LandingPoolRadiusM = 70f;
         public const float LightPoolRadiusPinnedM = 150f;
 
         // ---- The sheet as a page (session 043) ----
@@ -240,7 +268,10 @@ namespace Buried.Look
 
         /// <summary>How far the lamp's warmth tints the paper under the pool, and how cool the paper is far from it (shadows lean to `copper`).</summary>
         public const float SheetWarmth = 0.35f;
-        public const float SheetCoolness = 0.2f;
+        /// <summary>The cool lean of the shadow: red down by this, green by half of it, blue untouched (session 046; it used `copper`, which went khaki on the paper).</summary>
+        public const float SheetCoolness = 0.04f;
+        /// <summary>The warm tint reaches this many light-pool radii, so the lit paper stays warm where the light has begun to fall away.</summary>
+        public const float SheetWarmReach = 2.4f;
 
         /// <summary>The first visit's fog is this share of the project's: the table beside the sheet stays `soot` and only the far edge takes `haze`.</summary>
         public const float BlockFogShare = 0.1f;
@@ -282,16 +313,26 @@ namespace Buried.Look
         // ---- The selected find (spec 06 requirement 4.1, session 040) ----
 
         /// <summary>The selected edge is this many times as thick as a ghost's, and its emission is above 1 so that it, and only it, blooms.</summary>
-        public const float SelectedEdgeWidthFactor = 2.4f;
+        public const float SelectedEdgeWidthFactor = 2.8f;
         public const float SelectedEmission = 1.6f;
 
         /// <summary>The faint `lantern` tint over the selected volume, and its own emission.</summary>
-        public const float SelectedFillAlpha = 0.26f;
-        public const float SelectedFillEmission = 0.35f;
+        public const float SelectedFillAlpha = 0.75f;
+        public const float SelectedTopLift = 0.6f;
+        public const float SelectedFillEmission = 0.5f;
+
+        /// <summary>Faces of the selected volume turned from the lamp take `lantern` toward `ink` by this much (and this share of the turn).</summary>
+        public const float SelectedShadeToInk = 0.45f;
+        public const float SelectedShadeMix = 0.7f;
 
         /// <summary>The soft pool of `lantern` light on the paper around the selected find's foot: its peak alpha and its reach beyond the footprint (m).</summary>
-        public const float SelectedGlowAlpha = 0.55f;
-        public const float SelectedGlowReachM = 9f;
+        public const float SelectedGlowAlpha = 0.9f;
+        /// <summary>
+        /// The pool's radius is the footprint's longest side times this (so the pool is about twice the building's width across), plus the
+        /// reach beyond that (session 046).
+        /// </summary>
+        public const float SelectedGlowWidthShare = 1.3f;
+        public const float SelectedGlowReachM = 6f;
         public const int SelectedGlowQueue = 2960;
 
         /// <summary>The selection is drawn over the ghosts and their edges (queues 3000 and 3010).</summary>

@@ -179,11 +179,15 @@ namespace Buried.Scene
 
         /// <summary>
         /// The height a feature is built to. A land-use area is a flat sheet whatever height it was sent
-        /// (<see cref="Buried.Look.LookSettings.AreaHeightM"/>): nothing of it rises.
+        /// (<see cref="Buried.Look.LookSettings.AreaHeightM"/>): nothing of it rises. A building is 3.6 m for each recorded storey
+        /// and 4.5 m when none is read (session 046, <see cref="Buried.Look.LookSettings.BuildingHeightM"/>); the <c>heightM</c> the
+        /// Shell sends for a building is not read.
         /// </summary>
         private static float HeightOf(SceneFeatureDto feature)
         {
-            return feature.kind == SceneFeatureDto.KindLandUse ? Buried.Look.LookSettings.AreaHeightM : (float)feature.heightM;
+            if (feature.kind == SceneFeatureDto.KindLandUse) return Buried.Look.LookSettings.AreaHeightM;
+            if (feature.kind == SceneFeatureDto.KindBuilding) return Buried.Look.LookSettings.BuildingHeightM(feature.storeys);
+            return (float)feature.heightM;
         }
 
         /// <summary>Builds the features into per-class groups. Returns how many were drawn.</summary>
@@ -210,6 +214,13 @@ namespace Buried.Scene
                 var options = FootprintBuilder.Options.Default;
                 options.Outline = GhostMaterials.HasOutline(cls);
                 options.Storeys = area ? 0 : feature.storeys; // 0 when none is recorded: no storey lines, and no count is invented
+                if (!area && cls == GhostMaterials.Estimated && FootprintBuilder.AreaM2(feature.geometry) < Buried.Look.LookSettings.SmallFeatureAreaM2)
+                {
+                    // A small draft is a pale filled volume and its roof outline, nothing else: at a distance many small boxes with
+                    // edges on every side read as scribble (session 046).
+                    options.RoofOnly = true;
+                    options.Storeys = 0;
+                }
 
                 FootprintBuilder.Result built;
                 try
@@ -538,7 +549,8 @@ namespace Buried.Scene
             {
                 Vec2d lo = frame.ToLocal(minE, minN);
                 Vec2d hi = frame.ToLocal(maxE, maxN);
-                float reach = 0.5f * (float)Math.Max(Math.Abs(hi.X - lo.X), Math.Abs(hi.Y - lo.Y)) * 1.2f
+                // The pool: its radius is the footprint's longest side (so it is about twice the building's width across) and a little more.
+                float reach = (float)Math.Max(Math.Abs(hi.X - lo.X), Math.Abs(hi.Y - lo.Y)) * Buried.Look.LookSettings.SelectedGlowWidthShare
                     + Buried.Look.LookSettings.SelectedGlowReachM;
                 var quad = new MeshData();
                 Vector2[] corners = { new Vector2(-1f, -1f), new Vector2(1f, -1f), new Vector2(1f, 1f), new Vector2(-1f, 1f) };
@@ -547,7 +559,7 @@ namespace Buried.Scene
                 quad.AddTriangle(0, 3, 2);
                 quad.SetUv2ForAll(centre);
                 _selectedGlow = new Material(_materials.SelectedGlow) { name = "Selected glow" };
-                _selectedGlow.SetFloat("_GlowRadius", reach * 1.41f);
+                _selectedGlow.SetFloat("_GlowRadius", reach);
                 _selectedGlowMesh = quad.ToMesh("Selected glow " + featureId);
                 AddSelectedRenderer("Glow", _selectedGlowMesh, _selectedGlow);
                 LensMaterial.SetMode(_selectedGlow, _lensMode);

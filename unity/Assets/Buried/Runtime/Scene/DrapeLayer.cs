@@ -197,7 +197,9 @@ namespace Buried.Scene
                 "_SheetRule",
                 new Vector4(LookSettings.SheetRuleInsetM, LookSettings.SheetRuleWidthM, LookSettings.SheetRuleAlpha, 0f));
             _material.SetColor("_WarmTint", Color.Lerp(Color.white, palette.lantern, 0.55f * LookSettings.SheetWarmth));
-            _material.SetColor("_CoolTint", Color.Lerp(Color.white, palette.copper, 0.6f * LookSettings.SheetCoolness));
+            // The shadow leans cool but keeps the paper's own hue: `copper` is green, and multiplied into a yellow paper it made khaki.
+            _material.SetColor("_CoolTint", new Color(1f - 0.3f * LookSettings.SheetCoolness, 1f - LookSettings.SheetCoolness, 1f, 1f));
+            _material.SetFloat("_WarmReach", LookSettings.SheetWarmReach);
 
             float t = LookSettings.SheetThicknessM;
             Vector3 Pt(float a, float b, float y)

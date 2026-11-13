@@ -74,8 +74,9 @@ namespace Buried.Tests
             Assert.LessOrEqual(LookSettings.GhostEdgeCasingPx, 2f, "requirement 26.4: the ghost casing is no wider than about 2 px");
             Assert.AreEqual(1.3f, LookSettings.EdgeWidthCssPx, 0f);
             Assert.LessOrEqual(LookSettings.EdgeWidthCssPx, 1.5f, "session 043: a ghost's edge is at most about 1.5 px at the opening distance");
-            Assert.AreEqual(0.55f, LookSettings.GhostFillAlpha, 0f);
-            Assert.Less(LookSettings.GhostFillAlpha, 0.6f, "the fill stays translucent so the plate's lines show through (26.4)");
+            Assert.AreEqual(0.70f, LookSettings.GhostFillAlpha, 0f);
+            Assert.AreEqual(0.45f, LookSettings.EstimatedFillAlpha, 0f);
+            Assert.Less(LookSettings.GhostFillAlpha, 0.75f, "session 046: a ghost is a pale solid, still translucent so the plate's lettering shows through faintly (26.4)");
         }
 
         [Test]

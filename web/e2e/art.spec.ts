@@ -44,7 +44,7 @@ const tokens = (() => {
 type EvidenceFeature = {
   id: string;
   geometry: { type: string; coordinates: number[][][] | number[][][][] };
-  properties: { confidence: string; attributes: { storeys?: number } };
+  properties: { confidence: string; status?: string; attributes: { storeys?: number } };
 };
 type EvidenceFile = { features: EvidenceFeature[] };
 const evidence1911 = readJson<EvidenceFile>('evidence', 'fip_v3_1911_229.geojson');
@@ -315,17 +315,31 @@ test('art: documented, estimated and unknown ghosts differ in their edge pattern
   test.setTimeout(300_000);
   const { page, close } = await freshPage(browser);
   try {
-    // The nearest buildings to the documented one with room to read an edge on: one stays estimated and
+    // The nearest buildings to a documented one with room to read an edge on: one stays estimated and
     // one is served as unknown (the committed evidence has none of that class).
-    const documented = evidence1911.features.find((f) => f.properties.confidence === 'documented') as EvidenceFeature;
+    //
+    // Session 046: the committed evidence now holds six documented buildings, and the first one's nearest large neighbour is
+    // documented too. The test needs three estimated buildings that are drawn (two are served as unknown), so only published
+    // estimated ones are candidates (a merged feature is not shown), and the documented building is the one with the closest
+    // such neighbours, so all three fit in the 95 m view. The measured assertions below are unchanged.
+    const centreOf = (f: EvidenceFeature): [number, number] => centroidOf(exteriorOf(f));
+    const candidates = evidence1911.features.filter(
+      (f) => f.properties.confidence === 'estimated' && f.properties.status === 'published' && areaOf(exteriorOf(f)) >= 120,
+    );
+    const options = evidence1911.features
+      .filter((f) => f.properties.confidence === 'documented')
+      .map((d) => {
+        const at = centreOf(d);
+        const nearest = candidates
+          .map((f) => ({ f, d: Math.hypot(centreOf(f)[0] - at[0], centreOf(f)[1] - at[1]) }))
+          .sort((a, b) => a.d - b.d)
+          .slice(0, 3);
+        return { d, nearest, reach: nearest.length === 3 ? (nearest[2] as { d: number }).d : Infinity };
+      })
+      .sort((a, b) => a.reach - b.reach);
+    const documented = (options[0] as (typeof options)[number]).d;
     expect(documented, 'a documented building on the 1911 plate').toBeDefined();
-    const here = centroidOf(exteriorOf(documented));
-    const near = evidence1911.features
-      .filter((f) => f.id !== documented.id && areaOf(exteriorOf(f)) >= 120)
-      .map((f) => ({ f, d: Math.hypot(centroidOf(exteriorOf(f))[0] - here[0], centroidOf(exteriorOf(f))[1] - here[1]) }))
-      .sort((a, b) => a.d - b.d)
-      .slice(0, 3)
-      .map((x) => x.f);
+    const near = (options[0] as (typeof options)[number]).nearest.map((x) => x.f);
     expect(near.length).toBe(3);
     const [estimated, unknown, other] = near as [EvidenceFeature, EvidenceFeature, EvidenceFeature];
     expect(estimated.properties.confidence).toBe('estimated');
@@ -347,7 +361,8 @@ test('art: documented, estimated and unknown ghosts differ in their edge pattern
     await shoot(page, 'art-estimated-close');
     const png = await canvasPng(page);
 
-    const roof = (f: EvidenceFeature): number => (f.properties.attributes.storeys ?? 1) * 3.5;
+    // Session 046: the Player draws 3.6 m for each recorded storey and 4.5 m when none is read.
+    const roof = (f: EvidenceFeature): number => (f.properties.attributes.storeys !== undefined ? f.properties.attributes.storeys * 3.6 : 4.5);
     const measured = {
       documented: edgeShare(png, camera, exteriorOf(documented), roof(documented)),
       estimated: edgeShare(png, camera, exteriorOf(estimated), roof(estimated)),

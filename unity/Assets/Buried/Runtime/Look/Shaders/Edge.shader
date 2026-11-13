@@ -28,6 +28,7 @@ Shader "Buried/Edge"
         _DashPeriod ("Dash period, least (m); 0 is a solid line", Float) = 0
         _DashPeriodPx ("Dash period, least (CSS px)", Float) = 11
         _DashOn ("Dash share of its period", Range(0.05, 0.95)) = 0.55
+        _DashMinSegPx ("A segment shorter than this on screen (CSS px) is drawn solid, not dashed", Float) = 0
         [HideInInspector] _LensMode ("Lantern lens: 0 everywhere, 1 inside, 2 outside", Float) = 0
         [HideInInspector] _RaiseOn ("Raise the past drives this line (0 or 1)", Float) = 0
         [HideInInspector] _RaiseParams ("Raise: first find x, z, clock (s), farthest (m)", Vector) = (0, 0, -1, 0)
@@ -74,6 +75,7 @@ Shader "Buried/Edge"
                 float _DashPeriod;
                 float _DashPeriodPx;
                 half _DashOn;
+                float _DashMinSegPx;
                 half _Fogged;
                 half _LensMode;
                 half _RaiseOn;
@@ -104,6 +106,8 @@ Shader "Buried/Edge"
                 float raiseAlpha : TEXCOORD3;
                 float lineAlpha : TEXCOORD4;
                 float heldMix : TEXCOORD5;
+                float heldKeep : TEXCOORD6;
+                float dashSolid : TEXCOORD7;
             };
 
             Varyings vert(Attributes input)
@@ -112,6 +116,9 @@ Shader "Buried/Edge"
                 float3 hereOS = input.positionOS.xyz;
                 float3 thereOS = input.other.xyz;
                 float dashCoordinate = input.uv.x + hereOS.y; // before the rise: a corner dashes as it grows
+                // Before the ghost stands (session 046) only its top ring lies on the paper as an outline: the base ring, the corners
+                // and the storey lines would double it up. A top ring has both ends above the ground and is not a storey line.
+                output.heldKeep = step(0.01, min(hereOS.y, thereOS.y)) * (1.0 - step(0.5, input.normalOS.x));
                 float raiseRise = 1.0;
                 output.raiseAlpha = 1.0;
                 output.heldMix = 0.0;
@@ -139,6 +146,8 @@ Shader "Buried/Edge"
                 float2 toOther = sThere - sHere;
                 float len = length(toOther);
                 float2 dir = len > 1e-4 ? toOther / len : float2(1.0, 0.0);
+                // A short segment is drawn solid: a dash pattern on a few pixels is noise (session 046).
+                output.dashSolid = 1.0 - step(_DashMinSegPx * _PixelScale, len);
                 float endSign = input.uv.y;
                 if (endSign > 0.0) dir = -dir; // dir now always runs from the start to the end of the segment
                 float2 normal = float2(-dir.y, dir.x);
@@ -173,7 +182,8 @@ Shader "Buried/Edge"
             half4 frag(Varyings input) : SV_Target
             {
                 BuriedLensClip(input.positionCS, _LensMode);
-                if (_DashPeriod > 0.0 && frac(input.dashPhase) > _DashOn) discard;
+                // Dashes: not on a short segment, and not on the flat outline a held ghost makes before it stands.
+                if (_DashPeriod > 0.0 && input.dashSolid < 0.5 && input.heldMix < 0.5 && frac(input.dashPhase) > _DashOn) discard;
 
                 float core = 0.5 * _WidthPx * _PixelScale;
                 float a = abs(input.across);
@@ -190,7 +200,7 @@ Shader "Buried/Edge"
                 float inGlow = step(core, a) * _GlowMix;
                 rgb = lerp(rgb, _GlowColor.rgb, inGlow);
                 // Held: a thin flat outline in the held colour, no casing, until the ghost's own edges take over.
-                float heldAlpha = coreAlpha * _HeldAlpha * _Alpha * input.heldMix;
+                float heldAlpha = coreAlpha * _HeldAlpha * _Alpha * input.heldMix * input.heldKeep;
                 alpha = max(alpha * (1.0 - input.heldMix), heldAlpha);
                 rgb = lerp(rgb, _HeldColor.rgb, input.heldMix);
                 rgb = lerp(rgb, BuriedApplyFog(rgb, input.transmission), _Fogged);

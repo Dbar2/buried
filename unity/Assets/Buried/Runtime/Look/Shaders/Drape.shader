@@ -29,6 +29,7 @@ Shader "Buried/Drape"
         _SheetFogRelief ("How far the distance fog is kept off the lit sheet", Range(0, 1)) = 0.6
         _WarmTint ("Lit sheet: tint under the pool (the lamp's colour, normalised)", Color) = (1, 1, 1, 1)
         _CoolTint ("Lit sheet: tint far from the pool (cool ambient)", Color) = (1, 1, 1, 1)
+        _WarmReach ("Lit sheet: the warm tint reaches this many pool radii (the light itself falls off over one)", Float) = 1
         _SheetMode ("0 a draped raster, 1 the first visit's page (crisp edge, ink rule), 2 its contact shadow", Float) = 0
         _SheetSize ("Page: width and height in metres", Vector) = (1, 1, 0, 0)
         _SheetRule ("Page: ink rule inset (m), width (m), alpha", Vector) = (1.4, 0.35, 0.8, 0)
@@ -74,6 +75,7 @@ Shader "Buried/Drape"
                 half _SheetFogRelief;
                 half4 _WarmTint;
                 half4 _CoolTint;
+                float _WarmReach;
                 half _SheetMode;
                 float4 _SheetSize;
                 float4 _SheetRule;
@@ -132,7 +134,11 @@ Shader "Buried/Drape"
                     float2 fromPool = input.positionWS.xz - _BuriedLightPool.xy;
                     float radius = max(_BuriedLightPool.z, 1.0);
                     half pool = exp(-dot(fromPool, fromPool) / (radius * radius));
-                    lightMul = lerp(_LightFloor, 1.0, pool) * _Gain * lerp(_CoolTint.rgb, _WarmTint.rgb, pool);
+                    // The brightness falls off over one radius; the lamp's warm colour reaches further, so the lit paper stays
+                    // warm and only the shadow leans cool (and dark), never to khaki (session 046).
+                    float warmRadius = radius * max(_WarmReach, 1.0);
+                    half warm = exp(-dot(fromPool, fromPool) / (warmRadius * warmRadius));
+                    lightMul = lerp(_LightFloor, 1.0, pool) * _Gain * lerp(_CoolTint.rgb, _WarmTint.rgb, warm);
                     rgb *= lightMul;
                 }
                 float2 maskUv = (input.positionWS.xz - _MaskRect.xy) * _MaskRect.zw;

@@ -50,7 +50,11 @@ namespace Buried.Scene
         /// </summary>
         public const float PlateUpHeadingDeg = 342.5f;
 
-        public static readonly Spec Wide = new Spec { TargetX = -5.4f, TargetZ = 61.3f, DistanceM = 300f, PitchDeg = 40f, HeadingDeg = PlateUpHeadingDeg };
+        /// <summary>
+        /// Session 046: 15 per cent closer than session 043's 300 m, with the target moved 8 m to the right of the frame so the sheet's
+        /// right edge stays inside it (at 255 m on the old target that edge sat at 0.99 of the half-width).
+        /// </summary>
+        public static readonly Spec Wide = new Spec { TargetX = 2.2f, TargetZ = 63.7f, DistanceM = 255f, PitchDeg = 40f, HeadingDeg = PlateUpHeadingDeg };
         public static readonly Spec Tall = new Spec { TargetX = 27.3f, TargetZ = 4.6f, DistanceM = 480f, PitchDeg = 40f, HeadingDeg = PlateUpHeadingDeg };
 
         /// <summary>The pose for a canvas of this shape: the tall one below square, the wide one otherwise.</summary>

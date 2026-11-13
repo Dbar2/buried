@@ -275,7 +275,8 @@ test('clicking the gate building shows its provenance in a DOM card', async ({ p
     cy += (y0 + y1) * cross;
   }
   const centroid: [number, number] = [cx / (3 * area), cy / (3 * area)];
-  const roof = (feature.properties.attributes.storeys ?? 1) * 3.5; // the display height the Shell sends
+  const storeysRead = feature.properties.attributes.storeys;
+  const roof = storeysRead !== undefined ? storeysRead * 3.6 : 4.5; // the display height the Player draws (session 046)
 
   await openGate(page);
   const before = (await debugState(page)).cameraSeq;
