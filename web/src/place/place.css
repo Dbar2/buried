@@ -163,7 +163,7 @@
   overflow: auto;
 }
 
-.place-report > p {
+.place-report-body > p {
   margin: 0;
   padding: var(--space-4);
 }
@@ -179,12 +179,213 @@
 }
 
 .view--place .card {
-  left: 9.5rem;
+  left: 11.5rem;
 }
 
-.view--place .view-hint,
-.view--place .view-notes {
-  left: 9.5rem;
+.view--place .view-top {
+  left: 11.5rem;
+  max-width: min(30rem, calc(100% - 11.5rem - var(--space-3)));
+}
+
+/* A message that fills the scene starts clear of the gauge, which is on this variant's left edge
+   (it ends about 10.75rem from the edge). */
+.view--place .stage-message {
+  padding-left: 11.5rem;
+}
+
+/* ---- the list of features (the text equivalent of the ghosts) ---- */
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+}
+
+.feature-list button {
+  background: var(--fog);
+  border: 1px solid var(--muted);
+  border-radius: 2px;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  padding: var(--space-1) var(--space-3);
+  text-align: left;
+}
+
+.feature-list-toggle {
+  align-self: flex-start;
+}
+
+.feature-list-panel {
+  background: var(--fog);
+  max-height: min(40vh, 18rem);
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.feature-list-panel p {
+  margin: 0;
+}
+
+.feature-list-panel ul {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.feature-list-panel li button {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+}
+
+.feature-list-panel li button[aria-current='true'] {
+  border: 2px solid var(--ink);
+}
+
+.feature-name {
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+.feature-meta {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.feature-meta.mono {
+  font-family: var(--font-mono);
+}
+
+/* ---- the evidence card, in the report column on paper ---- */
+.place-card {
+  background: var(--report-paper);
+  color: var(--report-ink);
+  padding: var(--space-4);
+}
+
+.place-card-bar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.place-card h2 {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  margin: var(--space-2) 0 var(--space-3);
+}
+
+.place-card h2:focus-visible {
+  outline: 2px solid var(--report-ink);
+  outline-offset: 2px;
+}
+
+.place-card button {
+  background: var(--report-paper);
+  border: 1px solid var(--report-ink);
+  border-radius: 2px;
+  color: var(--report-ink);
+  cursor: pointer;
+  font: inherit;
+  padding: var(--space-1) var(--space-3);
+}
+
+.place-card button.primary {
+  background: var(--report-ink);
+  color: var(--report-paper);
+}
+
+.place-card button:focus-visible {
+  outline: 2px solid var(--report-ink);
+  outline-offset: 2px;
+}
+
+.place-card-crop {
+  margin: 0 0 var(--space-3);
+}
+
+.place-card-crop canvas {
+  border: 1px solid var(--report-rule);
+  display: block;
+  max-width: 100%;
+}
+
+.place-card-crop figcaption {
+  color: var(--report-ink-soft);
+  margin-top: var(--space-1);
+}
+
+.place-card-rows {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+}
+
+.place-card-row {
+  border-top: 1px solid var(--report-rule);
+  padding-top: var(--space-1);
+}
+
+.place-card-row dt {
+  color: var(--report-ink-soft);
+  font-size: 0.875rem;
+}
+
+.place-card-row dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.place-card-row dd.mono {
+  font-family: var(--font-mono);
+}
+
+/* Confidence is a pattern as well as a word: solid, dashed or dotted rule beside it. */
+.place-card-row.conf--documented dd {
+  border-left: 4px solid var(--report-ink);
+  padding-left: var(--space-2);
+}
+
+.place-card-row.conf--estimated dd {
+  border-left: 4px dashed var(--report-ink);
+  padding-left: var(--space-2);
+}
+
+.place-card-row.conf--unknown dd {
+  border-left: 4px dotted var(--report-ink);
+  padding-left: var(--space-2);
+}
+
+.place-card-source {
+  color: var(--report-ink-soft);
+}
+
+.place-card-source .mono {
+  font-family: var(--font-mono);
+}
+
+/* The band the scene is showing: a heavier rule at its left edge and a text mark, so it is not
+   colour alone. The rule is drawn inside the band, so nothing moves when it changes. */
+.place-report .band-head {
+  padding-left: var(--space-2);
+}
+
+.band--active {
+  box-shadow: inset 4px 0 0 var(--report-ink);
+}
+
+.band-now {
+  color: var(--report-ink-soft);
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.place-card .small {
+  color: var(--report-ink-soft);
+  font-size: 0.875rem;
 }
 
 /* Narrow screens: the report sits below the scene, and the whole page scrolls. */

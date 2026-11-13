@@ -14,6 +14,9 @@ import { EMPTY_WHEEL, settledEra, wheelIsDig, wheelNotches } from './depth';
 import { DepthGauge, announcementFor } from './DepthGauge';
 import { noImageryNote } from './eraNote';
 import { EvidenceCard } from './EvidenceCard';
+import { Fallback2D } from './Fallback2D';
+import { featureRows } from './featureList';
+import { FeatureList } from './FeatureListPanel';
 import { buildGateCard } from './gateCard';
 import { buildGateModel } from './gateModel';
 import type { GateModel } from './gateModel';
@@ -21,6 +24,7 @@ import { INITIAL_PLAYER_STATE } from './playerState';
 import type { PlayerState } from './playerState';
 import { lotPolygon } from './pinnedLot';
 import { PRESENT_BUILDINGS_SOURCE } from './presentBuildings';
+import { fallbackPlan, fallbackReason } from './sceneFallback';
 import { useDepth } from './useDepth';
 import { NO_WEBGL2_MESSAGE, hasWebGL2 } from './webgl';
 import { Loading } from '../shell/Mark';
@@ -33,7 +37,27 @@ type LoadState =
   | { status: 'error'; message: string }
   | { status: 'ready'; model: GateModel; problems: string[]; rising: ReadonlySet<string>; db: WorkspaceDb | null };
 
-type Selection = { featureId: string; eraId: string };
+export type Selection = { featureId: string; eraId: string };
+
+/** What the stage shows: the records are loading, the Player is running, or the 2D map stands in for it. */
+export type StageKind = 'pending' | 'player' | 'fallback';
+
+/**
+ * How the place page drives the Explorer (session 029): the selected feature and the "View original
+ * scan" mode live in the page, because the card is part of the report column. The Explorer reports
+ * what it knows back: the model, the era on screen and what the stage is showing.
+ */
+export type PlaceBinding = {
+  selection: Selection | null;
+  onSelect: (selection: Selection | null) => void;
+  onModel: (model: GateModel | null) => void;
+  /** The era on screen. It follows the depth, so it changes while the gauge is dragged. */
+  onEraShown: (eraId: string, label: string) => void;
+  onStage: (stage: StageKind) => void;
+  drapeMode: 'lit' | 'original';
+  /** Asks the Explorer to go to an era. `n` changes with every request, so the same era can be asked for twice. */
+  eraRequest: { id: string; n: number } | null;
+};
 
 /**
  * `full` is the Explorer page. `place` is the scene on the place page: the same view with the depth
@@ -47,7 +71,15 @@ export type ExplorerVariant = 'full' | 'place' | 'backdrop';
  * at its left edge and the attribution lines along its bottom edge (design.md "Layout"). The list
  * view, search and 2D map come in later task groups.
  */
-export function Explorer({ variant = 'full', era: requestedEra = null }: { variant?: ExplorerVariant; era?: string | null }) {
+export function Explorer({
+  variant = 'full',
+  era: requestedEra = null,
+  place,
+}: {
+  variant?: ExplorerVariant;
+  era?: string | null;
+  place?: PlaceBinding;
+}) {
   const debug = useMemo(() => new URLSearchParams(window.location.search).get('debug') === '1', []);
   const reducedMotion = useMemo(
     () => typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -58,7 +90,16 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [player, setPlayer] = useState<PlayerState>(INITIAL_PLAYER_STATE);
   const [unavailable, setUnavailable] = useState<string | null>(null);
-  const [selection, setSelection] = useState<Selection | null>(null);
+  const [innerSelection, setInnerSelection] = useState<Selection | null>(null);
+  const selection = place ? place.selection : innerSelection;
+  const placeSelect = place?.onSelect;
+  const setSelection = useCallback(
+    (next: Selection | null) => (placeSelect ? placeSelect(next) : setInnerSelection(next)),
+    [placeSelect],
+  );
+  // The hint "Click a building..." is shown until the first click or choice, then never again.
+  const [clicked, setClicked] = useState(false);
+  const [listOpen, setListOpen] = useState(false);
   const [cameraCommand, setCameraCommand] = useState<{ seq: number; pose: CameraPose } | null>(null);
   const sendPose = useCallback((pose: CameraPose) => setCameraCommand((previous) => ({ seq: (previous?.seq ?? 0) + 1, pose })), []);
 
@@ -88,6 +129,10 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
   }, []);
 
   const model = load.status === 'ready' ? load.model : null;
+  const placeModel = place?.onModel;
+  useEffect(() => {
+    placeModel?.(model);
+  }, [placeModel, model]);
   const rose = useRef<string[]>([]);
   const readyDb = load.status === 'ready' ? load.db : null;
   const onRose = useCallback(
@@ -124,22 +169,32 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
       goTo(index);
       setSelection(null);
     },
-    [goTo],
+    [goTo, setSelection],
   );
   const appliedEra = useRef<string | null>(null);
+  const eraRequest = place?.eraRequest ?? null;
   useEffect(() => {
-    const wanted = requestedEra ?? deepLinkEra;
-    if (!model || wanted === null || appliedEra.current === wanted) return;
-    appliedEra.current = wanted;
+    const wanted = eraRequest?.id ?? requestedEra ?? deepLinkEra;
+    const key = `${wanted}#${eraRequest?.n ?? 0}`;
+    if (!model || wanted === null || appliedEra.current === key) return;
+    appliedEra.current = key;
     const target = model.order.find((era) => era.id === wanted);
     if (target) chooseEra(target.index);
-  }, [model, requestedEra, deepLinkEra, chooseEra]);
+  }, [model, requestedEra, deepLinkEra, eraRequest, chooseEra]);
+
+  // The place page follows the era on screen: the header and the core sample's highlighted band.
+  const placeEraShown = place?.onEraShown;
+  const shownEraId = currentEra?.id;
+  const shownEraLabel = currentEra?.label;
+  useEffect(() => {
+    if (shownEraId !== undefined && shownEraLabel !== undefined) placeEraShown?.(shownEraId, shownEraLabel);
+  }, [placeEraShown, shownEraId, shownEraLabel]);
   const dragDepth = useCallback(
     (value: number) => {
       drag(value);
       setSelection(null);
     },
-    [drag],
+    [drag, setSelection],
   );
 
   // The plain wheel over the 3D view is Dig's (requirement 16.5): it is taken in the capture phase,
@@ -170,6 +225,7 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
 
   const onFeatureClicked = useCallback(
     (featureId: string, eraId: string) => {
+      setClicked(true);
       const list = model?.lists.get(eraId);
       if (!list || !list.features.some((f) => f.id === featureId)) {
         // requirement 11.6: a click on something the Shell does not know is ignored and logged
@@ -178,18 +234,28 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
       }
       setSelection({ featureId, eraId });
     },
-    [model],
+    [model, setSelection],
   );
 
+  const chooseFromList = useCallback(
+    (featureId: string) => {
+      if (!currentEra) return;
+      setClicked(true);
+      setSelection({ featureId, eraId: currentEra.id });
+    },
+    [currentEra, setSelection],
+  );
+
+  // On the place page the card is part of the report column, so the scene draws none of its own.
   const card = useMemo(() => {
-    if (!model || !selection) return null;
+    if (place || !model || !selection) return null;
     const entry = model.lists.get(selection.eraId)?.features.find((f) => f.id === selection.featureId);
     const feature = model.features.get(selection.featureId);
     if (!entry || !feature) return null;
     return buildGateCard(entry, feature, model.sources, model.workspaceFeatureIds.has(selection.featureId) ? 'workspace' : 'canon');
-  }, [model, selection]);
+  }, [place, model, selection]);
 
-  const closeCard = useCallback(() => setSelection(null), []);
+  const closeCard = useCallback(() => setSelection(null), [setSelection]);
 
   // The sources whose pictures are on screen: the drapes of the era shown, and today's building
   // outlines, which are drawn in every era (solid at Today, a faint outline in the others).
@@ -201,6 +267,18 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
   }, [model, currentEra, player.eraLoaded]);
 
   const backdrop = variant === 'backdrop';
+  // The 2D map stands in for the Player when it cannot run: no WebGL 2, or it failed to load.
+  const fallbackActive = !backdrop && load.status === 'ready' && (!webgl2 || unavailable !== null);
+  const plan = useMemo(
+    () => (fallbackActive && model && currentEra ? fallbackPlan(model, currentEra.id, pinnedLot) : null),
+    [fallbackActive, model, currentEra, pinnedLot],
+  );
+  const stageKind: StageKind = fallbackActive ? 'fallback' : load.status === 'ready' && player.running ? 'player' : 'pending';
+  const placeStage = place?.onStage;
+  useEffect(() => {
+    placeStage?.(stageKind);
+  }, [placeStage, stageKind]);
+
   let stage: ReactNode;
   if (backdrop && (load.status !== 'ready' || !webgl2 || unavailable !== null)) {
     // Behind the landing a missing scene is just the dusk colour: no message over the search field.
@@ -213,10 +291,8 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
     );
   } else if (load.status === 'error') {
     stage = <p className="stage-message">The records could not be loaded. {load.message}</p>;
-  } else if (!webgl2) {
-    stage = <p className="stage-message">{NO_WEBGL2_MESSAGE}</p>;
-  } else if (unavailable !== null) {
-    stage = <p className="stage-message">The 3D view did not load: {unavailable}</p>;
+  } else if (fallbackActive) {
+    stage = plan && currentEra ? <Fallback2D plan={plan} eraLabel={currentEra.label} /> : null;
   } else {
     stage = (
       <Suspense
@@ -233,6 +309,7 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
           cameraCommand={debug ? cameraCommand : null}
           reducedMotion={reducedMotion}
           lot={pinnedLot}
+          drapeMode={place?.drapeMode ?? 'lit'}
           onPlayerState={setPlayer}
           onFeatureClicked={onFeatureClicked}
           onUnavailable={setUnavailable}
@@ -243,6 +320,14 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
     );
   }
 
+  // Text over the scene lives in one column, so that no two pieces can sit on each other: the era
+  // note or the hint, the reason the 3D view is not shown, data notes, and the list of features.
+  const sceneReady = load.status === 'ready';
+  const showHint = sceneReady && !fallbackActive && !clicked && selection === null && !eraNote;
+  const showList = !backdrop && model !== null && (variant === 'place' || fallbackActive);
+  const rows = useMemo(() => featureRows(currentEra ? model?.lists.get(currentEra.id) : undefined, model?.features ?? new Map()), [model, currentEra]);
+  const showStack = !backdrop && !card && sceneReady;
+
   const Wrapper = (backdrop ? 'div' : 'main') as 'main';
   return (
     <Wrapper
@@ -251,6 +336,10 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
       aria-label={backdrop ? undefined : 'Explorer'}
       aria-hidden={backdrop ? true : undefined}
       data-testid="view"
+      onClick={(event) => {
+        // A click on the scene is the first click: the hint has done its job.
+        if (!backdrop && event.target instanceof HTMLCanvasElement) setClicked(true);
+      }}
       data-player-ready={player.ready ? 'true' : 'false'}
       data-eras-loaded={player.eraLoaded.join(',')}
       data-workspace-features={model ? model.workspaceFeatureIds.size : undefined}
@@ -261,21 +350,42 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
 
       {!backdrop && model && <DepthGauge eras={model.order} index={dig.state.target} depth={depth} onChange={chooseEra} onDrag={dragDepth} onRelease={release} />}
 
-      {backdrop ? null : card ? (
-        <EvidenceCard card={card} onClose={closeCard} />
-      ) : eraNote ? (
-        <p className="view-hint view-note" role="status" data-testid="era-note">
-          {eraNote}
-        </p>
-      ) : (
-        model && <p className="view-hint">Click a building in the 3D view to see the evidence behind it.</p>
-      )}
+      {card && <EvidenceCard card={card} onClose={closeCard} />}
 
-      {!backdrop && load.status === 'ready' && load.problems.length > 0 && (
-        <div role="status" className="view-notes" data-testid="data-problems">
-          {load.problems.map((problem) => (
-            <p key={problem}>{problem}</p>
-          ))}
+      {showStack && (
+        <div className="view-top" data-testid="view-top">
+          {fallbackActive && (
+            <p className="view-hint view-reason" role="status" data-testid="fallback-reason">
+              {fallbackReason(webgl2, unavailable, NO_WEBGL2_MESSAGE)}
+            </p>
+          )}
+          {eraNote && (
+            <p className="view-hint view-note" role="status" data-testid="era-note">
+              {eraNote}
+            </p>
+          )}
+          {showHint && (
+            <p className="view-hint" data-testid="view-hint">
+              Click a building in the 3D view to see the evidence behind it.
+            </p>
+          )}
+          {load.problems.length > 0 && (
+            <div role="status" className="view-notes" data-testid="data-problems">
+              {load.problems.map((problem) => (
+                <p key={problem}>{problem}</p>
+              ))}
+            </div>
+          )}
+          {showList && currentEra && (
+            <FeatureList
+              rows={rows}
+              eraLabel={currentEra.label}
+              open={listOpen}
+              onToggle={() => setListOpen((open) => !open)}
+              onChoose={chooseFromList}
+              selectedId={selection?.featureId ?? null}
+            />
+          )}
         </div>
       )}
 
@@ -290,3 +400,4 @@ export function Explorer({ variant = 'full', era: requestedEra = null }: { varia
     </Wrapper>
   );
 }
+
