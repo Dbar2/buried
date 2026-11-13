@@ -15,7 +15,7 @@
  *  - (f) Down then Up on the gauge goes from Today to 1947 and back, because 1947 sits between
  *    Today and 1935. The test presses Down twice to reach 1935 and Up twice to return to Today.
  */
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
@@ -508,4 +508,105 @@ test('no console errors from the Shell while looking', async () => {
   // Reaching here with the Player running is the check; the Player's own start-up messages about
   // unused URP shaders go to the console as log lines, not as page errors.
   expect(await page.getByTestId('view').getAttribute('data-player-ready')).toBe('true');
+});
+
+/**
+ * Session 021: a ghost at close range over a draped plate. The ink line has to read against the
+ * paper. The test flies the debug camera to the committed 1911 building, saves look-ghost-close.png
+ * and measures, along the roof outline, how far the line stands out from what lies beside it.
+ *
+ * How it measures. At several points along each roof edge (found with the camera the Player
+ * reported) the test reads the luminance profile across the edge, 4 px each side, and takes the WCAG
+ * ratio between the brightest and the darkest pixel of the profile: the `ink` line against its `night`
+ * casing. It reads the same profile 60 px away on the plate alone as a control. The median over the
+ * edge points has to be at least 3:1 (the design's figure for UI outlines) and at least 1.5 times the
+ * control's. The numbers go to e2e/output/look-ghost-contrast.json. The measure is a proxy: a printed
+ * line of the plate that crosses an edge point also raises it, which is what the control is for.
+ */
+test('the ghost at close range reads against the plate (contrast measured)', async ({ browser }) => {
+  test.setTimeout(240_000);
+  const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 });
+  const close = await context.newPage();
+  try {
+    await close.goto('/?era=1911&debug=1&markers=0');
+    await expect(close.getByTestId('view')).toHaveAttribute('data-player-ready', 'true', { timeout: 150_000 });
+    await expect(close.getByTestId('debug-state')).toContainText('"running":true', { timeout: 120_000 });
+
+    const collection = readJson<{ features: Array<{ geometry: { coordinates: number[][][] }; properties: { attributes: { storeys?: number } } }> }>('evidence', 'fip_v3_1911_229.geojson');
+    const building = collection.features[0] as (typeof collection.features)[number];
+    const ring = building.geometry.coordinates[0] as number[][];
+    const cx = ring.reduce((s, p) => s + (p[0] as number), 0) / ring.length;
+    const cy = ring.reduce((s, p) => s + (p[1] as number), 0) / ring.length;
+    const roof = (building.properties.attributes.storeys ?? 1) * 3.5;
+
+    await close.getByTestId('debug-camera-input').fill(JSON.stringify({ target: [cx, cy], distanceM: 45, pitchDeg: 55, headingDeg: 20 }));
+    await close.getByTestId('debug-camera-send').evaluate((button) => (button as HTMLButtonElement).click());
+    await expect
+      .poll(async () => {
+        const state = JSON.parse((await close.getByTestId('debug-state').textContent()) as string) as { camera: { eye: { heightM: number } } | null };
+        return state.camera ? state.camera.eye.heightM < 80 : false;
+      })
+      .toBe(true);
+    await close.waitForTimeout(3000); // the rise takes 900 ms once the era is shown, and the drape fades in
+    await close.screenshot({ path: join(OUTPUT, 'look-ghost-close.png') });
+    const png = PNG.sync.read(await close.getByTestId('unity-canvas').screenshot());
+    const camera = JSON.parse((await close.getByTestId('view').getAttribute('data-camera')) as string) as Camera;
+    expect(camera.canvas.widthPx).toBe(png.width);
+
+    const lum = (x: number, y: number): number => wcagLuminance(pixel(png, Math.min(png.width - 1, Math.max(0, x)), Math.min(png.height - 1, Math.max(0, y))));
+
+    const contrasts: number[] = [];
+    const controls: number[] = [];
+    for (let i = 0; i < ring.length - 1; i++) {
+      const a = projectToPixels(camera, (ring[i] as number[])[0] as number, (ring[i] as number[])[1] as number, roof);
+      const b = projectToPixels(camera, (ring[i + 1] as number[])[0] as number, (ring[i + 1] as number[])[1] as number, roof);
+      if (a.w <= 0 || b.w <= 0) continue;
+      const length = Math.hypot(b.x - a.x, b.y - a.y);
+      if (length < 25) continue;
+      const d = { x: (b.x - a.x) / length, y: (b.y - a.y) / length };
+      const n = { x: -d.y, y: d.x };
+      for (const t of [0.3, 0.5, 0.7]) {
+        const px = a.x + (b.x - a.x) * t;
+        const py = a.y + (b.y - a.y) * t;
+        if (px < 10 || py < 10 || px > png.width - 10 || py > png.height - 10) continue;
+        const profile = (cx: number, cy: number): number => {
+          let lo = Infinity;
+          let hi = -Infinity;
+          for (let k = -4; k <= 4; k++) {
+            const l = lum(Math.round(cx + n.x * k), Math.round(cy + n.y * k));
+            lo = Math.min(lo, l);
+            hi = Math.max(hi, l);
+          }
+          return (hi + 0.05) / (lo + 0.05);
+        };
+        contrasts.push(profile(px, py));
+        // The same profile 60 px away along the normal (inside the canvas), on the plate alone.
+        for (const away of [60, -60]) {
+          const qx = px + n.x * away;
+          const qy = py + n.y * away;
+          if (qx > 10 && qy > 10 && qx < png.width - 10 && qy < png.height - 10) {
+            controls.push(profile(qx, qy));
+            break;
+          }
+        }
+      }
+    }
+    const medianOf = (values: number[]): number => {
+      const sorted = [...values].sort((x, y) => x - y);
+      return sorted.length > 0 ? (sorted[Math.floor(sorted.length / 2)] as number) : 0;
+    };
+    const median = medianOf(contrasts);
+    const controlMedian = medianOf(controls);
+    contrasts.sort((x, y) => x - y);
+    writeFileSync(
+      join(OUTPUT, 'look-ghost-contrast.json'),
+      `${JSON.stringify({ samples: contrasts.length, median, controlSamples: controls.length, controlMedian, contrasts, controls }, null, 2)}\n`,
+    );
+    console.log(`ghost edge profile contrast: ${contrasts.length} samples, median ${median.toFixed(2)} : 1; plate alone ${controlMedian.toFixed(2)} : 1 (${controls.length} samples)`);
+    expect(contrasts.length, 'points on the roof outline').toBeGreaterThanOrEqual(6);
+    expect(median, 'median WCAG contrast across the ghost edge').toBeGreaterThanOrEqual(3);
+    expect(median, 'the edge stands out from the plate alone').toBeGreaterThanOrEqual(1.5 * controlMedian);
+  } finally {
+    await context.close();
+  }
 });

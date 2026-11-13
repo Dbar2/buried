@@ -71,7 +71,10 @@ namespace Buried.Tests
         {
             Assert.AreEqual(0.25f, LookSettings.HorizonMix, 0f);
             Assert.LessOrEqual(LookSettings.EdgeGlowPx, 2f, "requirement 26.4: any glow is no wider than about 2 px");
-            Assert.AreEqual(1.5f, LookSettings.EdgeWidthCssPx, 0f);
+            Assert.LessOrEqual(LookSettings.GhostEdgeCasingPx, 2f, "requirement 26.4: the ghost casing is no wider than about 2 px");
+            Assert.AreEqual(2.5f, LookSettings.EdgeWidthCssPx, 0f);
+            Assert.AreEqual(0.45f, LookSettings.GhostFillAlpha, 0f);
+            Assert.Less(LookSettings.GhostFillAlpha, 0.6f, "the fill stays translucent so the plate's lines show through (26.4)");
         }
 
         [Test]

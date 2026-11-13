@@ -264,8 +264,11 @@ namespace Buried.Scene
             _ghostEdge.SetFloat("_Alpha", 1f);
             _ghostEdge.SetFloat("_Emission", LookSettings.EdgeEmission);
             _ghostEdge.SetFloat("_WidthPx", LookSettings.EdgeWidthCssPx);
-            _ghostEdge.SetFloat("_GlowPx", LookSettings.EdgeGlowPx);
-            _ghostEdge.SetFloat("_GlowAlpha", LookSettings.EdgeGlowAlpha);
+            _ghostEdge.SetFloat("_GlowPx", LookSettings.GhostEdgeCasingPx);
+            _ghostEdge.SetFloat("_GlowAlpha", LookSettings.GhostEdgeCasingAlpha);
+            // A `night` casing inside the glow width keeps the `ink` line readable over a pale plate.
+            _ghostEdge.SetColor("_GlowColor", _palette.night);
+            _ghostEdge.SetFloat("_GlowMix", 1f);
             _ghostEdge.SetFloat("_PixelScale", PixelScale());
             _ghostEdge.renderQueue = 3010;
 

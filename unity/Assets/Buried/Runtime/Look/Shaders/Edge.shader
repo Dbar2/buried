@@ -15,6 +15,8 @@ Shader "Buried/Edge"
         _WidthPx ("Width (CSS px)", Float) = 1.5
         _GlowPx ("Glow each side (CSS px)", Float) = 1
         _GlowAlpha ("Glow alpha", Range(0, 1)) = 0.35
+        _GlowColor ("Glow colour", Color) = (0, 0, 0, 1)
+        _GlowMix ("Glow takes its own colour (0 or 1)", Range(0, 1)) = 0
         _PixelScale ("Device px per CSS px", Float) = 1
         _Rise ("Vertical scale about y = 0", Range(0, 1)) = 1
     }
@@ -44,6 +46,8 @@ Shader "Buried/Edge"
                 float _WidthPx;
                 float _GlowPx;
                 half _GlowAlpha;
+                half4 _GlowColor;
+                half _GlowMix;
                 float _PixelScale;
                 float _Rise;
             CBUFFER_END
@@ -101,8 +105,16 @@ Shader "Buried/Edge"
                 float a = abs(input.across);
                 float coreAlpha = saturate(core - a + 0.5);
                 float glowAlpha = (1.0 - saturate((a - core) / max(_GlowPx * _PixelScale, 1e-3))) * _GlowAlpha;
+                // With its own glow colour the ring is a flat casing, soft only at its outer pixel, so a
+                // 1 to 2 px ring stays visible instead of fading away across its width.
+                float casing = saturate(core + _GlowPx * _PixelScale - a + 0.5) * _GlowAlpha;
+                glowAlpha = lerp(glowAlpha, casing, step(0.5, _GlowMix));
                 float alpha = max(coreAlpha, glowAlpha) * _Alpha;
                 half3 rgb = _Color.rgb * _Emission;
+                // The glow ring can take its own colour (_GlowMix 1): a ghost's `night` casing keeps its
+                // `ink` line readable over a pale draped plate. Nothing else sets it, so 0 is the old look.
+                float inGlow = step(core, a) * _GlowMix;
+                rgb = lerp(rgb, _GlowColor.rgb, inGlow);
                 rgb = BuriedApplyFog(rgb, input.transmission);
                 return half4(rgb, alpha);
             }

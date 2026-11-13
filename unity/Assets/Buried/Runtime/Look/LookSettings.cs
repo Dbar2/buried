@@ -89,14 +89,27 @@ namespace Buried.Look
 
         // ---- Ghosts ----
 
-        /// <summary>Fill alpha of a documented ghost.</summary>
-        public const float GhostFillAlpha = 0.35f;
+        /// <summary>
+        /// Fill alpha of a documented ghost. Raised from 0.35 and 1.5 px (session 021) because a ghost
+        /// did not read against a draped plate at close range. Still translucent, and the glow stays
+        /// at 1 px, inside requirement 26.4.
+        /// </summary>
+        public const float GhostFillAlpha = 0.45f;
         public const float GhostEmission = 0.15f;
 
         /// <summary>Edge width in CSS pixels, the glow on each side beyond it, and the edge emission.</summary>
-        public const float EdgeWidthCssPx = 1.5f;
+        public const float EdgeWidthCssPx = 2.5f;
         public const float EdgeGlowPx = 1.0f;
         public const float EdgeGlowAlpha = 0.35f;
+
+        /// <summary>
+        /// The ghost edge's glow ring is drawn in `night` at this alpha, so the `ink` line has a dark
+        /// casing on a pale plate. It is the same 1 px wide ring, inside requirement 26.4.
+        /// </summary>
+        public const float GhostEdgeCasingAlpha = 1.0f;
+
+        /// <summary>The casing's width each side of the line. Under the 2 px of requirement 26.4.</summary>
+        public const float GhostEdgeCasingPx = 1.5f;
         public const float EdgeEmission = 1.2f;
 
         /// <summary>Alpha of the present buildings' outline once the depth has left Today (DepthBlend).</summary>
