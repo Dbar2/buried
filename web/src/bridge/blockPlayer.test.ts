@@ -2,19 +2,22 @@
  * The Block page against a fake Player (spec 06 session 042): the messages the page sends are valid bridge 0.8.0
  * messages, the Player's answers parse, and the raise goes out once, in the order the reducer allows. The real Player
  * is built in another checkout; the maintainer runs the browser suites against it after the lanes merge.
+ *
+ * This test lives in `bridge/` because it names `SendMessage` and `buriedBridge` to stand in for the Player, and the
+ * boundary test (`boundary.test.ts`) allows that only here and in UnityView.
  */
 import fc from 'fast-check';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { checkMessage, createBridge } from '../bridge/bridge';
+import { checkMessage, createBridge } from './bridge';
+import { RAISE_ERA_ID } from '../block/blockModel';
+import { anchorsInStage, buildFrameFeature, buildRaise, buildSelectFeature, buildSetAnchors, readAnchors } from '../block/playerMessages';
+import { initialRaiseState, raiseReducer, sendsRaise } from '../block/raiseState';
+import type { RaiseEvent, RaiseState } from '../block/raiseState';
 import { loadData } from '../data/loadData';
-import { buildLoadEra } from '../explorer/gateScene';
 import { buildGateModel } from '../explorer/gateModel';
 import type { GateModel } from '../explorer/gateModel';
+import { buildLoadEra } from '../explorer/gateScene';
 import { diskFetch, REPOSITORY_DATA } from '../explorer/testing/diskFetch';
-import { RAISE_ERA_ID } from './blockModel';
-import { anchorsInStage, buildFrameFeature, buildRaise, buildSelectFeature, buildSetAnchors, readAnchors } from './playerMessages';
-import { initialRaiseState, raiseReducer, sendsRaise } from './raiseState';
-import type { RaiseEvent, RaiseState } from './raiseState';
 
 let model: GateModel;
 beforeAll(async () => {
@@ -41,7 +44,7 @@ describe('the messages the page sends', () => {
     expect(buildSelectFeature(null).payload).toEqual({});
   });
 
-  it('carry held: true on the raise era\'s first load only when asked (the landing look)', () => {
+  it("carry held: true on the raise era's first load only when asked (the landing look)", () => {
     const era = model.order.find((e) => e.id === RAISE_ERA_ID)!;
     const held = buildLoadEra(era, model.lists.get(era.id)!, model.drapes.get(era.id) ?? [], new Set(), true);
     const plain = buildLoadEra(era, model.lists.get(era.id)!, model.drapes.get(era.id) ?? []);

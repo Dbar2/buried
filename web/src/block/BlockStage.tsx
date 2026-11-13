@@ -128,9 +128,10 @@ export function BlockStage(props: BlockStageProps) {
   const [flatSettled, setFlatSettled] = useState(false);
   useEffect(() => {
     if (!flatDrawing) return;
-    const id = window.setTimeout(() => setFlatSettled(true), reducedMotion ? 0 : FLAT_SETTLE_MS);
+    // A share link, like reduced motion, has no animation: the outlines and the card are there at once.
+    const id = window.setTimeout(() => setFlatSettled(true), reducedMotion || routeFind ? 0 : FLAT_SETTLE_MS);
     return () => clearTimeout(id);
-  }, [flatDrawing, reducedMotion]);
+  }, [flatDrawing, reducedMotion, routeFind]);
   const raised = raise.phase === 'raised' || flatSettled;
 
   // ---- the ruler and the depth ------------------------------------------------------------------------------------
@@ -351,7 +352,7 @@ export function BlockStage(props: BlockStageProps) {
         present={today ? flatPresent(model) : []}
         dimmed={today}
         raised={bare ? false : isLens ? true : era === 'today' ? false : flatDrawing || raised}
-        reducedMotion={isLens || reducedMotion}
+        reducedMotion={isLens || reducedMotion || Boolean(routeFind)}
         selectedId={isLens ? null : selectedSceneId}
         onSelect={(id) => onFeatureClicked(id, era)}
       />
@@ -475,12 +476,12 @@ export function BlockStage(props: BlockStageProps) {
         <a href="/place" data-testid="look-up-address">
           Look up an address
         </a>
-        {failedLine ? (
-          <span className="block-failed" role="status" data-testid="block-failed">
-            {failedLine}
-          </span>
-        ) : null}
       </p>
+      {failedLine ? (
+        <p className="block-failed" role="status" data-testid="block-failed">
+          {failedLine}
+        </p>
+      ) : null}
     </main>
   );
 }

@@ -30,6 +30,7 @@
 /* The margin caption under the sheet: a hairline rule, the block's name and the link to the address search. */
 .block-caption {
   align-items: center;
+  background: var(--haze);
   border-top: 1px solid var(--copper);
   color: var(--parchment-dim);
   column-gap: var(--space-2);
@@ -48,8 +49,16 @@
 }
 
 .block-failed {
+  background: var(--haze);
+  border-left: 2px solid var(--parchment-dim);
   color: var(--parchment);
-  margin-left: auto;
+  left: var(--space-3);
+  margin: 0;
+  max-width: min(36rem, calc(100% - 2 * var(--space-3)));
+  padding: var(--space-1) var(--space-2);
+  position: absolute;
+  top: 64px;
+  z-index: 4;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -114,6 +123,12 @@
   font-size: clamp(2rem, 3.4vw, 3.25rem);
 }
 
+/* On the Flat sheet the headline sits over the plan, so its words get a plain `--soot` ground to be read on. */
+.block-stage[data-flat='true'] .block-intro {
+  background: var(--soot);
+  padding: var(--space-3);
+}
+
 .block-top {
   pointer-events: none;
   position: absolute;
@@ -135,6 +150,13 @@
 .list-dock {
   position: absolute;
   z-index: 3;
+}
+
+/* The ruler sits on a plain `--haze` ground, so its marks and labels read over the pale plan. */
+.ruler-dock {
+  background: var(--haze);
+  border: 1px solid var(--copper);
+  padding: var(--space-1) var(--space-2);
 }
 
 .sheet-dock {
@@ -773,6 +795,11 @@
 
 /* Phone (under 720 px): the tags scroll in one row, the ruler sits on the scene's lower edge, the card is a sheet. */
 @media (max-width: 719px) {
+  .block-caption {
+    font-size: 0.875rem;
+    line-height: 1.25;
+  }
+
   .block-stage .block-intro {
     left: var(--space-3);
     max-width: calc(100% - 2 * var(--space-3));

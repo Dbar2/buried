@@ -11,6 +11,8 @@ export const CARD_WIDTH = 360;
 export const CARD_TOP = 72;
 export const CARD_RIGHT = 24;
 export const CAPTION_HEIGHT = 40;
+/** On a phone the caption wraps to two lines, so its bar is taller. */
+export const PHONE_CAPTION_HEIGHT = 56;
 export const SHEET_PEEK = 168;
 export const RULER_HEIGHT = 76;
 export const RULER_WIDTH = 560;
@@ -57,8 +59,9 @@ export function blockLayout(input: LayoutInput): BlockRects {
   const sheetTop = input.sheetExpanded ? Math.round(h * 0.12) : h - SHEET_PEEK;
   const sheet: Rect | null = sheetShown ? { x: 0, y: sheetTop, w, h: h - sheetTop } : null;
 
-  const captionY = sheetShown ? Math.min(h - SHEET_PEEK, sheetTop) - CAPTION_HEIGHT : h - CAPTION_HEIGHT;
-  const caption: Rect = { x: 0, y: captionY, w, h: CAPTION_HEIGHT };
+  const captionH = phone ? PHONE_CAPTION_HEIGHT : CAPTION_HEIGHT;
+  const captionY = sheetShown ? h - SHEET_PEEK - captionH : h - captionH;
+  const caption: Rect = { x: 0, y: captionY, w, h: captionH };
 
   const cardOpenWide = !phone && input.cardOpen;
   const card: Rect | null = cardOpenWide ? { x: w - CARD_RIGHT - CARD_WIDTH, y: CARD_TOP, w: CARD_WIDTH, h: Math.max(0, captionY - GAP - CARD_TOP) } : null;
