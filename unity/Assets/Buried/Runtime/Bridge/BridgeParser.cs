@@ -49,6 +49,7 @@ namespace Buried.Interop
                 case BridgeMessageTypes.SceneSetAnchors: return new ParsedMessage(type, ParseSceneSetAnchors(payload));
                 case BridgeMessageTypes.SceneRaise: return new ParsedMessage(type, ParseSceneRaise(payload));
                 case BridgeMessageTypes.SceneFrameFeature: return new ParsedMessage(type, ParseSceneFrameFeature(payload));
+                case BridgeMessageTypes.SceneSelectFeature: return new ParsedMessage(type, ParseSceneSelectFeature(payload));
                 case BridgeMessageTypes.SceneAnchors: return new ParsedMessage(type, ParseSceneAnchors(payload));
                 case BridgeMessageTypes.SceneRaised: return new ParsedMessage(type, ParseSceneRaised(payload));
                 case BridgeMessageTypes.DebugMarkers: return new ParsedMessage(type, ParseDebugMarkers(payload));
@@ -394,6 +395,16 @@ namespace Buried.Interop
             const string p = "payload";
             JsonFields.Exactly(o, p, "feature_id");
             return new SceneFrameFeaturePayload { feature_id = JsonFields.Matching(o, "feature_id", p, JsonFields.FeatureIdPattern) };
+        }
+
+        private static SceneSelectFeaturePayload ParseSceneSelectFeature(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.ExactlyWithOptional(o, p, new string[0], new[] { "feature_id" });
+            return new SceneSelectFeaturePayload
+            {
+                feature_id = o["feature_id"] == null ? null : JsonFields.Matching(o, "feature_id", p, JsonFields.FeatureIdPattern),
+            };
         }
 
         private static SceneAnchorsPayload ParseSceneAnchors(JObject o)

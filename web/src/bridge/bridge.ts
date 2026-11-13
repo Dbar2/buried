@@ -31,6 +31,7 @@ export const SHELL_TO_PLAYER = [
   'scene/setAnchors',
   'scene/raise',
   'scene/frameFeature',
+  'scene/selectFeature',
   'debug/markers',
   'debug/setCamera',
 ] as const;

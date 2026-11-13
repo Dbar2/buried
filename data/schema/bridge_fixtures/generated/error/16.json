@@ -3,6 +3,6 @@
   "payload": {
     "code": "era_not_initialised",
     "message": "kRzs0",
-    "messageType": "ready"
+    "messageType": "scene/setDepth"
   }
 }

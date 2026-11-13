@@ -40,6 +40,7 @@ namespace Buried.Interop
                 case BridgeMessageTypes.SceneRaise: payload = Write((SceneRaisePayload)message.payload); break;
                 case BridgeMessageTypes.SceneRaised: payload = Write((SceneRaisedPayload)message.payload); break;
                 case BridgeMessageTypes.SceneFrameFeature: payload = Write((SceneFrameFeaturePayload)message.payload); break;
+                case BridgeMessageTypes.SceneSelectFeature: payload = Write((SceneSelectFeaturePayload)message.payload); break;
                 case BridgeMessageTypes.SceneAnchors: payload = Write((SceneAnchorsPayload)message.payload); break;
                 case BridgeMessageTypes.DebugMarkers: payload = Write((DebugMarkersPayload)message.payload); break;
                 case BridgeMessageTypes.DebugSetCamera: payload = Write((DebugSetCameraPayload)message.payload); break;
@@ -220,6 +221,13 @@ namespace Buried.Interop
         private static JObject Write(SceneFrameFeaturePayload p)
         {
             return new JObject { ["feature_id"] = p.feature_id };
+        }
+
+        private static JObject Write(SceneSelectFeaturePayload p)
+        {
+            var o = new JObject();
+            if (p.feature_id != null) o["feature_id"] = p.feature_id;
+            return o;
         }
 
         private static JObject Write(SceneShowEvidencePayload p)

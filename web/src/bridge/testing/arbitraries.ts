@@ -211,6 +211,10 @@ export const messageArbitraries: Readonly<Record<MessageType, Arb<BridgeMessage>
   ),
   'scene/raised': message('scene/raised', fc.record({ era_id: eraIdArb })),
   'scene/frameFeature': message('scene/frameFeature', fc.record({ feature_id: featureIdArb })),
+  'scene/selectFeature': message(
+    'scene/selectFeature',
+    fc.option(featureIdArb, { nil: undefined }).map((id) => (id === undefined ? {} : { feature_id: id })),
+  ),
   'debug/markers': message(
     'debug/markers',
     fc.record({

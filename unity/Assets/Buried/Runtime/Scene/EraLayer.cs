@@ -372,6 +372,11 @@ namespace Buried.Scene
             }
             foreach (DrapeLayer drape in _drapes) drape.SetLensMode(mode);
             if (_evidenceFill != null) LensMaterial.SetMode(_evidenceFill, mode);
+            if (_selectedFill != null)
+            {
+                LensMaterial.SetMode(_selectedFill, mode);
+                LensMaterial.SetMode(_selectedEdge, mode);
+            }
         }
 
         private void SetLensMode(ClassGroup group)
@@ -422,6 +427,7 @@ namespace Buried.Scene
             Held = true;
             Raising = false;
             ApplyRaise(true, Vector2.zero, -1f, 0f);
+            ApplySelection();
         }
 
         /// <summary>Starts the raise from the first find's centre. The clock is then set with <see cref="SetRaiseClock"/>.</summary>
@@ -432,6 +438,7 @@ namespace Buried.Scene
             _raiseOrigin = RaiseOrigin(firstFeatureId);
             _raiseFarthest = RaiseSchedule.Farthest(_centres.Values, _raiseOrigin);
             ApplyRaise(true, _raiseOrigin, 0f, _raiseFarthest);
+            ApplySelection();
         }
 
         private Vector2 _raiseOrigin;
@@ -449,6 +456,7 @@ namespace Buried.Scene
             Held = false;
             Raising = false;
             ApplyRaise(false, Vector2.zero, -1f, 0f);
+            ApplySelection();
         }
 
         private void ApplyRaise(bool on, Vector2 origin, float clock, float farthest)
@@ -474,6 +482,94 @@ namespace Buried.Scene
             if (!_features.TryGetValue(featureId, out feature) || !_centres.TryGetValue(featureId, out centre)) return false;
             world = new Vector3(centre.x, feature.kind == SceneFeatureDto.KindLandUse ? 0f : HeightOf(feature), centre.y);
             return true;
+        }
+
+        // ---- Selection (bridge 0.8.0, scene/selectFeature) ----
+
+        private string _selectedId;
+        private Material _selectedFill;
+        private Material _selectedEdge;
+        private Mesh _selectedFillMesh;
+        private Mesh _selectedEdgeMesh;
+        private GameObject _selectedObject;
+
+        /// <summary>The id of the selected feature of this era, or null.</summary>
+        public string SelectedId
+        {
+            get { return _selectedId; }
+        }
+
+        /// <summary>
+        /// Draws the feature selected: its edges again in `lantern`, thicker and with a faint emission, and a faint `lantern`
+        /// tint over its volume. A land-use area gets the same on the ground. The overlay waits (is not drawn) while the
+        /// era is held or being raised. Returns false when the era does not draw the feature or it cannot be built.
+        /// </summary>
+        public bool SetSelected(string featureId, ProjectFrame frame)
+        {
+            ClearSelected();
+            SceneFeatureDto feature;
+            if (!_features.TryGetValue(featureId, out feature) || _materials == null) return false;
+
+            var options = FootprintBuilder.Options.Default;
+            options.Outline = true;
+            options.Storeys = feature.kind == SceneFeatureDto.KindLandUse ? 0 : feature.storeys;
+            FootprintBuilder.Result built = FootprintBuilder.Build(feature.geometry, HeightOf(feature), frame, options);
+            if (built == null) return false;
+
+            _selectedId = featureId;
+            _selectedObject = new GameObject("Selected " + featureId);
+            _selectedObject.transform.SetParent(_root.transform, false);
+            _selectedFill = new Material(_materials.SelectedFill) { name = "Selected fill" };
+            _selectedEdge = new Material(_materials.SelectedEdge) { name = "Selected edge" };
+            _selectedFillMesh = built.Fill.ToMesh("Selected fill " + featureId);
+            _selectedEdgeMesh = built.Edges.ToMesh("Selected edges " + featureId);
+            AddSelectedRenderer("Fill", _selectedFillMesh, _selectedFill);
+            AddSelectedRenderer("Edges", _selectedEdgeMesh, _selectedEdge);
+            LensMaterial.SetMode(_selectedFill, _lensMode);
+            LensMaterial.SetMode(_selectedEdge, _lensMode);
+            ApplySelection();
+            return true;
+        }
+
+        private void AddSelectedRenderer(string name, Mesh mesh, Material material)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(_selectedObject.transform, false);
+            go.AddComponent<MeshFilter>().sharedMesh = mesh;
+            MeshRenderer renderer = go.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+        }
+
+        /// <summary>Takes the selection off.</summary>
+        public void ClearSelected()
+        {
+            if (_selectedId == null) return;
+            SceneObjects.Destroy(_selectedFillMesh);
+            SceneObjects.Destroy(_selectedEdgeMesh);
+            SceneObjects.Destroy(_selectedFill);
+            SceneObjects.Destroy(_selectedEdge);
+            SceneObjects.Destroy(_selectedObject);
+            _selectedId = null;
+            _selectedFill = null;
+            _selectedEdge = null;
+            _selectedFillMesh = null;
+            _selectedEdgeMesh = null;
+            _selectedObject = null;
+        }
+
+        /// <summary>The overlay follows the era's weight and rise, and waits while the era is held or rising.</summary>
+        private void ApplySelection()
+        {
+            if (_selectedId == null) return;
+            _selectedObject.SetActive(!Held && !Raising);
+            float alpha = DepthBlend.GhostAlpha(Weight);
+            float rise = DepthBlend.Rise(Weight, _reducedMotion);
+            _selectedFill.SetFloat("_Weight", alpha);
+            _selectedFill.SetFloat("_Rise", rise);
+            _selectedEdge.SetFloat("_Alpha", alpha);
+            _selectedEdge.SetFloat("_Rise", rise);
         }
 
         // ---- Show Evidence ----
@@ -627,6 +723,7 @@ namespace Buried.Scene
             _reducedMotion = reducedMotion;
             foreach (AddedBatch batch in _batches) ApplyBatch(batch);
             FollowEvidenceGroup();
+            ApplySelection();
         }
 
         public bool Raycast(Ray ray, out float distance, out string featureId)
@@ -657,6 +754,7 @@ namespace Buried.Scene
 
         public void Dispose()
         {
+            ClearSelected();
             ClearEvidence();
             foreach (DrapeLayer drape in _drapes) drape.Dispose();
             _drapes.Clear();

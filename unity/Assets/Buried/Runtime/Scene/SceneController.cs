@@ -76,6 +76,7 @@ namespace Buried.Scene
         private DrapeLayer _evidencePatch;
         private int _evidenceGeneration;
         private bool _blockCameraApplied;
+        private string _selectedFeatureId;
 
         // Raise the past (bridge 0.8.0): the clock and what it pins, and the anchors the Shell asked for.
         private readonly RaiseState _raise = new RaiseState();
@@ -153,6 +154,9 @@ namespace Buried.Scene
                         break;
                     case BridgeMessageTypes.SceneFrameFeature:
                         HandleFrameFeature((SceneFrameFeaturePayload)message.payload);
+                        break;
+                    case BridgeMessageTypes.SceneSelectFeature:
+                        HandleSelectFeature((SceneSelectFeaturePayload)message.payload);
                         break;
                     case BridgeMessageTypes.DebugMarkers:
                         HandleMarkers((DebugMarkersPayload)message.payload);
@@ -257,6 +261,7 @@ namespace Buried.Scene
             _litBySource.Clear();
             _raise.Reset();
             _blockCameraApplied = false;
+            _selectedFeatureId = null;
             _anchorIds = new List<string>();
             _anchorsForce = false;
             _anchorsDirty = false;
@@ -412,6 +417,7 @@ namespace Buried.Scene
             layer.SetLensMode(LensModeFor(layer));
             layer.SetWeight(WeightFor(layer), _reducedMotion);
             _anchorsDirty = true;
+            if (_selectedFeatureId != null && layer.HasFeature(_selectedFeatureId)) layer.SetSelected(_selectedFeatureId, _frame);
             if (payload.held) ApplyBlockCamera();
 
             _bridge.Send(BridgeMessageTypes.EraLoaded, new EraLoadedPayload
@@ -948,6 +954,28 @@ namespace Buried.Scene
         {
             _anchorIds = new List<string>(payload.feature_ids);
             _anchorsForce = true;
+        }
+
+        /// <summary>
+        /// scene/selectFeature: the selected find's edges turn `lantern`, thicker (spec 06 requirement 4.1). One feature at a
+        /// time; no feature_id clears it. A selection survives its era being loaded again.
+        /// </summary>
+        private void HandleSelectFeature(SceneSelectFeaturePayload payload)
+        {
+            foreach (EraLayer layer in _layers.Values) layer.ClearSelected();
+            _selectedFeatureId = null;
+            if (payload.feature_id == null) return;
+
+            EraLayer era = FindEraWithFeature(payload.feature_id);
+            if (era == null || !era.SetSelected(payload.feature_id, _frame))
+            {
+                _bridge.SendError(
+                    BridgeErrorCodes.InvalidMessage,
+                    "feature " + payload.feature_id + " is not drawn in any loaded era",
+                    BridgeMessageTypes.SceneSelectFeature);
+                return;
+            }
+            _selectedFeatureId = payload.feature_id;
         }
 
         /// <summary>

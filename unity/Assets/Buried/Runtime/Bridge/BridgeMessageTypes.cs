@@ -18,6 +18,7 @@ namespace Buried.Interop
         public const string SceneSetAnchors = "scene/setAnchors";
         public const string SceneRaise = "scene/raise";
         public const string SceneFrameFeature = "scene/frameFeature";
+        public const string SceneSelectFeature = "scene/selectFeature";
         public const string DebugMarkers = "debug/markers";
         public const string DebugSetCamera = "debug/setCamera";
 
@@ -33,7 +34,7 @@ namespace Buried.Interop
         public static readonly string[] ShellToPlayer =
         {
             SceneInit, SceneLoadEra, SceneAddFeatures, SceneSetDepth, SceneFocusLot, SceneClearLot, SceneSetDrapeMode, SceneSetLantern,
-            SceneShowEvidence, SceneSetAnchors, SceneRaise, SceneFrameFeature, DebugMarkers, DebugSetCamera,
+            SceneShowEvidence, SceneSetAnchors, SceneRaise, SceneFrameFeature, SceneSelectFeature, DebugMarkers, DebugSetCamera,
         };
         public static readonly string[] PlayerToShell =
         {

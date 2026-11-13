@@ -3,6 +3,6 @@
   "payload": {
     "code": "bridge_version_mismatch",
     "message": "{",
-    "messageType": "scene/setDrapeMode"
+    "messageType": "scene/showEvidence"
   }
 }

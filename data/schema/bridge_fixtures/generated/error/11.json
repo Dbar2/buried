@@ -3,6 +3,6 @@
   "payload": {
     "code": "invalid_message",
     "message": "x",
-    "messageType": "scene/init"
+    "messageType": "scene/setDrapeMode"
   }
 }

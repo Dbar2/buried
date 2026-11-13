@@ -62,6 +62,14 @@ namespace Buried.Tests
         }
 
         [Test]
+        public void SelectFeatureReadsAnIdAndAnAbsentOneClears()
+        {
+            Assert.AreEqual("bld_fip_v3_1911_229_0001", ((SceneSelectFeaturePayload)Valid("scene_selectFeature", "select").payload).feature_id);
+            Assert.IsNull(((SceneSelectFeaturePayload)Valid("scene_selectFeature", "clear").payload).feature_id);
+            Assert.Contains(BridgeMessageTypes.SceneSelectFeature, BridgeMessageTypes.ShellToPlayer);
+        }
+
+        [Test]
         public void LoadEraReadsTheOptionalHeldFlagAndAnAbsentOneIsFalse()
         {
             Assert.IsTrue(((SceneLoadEraPayload)Valid("scene_loadEra", "held").payload).held);

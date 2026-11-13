@@ -218,6 +218,19 @@ namespace Buried.Look
         public const float EvidenceMarginM = 4f;
         public const float EvidenceFillAlpha = 0.05f;
 
+        // ---- The selected find (spec 06 requirement 4.1, session 040) ----
+
+        /// <summary>The selected edge is this many times as thick as a ghost's, and its emission is above 1 so that it, and only it, blooms.</summary>
+        public const float SelectedEdgeWidthFactor = 1.5f;
+        public const float SelectedEmission = 1.6f;
+
+        /// <summary>The faint `lantern` tint over the selected volume, and its own emission.</summary>
+        public const float SelectedFillAlpha = 0.14f;
+        public const float SelectedFillEmission = 0.3f;
+
+        /// <summary>The selection is drawn over the ghosts and their edges (queues 3000 and 3010).</summary>
+        public const int SelectedQueue = 3020;
+
         // ---- Land-use areas (bridge 0.7.0, session 034) ----
         // An area is drawn flat on the ground: diagonal `ink` stripes, each with a `night` casing so the stripes
         // read on a pale plate and on the dark ground (and in a greyscale screenshot), over a faint `ink` tint,

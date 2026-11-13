@@ -226,6 +226,54 @@ namespace Buried.Tests
         }
 
         [Test]
+        public void ASelectedFeatureGetsThickLanternEdgesAndAFaintTintAndTheFirstSelectionLeavesWhenAnotherComes()
+        {
+            Init(false);
+            LoadEra(false);
+            _bridge.Receive("{\"type\":\"scene/selectFeature\",\"payload\":{\"feature_id\":\"bld_x_0002\"}}");
+            Transform selected = _root.transform.Find("Era 1911/Selected bld_x_0002");
+            Assert.IsNotNull(selected);
+            Assert.IsTrue(selected.gameObject.activeSelf);
+            Material edge = selected.Find("Edges").GetComponent<MeshRenderer>().sharedMaterial;
+            Material ghostEdge = _root.transform.Find("Era 1911/Edges documented 0").GetComponent<MeshRenderer>().sharedMaterial;
+            Color lantern = (Color)AssetDatabase.LoadAssetAtPath<BuriedPalette>(Setup.PalettePath).lantern;
+            Assert.AreEqual(lantern.r, edge.GetColor("_Color").r, 1e-3f);
+            Assert.AreEqual(lantern.g, edge.GetColor("_Color").g, 1e-3f);
+            Assert.Greater(edge.GetFloat("_WidthPx"), ghostEdge.GetFloat("_WidthPx"), "thicker than a ghost's edge: never colour alone");
+            Assert.Greater(edge.GetFloat("_Emission"), LookSettings.BloomThreshold, "a faint emission that blooms");
+            Assert.Less(selected.Find("Fill").GetComponent<MeshRenderer>().sharedMaterial.GetColor("_Color").a, 0.3f, "the tint is faint");
+
+            _bridge.Receive("{\"type\":\"scene/selectFeature\",\"payload\":{\"feature_id\":\"bld_x_0003\"}}");
+            Assert.IsNull(_root.transform.Find("Era 1911/Selected bld_x_0002"), "one selection at a time");
+            Assert.IsNotNull(_root.transform.Find("Era 1911/Selected bld_x_0003"));
+
+            _bridge.Receive("{\"type\":\"scene/selectFeature\",\"payload\":{}}");
+            Assert.IsNull(_root.transform.Find("Era 1911/Selected bld_x_0003"), "no feature_id clears it");
+        }
+
+        [Test]
+        public void ASelectionWaitsWhileTheEraIsHeldAndShowsOnceTheRaiseHasSettled()
+        {
+            Init(false);
+            LoadEra(true);
+            _bridge.Receive("{\"type\":\"scene/selectFeature\",\"payload\":{\"feature_id\":\"bld_x_0001\"}}");
+            Transform selected = _root.transform.Find("Era 1911/Selected bld_x_0001");
+            Assert.IsFalse(selected.gameObject.activeSelf, "the ghost is held down, so nothing is drawn over it");
+
+            _bridge.Receive(Raise(false));
+            Assert.IsTrue(_root.transform.Find("Era 1911/Selected bld_x_0001").gameObject.activeSelf);
+        }
+
+        [Test]
+        public void ASelectionOfAFeatureTheSceneDoesNotHoldIsRefused()
+        {
+            Init(false);
+            LoadEra(false);
+            _bridge.Receive("{\"type\":\"scene/selectFeature\",\"payload\":{\"feature_id\":\"bld_x_9999\"}}");
+            Assert.AreEqual(1, _sent.Count(s => s.Key == BridgeMessageTypes.Error));
+        }
+
+        [Test]
         public void FrameFeatureCutsToAViewThatHasTheFeatureInUnderReducedMotionAndRefusesAnUnknownOne()
         {
             Init(true);

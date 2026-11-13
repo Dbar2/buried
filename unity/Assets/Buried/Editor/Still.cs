@@ -132,6 +132,27 @@ namespace Buried.Editor
                 built.Camera.Render();
                 WriteJpeg(target, file);
 
+                // A look check, not committed: the same view after Raise with the first find selected
+                // (data/work/still/<name>-raised.jpg), to judge plinths, ghosts, edges and the selection by eye.
+                if (anchorIds.Count > 0)
+                {
+                    string layerEra = (string)scene["messages"][1]["payload"]["eraId"];
+                    bridge.Receive(new JObject
+                    {
+                        ["type"] = BridgeMessageTypes.SceneRaise,
+                        ["payload"] = new JObject { ["era_id"] = layerEra, ["first_feature_id"] = anchorIds[0], ["animate"] = false },
+                    }.ToString(Newtonsoft.Json.Formatting.None));
+                    bridge.Receive(new JObject
+                    {
+                        ["type"] = BridgeMessageTypes.SceneSelectFeature,
+                        ["payload"] = new JObject { ["feature_id"] = anchorIds[0] },
+                    }.ToString(Newtonsoft.Json.Formatting.None));
+                    built.Camera.Render();
+                    string work = Path.Combine(RepositoryRoot, "data", "work", "still");
+                    Directory.CreateDirectory(work);
+                    WriteJpeg(target, Path.Combine(work, Path.GetFileNameWithoutExtension(file) + "-raised.jpg"), false);
+                }
+
                 var entries = new JArray();
                 if (anchors != null)
                 {
@@ -176,7 +197,7 @@ namespace Buried.Editor
             }
         }
 
-        private static void WriteJpeg(RenderTexture target, string file)
+        private static void WriteJpeg(RenderTexture target, string file, bool limit = true)
         {
             RenderTexture previous = RenderTexture.active;
             RenderTexture.active = target;
@@ -189,10 +210,10 @@ namespace Buried.Editor
             for (int quality = 88; quality >= 40; quality -= 4)
             {
                 bytes = texture.EncodeToJPG(quality);
-                if (bytes.Length <= MaxBytes) break;
+                if (!limit || bytes.Length <= MaxBytes) break;
             }
             UnityEngine.Object.DestroyImmediate(texture);
-            if (bytes.Length > MaxBytes)
+            if (limit && bytes.Length > MaxBytes)
             {
                 throw new InvalidOperationException(Path.GetFileName(file) + " is " + bytes.Length + " bytes; the limit is " + MaxBytes);
             }

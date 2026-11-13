@@ -67,6 +67,35 @@ namespace Buried.Scene
             _estimatedAreaEdge.SetFloat("_DashPeriodPx", LookSettings.DashPeriodCssPx);
             _estimatedAreaEdge.SetFloat("_DashOn", LookSettings.DashOnFraction);
             _unknownAreaFill = AreaFill("Area fill (unknown)", shaders.ghost, palette, LookSettings.AreaUnknownAlpha, pixelScale);
+
+            // The selected find (spec 06 requirement 4.1): `lantern` edges, thicker, with an emission above 1 (the one thing
+            // that blooms), and a faint `lantern` tint over the volume. Never colour alone: the edge is also thicker.
+            _selectedEdge = Edge("Selected edge", shaders.edge, palette, pixelScale);
+            _selectedEdge.SetColor("_Color", palette.lantern);
+            _selectedEdge.SetFloat("_WidthPx", LookSettings.EdgeWidthCssPx * LookSettings.SelectedEdgeWidthFactor);
+            _selectedEdge.SetFloat("_Emission", LookSettings.SelectedEmission);
+            _selectedEdge.SetFloat("_GlowAlpha", 0f);
+            _selectedEdge.renderQueue = LookSettings.SelectedQueue;
+            Color tint = palette.lantern;
+            _selectedFill = Fill("Selected fill", shaders.ghost, tint, LookSettings.SelectedFillAlpha, palette);
+            _selectedFill.SetFloat("_Shade", 0f);
+            _selectedFill.SetFloat("_ShadeMix", 0f);
+            _selectedFill.SetFloat("_Emission", LookSettings.SelectedFillEmission);
+            _selectedFill.renderQueue = LookSettings.SelectedQueue - 5;
+        }
+
+        private readonly Material _selectedFill;
+        private readonly Material _selectedEdge;
+
+        /// <summary>The base materials of the selected feature's overlay: a faint `lantern` tint and its thick `lantern` edge.</summary>
+        public Material SelectedFill
+        {
+            get { return _selectedFill; }
+        }
+
+        public Material SelectedEdge
+        {
+            get { return _selectedEdge; }
         }
 
         /// <summary>
@@ -193,6 +222,8 @@ namespace Buried.Scene
             Destroy(_estimatedAreaFill);
             Destroy(_estimatedAreaEdge);
             Destroy(_unknownAreaFill);
+            Destroy(_selectedFill);
+            Destroy(_selectedEdge);
         }
 
         private static void Destroy(Material material)

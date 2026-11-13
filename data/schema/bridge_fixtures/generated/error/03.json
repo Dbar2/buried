@@ -3,6 +3,6 @@
   "payload": {
     "code": "mesh_build_failed",
     "message": "key",
-    "messageType": "scene/focusLot"
+    "messageType": "scene/frameFeature"
   }
 }

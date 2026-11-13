@@ -31,6 +31,7 @@ export type BridgeMessage =
   | SceneSetAnchorsMessage
   | SceneRaiseMessage
   | SceneFrameFeatureMessage
+  | SceneSelectFeatureMessage
   | DebugMarkersMessage
   | DebugSetCameraMessage
   | ReadyMessage
@@ -140,6 +141,8 @@ export interface BridgeSchemaTypes {
   sceneRaisePayload?: SceneRaisePayload;
   sceneRaisedMessage?: SceneRaisedMessage;
   sceneRaisedPayload?: SceneRaisedPayload;
+  sceneSelectFeatureMessage?: SceneSelectFeatureMessage;
+  sceneSelectFeaturePayload?: SceneSelectFeaturePayload;
   sceneSetAnchorsMessage?: SceneSetAnchorsMessage;
   sceneSetAnchorsPayload?: SceneSetAnchorsPayload;
   sceneSetDepthMessage?: SceneSetDepthMessage;
@@ -588,6 +591,26 @@ export interface SceneFrameFeatureMessage {
  */
 export interface SceneFrameFeaturePayload {
   feature_id: FeatureId;
+}
+/**
+ * Shell to Player (0.8.0, added in session 040 because design.md 'Bridge 0.7.0' names no message that carries the Shell's selection to the Player). The selected find or ghost: its edges turn `lantern`, thicker, with a faint `lantern` emission, and its volume takes a faint `lantern` tint; a land-use area keeps its ground outline and gets the same treatment. At most one feature is selected: a second scene/selectFeature replaces the first, and one with no feature_id clears the selection. A feature the scene does not hold is refused (invalid_message). The selection waits, drawn, until the feature's era has settled (not held, not raising).
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneSelectFeatureMessage".
+ */
+export interface SceneSelectFeatureMessage {
+  type: 'scene/selectFeature';
+  payload: SceneSelectFeaturePayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneSelectFeaturePayload".
+ */
+export interface SceneSelectFeaturePayload {
+  /**
+   * <bld|wtr|use>_<origin source id>_<4 digits>.
+   */
+  feature_id?: string;
 }
 /**
  * Shell to Player. Only honoured when scene/init had debug: true.
