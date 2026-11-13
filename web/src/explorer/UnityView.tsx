@@ -169,5 +169,14 @@ export default function UnityView(props: UnityViewProps) {
     bridgeRef.current?.send(buildSetCamera(cameraCommand.pose));
   }, [running, debug, cameraCommand]);
 
-  return <canvas ref={canvasRef} id="unity-canvas" data-testid="unity-canvas" aria-label="3D view of the neighbourhood" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      id="unity-canvas"
+      data-testid="unity-canvas"
+      tabIndex={-1}
+      onPointerDown={(event) => event.currentTarget.focus({ preventScroll: true })}
+      aria-label="3D view of the neighbourhood"
+    />
+  );
 }

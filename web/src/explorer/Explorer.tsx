@@ -1,11 +1,13 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { browserFetchText, loadData } from '../data/loadData';
 import { Attribution, attributionLines } from './Attribution';
 import { DebugCamera } from './DebugCamera';
 import type { CameraPose } from './cameraPose';
 import { DebugState } from './DebugState';
+import { EMPTY_WHEEL, settledEra, wheelIsDig, wheelNotches } from './depth';
 import { DepthGauge, announcementFor } from './DepthGauge';
+import { noImageryNote } from './eraNote';
 import { EvidenceCard } from './EvidenceCard';
 import { buildGateCard } from './gateCard';
 import { buildGateModel } from './gateModel';
@@ -13,6 +15,7 @@ import type { GateModel } from './gateModel';
 import { INITIAL_PLAYER_STATE } from './playerState';
 import type { PlayerState } from './playerState';
 import { PRESENT_BUILDINGS_SOURCE } from './presentBuildings';
+import { useDepth } from './useDepth';
 import { NO_WEBGL2_MESSAGE, hasWebGL2 } from './webgl';
 
 // The Player is loaded on demand, so the Sources page and (later) the Report never pull it in.
@@ -39,7 +42,6 @@ export function Explorer() {
   const webgl2 = useMemo(() => hasWebGL2(), []);
 
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
-  const [depth, setDepth] = useState(0);
   const [player, setPlayer] = useState<PlayerState>(INITIAL_PLAYER_STATE);
   const [unavailable, setUnavailable] = useState<string | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
@@ -61,11 +63,61 @@ export function Explorer() {
   }, []);
 
   const model = load.status === 'ready' ? load.model : null;
-  const currentEra = model?.order.find((era) => era.index === depth) ?? null;
 
-  const chooseEra = useCallback((index: number) => {
-    setDepth(index);
+  // Dig (requirement 10): the Shell owns the depth. `depth` is a fraction while a transition runs.
+  const dig = useDepth(model?.order.length ?? 0);
+  const depth = dig.state.depth;
+  const shownIndex = Math.round(depth);
+  const currentEra = model?.order.find((era) => era.index === shownIndex) ?? null;
+  const settled = settledEra(dig.state);
+  const [announcedIndex, setAnnouncedIndex] = useState(0);
+  useEffect(() => {
+    if (settled !== null) setAnnouncedIndex(settled);
+  }, [settled]);
+  const announcedEra = model?.order.find((era) => era.index === announcedIndex);
+  const settledInfo = settled === null ? undefined : model?.order.find((era) => era.index === settled);
+  const eraNote = settledInfo && model ? noImageryNote(settledInfo, model.lists.get(settledInfo.id), model.drapes.get(settledInfo.id)) : null;
+
+  const { goTo, step, drag, release } = dig;
+  const chooseEra = useCallback(
+    (index: number) => {
+      goTo(index);
+      setSelection(null);
+    },
+    [goTo],
+  );
+  const dragDepth = useCallback(
+    (value: number) => {
+      drag(value);
+      setSelection(null);
+    },
+    [drag],
+  );
+
+  // The plain wheel over the 3D view is Dig's (requirement 16.5): it is taken in the capture phase,
+  // so the Player never sees it. Ctrl, Cmd or Shift with the wheel go on to the Player to zoom; the
+  // page itself is kept from zooming.
+  const viewRef = useRef<HTMLElement>(null);
+  const stepRef = useRef<(delta: number) => void>(() => {});
+  stepRef.current = (delta: number) => {
+    step(delta);
     setSelection(null);
+  };
+  useEffect(() => {
+    const el = viewRef.current;
+    if (!el) return;
+    let accumulator = EMPTY_WHEEL;
+    const onWheel = (event: WheelEvent) => {
+      if (!(event.target instanceof HTMLCanvasElement)) return;
+      event.preventDefault();
+      if (!wheelIsDig(event)) return;
+      event.stopPropagation();
+      const result = wheelNotches(accumulator, event.deltaY, event.deltaMode, performance.now());
+      accumulator = result.accumulator;
+      if (result.notches !== 0) stepRef.current(result.notches);
+    };
+    el.addEventListener('wheel', onWheel, { capture: true, passive: false });
+    return () => el.removeEventListener('wheel', onWheel, { capture: true });
   }, []);
 
   const onFeatureClicked = useCallback(
@@ -128,6 +180,7 @@ export function Explorer() {
 
   return (
     <main
+      ref={viewRef}
       className="view"
       aria-label="Explorer"
       data-testid="view"
@@ -137,10 +190,14 @@ export function Explorer() {
     >
       {stage}
 
-      {model && <DepthGauge eras={model.order} index={depth} onChange={chooseEra} />}
+      {model && <DepthGauge eras={model.order} index={dig.state.target} depth={depth} onChange={chooseEra} onDrag={dragDepth} onRelease={release} />}
 
       {card ? (
         <EvidenceCard card={card} onClose={closeCard} />
+      ) : eraNote ? (
+        <p className="view-hint view-note" role="status" data-testid="era-note">
+          {eraNote}
+        </p>
       ) : (
         model && <p className="view-hint">Click a building in the 3D view to see the evidence behind it.</p>
       )}
@@ -154,7 +211,7 @@ export function Explorer() {
       )}
 
       <p role="status" aria-live="polite" className="visually-hidden" data-testid="era-announcement">
-        {announcementFor(currentEra ?? undefined)}
+        {announcementFor(announcedEra)}
       </p>
       {model && <Attribution lines={attributionLines(visibleSources, model.sources)} />}
       {debug && <DebugState depth={depth} player={player} />}

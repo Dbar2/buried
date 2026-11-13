@@ -69,6 +69,12 @@
   width: 100%;
 }
 
+/* The canvas takes focus when it is pressed, so that the Player receives the + and - keys. It is not
+   a tab stop, and the whole view is the target, so it has no ring of its own. */
+.view canvas:focus {
+  outline: none;
+}
+
 .stage-message {
   background: var(--fog);
   height: 100%;
@@ -132,6 +138,18 @@
 
 .depth-stop[aria-current='true'] .depth-label {
   font-weight: 600;
+}
+
+/* The marker that follows the depth between the stops. Placed by DepthGauge from the stops' own
+   positions; it sits on the current stop's bar when the depth rests. */
+.depth-thumb {
+  background: var(--text);
+  height: 0.5rem;
+  left: var(--space-2);
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  width: 0.75rem;
 }
 
 /* Evidence card: at the left edge of the view, 360 px, on `fog`. It opens beside the building.
@@ -204,6 +222,11 @@
   margin: 0;
   position: absolute;
   top: var(--space-3);
+}
+
+/* The one plain line when an era has nothing to show yet (session 018). */
+.view-note {
+  color: var(--text);
 }
 
 .view-notes {

@@ -14,7 +14,8 @@ namespace Buried.Scene
     /// Handles the Shell's messages and builds the scene from them. It draws what it is told: it never
     /// computes dates, confidence or lot relations, and it never filters the features of an era.
     /// Bridge 0.3.0: scene/init, scene/loadEra, scene/setDepth, debug/markers and debug/setCamera.
-    /// Integer depths are a hard switch; the transitions come in task group 3.
+    /// The depth is a fraction while the Shell tweens between eras; each era is drawn at its weight
+    /// (DepthBlend) and the present buildings drain to a faint outline.
     /// </summary>
     public sealed class SceneController : MonoBehaviour
     {
@@ -38,6 +39,7 @@ namespace Buried.Scene
         private int _sceneEpoch;
         private int _eraCount;
         private int _shownIndex;
+        private double _depth;
         private ProjectFrame _frame;
 
         private GameObject _ground;
@@ -292,7 +294,7 @@ namespace Buried.Scene
             _loadGeneration[payload.eraId] = generation;
 
             var layer = new EraLayer(payload.eraId, index, transform);
-            layer.SetVisible(false);
+            layer.SetWeight(0f, _reducedMotion);
             layer.AddFeatures(
                 payload.features,
                 _frame,
@@ -337,7 +339,7 @@ namespace Buried.Scene
             EraLayer previous;
             if (_layers.TryGetValue(payload.eraId, out previous)) previous.Dispose();
             _layers[payload.eraId] = layer;
-            layer.SetVisible(layer.Index == _shownIndex);
+            layer.SetWeight(DepthBlend.EraWeight(_depth, layer.Index), _reducedMotion);
 
             _bridge.Send(BridgeMessageTypes.EraLoaded, new EraLoadedPayload
             {
@@ -359,19 +361,24 @@ namespace Buried.Scene
                 return;
             }
 
-            // A hard switch to the nearest era. Transitions come in task group 3.
-            _shownIndex = Mathf.RoundToInt((float)payload.depth);
-            foreach (EraLayer layer in _layers.Values) layer.SetVisible(layer.Index == _shownIndex);
             ApplyDepth(payload.depth);
 
-            // The camera does not move on a depth change. The Shell and the tests still want a
-            // report that matches what is now on screen, so one is sent after every depth change.
-            RequestCameraReport();
+            // The camera does not move on a depth change. While a transition runs (a fraction) nothing
+            // is reported; when the depth lands on an era the Shell and the tests get one report that
+            // matches what is now on screen.
+            if (DepthBlend.IsSettled(payload.depth)) RequestCameraReport();
         }
 
+        /// <summary>
+        /// Draws the whole scene at a depth (requirement 10): the present buildings drain, and each era
+        /// is drawn at its weight. The Shell tweens; this applies each depth it is sent as it arrives.
+        /// </summary>
         private void ApplyDepth(double depth)
         {
-            if (_present != null) _present.SetStage(PresentLayer.StageAt(Math.Round(depth), _reducedMotion));
+            _depth = depth;
+            _shownIndex = (int)Math.Floor(depth + 0.5);
+            if (_present != null) _present.SetStage(DepthBlend.Present(depth, _reducedMotion));
+            foreach (EraLayer layer in _layers.Values) layer.SetWeight(DepthBlend.EraWeight(depth, layer.Index), _reducedMotion);
         }
 
         private void HandleMarkers(DebugMarkersPayload payload)

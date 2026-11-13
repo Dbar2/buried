@@ -61,6 +61,13 @@ describe('the gauge markup (requirement 17.2)', () => {
   it('keeps the full label of an era as its title', () => {
     expect(html).toContain('title="1911 (revised to 1914)"');
   });
+
+  it('has a marker for the depth that screen readers skip, and the ARIA value stays the era', () => {
+    expect(html).toMatch(/<span[^>]*class="depth-thumb"[^>]*aria-hidden="true"/);
+    const between = renderToStaticMarkup(<DepthGauge eras={eras} index={2} depth={1.4} onChange={() => {}} />);
+    expect(between).toContain('aria-valuenow="2"');
+    expect(between).toContain('aria-valuetext="1935"');
+  });
 });
 
 describe('the announcement (requirement 10.7)', () => {

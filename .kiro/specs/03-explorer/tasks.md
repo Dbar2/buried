@@ -169,17 +169,17 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
     Requirements: 4.4 to 4.8.
 
 - [ ] 3. Dig
-  - [ ] 3.1 Implement `depth.ts` (tween, wheel notches, drag, nearest era, `erasToKeep`) and
+  - [x] 3.1 Implement `depth.ts` (tween, wheel notches, drag, nearest era, `erasToKeep`) and
     `DepthGauge.tsx` (slider role, ARIA values, Up/Down/Home/End, drag), the capture-phase wheel
     listener on the 3D view, and the `aria-live` era announcement.
     Files: `web/src/explorer/depth.ts`, `web/src/explorer/depth.test.ts`,
     `web/src/explorer/DepthGauge.tsx`, `web/src/explorer/DepthGauge.test.tsx`,
     `web/src/explorer/UnityView.tsx`.
     Requirements: 10.1, 10.2, 10.3, 10.7, 10.8, 16.5, 17.1, 17.2.
-  - [ ] 3.2 **[PBT] E7** Depth stays in range and lands on eras.
+  - [x] 3.2 **[PBT] E7** Depth stays in range and lands on eras.
     Files: `web/src/explorer/depth.property.test.ts`.
     Requirements: 10.3.
-  - [ ] 3.3 Implement `DepthBlend` and wire it: era weights, present drain (fill to wireframe to
+  - [x] 3.3 Implement `DepthBlend` and wire it: era weights, present drain (fill to wireframe to
     faint outline), ghost rise in the vertex shader, drape opacity, both motion modes. Add the
     `Buried/Present` shader (`EdgeMeshBuilder` and `Buried/Edge` come from task 16.3). EditMode tests for
     `DepthBlend` at d = 0, 0.25, 0.5, 0.75, 1, 2.5 in both modes.
@@ -201,7 +201,7 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
   - [ ] 3.6 **[PBT] E6** Scene features mirror Era list entries.
     Files: `web/src/explorer/sceneFeatures.property.test.ts`.
     Requirements: 6.4, 6.5.
-  - [ ] 3.7 End-to-end: Dig through all four eras with the gauge and keys; announcements; camera
+  - [x] 3.7 End-to-end: Dig through all four eras with the gauge and keys; announcements; camera
     unchanged across depth changes (`cameraChanged` not sent).
     Files: `web/e2e/dig.spec.ts`.
     Requirements: 10.2, 10.7, 10.9.

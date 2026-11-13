@@ -339,6 +339,15 @@ WATER_RIBBON_MIN_M      = 2.0
   - `erasToKeep(d, lanternEra, waterEras)`: floor(d), ceil(d), floor(d)±1, the Lantern era and the
     water eras. The Shell sends `scene/loadEra` for any of these not yet loaded.
 - Reduced motion: the Shell still tweens (the Player turns it into a crossfade).
+- Implementation (session 018): `depth.ts` holds a `DepthState` (depth, target era, tween, dragging)
+  and pure transitions (`goToEra`, `stepEra`, `dragTo`, `releaseDrag`, `advance`). A tween lasts
+  750 ms per era step, clamped to 600 to 900 ms, so a short move after a drag release still takes
+  600 ms. `useDepth` runs one animation-frame loop while a tween is under way. The Player gets every
+  depth as `scene/setDepth` and applies it as it arrives; it sends one `cameraChanged` when the depth
+  lands on an era, not on every fraction. The gauge's ARIA value is the era the depth is heading for;
+  the announcement is made when the depth reaches an era; a marker follows the depth continuously.
+- An era with no feature and no drape (1947 today) shows one line in the Shell, "No <label> imagery
+  loaded yet", once the depth rests there; the scene shows only today's buildings as faint outlines.
 
 ### Scene model
 
@@ -603,15 +612,14 @@ tests can call it without a scene.
 - **Zoom:** each wheel notch (100 px of normalised `deltaY`) or pinch step scales the distance by
   0.85 or 1/0.85 about the ground point under the pointer, inside the limits. `+` and `-` do the
   same about the canvas centre.
-- **The plain wheel.** Requirement 10.2 gives the unmodified wheel to Dig, and requirement 16.5 has
-  the Shell capture it. Until task 3.1 adds Dig, the plain wheel reaches the Player and zooms
-  (requirement 16.6, asked for in session 012). From task 3.1 on, only Ctrl or Shift with the wheel
-  zooms. Open for the maintainer: if the plain wheel should keep zooming, Dig needs another input,
-  and requirements 10.2 and 16.5 change with it.
-
-The Shell's capture-phase wheel listener (from task 3.1) stops unmodified wheel events before Unity
-sees them; Ctrl/Shift+wheel pass through and the Shell calls `preventDefault` so the page does not
-zoom.
+- **The plain wheel.** Decided in session 018: Dig has it (requirements 10.2 and 16.5). The Shell's
+  capture-phase wheel listener stops an unmodified wheel event over the canvas before Unity sees it.
+  Ctrl, Cmd or Shift with the wheel pass through, and the Shell calls `preventDefault` so the page
+  does not zoom. A trackpad pinch arrives as a wheel event with Ctrl set, so it passes too. The Player
+  zooms on every wheel event that reaches it (`CameraInputMap.WheelEventsZoom`) and does not read the
+  modifier keys: the page keeps the keyboard (`captureAllKeyboardInput` is off), so Unity would see
+  Ctrl only while its canvas had focus, and a pinch has no key. The `+` and `-` keys need the canvas to
+  have focus, so the canvas takes focus when it is pressed.
 
 ### Textures
 

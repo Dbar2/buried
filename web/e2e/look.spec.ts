@@ -129,6 +129,15 @@ async function announcement(): Promise<string> {
   return ((await page.getByTestId('era-announcement').textContent()) ?? '').trim();
 }
 
+/**
+ * The announcement once a transition has run. The Shell announces an era when the depth reaches it
+ * (requirement 10.7), up to 900 ms after the key, so this waits for the same text the earlier,
+ * instant version read.
+ */
+async function announced(text: string): Promise<void> {
+  await expect.poll(announcement, { timeout: 5_000, intervals: [50, 100, 200] }).toBe(text);
+}
+
 async function settle(): Promise<void> {
   await page.evaluate(() => new Promise<void>((done) => requestAnimationFrame(() => requestAnimationFrame(() => done()))));
   await page.waitForTimeout(600);
@@ -180,10 +189,10 @@ test('Today, 1935 and 1911 are reached with the Down key and saved', async () =>
   await gauge.focus();
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowDown');
-  expect(await announcement()).toBe('Now showing 1935');
+  await announced('Now showing 1935');
   await shoot('1935');
   await page.keyboard.press('ArrowDown');
-  expect(await announcement()).toBe('Now showing 1911 (revised to 1914)');
+  await announced('Now showing 1911 (revised to 1914)');
   await shoot('1911');
 });
 
@@ -482,15 +491,15 @@ test('(f) Down then Up on the gauge announces the eras it passes, back to Today'
   const gauge = page.getByTestId('depth-gauge');
   await gauge.focus();
   await page.keyboard.press('Home');
-  expect(await announcement()).toBe('Now showing Today');
+  await announced('Now showing Today');
   await page.keyboard.press('ArrowDown');
-  expect(await announcement()).toBe('Now showing 1947');
+  await announced('Now showing 1947');
   await page.keyboard.press('ArrowDown');
-  expect(await announcement()).toBe('Now showing 1935');
+  await announced('Now showing 1935');
   await page.keyboard.press('ArrowUp');
-  expect(await announcement()).toBe('Now showing 1947');
+  await announced('Now showing 1947');
   await page.keyboard.press('ArrowUp');
-  expect(await announcement()).toBe('Now showing Today');
+  await announced('Now showing Today');
   await expect(gauge).toHaveAttribute('aria-valuenow', '0');
   await expect(gauge).toHaveAttribute('aria-valuetext', 'Today');
 });

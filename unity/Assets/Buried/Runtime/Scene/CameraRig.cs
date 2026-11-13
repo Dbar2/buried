@@ -130,11 +130,12 @@ namespace Buried.Scene
                 _dragging = false;
             }
 
-            // Zoom about the pointer: the wheel, Ctrl or Shift with the wheel, and pinch.
-            bool modifier = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)
-                            || Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            // Zoom about the pointer: every wheel event that reaches the Player, and pinch. The Shell takes
+            // the unmodified wheel for Dig before it gets here (requirement 16.5), so what arrives is Ctrl,
+            // Cmd or Shift with the wheel, and a trackpad pinch (the browser sends it as a wheel event with
+            // Ctrl set, which the Player cannot read from the keys because the page keeps the keyboard).
             float wheel = Input.mouseScrollDelta.y;
-            if (wheel != 0f && CameraRigMath.WheelZooms(modifier))
+            if (wheel != 0f && CameraInputMap.WheelEventsZoom)
             {
                 changed |= ZoomAbout(ref pose, wheel, Input.mousePosition, w, h, fov);
             }

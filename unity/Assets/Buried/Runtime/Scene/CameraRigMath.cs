@@ -177,22 +177,18 @@ namespace Buried.Scene
         {
             return Mathf.Pow(0.85f, notches);
         }
-
-        /// <summary>Whether a wheel turn zooms: always with Ctrl or Shift, and without a modifier only while the interim mapping holds.</summary>
-        public static bool WheelZooms(bool modifierHeld)
-        {
-            return modifierHeld || CameraInputMap.PlainWheelZooms;
-        }
     }
 
     /// <summary>
-    /// Which camera inputs are mapped to what. Requirement 16.6 and design.md "Camera": until Dig exists
-    /// (task 3.1) the plain wheel zooms. When Dig takes the plain wheel, set <see cref="PlainWheelZooms"/>
-    /// to false: zoom then moves to Ctrl or Shift with the wheel, pinch, and the + and - keys. This is the
-    /// whole switch.
+    /// Which camera inputs are mapped to what. Requirement 16.6 and design.md "Camera": Dig (task 3.1)
+    /// took the plain wheel in session 018. The Shell stops an unmodified wheel event in the capture
+    /// phase before it reaches the Player, so the wheel events that do arrive are Ctrl, Cmd or Shift
+    /// with the wheel and a trackpad pinch, and the Player zooms on each. It does not look at the
+    /// modifier keys itself: the page keeps the keyboard (<c>captureAllKeyboardInput</c> is off), so
+    /// the Player sees them only while its canvas has focus, and a pinch has no key at all.
     /// </summary>
     public static class CameraInputMap
     {
-        public const bool PlainWheelZooms = true;
+        public const bool WheelEventsZoom = true;
     }
 }

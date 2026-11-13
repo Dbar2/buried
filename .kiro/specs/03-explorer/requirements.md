@@ -476,7 +476,7 @@ on its own.
 `debug/setCamera`.
 
 16.2 THE Player SHALL let the user pan by dragging, rotate and tilt by right-dragging or with two
-fingers, and zoom with Ctrl or Shift and the wheel, pinch, or the `+` and `-` keys.
+fingers, and zoom with Ctrl, Cmd or Shift and the wheel, pinch, or the `+` and `-` keys.
 
 16.3 THE Player SHALL keep the camera target inside the project bounds, its height between 30 m and
 1500 m, and its pitch between 20 and 80 degrees.
@@ -486,9 +486,10 @@ fingers, and zoom with Ctrl or Shift and the wheel, pinch, or the `+` and `-` ke
 16.5 THE Shell SHALL capture an unmodified wheel event over the 3D view for Dig before it reaches
 the Player.
 
-16.6 UNTIL task 3.1 adds Dig on the wheel, an unmodified wheel event over the 3D view SHALL reach
-the Player and zoom. From task 3.1 on, 16.5 applies and only Ctrl or Shift with the wheel zooms.
-(Open: the maintainer decides whether the plain wheel stays Dig; see design.md "Camera".)
+16.6 Session 018 (maintainer decision): Dig has the plain wheel, and 16.5 applies. An unmodified
+wheel event over the 3D view never reaches the Player. Ctrl, Cmd or Shift with the wheel, and a
+trackpad pinch (which browsers send as a wheel event with Ctrl set), reach the Player, which zooms on
+each wheel event it receives and does not read the modifier keys itself.
 
 16.7 WHEN the user drags to pan, THE Player SHALL keep the ground point under the pointer under it
 for the whole drag, and SHALL stop the camera when the pointer stops or is released (no inertia).

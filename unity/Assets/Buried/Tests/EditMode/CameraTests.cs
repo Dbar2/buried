@@ -190,14 +190,12 @@ namespace Buried.Tests
             Assert.Less(pose.Distance, 400f, "a positive turn of the wheel zooms in");
         }
 
-        // ---- The wheel mapping (requirement 16.6) ----
+        // ---- The wheel mapping (requirements 10.2, 16.5 and 16.6) ----
 
         [Test]
-        public void TheInterimMappingLetsThePlainWheelZoomAndTheModifiedWheelAlways()
+        public void EveryWheelEventThatReachesThePlayerZoomsBecauseTheShellKeepsThePlainWheelForDig()
         {
-            Assert.IsTrue(CameraInputMap.PlainWheelZooms, "interim: until Dig (task 3.1) takes the plain wheel");
-            Assert.IsTrue(CameraRigMath.WheelZooms(false));
-            Assert.IsTrue(CameraRigMath.WheelZooms(true));
+            Assert.IsTrue(CameraInputMap.WheelEventsZoom);
         }
 
         // ---- debug/setCamera (requirement 16.1) is tested against a real controller in SceneControllerTests ----

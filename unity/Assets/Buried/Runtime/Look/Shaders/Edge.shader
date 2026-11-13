@@ -16,6 +16,7 @@ Shader "Buried/Edge"
         _GlowPx ("Glow each side (CSS px)", Float) = 1
         _GlowAlpha ("Glow alpha", Range(0, 1)) = 0.35
         _PixelScale ("Device px per CSS px", Float) = 1
+        _Rise ("Vertical scale about y = 0", Range(0, 1)) = 1
     }
     SubShader
     {
@@ -44,6 +45,7 @@ Shader "Buried/Edge"
                 float _GlowPx;
                 half _GlowAlpha;
                 float _PixelScale;
+                float _Rise;
             CBUFFER_END
 
             struct Attributes
@@ -63,8 +65,12 @@ Shader "Buried/Edge"
             Varyings vert(Attributes input)
             {
                 Varyings output;
-                float3 here = TransformObjectToWorld(input.positionOS.xyz);
-                float3 there = TransformObjectToWorld(input.other.xyz);
+                float3 hereOS = input.positionOS.xyz;
+                float3 thereOS = input.other.xyz;
+                hereOS.y *= _Rise; // ghosts rise from the ground (requirement 10.5); 1 for everything else
+                thereOS.y *= _Rise;
+                float3 here = TransformObjectToWorld(hereOS);
+                float3 there = TransformObjectToWorld(thereOS);
                 float4 clipHere = TransformWorldToHClip(here);
                 float4 clipThere = TransformWorldToHClip(there);
 

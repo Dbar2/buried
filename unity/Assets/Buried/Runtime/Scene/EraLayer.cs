@@ -31,6 +31,14 @@ namespace Buried.Scene
         private readonly List<Mesh> _meshes = new List<Mesh>();
         private readonly List<DrapeLayer> _drapes = new List<DrapeLayer>();
 
+        // This era's own copies of the ghost materials, so that its weight can change without touching
+        // another era's (two eras are drawn at once between them).
+        private Material _fill;
+        private Material _edge;
+
+        /// <summary>The weight last set (0 to 1); 1 at rest on this era.</summary>
+        public float Weight { get; private set; }
+
         public EraLayer(string eraId, int index, Transform parent)
         {
             EraId = eraId;
@@ -47,7 +55,7 @@ namespace Buried.Scene
         /// <summary>
         /// Builds a volume and an outline for each building feature. A feature that cannot be built is
         /// reported through <paramref name="onFailure"/> and skipped; the others are still drawn. Water
-        /// is not drawn yet.
+        /// is not drawn yet. The layer draws with its own copies of the two materials.
         /// </summary>
         public void AddFeatures(
             IEnumerable<SceneFeatureDto> features,
@@ -56,6 +64,8 @@ namespace Buried.Scene
             Material edgeMaterial,
             Action<string, string> onFailure)
         {
+            _fill = new Material(fillMaterial) { name = fillMaterial.name + " " + EraId };
+            _edge = new Material(edgeMaterial) { name = edgeMaterial.name + " " + EraId };
             MeshChunk chunk = null;
             MeshData edgeChunk = null;
             foreach (SceneFeatureDto feature in features)
@@ -97,13 +107,13 @@ namespace Buried.Scene
             int n = 0;
             foreach (MeshChunk c in _chunks)
             {
-                AddRenderer("Ghosts " + n, c.BuildMesh("Ghosts " + EraId + " " + n), fillMaterial);
+                AddRenderer("Ghosts " + n, c.BuildMesh("Ghosts " + EraId + " " + n), _fill);
                 n++;
             }
             n = 0;
             foreach (MeshData e in _edgeChunks)
             {
-                AddRenderer("Edges " + n, e.ToMesh("Edges " + EraId + " " + n), edgeMaterial);
+                AddRenderer("Edges " + n, e.ToMesh("Edges " + EraId + " " + n), _edge);
                 n++;
             }
         }
@@ -128,6 +138,31 @@ namespace Buried.Scene
         public void SetVisible(bool visible)
         {
             _root.SetActive(visible);
+        }
+
+        /// <summary>
+        /// Draws the era at <paramref name="weight"/> (requirements 10.5 and 10.6): ghosts rise from the
+        /// ground and fade in, drapes fade in, and an era with no weight draws nothing. Reduced motion
+        /// skips the rise and only fades.
+        /// </summary>
+        public void SetWeight(float weight, bool reducedMotion)
+        {
+            Weight = Mathf.Clamp01(weight);
+            _root.SetActive(Weight > DepthBlend.VisibleWeight);
+            float alpha = DepthBlend.GhostAlpha(Weight);
+            float rise = DepthBlend.Rise(Weight, reducedMotion);
+            if (_fill != null)
+            {
+                _fill.SetFloat("_Weight", alpha);
+                _fill.SetFloat("_Rise", rise);
+            }
+            if (_edge != null)
+            {
+                _edge.SetFloat("_Alpha", alpha);
+                _edge.SetFloat("_Rise", rise);
+            }
+            float opacity = DepthBlend.DrapeOpacity(Weight);
+            foreach (DrapeLayer drape in _drapes) drape.SetOpacity(opacity);
         }
 
         public bool Raycast(Ray ray, out float distance, out string featureId)
@@ -156,6 +191,8 @@ namespace Buried.Scene
                 if (mesh != null) UnityEngine.Object.Destroy(mesh);
             }
             _meshes.Clear();
+            if (_fill != null) UnityEngine.Object.Destroy(_fill);
+            if (_edge != null) UnityEngine.Object.Destroy(_edge);
             if (_root != null) UnityEngine.Object.Destroy(_root);
         }
     }

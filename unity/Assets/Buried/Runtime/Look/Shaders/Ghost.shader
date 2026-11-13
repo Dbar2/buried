@@ -12,6 +12,8 @@ Shader "Buried/Ghost"
         _Color ("Colour", Color) = (1, 1, 1, 1)
         _Shade ("Shade strength", Range(0, 1)) = 0.35
         _Emission ("Self-illumination", Range(0, 1)) = 0
+        _Weight ("Era weight (alpha factor)", Range(0, 1)) = 1
+        _Rise ("Vertical scale about y = 0", Range(0, 1)) = 1
         [HideInInspector] _SrcBlend ("Src blend", Float) = 5
         [HideInInspector] _DstBlend ("Dst blend", Float) = 10
         [HideInInspector] _ZWrite ("Z write", Float) = 0
@@ -38,6 +40,8 @@ Shader "Buried/Ghost"
                 half4 _Color;
                 half _Shade;
                 half _Emission;
+                half _Weight;
+                float _Rise;
             CBUFFER_END
 
             struct Attributes
@@ -56,7 +60,9 @@ Shader "Buried/Ghost"
             Varyings vert(Attributes input)
             {
                 Varyings output;
-                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                float3 positionOS = input.positionOS.xyz;
+                positionOS.y *= _Rise; // a ghost rises from the ground: scale about y = 0 (requirement 10.5)
+                float3 positionWS = TransformObjectToWorld(positionOS);
                 output.positionCS = TransformWorldToHClip(positionWS);
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 output.transmission = BuriedTransmission(positionWS);
@@ -69,7 +75,7 @@ Shader "Buried/Ghost"
                 half lit = saturate(dot(n, normalize(half3(0.6, 0.7, 0.35))));
                 half3 rgb = _Color.rgb * lerp(1.0, 0.6 + 0.4 * lit, _Shade) + _Color.rgb * _Emission;
                 rgb = BuriedApplyFog(rgb, input.transmission);
-                return half4(rgb, _Color.a);
+                return half4(rgb, _Color.a * _Weight);
             }
             ENDHLSL
         }
