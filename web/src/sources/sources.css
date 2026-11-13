@@ -1,0 +1,50 @@
+/*
+ * The Sources page: plain text on the paper theme (the `--report-*` tokens), the whole photograph of
+ * each plate under its entry. It reuses the `.report` base styles from report/report.css.
+ */
+
+.sources .source-entry {
+  border-top: 1px solid var(--report-rule);
+  padding: var(--space-3) 0;
+}
+
+.sources .source-entry h3 {
+  margin: 0 0 var(--space-1);
+}
+
+.sources dl {
+  display: grid;
+  gap: var(--space-1) var(--space-3);
+  grid-template-columns: max-content 1fr;
+  margin: var(--space-2) 0 0;
+}
+
+.sources dt {
+  color: var(--report-ink-soft);
+}
+
+.sources dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.source-photo {
+  margin: var(--space-3) 0 0;
+}
+
+.source-photo img {
+  border: 1px solid var(--report-rule);
+  display: block;
+  height: auto;
+  max-width: 100%;
+}
+
+.source-photo figcaption {
+  margin-top: var(--space-1);
+}
+
+@media (max-width: 40rem) {
+  .sources dl {
+    grid-template-columns: 1fr;
+  }
+}
