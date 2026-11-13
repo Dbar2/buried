@@ -62,6 +62,11 @@ export function PlaceCard({ card, confidence, onClose, canViewOriginal, original
       <h2 id="place-card-heading" ref={heading} tabIndex={-1} data-testid="card-heading">
         {card.heading}
       </h2>
+      {card.subtitle.map((line, i) => (
+        <p className="place-card-subtitle" key={i} data-testid="card-subtitle">
+          {line}
+        </p>
+      ))}
       {card.crop ? (
         <figure className="place-card-crop">
           <CropCanvas crop={card.crop} sizePx={CROP_PX} label={card.cropLabel} testId="card-crop" />

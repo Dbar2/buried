@@ -226,7 +226,15 @@ test('trace a land-use area, publish it, and read it on the place page', async (
   const map = page.getByTestId('fallback-2d');
   await expect(map).toHaveAttribute('data-state', 'done', { timeout: 30_000 });
   await page.getByTestId('feature-list-toggle').click();
-  const row = page.locator('[data-testid^="feature-row-use_"]').first();
+  const rows = page.locator('[data-testid^="feature-row-use_"]');
+  // The committed coal yard and the area just traced are both listed. A person can tell them apart in the row itself:
+  // only the workspace area says "From your workspace".
+  const row = rows.filter({ has: page.getByTestId('feature-origin') });
+  await expect(row).toHaveCount(1);
+  await expect(row).toContainText('From your workspace');
+  await expect(row).toContainText(USE);
+  const committed = rows.filter({ hasNot: page.getByTestId('feature-origin') });
+  expect(await committed.count(), 'the committed areas are listed without the workspace line').toBeGreaterThanOrEqual(1);
   await expect(row).toBeVisible();
   await row.click();
 
@@ -274,13 +282,13 @@ test('trace a land-use area, publish it, and read it on the place page', async (
   const yardCentre: [number, number] = [yardWorld.reduce((s, p) => s + p[0], 0) / yardWorld.length, yardWorld.reduce((s, p) => s + p[1], 0) / yardWorld.length];
 
   // The camera is flown over the yard, so it fills enough of the canvas to measure (the debug camera; `debug=1`).
-  async function openScene(target: string) {
-    await scene.goto(target);
-    await expect(scene.getByTestId('report')).toBeVisible({ timeout: 60_000 });
-    await expect(scene.getByTestId('view')).toHaveAttribute('data-player-ready', 'true', { timeout: 150_000 });
-    await expect(scene.getByTestId('view')).toHaveAttribute('data-eras-loaded', /1911/, { timeout: 150_000 });
-    await settleCamera(scene);
-    return flyDebugCamera(scene, { target: yardCentre, distanceM: 70, pitchDeg: 55, headingDeg: 20 });
+  async function openScene(target: string, on: Page = scene) {
+    await on.goto(target);
+    await expect(on.getByTestId('report')).toBeVisible({ timeout: 60_000 });
+    await expect(on.getByTestId('view')).toHaveAttribute('data-player-ready', 'true', { timeout: 150_000 });
+    await expect(on.getByTestId('view')).toHaveAttribute('data-eras-loaded', /1911/, { timeout: 150_000 });
+    await settleCamera(on);
+    return flyDebugCamera(on, { target: yardCentre, distanceM: 70, pitchDeg: 55, headingDeg: 20 });
   }
 
   const camera = await openScene(sceneUrl);
@@ -289,20 +297,38 @@ test('trace a land-use area, publish it, and read it on the place page', async (
   const withArea = await sceneOnlyPng(scene);
   await scene.screenshot({ path: join(OUTPUT, 'scene-area.png') });
 
-  const cameraWithout = await openScene(`${sceneUrl}&areas=0`);
-  expect(cameraWithout.viewProjection, 'the same view with and without the area').toEqual(camera.viewProjection);
-  const withoutArea = await sceneOnlyPng(scene);
+  // The same view without the workspace area: a browser with an empty workspace. (`?areas=0` leaves out every area,
+  // the committed coal yard on the same ground included, so it would measure that yard as well.)
+  const bare = await page.context().browser()!.newContext({ viewport: page.viewportSize() ?? { width: 1280, height: 800 }, baseURL: baseUrlOf(page) });
+  let withoutArea: Awaited<ReturnType<typeof sceneOnlyPng>>;
+  try {
+    const bareScene = await bare.newPage();
+    const cameraWithout = await openScene(sceneUrl, bareScene);
+    await expect(bareScene.getByTestId('view')).toHaveAttribute('data-workspace-features', '0');
+    expect(cameraWithout.viewProjection, 'the same view with and without the area').toEqual(camera.viewProjection);
+    withoutArea = await sceneOnlyPng(bareScene);
+  } finally {
+    await bare.close();
+  }
+  // The same view with no area at all (`?areas=0`): inside the ring the difference is the hatching.
+  const cameraNone = await openScene(`${sceneUrl}&areas=0`);
+  expect(cameraNone.viewProjection, 'the same view with and without the areas').toEqual(camera.viewProjection);
+  const withoutAreas = await sceneOnlyPng(scene);
 
-  const measure = measureArea(withArea, withoutArea, ring, { shrink: 0.6, margin: 40, threshold: 8, amplitude: 12, minRowPixels: 24 });
-  writeFileSync(join(OUTPUT, 'scene-area.json'), `${JSON.stringify({ ring, ...measure }, null, 2)}\n`);
+  const measure = measureArea(withArea, withoutAreas, ring, { shrink: 0.6, margin: 40, threshold: 8, amplitude: 12, minRowPixels: 24 });
+  // The workspace area on its own: against a browser whose workspace is empty, so the committed coal yard that the
+  // Player also draws on this ground is in both pictures and only the workspace area differs.
+  const own = measureArea(withArea, withoutArea, ring, { shrink: 0.6, margin: 40, threshold: 8, amplitude: 12, minRowPixels: 24 });
+  writeFileSync(join(OUTPUT, 'scene-area.json'), `${JSON.stringify({ ring, ...measure, workspaceAreaOnly: own }, null, 2)}\n`);
   console.log(
-    `area on the ground: ${measure.insidePixels} px inside, ${(100 * measure.insideChanged).toFixed(1)}% changed, ${measure.swingsPerRow.toFixed(1)} stripe edges per row (${measure.rows} rows); ` +
-      `${measure.outsidePixels} px away from it, ${(100 * measure.outsideChanged).toFixed(2)}% changed`,
+    `areas on the ground: ${measure.insidePixels} px inside, ${(100 * measure.insideChanged).toFixed(1)}% changed, ${measure.swingsPerRow.toFixed(1)} stripe edges per row (${measure.rows} rows); ` +
+      `workspace area alone: ${(100 * own.insideChanged).toFixed(1)}% changed inside, ${(100 * own.outsideChanged).toFixed(2)}% of ${own.outsidePixels} px away from it`,
   );
   expect(measure.insidePixels, 'the area is on the canvas and big enough to measure').toBeGreaterThan(2000);
   expect(measure.insideChanged, 'the hatching changes the picture inside the area').toBeGreaterThanOrEqual(0.15);
   expect(measure.swingsPerRow, 'stripes: the greyscale difference swings along a row (measured 2.9: about one stripe period across the inner region of a row)').toBeGreaterThanOrEqual(2.5);
-  expect(measure.outsideChanged, 'nothing else changes').toBeLessThanOrEqual(0.002);
+  expect(own.insideChanged, 'the workspace area changes the picture where it lies').toBeGreaterThanOrEqual(0.15);
+  expect(own.outsideChanged, 'nothing else changes').toBeLessThanOrEqual(0.002);
 
   // It can be clicked: the card opens on the area, and Show Evidence works on it.
   await openScene(sceneUrl);

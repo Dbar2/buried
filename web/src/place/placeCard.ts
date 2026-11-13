@@ -12,6 +12,7 @@
 import { findBannedWords, plainReason, plainSourceName, positionPhrase } from '../evidence';
 import type { EraFeature, Feature, PolygonalGeometry, SourceIndex, TileSidecar } from '../evidence';
 import { CONFIDENCE_LABELS } from '../explorer/gateCard';
+import { lettering } from '../report/findings';
 import { reviewOf, statusSentence } from '../report/reviewStatus';
 import { cropWindow, ringsOf, tileRef } from '../report/cropPlan';
 import type { Crop } from '../report/cropPlan';
@@ -27,6 +28,8 @@ export type PlaceCardRow = {
 export type PlaceCard = {
   featureId: string;
   heading: string;
+  /** Lines under the heading: a find's later lettered lines, or what follows the semicolon in a recorded use. */
+  subtitle: string[];
   rows: PlaceCardRow[];
   /** The crop of the origin source's untouched tile around the feature, with its outline; null when there is none. */
   crop: Extract<Crop, { kind: 'tile' }> | null;
@@ -59,6 +62,24 @@ export function readingCrop(feature: Feature, tiles: readonly TileSidecar[], sou
   const sh = (read.crop_px.height * tile.height_px) / c.height;
   if (!(sw > 0 && sh > 0) || sx < 0 || sy < 0 || sx + sw > tile.width_px + 1e-6 || sy + sh > tile.height_px + 1e-6) return null;
   return { image: tile.image, sx, sy, sw, sh, label: `The crop the use was read from, cut from ${sourceName}` };
+}
+
+/**
+ * The heading of a card and the lines under it. A feature that belongs to a find takes the find's lettered lines
+ * (the first is the heading, the others are the subtitle). Any other feature's recorded use is split at its first
+ * semicolon, and the note the record appends ("(as lettered on the plate)") is left out of the heading: the card
+ * already says where the name comes from. The "Use as lettered" row keeps the recorded string whole.
+ */
+export function cardHeading(use: string | undefined, kindName: string, findLines?: readonly string[]): { heading: string; subtitle: string[] } {
+  if (findLines && findLines.length > 0) return { heading: findLines[0] as string, subtitle: findLines.slice(1) };
+  if (use === undefined || findBannedWords(use).length > 0) return { heading: kindName, subtitle: [] };
+  const plain = lettering(use);
+  const at = plain.indexOf(';');
+  if (at < 0) return { heading: plain, subtitle: [] };
+  const heading = plain.slice(0, at).trim();
+  const rest = plain.slice(at + 1).trim();
+  if (heading === '') return { heading: plain, subtitle: [] };
+  return { heading, subtitle: rest === '' ? [] : [rest] };
 }
 
 const MIN_WINDOW_M = 40;
@@ -96,6 +117,8 @@ export function buildPlaceCard(
   sources: SourceIndex,
   tiles: readonly TileSidecar[],
   origin: 'canon' | 'workspace' = 'canon',
+  /** The lettered lines of the find this feature belongs to, already checked for banned words (`letteredLines`). */
+  findLines?: readonly string[],
 ): PlaceCard {
   if (feature.id !== entry.id) throw new Error(`Era list entry ${entry.id} does not match feature ${feature.id}`);
   const provenance = feature.properties.provenance;
@@ -120,9 +143,11 @@ export function buildPlaceCard(
 
   const crop = cardCrop(entry.geometry, source.id, tiles, entry.kind);
   const name = plainSourceName(source);
+  const { heading, subtitle } = cardHeading(use, kindName, findLines);
   return {
     featureId: entry.id,
-    heading: use !== undefined && findBannedWords(use).length === 0 ? use : kindName,
+    heading,
+    subtitle,
     rows,
     crop,
     cropLabel: crop ? `${capital(name)}, around this ${kindName.toLowerCase()}` : `${capital(name)} has no picture loaded for this ${kindName.toLowerCase()}`,

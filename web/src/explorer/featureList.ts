@@ -13,6 +13,8 @@ export type FeatureRow = {
   id: string;
   /** The use as lettered, or the kind ("Building"). */
   name: string;
+  /** The feature comes from the visitor's workspace, not from Buried's published records. */
+  workspace: boolean;
   confidence: 'documented' | 'estimated' | 'unknown';
   confidenceLabel: string;
   /** "Positioned within about X m". */
@@ -23,7 +25,7 @@ export type FeatureRow = {
   dates: string;
 };
 
-export function featureRows(list: EraFeatureList | undefined, features: ReadonlyMap<string, Feature>): FeatureRow[] {
+export function featureRows(list: EraFeatureList | undefined, features: ReadonlyMap<string, Feature>, workspaceIds: ReadonlySet<string> = new Set()): FeatureRow[] {
   return (list?.features ?? []).map((entry) => {
     const kindName = entry.kind === 'building' ? 'Building' : entry.kind === 'water' ? 'Water' : 'Land use';
     const use = entry.attributes.use;
@@ -31,6 +33,7 @@ export function featureRows(list: EraFeatureList | undefined, features: Readonly
     return {
       id: entry.id,
       name: use !== undefined && findBannedWords(use).length === 0 ? use : kindName,
+      workspace: workspaceIds.has(entry.id),
       confidence: entry.confidence,
       confidenceLabel: CONFIDENCE_LABELS[entry.confidence],
       position: positionPhrase(entry.positionErrorM),

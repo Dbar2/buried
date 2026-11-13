@@ -130,6 +130,16 @@ describe('plain words on the rendered place page', () => {
     expect(model.workspaceFeatureIds.has(AREA_ID)).toBe(true);
   });
 
+  it('says "From your workspace" in the list row of a workspace area and in no committed row', () => {
+    const { model } = worlds[1]!;
+    const rows = featureRows(model.lists.get('1911'), model.features, model.workspaceFeatureIds);
+    expect(rows.find((r) => r.id === AREA_ID)!.workspace).toBe(true);
+    expect(rows.filter((r) => r.workspace).map((r) => r.id)).toEqual([AREA_ID]);
+    expect(rows.length).toBeGreaterThan(1);
+    const html = renderToStaticMarkup(<FeatureList rows={rows} eraLabel="1911" open onToggle={() => {}} onChoose={() => {}} selectedId={null} />);
+    expect(html.match(/From your workspace/g)).toHaveLength(1);
+  });
+
   it('words the area as lettered on plans, never as built', () => {
     const model = worlds[1]!.model;
     const rows = featureRows(model.lists.get('1911'), model.features);

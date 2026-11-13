@@ -4,6 +4,9 @@
  */
 
 export const LINK_COPIED = 'Link copied.';
+/** What the "Share this find" link reads after it has copied, for `LINK_COPIED_MS`. */
+export const LINK_COPIED_LABEL = 'Link copied';
+export const LINK_COPIED_MS = 2000;
 
 /** `<origin>/find/<slug>`. A trailing slash on the origin is dropped; the slug is encoded. */
 export function findLink(origin: string, slug: string): string {

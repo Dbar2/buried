@@ -33,6 +33,11 @@ export function FeatureList({ rows, eraLabel, open, onToggle, onChoose, selected
                 <li key={row.id}>
                   <button type="button" onClick={() => onChoose(row.id)} aria-current={row.id === selectedId ? 'true' : undefined} data-testid={`feature-row-${row.id}`}>
                     <span className="feature-name">{row.name}</span>
+                    {row.workspace && (
+                      <span className="feature-meta feature-origin" data-testid="feature-origin">
+                        From your workspace
+                      </span>
+                    )}
                     <span className="feature-meta">
                       {row.confidenceLabel}
                       {row.dates ? `. ${row.dates}` : ''}

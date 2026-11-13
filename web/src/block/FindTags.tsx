@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { Placement, TagResult } from './tagLayout';
+import type { MarkerResult, Placement, TagResult } from './tagLayout';
 
 export type TagItem = { readonly id: string; readonly text: string };
 
@@ -17,15 +17,57 @@ export type PinnedTagsProps = CommonProps & {
 
 export type TagRowProps = CommonProps & { mode: 'row' };
 
-export type FindTagsProps = PinnedTagsProps | TagRowProps;
+export type MarkerTagsProps = CommonProps & {
+  mode: 'markers';
+  /** From `layoutMarkers`: one result per find. A hidden marker is not drawn (its find is in the top row and the list). */
+  layout: readonly MarkerResult[];
+};
+
+export type FindTagsProps = PinnedTagsProps | TagRowProps | MarkerTagsProps;
 
 /**
- * The find tags, in two forms. `pinned`: paper tags on strings at the anchors, placed by `tagLayout`, over the
+ * The find tags, in three forms. `pinned`: paper tags on strings at the anchors, placed by `tagLayout`, over the
  * scene (they sit on the Still before the Player loads). `row`: the row along the top after the raise, one button
- * per find; on a phone it is one scrolling row. The selected tag is marked `aria-pressed`, and its edge is also
- * thicker (see block.css), so selection is never colour alone.
+ * per find; on a phone it is one scrolling row. `markers`: after the raise, a find that is not selected is a small
+ * parchment dot with an ink ring at its anchor, and its tag text shows beside it on hover and on keyboard focus. The
+ * selected tag is marked `aria-pressed`, and its edge is also thicker (see block.css), so selection is never colour alone.
  */
 export function FindTags(props: FindTagsProps) {
+  if (props.mode === 'markers') {
+    return (
+      <div className="marker-layer" data-testid="marker-layer">
+        {props.items.map((item) => {
+          const result = props.layout.find((r) => r.id === item.id);
+          const p = result?.placement;
+          if (!p || p === 'hidden') return null;
+          const style: CSSProperties = { left: p.hit.x, top: p.hit.y, width: p.hit.w, height: p.hit.h };
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className="find-marker"
+              style={style}
+              aria-label={item.text}
+              data-testid={`marker-${item.id}`}
+              data-side={p.side}
+              onClick={() => props.onSelect(item.id)}
+            >
+              <span className="find-marker-dot" aria-hidden="true" />
+              <span
+                className="find-marker-label"
+                aria-hidden="true"
+                data-testid={`marker-label-${item.id}`}
+                style={{ left: p.label.x - p.hit.x, top: p.label.y - p.hit.y, width: p.label.w, height: p.label.h }}
+              >
+                {item.text}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
   if (props.mode === 'row') {
     return (
       <div className="tag-row" role="group" aria-label="Finds on this block" data-testid="tag-row">

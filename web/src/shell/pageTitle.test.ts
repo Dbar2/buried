@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { descriptionFor, findDescriptionFor, findTitleFor, SITE_DESCRIPTION, titleFor } from './pageTitle';
+import { BLOCK_DESCRIPTION, BLOCK_TITLE, descriptionFor, findDescriptionFor, findTitleFor, SITE_DESCRIPTION, titleFor } from './pageTitle';
 import type { PageName } from './pageTitle';
 
 const BANNED = /\b(contaminated|unsafe|safe|safer|safest|clean|cleaner|cleanest)\b|will flood/i;
@@ -21,7 +21,7 @@ describe('page titles', () => {
     expect(titleFor('sources')).toBe('Sources · Buried');
     expect(titleFor('explorer')).toBe('Explorer · Buried');
     expect(titleFor('landing')).toBe('Buried · What was here?');
-    expect(titleFor('block')).toBe('Buried · Forgotten maps, rebuilt with proof.');
+    expect(titleFor('block')).toBe('Buried: something used to stand here');
   });
 
   it('never writes a banned word, whatever the address', () => {
@@ -40,6 +40,14 @@ describe('page titles', () => {
       "The documented history of 541 and 543 Queen St E, Toronto, from archival fire insurance plans. Buried screens; it doesn't certify.",
     );
     expect(descriptionFor('landing')).toBe(SITE_DESCRIPTION);
+    expect(descriptionFor('block')).toBe(BLOCK_DESCRIPTION);
+  });
+
+  it('describes `/` in one sentence of what a visitor does, with no finding and no claim of a date', () => {
+    expect(BLOCK_DESCRIPTION.match(/\./g)).toHaveLength(1);
+    expect(BLOCK_DESCRIPTION).toMatch(/^Raise the past\b.*\bclick any ghost\b/);
+    expect(BLOCK_DESCRIPTION).not.toMatch(BANNED);
+    expect(BLOCK_DESCRIPTION).not.toMatch(/\bbuilt in\b/i);
   });
 });
 
@@ -47,8 +55,10 @@ describe('index.html', () => {
   const html = readFileSync(fileURLToPath(new URL('../../index.html', import.meta.url)), 'utf8');
 
   it('carries a title, a description and the Open Graph tags a crawler reads without running the script', () => {
-    expect(html).toContain('<title>Buried · What was here?</title>');
-    expect(html).toContain(`<meta name="description" content="${SITE_DESCRIPTION}" />`);
+    expect(html).toContain(`<title>${BLOCK_TITLE}</title>`);
+    expect(html).toContain(`<meta name="description" content="${BLOCK_DESCRIPTION}" />`);
+    expect(html).toContain(`<meta property="og:title" content="${BLOCK_TITLE}" />`);
+    expect(html).toContain(`<meta property="og:description" content="${BLOCK_DESCRIPTION}" />`);
     for (const property of ['og:title', 'og:description', 'og:type', 'og:site_name', 'og:image', 'og:image:width', 'og:image:height', 'og:image:alt']) {
       expect(html, property).toContain(`property="${property}"`);
     }

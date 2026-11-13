@@ -12,7 +12,7 @@ import { LeaderLine } from './LeaderLine';
 import { RaiseButton } from './RaiseButton';
 import { sampleCardView, sampleFootprints, sampleRulerStops, sampleTags, sampleTile } from './sample';
 import { StillPicture } from './StillPicture';
-import { layoutTags } from './tagLayout';
+import { layoutMarkers, layoutTags } from './tagLayout';
 
 const noop = () => undefined;
 
@@ -81,6 +81,17 @@ describe('FindTags and LeaderLine', () => {
     expect(html).toContain('>Overall factory</button>');
   });
 
+  it('draws a find that is not selected as a marker button with its text beside the dot, and none for the selected or a hidden one', () => {
+    const markers = layoutMarkers({ anchors, sizes, viewport: { w: 1440, h: 800 }, keepOut: [], leader: null, selectedId: 'bank' });
+    const html = renderToStaticMarkup(<FindTags mode="markers" items={sampleTags} layout={markers} selectedId="bank" onSelect={noop} />);
+    expect(html).toMatch(/<button [^>]*aria-label="Overall factory"[^>]*data-testid="marker-overall-factory"/);
+    expect(html).toContain('class="find-marker-dot"');
+    expect(html).toMatch(/data-testid="marker-label-overall-factory"[^>]*>Overall factory<\/span>/);
+    expect(html).not.toContain('marker-bank');
+    expect(html).not.toContain('marker-coal-yard');
+    expect(html).not.toContain('<line ');
+  });
+
   it('shows every find in the top row, with the selected one pressed', () => {
     const html = renderToStaticMarkup(<FindTags mode="row" items={sampleTags} selectedId="bank" onSelect={noop} />);
     for (const tag of sampleTags) expect(html).toContain(`>${tag.text}</button>`);
@@ -136,9 +147,23 @@ describe('FindCard', () => {
     expect(html).not.toContain('card-ruler-line');
   });
 
+  it('has one outlined button, "Show the original sheet", and the other actions as links on one line under it', () => {
+    const html = renderToStaticMarkup(<FindCard view={sampleCardView} shareOutcome={null} onShowOriginalSheet={noop} onShare={noop} onShowOnMap={noop} />);
+    expect(html.match(/class="card-button"/g)).toHaveLength(1);
+    expect(html).toMatch(/class="card-button"[^>]*data-testid="card-show-original">Show the original sheet<\/button><div class="card-links">/);
+    const links = /<div class="card-links">(.*?)<\/div>/.exec(html)![1]!;
+    expect(links).toContain('Share this find');
+    expect(links).toContain('Full record');
+    expect(links).not.toContain('Show the original sheet');
+    expect(html).not.toContain('card-share-copied');
+  });
+
   it('announces "Link copied." and, when the clipboard is refused, shows the link in a field', () => {
     const copied = renderToStaticMarkup(<FindCard view={sampleCardView} shareOutcome="copied" onShowOriginalSheet={noop} onShare={noop} onShowOnMap={noop} />);
     expect(copied).toMatch(/aria-live="polite"[^>]*>Link copied\.<\/p>/);
+    // The link itself reads "Link copied" while the outcome stands, and "Share this find" otherwise.
+    expect(copied).toMatch(/data-testid="card-share">Link copied<\/button>/);
+    expect(copied).not.toContain('Share this find');
     expect(copied).not.toContain('card-share-link');
     const refused = renderToStaticMarkup(<FindCard view={sampleCardView} shareOutcome="refused" onShowOriginalSheet={noop} onShare={noop} onShowOnMap={noop} />);
     expect(refused).toContain('value="https://buried.pages.dev/find/overall-factory"');

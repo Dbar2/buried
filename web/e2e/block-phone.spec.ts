@@ -11,6 +11,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import { cropLoaded, stillLoaded } from './support/cropLoaded';
+import { introContrast } from './support/introContrast';
 
 const OUTPUT = join(dirname(fileURLToPath(import.meta.url)), 'output');
 const PLAYER_TIMEOUT = 180_000;
@@ -27,6 +28,9 @@ test.describe('@unity the Block page on a phone', { tag: '@unity' }, () => {
     await expect(page.getByTestId('raise-button')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), 'nothing scrolls sideways').toBe(true);
     await page.screenshot({ path: join(OUTPUT, 'block-phone-landing.png') });
+    const contrast = await introContrast(page);
+    for (const c of contrast) expect(c.ratio, `the ${c.name} against what is behind it`).toBeGreaterThanOrEqual(c.floor);
+    expect(contrast.length).toBe(2);
 
     await page.getByTestId('raise-button').tap();
     await expect(page.getByTestId('block-page')).toHaveAttribute('data-phase', 'raised', { timeout: PLAYER_TIMEOUT });

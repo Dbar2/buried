@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { LINK_COPIED } from './share';
+import { LINK_COPIED, LINK_COPIED_LABEL } from './share';
 import type { ShareOutcome } from './share';
 
 /** The lettering crop: a rectangle of the untouched tile, in tile pixels (requirement 4.2). */
@@ -139,15 +139,10 @@ export function FindCard({ view, shareOutcome, onShowOriginalSheet, onShare, onS
         </p>
       ) : null}
       <div className="card-actions">
-        {view.actions.showOnMap ? (
-          <button type="button" className="card-action" onClick={onShowOnMap} data-testid="card-show-on-map">
-            Show on the map
-          </button>
-        ) : null}
         {view.actions.showOriginalSheet ? (
           <button
             type="button"
-            className="card-action"
+            className="card-button"
             onClick={onShowOriginalSheet}
             aria-pressed={originalShown === undefined ? undefined : originalShown}
             data-testid="card-show-original"
@@ -155,25 +150,27 @@ export function FindCard({ view, shareOutcome, onShowOriginalSheet, onShare, onS
             Show the original sheet
           </button>
         ) : null}
-        {view.actions.share ? (
-          <button type="button" className="card-action" onClick={onShare} data-testid="card-share">
-            Share this find
-          </button>
-        ) : null}
-        {view.actions.fullRecord && view.fullRecordHref ? (
-          <a className="card-action" href={view.fullRecordHref} data-testid="card-full-record">
-            Full record
-          </a>
-        ) : null}
+        <div className="card-links">
+          {view.actions.showOnMap ? (
+            <button type="button" className="card-link" onClick={onShowOnMap} data-testid="card-show-on-map">
+              Show on the map
+            </button>
+          ) : null}
+          {view.actions.share ? (
+            <button type="button" className="card-link" onClick={onShare} data-testid="card-share">
+              {shareOutcome === 'copied' ? LINK_COPIED_LABEL : 'Share this find'}
+            </button>
+          ) : null}
+          {view.actions.fullRecord && view.fullRecordHref ? (
+            <a className="card-link" href={view.fullRecordHref} data-testid="card-full-record">
+              Full record
+            </a>
+          ) : null}
+        </div>
       </div>
       <p className="visually-hidden" role="status" aria-live="polite" data-testid="card-share-status">
         {shareOutcome === 'copied' ? LINK_COPIED : ''}
       </p>
-      {shareOutcome === 'copied' ? (
-        <p className="card-share-note" data-testid="card-share-copied" aria-hidden="true">
-          {LINK_COPIED}
-        </p>
-      ) : null}
       {shareOutcome === 'refused' && view.shareLink ? (
         <label className="card-share-field">
           <span className="card-row-label">Copy this link:</span>
