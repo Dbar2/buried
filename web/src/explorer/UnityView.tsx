@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BRIDGE_VERSION, createBridge } from '../bridge/bridge';
-import type { Bridge } from '../bridge/bridge';
+import type { Bridge, PayloadOf } from '../bridge/bridge';
 import { fetchBuildFiles, startUnity } from '../bridge/unityLoader';
 import type { UnityInstance } from '../bridge/unityLoader';
+import { buildFrameFeature, buildRaise, buildSelectFeature, buildSetAnchors } from '../block/playerMessages';
 import type { GateModel } from './gateModel';
 import type { CameraPose } from './cameraPose';
 import { buildAddFeatures, buildLoadEra, buildMarkers, buildSceneInit, buildSetCamera, buildSetDepth, listForPlayer } from './gateScene';
@@ -61,6 +62,27 @@ export type UnityViewProps = {
   risingIds: ReadonlySet<string>;
   /** Called with the ids that were sent by scene/addFeatures, so they can be recorded as seen. */
   onRose: (ids: string[]) => void;
+  /** The Block page's extra conversation with the Player (bridge 0.8.0). Absent on the Explorer and the place page. */
+  block?: BlockBinding;
+};
+
+/**
+ * What the Block page (spec 06) adds to the Player's conversation. Everything here is a message of bridge 0.8.0 or the
+ * Player's answer to one; `n` changes with every request so the same one can be asked for twice.
+ */
+export type BlockBinding = {
+  /** The era whose `scene/loadEra` carries `held: true`: the landing look, until `scene/raise`. */
+  holdEraId: string;
+  /** The features to ask anchors of (`scene/setAnchors`), in find order. */
+  anchorIds: readonly string[];
+  onAnchors: (payload: PayloadOf<'scene/anchors'>) => void;
+  /** `scene/raised`: the raise has settled. */
+  onRaised: (eraId: string) => void;
+  raise: { n: number; eraId: string; firstFeatureId: string; animate: boolean } | null;
+  /** The selected feature (`scene/selectFeature`); null clears. */
+  selectedFeatureId: string | null;
+  /** "Show on the map" (`scene/frameFeature`). */
+  frame: { n: number; featureId: string } | null;
 };
 
 /**
@@ -113,6 +135,8 @@ export default function UnityView(props: UnityViewProps) {
       loaded.get(p.eraId)?.resolve();
     });
     bridge.on('featureClicked', (p) => latest.current.onFeatureClicked(p.featureId, p.eraId));
+    bridge.on('scene/anchors', (p) => latest.current.block?.onAnchors(p));
+    bridge.on('scene/raised', (p) => latest.current.block?.onRaised(p.era_id));
     bridge.on('cameraChanged', (p) => update((s) => ({ ...s, cameraSeq: s.cameraSeq + 1, camera: p })));
     bridge.on('error', (p) => addError(`${p.code}: ${p.message}`));
     bridge.onDropped((reason, raw) => {
@@ -159,7 +183,7 @@ export default function UnityView(props: UnityViewProps) {
           const eraList = model.lists.get(era.id);
           if (!eraList) throw new Error(`no Era list for ${era.id}`);
           const list = listForPlayer(eraList, areasWanted);
-          bridge.send(buildLoadEra(era, list, model.drapes.get(era.id) ?? [], latest.current.risingIds));
+          bridge.send(buildLoadEra(era, list, model.drapes.get(era.id) ?? [], latest.current.risingIds, latest.current.block?.holdEraId === era.id));
           await done.promise;
           if (disposed) return;
         }
@@ -239,6 +263,39 @@ export default function UnityView(props: UnityViewProps) {
     if (!running || !lantern) return;
     bridgeRef.current?.send(buildSetLantern(lantern));
   }, [running, lantern]);
+
+  // The Block page (bridge 0.8.0). Each effect waits for `running`, so nothing is sent before the eras are loaded.
+  const block = props.block;
+  const anchorKey = block ? block.anchorIds.join(',') : null;
+  useEffect(() => {
+    if (!running || anchorKey === null) return;
+    const ids = latest.current.block?.anchorIds ?? [];
+    bridgeRef.current?.send(buildSetAnchors(ids));
+  }, [running, anchorKey]);
+
+  const raise = block?.raise ?? null;
+  const raisedN = useRef(0);
+  useEffect(() => {
+    if (!running || !raise || raise.n === raisedN.current) return;
+    raisedN.current = raise.n;
+    bridgeRef.current?.send(buildRaise(raise.eraId, raise.firstFeatureId, raise.animate));
+  }, [running, raise]);
+
+  const selectedFeatureId = block ? block.selectedFeatureId : null;
+  const sentSelection = useRef<string | null>(null);
+  useEffect(() => {
+    if (!running || !block || sentSelection.current === selectedFeatureId) return;
+    sentSelection.current = selectedFeatureId;
+    bridgeRef.current?.send(buildSelectFeature(selectedFeatureId));
+  }, [running, block, selectedFeatureId]);
+
+  const frame = block?.frame ?? null;
+  const framedN = useRef(0);
+  useEffect(() => {
+    if (!running || !frame || frame.n === framedN.current) return;
+    framedN.current = frame.n;
+    bridgeRef.current?.send(buildFrameFeature(frame.featureId));
+  }, [running, frame]);
 
   // Show Evidence (bridge 0.6.0): on for one ghost at a time, off when it ends or another takes its place.
   const evidenceOn = useRef<string | null>(null);

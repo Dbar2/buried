@@ -467,9 +467,8 @@ test('26.6 / (e) the wordmark is Fraunces, the gauge years and the card id are I
     { x: hb.x + Math.min(8, hb.width / 2), y: hb.y + hb.height / 2 },
   );
   expect(covered, 'the heading is the topmost element at its own position').toBe(true);
-  // The confirmation time is worded for people and carries the ISO string in its title.
-  await expect(page.getByTestId('card-confirmed-at')).toHaveText(/^\d{1,2} [A-Z][a-z]{2} \d{4}, \d{2}:\d{2} UTC$/);
-  await expect(page.getByTestId('card-confirmed-at')).toHaveAttribute('title', /^\d{4}-\d{2}-\d{2}T/);
+  // The card says its review status in words, and prints no "Confirmed" line (spec 06 requirement 9.2).
+  await expect(page.getByTestId('card-status')).toHaveText(/^Status: (draft, not yet reviewed|reviewed by .+, \d{4}-\d{2}-\d{2})$/);
   await shoot('card-1911');
 });
 

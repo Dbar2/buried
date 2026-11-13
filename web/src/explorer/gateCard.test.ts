@@ -24,21 +24,22 @@ describe('formatUtc', () => {
 });
 
 describe('buildGateCard for a workspace feature (spec 04 requirement 6.5)', () => {
-  it('says it is from the workspace, who confirmed it, and that it is not part of the reviewed record', async () => {
+  it('says it is from the workspace and that it is not part of the reviewed record', async () => {
     const { data, list, byId } = await setup();
     const entry = list.features.find((f) => f.id === 'bld_fip_v3_1911_229_0001') as NonNullable<(typeof list.features)[number]>;
     const feature = byId.get('bld_fip_v3_1911_229_0001') as NonNullable<ReturnType<typeof byId.get>>;
     const card = buildGateCard(entry, feature, data.sources, 'workspace');
     const origin = card.rows.find((r) => r.label === 'Origin')?.value;
-    expect(origin).toBe("From your workspace, confirmed by Synthetic Reviewer. Not part of Buried's reviewed record.");
+    expect(origin).toBe("From your workspace. Not part of Buried's reviewed record.");
     expect(card.rows.some((r) => r.label === 'Confirmed by')).toBe(false);
+    expect(card.rows.some((r) => /confirmed/i.test(`${r.label} ${r.value}`))).toBe(false);
     // a canon card has no such row
     expect(buildGateCard(entry, feature, data.sources).rows.some((r) => r.label === 'Origin')).toBe(false);
   });
 });
 
 describe('buildGateCard (requirement 24.3)', () => {
-  it('shows the feature id, origin source, position phrase, who confirmed it and when, and the attribution line', async () => {
+  it('shows the feature id, origin source, position phrase, review status and the attribution line', async () => {
     const { data, list, byId } = await setup();
     const entry = list.features.find((f) => f.id === 'bld_fip_v3_1911_229_0001');
     expect(entry).toBeDefined();
@@ -49,9 +50,8 @@ describe('buildGateCard (requirement 24.3)', () => {
     expect(row('Feature')).toBe('bld_fip_v3_1911_229_0001');
     expect(row('Position')).toBe('Positioned within about 4.5 m');
     expect(row('Read from')).toBe('Synthetic plate 229, 1911 edition (fip_v3_1911_229)');
-    expect(row('Confirmed by')).toBe('Synthetic Reviewer');
-    expect(row('Confirmed at')).toBe('13 Nov 2026, 10:00 UTC');
-    expect(card.rows.find((r) => r.label === 'Confirmed at')?.title).toBe('2026-11-13T10:00:00Z');
+    expect(row('Status')).toMatch(/^Status: (draft, not yet reviewed|reviewed by .+, \d{4}-\d{2}-\d{2})$/);
+    expect(card.rows.some((r) => /confirmed/i.test(`${r.label} ${r.value}`))).toBe(false);
     expect(row('Attribution')).toBe('Synthetic attribution for the 1911 plate.');
     expect(row('Confidence')).toBe('Documented. Synthetic: outline and storeys read from the synthetic plate.');
   });

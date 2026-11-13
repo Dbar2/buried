@@ -36,6 +36,33 @@ export function titleFor(page: PageName, address: string | null = null): string 
   }
 }
 
+/**
+ * The title of `/find/<slug>` (spec 06 requirement 7.2): the find's name as lettered, then its plan, "Glove & Overall
+ * Factory, 1911 plan · Buried". `plan` is the plain plan name without its article ("1911 plan").
+ */
+export function findTitleFor(name: string, plan: string): string {
+  return `${name}, ${plan} · ${SITE_NAME}`;
+}
+
+/** The description of `/find/<slug>`. `plan` is the plain name with its article ("the 1911 plan"). */
+export function findDescriptionFor(plan: string): string {
+  return `Lettered on ${plan} at Queen Street East and River Street, Toronto, with the map that proves it.`;
+}
+
+/** Sets the title and description of a find's page while it is on screen. Crawlers still see the generic card (session 031). */
+export function useFindDocumentTitle(title: string | null, description: string | null): void {
+  useEffect(() => {
+    if (title === null || description === null) return;
+    document.title = title;
+    const tag = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    if (tag) tag.content = description;
+    const ogTitle = document.querySelector<HTMLMetaElement>('meta[property="og:title"]');
+    if (ogTitle) ogTitle.content = title;
+    const ogDescription = document.querySelector<HTMLMetaElement>('meta[property="og:description"]');
+    if (ogDescription) ogDescription.content = description;
+  }, [title, description]);
+}
+
 /** The meta description of a page. It states only what the page is; it makes no finding about a lot. */
 export function descriptionFor(page: PageName, address: string | null = null): string {
   switch (page) {

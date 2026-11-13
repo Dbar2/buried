@@ -22,7 +22,7 @@ export function StillPicture({ sources, kind, faded }: StillPictureProps) {
   const size = STILL_SIZES[kind];
   return (
     <div className={`still-picture${faded ? ' is-faded' : ''}`} data-testid="still" data-kind={kind} data-faded={faded} aria-hidden="true">
-      <img className="still-image" src={sources[kind].src} width={size.w} height={size.h} alt="" decoding="async" />
+      <img className="still-image" src={sources[kind].src} width={size.w} height={size.h} alt="" loading="eager" decoding="async" />
     </div>
   );
 }

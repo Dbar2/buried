@@ -14,27 +14,27 @@ generated types; W1 lands before U2.
   `block`, `/find/<slug>`, `search` at `/place`, old `/?era=` links. `web/src/shell/Header.tsx`:
   wordmark and "Sources" only. `web/src/sources/SourcesPage.tsx`: the workshop link. R1.3, R7.3,
   R11.4.
-- [ ] W3 (video) Block page, Still and Raise button. `web/src/block/BlockPage.tsx`,
+- [x] W3 (video) Block page, Still and Raise button. `web/src/block/BlockPage.tsx`,
   `StillPicture.tsx`, `RaiseButton.tsx`, `raiseState.ts` (+ P5 test); send and receive
   `scene/raise`, `scene/raised` in the existing bridge module. R1, R2, R3, R11.2.
-- [ ] W4 (video) Finds loader and find wording. `web/src/block/finds.ts` (loads and checks
+- [x] W4 (video) Finds loader and find wording. `web/src/block/finds.ts` (loads and checks
   `data/finds.json`), `web/src/evidence/findText.ts` (+ test). R4.2, R4.3, R4.5, R5.3.
-- [ ] W5 (video) Tags and leader line. `web/src/block/tagLayout.ts` (+ P2 test),
+- [x] W5 (video) Tags and leader line. `web/src/block/tagLayout.ts` (+ P2 test),
   `FindTags.tsx`, `LeaderLine.tsx`; `scene/setAnchors`, `scene/anchors`, `scene/frameFeature` in
   the bridge module. R1.2, R4.1, R5.1, R5.4.
-- [ ] W6 (video) The card and the phone sheet. `web/src/block/FindCard.tsx`, `BottomSheet.tsx`;
+- [x] W6 (video) The card and the phone sheet. `web/src/block/FindCard.tsx`, `BottomSheet.tsx`;
   "Show the original sheet", "Full record". R4, R11.1.
-- [ ] W7 (video) Era ruler. `web/src/block/EraRuler.tsx`: three stops, Left/Right keys, the
+- [x] W7 (video) Era ruler. `web/src/block/EraRuler.tsx`: three stops, Left/Right keys, the
   announcement. R5.2, R5.3.
-- [ ] W8 (video) Lantern lens. `web/src/block/LanternLens.tsx`, `lensDrag.ts` (+ test). R6.
-- [ ] W9 (video) Share and `/find/<slug>`. `web/src/block/share.ts`, `web/src/shell/pageTitle.ts`
+- [x] W8 (video) Lantern lens. `web/src/block/LanternLens.tsx`, `lensDrag.ts` (+ test). R6.
+- [x] W9 (video) Share and `/find/<slug>`. `web/src/block/share.ts`, `web/src/shell/pageTitle.ts`
   (+ test). R7.1, R7.2.
-- [ ] W10 (video) The two honesty fixes in text. `web/src/evidence/review.ts` (+ P3 test); the
+- [x] W10 (video) The two honesty fixes in text. `web/src/evidence/review.ts` (+ P3 test); the
   core-sample row text in `web/src/place/` and its Evidence Library wording (+ P4 test); replace
   the "Confirmed by" line on the place page and in `web/src/report/`. R9.2, R10.
-- [ ] W11 No-WebGL fallback. `web/src/block/FlatSheet.tsx`, `sheetTransform.ts` (+ P6 test).
+- [x] W11 No-WebGL fallback. `web/src/block/FlatSheet.tsx`, `sheetTransform.ts` (+ P6 test).
   R11.3.
-- [ ] W12 Browser tests. `web/e2e/block.spec.ts` (landing, 2 s button, raise, first find, ruler
+- [x] W12 Browser tests. (`block-flat.spec.ts` runs and passes; `block.spec.ts` and `block-phone.spec.ts` are written, tagged `@unity` and not run: session 042.) `web/e2e/block.spec.ts` (landing, 2 s button, raise, first find, ruler
   line, share route), `block-phone.spec.ts` (390 px), `block-flat.spec.ts` (WebGL off); add
   `/find/overall-factory` to the routes in `playwright.hosting.config.ts`. R12.
 

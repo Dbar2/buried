@@ -14,7 +14,7 @@ import type { Plugin, ResolvedConfig } from 'vite';
 import { VERSIONED_DIRECTORIES, VERSIONED_TOP_LEVEL, dataVersion } from '../src/workspace/dataVersion';
 import type { Sha256Hex } from '../src/workspace/dataVersion';
 
-export const ALLOWED_ROOT_FILES: readonly string[] = ['project.json', 'sources.json'];
+export const ALLOWED_ROOT_FILES: readonly string[] = ['project.json', 'sources.json', 'finds.json'];
 export const ALLOWED_DIRS = ['evidence', 'present', 'tiles', 'control'] as const;
 export type AllowedDir = (typeof ALLOWED_DIRS)[number];
 

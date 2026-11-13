@@ -27,7 +27,10 @@ import { PlaceCard } from './PlaceCardPanel';
 
 const P1911 = 'fip_v3_1911_229';
 const P1935 = 'fip_v3_1935_229';
-const AREA_ID = `use_${P1911}_0001`;
+// A sequence far above anything committed, so the workspace area cannot collide with canon (merge drops a
+// workspace feature whose id is a canon id).
+const AREA_SEQ = 9001;
+const AREA_ID = `use_${P1911}_${String(AREA_SEQ).padStart(4, '0')}`;
 
 const ID_PATTERN = /\b(?:fip|aerial|present|ws_upload|bld|use|wtr)_[a-z0-9_]*[a-z0-9]/i;
 const PLATE_PATTERN = /\bplates?\s+\d{3}\b/i;
@@ -61,7 +64,7 @@ function expectPlain(name: string, markup: string): void {
 }
 
 function workspaceArea(at: [number, number]): Feature {
-  const area = makeFeature(P1911, [obs(P1911, true, 'clear', 'origin'), obs(P1935, true)], { kind: 'land_use', seq: 1, at, size: [10, 8] });
+  const area = makeFeature(P1911, [obs(P1911, true, 'clear', 'origin'), obs(P1935, true)], { kind: 'land_use', seq: AREA_SEQ, at, size: [10, 8] });
   area.properties.attributes = { use: 'COAL YARD' };
   area.properties.confidence_reason = `Area and use traced by a person from ${P1911}`;
   area.properties.provenance.confirmed_by = 'Synthetic Reviewer';
@@ -173,7 +176,7 @@ describe('plain words on the rendered place page', () => {
     const card = buildPlaceCard(entry, model.features.get(AREA_ID)!, model.sources, model.tiles, 'workspace');
     const confidence = card.rows.find((r) => r.key === 'confidence')!.value;
     expect(confidence).toBe('Documented. Area and use traced from the 1911 plan');
-    expect(card.rows.find((r) => r.key === 'confirmed')!.value).toMatch(/^Confirmed by: Synthetic Reviewer, /);
+    expect(card.rows.find((r) => r.key === 'status')!.value).toBe('Status: draft, not yet reviewed');
     expect(`${confidence} ${card.cropLabel}`).not.toMatch(/by a person/i);
   });
 });

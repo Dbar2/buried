@@ -46,10 +46,17 @@ export function buildLoadEra(
   drapes: readonly Drape[],
   /** Feature ids to hold back; they arrive later by scene/addFeatures (see buildAddFeatures). */
   exclude: ReadonlySet<string> = new Set(),
+  /** The landing look of the Block page (bridge 0.8.0): the era's sheet dim, its ghosts down, until scene/raise. */
+  held = false,
 ): MessageOf<'scene/loadEra'> {
   return {
     type: 'scene/loadEra',
-    payload: { eraId: era.id, features: sceneFeaturesFor(list).filter((f) => !exclude.has(f.id)), drapes: [...drapes] },
+    payload: {
+      eraId: era.id,
+      features: sceneFeaturesFor(list).filter((f) => !exclude.has(f.id)),
+      drapes: [...drapes],
+      ...(held ? { held: true } : {}),
+    },
   };
 }
 

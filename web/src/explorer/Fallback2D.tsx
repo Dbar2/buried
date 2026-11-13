@@ -88,7 +88,7 @@ export function drawPlan(ctx: CanvasRenderingContext2D, plan: FallbackPlan, imag
     // A night casing under an ink line reads on a dark scan and on a pale one.
     ctx.setLineDash([]);
     ctx.lineJoin = 'round';
-    ctx.strokeStyle = token('--night');
+    ctx.strokeStyle = token('--soot');
     ctx.lineWidth = 4.5 * px;
     ctx.stroke();
     ctx.setLineDash(DASHES[f.confidence].map((n) => n * px));
@@ -101,7 +101,7 @@ export function drawPlan(ctx: CanvasRenderingContext2D, plan: FallbackPlan, imag
   if (plan.lot) {
     trace(ctx, plan.lot, to, true);
     ctx.lineJoin = 'round';
-    ctx.strokeStyle = token('--night');
+    ctx.strokeStyle = token('--soot');
     ctx.lineWidth = 5 * px;
     ctx.stroke();
     ctx.strokeStyle = token('--lantern');

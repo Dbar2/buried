@@ -108,11 +108,11 @@ test('the card opens in the report column, with the scan, the record and "View o
   await expect(page.getByTestId('card-use')).toHaveText(/^Bank of Nova Scotia; offices on 2nd/);
   await expect(page.getByTestId('card-confidence')).toContainText(/^(Documented|Estimated|Unknown)\. /);
   await expect(page.getByTestId('card-position')).toHaveText(/^Positioned within about \d+(\.\d)? m$/);
-  await expect(page.getByTestId('card-confirmed')).toHaveText('Confirmed by: Buried maintainers (gate draft, unreviewed), 2026-11-12.');
+  await expect(page.getByTestId('card-status')).toHaveText('Status: draft, not yet reviewed');
   await expect(page.getByTestId('card-source')).toContainText('Digitized and georeferenced by the University of Toronto Map & Data Library.');
   const text = (await card.innerText()).replace(/\s+/g, ' ');
   expect(text).not.toMatch(/checked by a person/i);
-  expect(text).not.toMatch(/\b(reviewed|verified|checked|confirmed) by\b(?!:)/i);
+  expect(text).not.toMatch(/\bconfirmed\b/i);
 
   // The crop is cut from the untouched scan and has the outline on it.
   const crop = page.getByTestId('card-crop');
