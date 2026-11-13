@@ -1,0 +1,153 @@
+{
+  "schema_version": "1.0.0",
+  "finds": [
+    {
+      "id": "find_0001",
+      "slug": "overall-factory",
+      "kind": "building",
+      "order": 1,
+      "tag": "Overall factory",
+      "noun": "factory",
+      "readings": [
+        {
+          "source": "fip_v3_1911_229",
+          "feature_id": "bld_fip_v3_1911_229_0101",
+          "lettered": ["Glove & Overall Factory", "Hamilton Carhartt Mfr. Ltd."],
+          "crop_px": { "x": 3393, "y": 1422, "width": 552, "height": 425 },
+          "read_by": "Buried maintainers (draft reading, not yet reviewed)",
+          "read_on": "2026-11-13"
+        },
+        {
+          "source": "fip_v3_1935_229",
+          "feature_id": "bld_fip_v3_1935_229_0064",
+          "lettered": ["Glove & Overall Fac.", "Carhartt Hamilton"],
+          "crop_px": { "x": 1947, "y": 805, "width": 270, "height": 360 },
+          "read_by": "Buried maintainers (draft reading, not yet reviewed)",
+          "read_on": "2026-11-13"
+        }
+      ]
+    },
+    {
+      "id": "find_0002",
+      "slug": "bank",
+      "kind": "building",
+      "order": 2,
+      "tag": "Bank",
+      "noun": "bank",
+      "readings": [
+        {
+          "source": "fip_v3_1911_229",
+          "feature_id": "bld_fip_v3_1911_229_0001",
+          "lettered": ["Bank of Nova Scotia", "Off. 2nd"],
+          "crop_px": { "x": 3640, "y": 1288, "width": 276, "height": 262 },
+          "read_by": "Buried maintainers (draft reading, not yet reviewed)",
+          "read_on": "2026-11-13"
+        }
+      ]
+    },
+    {
+      "id": "find_0003",
+      "slug": "coal-yard",
+      "kind": "area",
+      "order": 3,
+      "tag": "Coal yard",
+      "noun": "yard",
+      "readings": [
+        {
+          "source": "fip_v3_1911_229",
+          "feature_id": "use_fip_v3_1911_229_0001",
+          "lettered": ["Coal & Wood Yard", "J. W. Corson & Co."],
+          "crop_px": { "x": 774, "y": 3885, "width": 468, "height": 135 },
+          "read_by": "Buried maintainers (draft reading, not yet reviewed)",
+          "read_on": "2026-11-13"
+        },
+        {
+          "source": "fip_v3_1935_229",
+          "feature_id": "use_fip_v3_1935_229_0001",
+          "lettered": ["Coal & Wood Yard", "Northern Fuels Co."],
+          "crop_px": { "x": 732, "y": 2050, "width": 255, "height": 60 },
+          "read_by": "Buried maintainers (draft reading, not yet reviewed)",
+          "read_on": "2026-11-13"
+        }
+      ]
+    },
+    {
+      "id": "find_0004",
+      "slug": "machine-shop",
+      "kind": "building",
+      "order": 4,
+      "tag": "Machine shop",
+      "noun": "shop",
+      "readings": [
+        {
+          "source": "fip_v3_1911_229",
+          "feature_id": "bld_fip_v3_1911_229_0102",
+          "lettered": ["Machine Shop", "Wm. R. Perrin & Co. Limited"],
+          "crop_px": { "x": 2918, "y": 1790, "width": 560, "height": 687 },
+          "read_by": "Buried maintainers (draft reading, not yet reviewed)",
+          "read_on": "2026-11-13"
+        },
+        {
+          "source": "fip_v3_1935_229",
+          "feature_id": "bld_fip_v3_1935_229_0065",
+          "lettered": ["Machine Shop", "Wm. R. Perrin & Co. Limited"],
+          "crop_px": { "x": 1752, "y": 1030, "width": 275, "height": 325 },
+          "read_by": "Buried maintainers (draft reading, not yet reviewed)",
+          "read_on": "2026-11-13"
+        }
+      ]
+    },
+    {
+      "id": "find_0005",
+      "slug": "cork-factory",
+      "kind": "building",
+      "order": 5,
+      "tag": "Cork factory",
+      "noun": "factory",
+      "readings": [
+        {
+          "source": "fip_v3_1911_229",
+          "feature_id": "bld_fip_v3_1911_229_0104",
+          "lettered": ["Cork Fac.", "Freyseng Cork Co. Ltd."],
+          "crop_px": { "x": 753, "y": 1309, "width": 630, "height": 284 },
+          "read_by": "Buried maintainers (draft reading, not yet reviewed)",
+          "read_on": "2026-11-13"
+        },
+        {
+          "source": "fip_v3_1935_229",
+          "feature_id": "bld_fip_v3_1935_229_0067",
+          "lettered": ["Freyseng Cork Co. Ltd.", "Cork Fac."],
+          "crop_px": { "x": 692, "y": 840, "width": 300, "height": 55 },
+          "read_by": "Buried maintainers (draft reading, not yet reviewed)",
+          "read_on": "2026-11-13"
+        }
+      ]
+    },
+    {
+      "id": "find_0006",
+      "slug": "mission-hall",
+      "kind": "building",
+      "order": 6,
+      "tag": "Mission hall",
+      "noun": "hall",
+      "readings": [
+        {
+          "source": "fip_v3_1911_229",
+          "feature_id": "bld_fip_v3_1911_229_0105",
+          "lettered": ["Baptist Mission Hall"],
+          "crop_px": { "x": 3308, "y": 5838, "width": 163, "height": 284 },
+          "read_by": "Buried maintainers (draft reading, not yet reviewed)",
+          "read_on": "2026-11-13"
+        },
+        {
+          "source": "fip_v3_1935_229",
+          "feature_id": "bld_fip_v3_1935_229_0068",
+          "lettered": ["Baptist Mission Hall"],
+          "crop_px": { "x": 1982, "y": 2950, "width": 90, "height": 75 },
+          "read_by": "Buried maintainers (draft reading, not yet reviewed)",
+          "read_on": "2026-11-13"
+        }
+      ]
+    }
+  ]
+}
