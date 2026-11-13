@@ -23,7 +23,7 @@ from typing import Any
 
 from buried_pipeline.paths import Paths, find_repo_root
 from buried_pipeline.publish.build import canonical_text
-from buried_pipeline.schema_version import SCHEMA_VERSION
+from buried_pipeline.schema_version import EVIDENCE_SCHEMA_VERSION
 
 HAND_MARKERS = ("tracing by hand", "gate draft")
 
@@ -47,8 +47,8 @@ def migrate_document(doc: dict[str, Any]) -> tuple[dict[str, Any], int]:
         if "review" not in provenance:
             provenance["review"] = review_for(provenance)
             added += 1
-    if _version(out["schema_version"]) < _version(SCHEMA_VERSION):
-        out["schema_version"] = SCHEMA_VERSION
+    if _version(out["schema_version"]) < _version(EVIDENCE_SCHEMA_VERSION):
+        out["schema_version"] = EVIDENCE_SCHEMA_VERSION
     return out, added
 
 

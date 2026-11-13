@@ -6,7 +6,8 @@ Pure: the finds file, the evidence files and the map area files are already read
 - Each reading's `source` is in the registry, and `feature_id` is a published feature of that
   source's evidence file, of the kind the find allows (`bld` for a building; `use` or `bld` for
   an area).
-- Each reading's crop lies wholly inside the source's map area (data/control/map_area/<source>.json).
+- Each reading's crop lies wholly inside the source's map area
+  (data/control/map_area/<source>.json).
 - Each find has at least one reading with a crop (the Schema also requires it).
 """
 

@@ -1,6 +1,6 @@
 {
   "type": "FeatureCollection",
-  "schema_version": "1.2.0",
+  "schema_version": "1.1.0",
   "crs": "EPSG:26917",
   "source": "present_toronto_property_boundaries_2026",
   "ckan_package_id": "property-boundaries",

@@ -32,7 +32,7 @@ from buried_pipeline.publish.decisions import (
     ReviewedAreaDecision,
     TraceDecision,
 )
-from buried_pipeline.schema_version import SCHEMA_VERSION
+from buried_pipeline.schema_version import EVIDENCE_SCHEMA_VERSION
 
 CRS = "EPSG:26917"
 MIN_DIGITISING_M = 1.0
@@ -465,7 +465,7 @@ def build_evidence(i: BuildInputs) -> BuildResult:
 
     doc: dict[str, Any] = {
         "type": "FeatureCollection",
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": EVIDENCE_SCHEMA_VERSION,
         "crs": CRS,
         "origin_source": i.source_id,
         "mapped_area": {
