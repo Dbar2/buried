@@ -365,8 +365,20 @@
   outline-offset: 2px;
 }
 
-.place-card-crop {
+.place-card-crop,
+.place-card-reading {
   margin: 0 0 var(--space-3);
+}
+
+.place-card-reading canvas {
+  border: 1px solid var(--report-rule);
+  display: block;
+  max-width: 100%;
+}
+
+.place-card-reading figcaption {
+  color: var(--report-ink-soft);
+  margin-top: var(--space-1);
 }
 
 .place-card-crop canvas {

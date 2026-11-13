@@ -31,10 +31,34 @@ export type PlaceCard = {
   crop: Extract<Crop, { kind: 'tile' }> | null;
   /** What the crop is, or why there is none. */
   cropLabel: string;
+  /** The crop of the lettering the use was read from, or null when the record has none or the source has no tile. */
+  reading: ReadCrop | null;
   /** The source the footnote names: id (mono), plain name, attribution line. */
   source: { id: string; name: string; attributionLine: string };
   workspace: boolean;
 };
+
+/** Where the lettering sits on a tile image, in the tile's own pixels. */
+export type ReadCrop = { image: string; sx: number; sy: number; sw: number; sh: number; label: string };
+
+/**
+ * The crop a use was read from, in the pixels of the origin source's tile. The record's `crop_px` is in
+ * plate pixels and the sidecar's `crop_px` says which plate pixels the tile shows, so the two give
+ * the region by proportion. Null when the record has no read of a use, the source has no tile, or the
+ * crop does not lie on the tile.
+ */
+export function readingCrop(feature: Feature, tiles: readonly TileSidecar[], sourceName: string): ReadCrop | null {
+  const read = feature.properties.provenance.attribute_reads?.find((r) => r.attribute === 'use');
+  const tile = tiles.find((t) => t.source === feature.properties.provenance.origin_source);
+  if (!read || !tile?.crop_px) return null;
+  const c = tile.crop_px;
+  const sx = ((read.crop_px.x - c.x) * tile.width_px) / c.width;
+  const sy = ((read.crop_px.y - c.y) * tile.height_px) / c.height;
+  const sw = (read.crop_px.width * tile.width_px) / c.width;
+  const sh = (read.crop_px.height * tile.height_px) / c.height;
+  if (!(sw > 0 && sh > 0) || sx < 0 || sy < 0 || sx + sw > tile.width_px + 1e-6 || sy + sh > tile.height_px + 1e-6) return null;
+  return { image: tile.image, sx, sy, sw, sh, label: `The crop the use was read from, cut from ${sourceName}` };
+}
 
 const MIN_WINDOW_M = 40;
 const CROP_MARGIN_M = 12;
@@ -51,7 +75,7 @@ function quoted(text: string, what: string): string {
 }
 
 /** The crop around a feature on its origin source's tile, or null when the source has no tile or the feature has no area. */
-export function cardCrop(geometry: FeatureGeometry, sourceId: string, tiles: readonly TileSidecar[]): Extract<Crop, { kind: 'tile' }> | null {
+export function cardCrop(geometry: FeatureGeometry, sourceId: string, tiles: readonly TileSidecar[], kind?: EraFeature['kind']): Extract<Crop, { kind: 'tile' }> | null {
   const tile = tiles.find((t) => t.source === sourceId);
   if (!tile || !isPolygonal(geometry)) return null;
   const window = cropWindow(geometry, CROP_MARGIN_M);
@@ -62,7 +86,7 @@ export function cardCrop(geometry: FeatureGeometry, sourceId: string, tiles: rea
     window.minN = centreN - MIN_WINDOW_M / 2;
     window.side = MIN_WINDOW_M;
   }
-  return { kind: 'tile', window, tile: tileRef(tile), lot: ringsOf(geometry) };
+  return { kind: 'tile', window, tile: tileRef(tile), lot: ringsOf(geometry), ...(kind === 'land_use' ? { hatch: true } : {}) };
 }
 
 export function buildPlaceCard(
@@ -93,7 +117,7 @@ export function buildPlaceCard(
     rows.push({ key: 'origin', label: 'Origin', value: "From your workspace. Not part of Buried's published records.", mono: false });
   }
 
-  const crop = cardCrop(entry.geometry, source.id, tiles);
+  const crop = cardCrop(entry.geometry, source.id, tiles, entry.kind);
   const name = plainSourceName(source);
   return {
     featureId: entry.id,
@@ -101,6 +125,7 @@ export function buildPlaceCard(
     rows,
     crop,
     cropLabel: crop ? `${capital(name)}, around this ${kindName.toLowerCase()}` : `${capital(name)} has no picture loaded for this ${kindName.toLowerCase()}`,
+    reading: use !== undefined ? readingCrop(feature, tiles, name) : null,
     source: { id: source.id, name, attributionLine: source.attribution_line },
     workspace: origin === 'workspace',
   };

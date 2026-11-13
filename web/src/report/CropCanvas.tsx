@@ -58,6 +58,25 @@ export function drawVector(ctx: CanvasRenderingContext2D, crop: Extract<Crop, { 
   outlineLot(ctx, crop.shapes.lot, to, sizePx);
 }
 
+/** Diagonal ink lines clipped to the rings: how a land-use area is drawn, so it is never read as a building. */
+export function hatchRings(ctx: CanvasRenderingContext2D, rings: Pt[][], to: (e: number, n: number) => Pt, sizePx: number): void {
+  ctx.save();
+  path(ctx, rings, to);
+  ctx.clip('evenodd');
+  const step = Math.max(4, sizePx / 36);
+  ctx.beginPath();
+  for (let c = -sizePx; c <= 2 * sizePx; c += step) {
+    ctx.moveTo(c, 0);
+    ctx.lineTo(c - sizePx, sizePx);
+  }
+  ctx.setLineDash([]);
+  ctx.strokeStyle = token('--report-ink');
+  ctx.globalAlpha = 0.7;
+  ctx.lineWidth = Math.max(1, sizePx / 320);
+  ctx.stroke();
+  ctx.restore();
+}
+
 export function drawTile(ctx: CanvasRenderingContext2D, crop: Extract<Crop, { kind: 'tile' }>, image: CanvasImageSource, sizePx: number): void {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = token('--report-paper');
@@ -68,7 +87,10 @@ export function drawTile(ctx: CanvasRenderingContext2D, crop: Extract<Crop, { ki
   ctx.drawImage(image, 0, 0, crop.tile.widthPx, crop.tile.heightPx);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   const m = worldToCanvas(crop.window, sizePx);
-  outlineLot(ctx, crop.lot, (E, N): Pt => [m[0] * E + m[4], m[3] * N + m[5]], sizePx);
+  const to = (E: number, N: number): Pt => [m[0] * E + m[4], m[3] * N + m[5]];
+  for (const rings of crop.areas ?? []) hatchRings(ctx, rings, to, sizePx);
+  if (crop.hatch) hatchRings(ctx, crop.lot, to, sizePx);
+  outlineLot(ctx, crop.lot, to, sizePx);
 }
 
 export type CropCanvasProps = {

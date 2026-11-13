@@ -68,6 +68,23 @@ export function drawPlan(ctx: CanvasRenderingContext2D, plan: FallbackPlan, imag
       ctx.fill('evenodd');
       ctx.globalAlpha = 1;
     }
+    if (f.closed && f.kind === 'land_use') {
+      // A land-use area is hatched, so it is never read as a building (and not by colour alone).
+      ctx.save();
+      ctx.clip('evenodd');
+      ctx.beginPath();
+      const step = 7 * px;
+      for (let c = -height; c <= 2 * width; c += step) {
+        ctx.moveTo(c, 0);
+        ctx.lineTo(c - height, height);
+      }
+      ctx.strokeStyle = token('--ink');
+      ctx.globalAlpha = 0.7;
+      ctx.lineWidth = px;
+      ctx.stroke();
+      ctx.restore();
+      trace(ctx, f.rings, to, f.closed);
+    }
     // A night casing under an ink line reads on a dark scan and on a pale one.
     ctx.setLineDash([]);
     ctx.lineJoin = 'round';

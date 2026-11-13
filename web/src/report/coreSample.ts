@@ -30,7 +30,7 @@ import type { LotCoverage } from './coverage';
 import { boundsOf, boxesOverlap, cropWindow, ringsOf, tileRef, windowBox } from './cropPlan';
 import type { Crop, CropWindow, Pt } from './cropPlan';
 import { offsetOf, toJts } from './geom';
-import { STRUCTURE_RADIUS_M, WATER_RADIUS_M } from './radii';
+import { LAND_USE_RADIUS_M, STRUCTURE_RADIUS_M, WATER_RADIUS_M } from './radii';
 import { fixed, joined, num, sentence, words } from './sentence';
 import type { RelationClaim, Sentence, Slot } from './sentence';
 
@@ -217,11 +217,15 @@ function pastBand(input: CoreSampleInput, era: Era, plates: readonly Source[]): 
   const featureById = new Map(input.collections.flatMap((c) => c.features).map((f) => [f.id, f]));
   const buildings: Item[] = [];
   const water: Item[] = [];
+  const areas: Item[] = [];
   for (const entry of list.features) {
     const r = relation(entry, input);
     const item = { entry, relation: r, feature: featureById.get(entry.id) };
     if (entry.kind === 'water' && (r.kind === 'on' || r.withinM <= WATER_RADIUS_M)) water.push(item);
-    else if (entry.kind !== 'water' && (r.kind === 'on' || r.withinM <= STRUCTURE_RADIUS_M)) buildings.push(item);
+    // A land-use area is drawn hatched in the picture; its use is quoted once in "What the land was used for".
+    else if (entry.kind === 'land_use') {
+      if (r.kind === 'on' || r.withinM <= LAND_USE_RADIUS_M) areas.push(item);
+    } else if (entry.kind === 'building' && (r.kind === 'on' || r.withinM <= STRUCTURE_RADIUS_M)) buildings.push(item);
   }
 
   const sentences: Sentence[] = [];
@@ -272,9 +276,19 @@ function pastBand(input: CoreSampleInput, era: Era, plates: readonly Source[]): 
   let crop: Crop;
   let cropLabel: string;
   let unreviewed: string | null = null;
+  const areaRings: Pt[][][] = areas.flatMap((i) => {
+    const rings = polygonalRings(i.entry.geometry);
+    return rings ? [rings] : [];
+  });
   if (shown) {
     const source = input.sources.get(shown.source);
-    crop = { kind: 'tile', window: cropWindow(input.lot), tile: tileRef(shown), lot: ringsOf(input.lot) };
+    crop = {
+      kind: 'tile',
+      window: cropWindow(input.lot),
+      tile: tileRef(shown),
+      lot: ringsOf(input.lot),
+      ...(areaRings.length > 0 ? { areas: areaRings } : {}),
+    };
     cropLabel = `${capital(source ? plainSourceName(source) : 'The record')}, around this lot`;
     if (!plateRows.some((r) => r.source.id === shown.source && r.coverage === 'reviewed')) {
       unreviewed = source?.type === 'aerial_photograph' ? 'From the photograph, not yet reviewed' : 'From the plate, not yet reviewed';
