@@ -3,6 +3,6 @@
   "payload": {
     "code": "bridge_version_mismatch",
     "message": "v*@1h*",
-    "messageType": "ready"
+    "messageType": "eraLoaded"
   }
 }

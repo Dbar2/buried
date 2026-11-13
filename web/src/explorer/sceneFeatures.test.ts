@@ -98,13 +98,16 @@ describe('E6 (gate subset): scene features mirror Era list entries', () => {
                 ? UNRECORDED_HEIGHT_M
                 : storeys * STOREY_HEIGHT_M
               : Math.max(WATER_RIBBON_MIN_M, 2 * error);
+          // Bridge 0.5.0: a building's recorded storeys go with it, and an unrecorded count is never sent.
+          const expectedKeys = kind === 'building' && storeys !== undefined ? 'confidence,geometry,heightM,id,kind,storeys' : 'confidence,geometry,heightM,id,kind';
           return (
             scene.id === entry.id &&
             scene.kind === entry.kind &&
             scene.geometry === entry.geometry &&
             scene.confidence === entry.confidence &&
             scene.heightM === height &&
-            Object.keys(scene).sort().join() === 'confidence,geometry,heightM,id,kind'
+            scene.storeys === (kind === 'building' ? storeys : undefined) &&
+            Object.keys(scene).sort().join() === expectedKeys
           );
         },
       ),

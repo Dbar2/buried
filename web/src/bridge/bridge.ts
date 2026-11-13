@@ -23,6 +23,9 @@ export const SHELL_TO_PLAYER = [
   'scene/loadEra',
   'scene/addFeatures',
   'scene/setDepth',
+  'scene/focusLot',
+  'scene/clearLot',
+  'scene/setDrapeMode',
   'debug/markers',
   'debug/setCamera',
 ] as const;
@@ -125,6 +128,8 @@ export function semanticProblem(message: BridgeMessage): string | null {
       if (p.features.some((f) => firstOpenRing(f.geometry))) return 'payload.features has a ring that is not closed';
       return null;
     }
+    case 'scene/focusLot':
+      return firstOpenRing(message.payload.lot) ? 'payload.lot has a ring that is not closed' : null;
     case 'debug/markers': {
       const dup = firstDuplicate(message.payload.markers.map((m) => m.id));
       return dup === null ? null : `payload.markers has the marker id "${dup}" more than once`;

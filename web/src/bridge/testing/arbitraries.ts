@@ -71,11 +71,18 @@ const polygonalGeometry = fc.oneof(polygonGeometry, multiPolygonGeometry);
 const anyGeometry = fc.oneof(polygonGeometry, multiPolygonGeometry, lineStringGeometry, multiLineStringGeometry);
 
 const confidenceArb = fc.constantFrom('documented', 'estimated', 'unknown');
+/** The recorded storey count, present about half the time (bridge 0.5.0). */
+const storeysArb = fc.option(fc.integer({ min: 1, max: 100 }), { nil: undefined });
 
-const sceneFeatureArb = fc.oneof(
-  fc.record({ id: featureIdArb, kind: fc.constant('building'), geometry: polygonalGeometry, confidence: confidenceArb, heightM: heightArb }),
-  fc.record({ id: featureIdArb, kind: fc.constant('water'), geometry: anyGeometry, confidence: confidenceArb, heightM: heightArb }),
-);
+const sceneFeatureArb = fc
+  .tuple(
+    fc.oneof(
+      fc.record({ id: featureIdArb, kind: fc.constant('building'), geometry: polygonalGeometry, confidence: confidenceArb, heightM: heightArb }),
+      fc.record({ id: featureIdArb, kind: fc.constant('water'), geometry: anyGeometry, confidence: confidenceArb, heightM: heightArb }),
+    ),
+    storeysArb,
+  )
+  .map(([feature, storeys]) => (storeys === undefined ? feature : { ...feature, storeys }));
 
 const tileUrl = sourceIdArb.map((id) => `/data/tiles/${id}.jpg`);
 const drapeBaseArb = fc.record({
@@ -90,8 +97,10 @@ const drapeBaseArb = fc.record({
   widthPx: fc.integer({ min: 1, max: 16384 }),
   heightPx: fc.integer({ min: 1, max: 16384 }),
 });
-/** A drape, with a clip polygon about half the time (bridge 0.3.0). */
-const drapeArb = fc.tuple(drapeBaseArb, fc.option(polygonGeometry, { nil: undefined })).map(([drape, clip]) => (clip ? { ...drape, clip } : drape));
+/** A drape, with a clip polygon about half the time (bridge 0.3.0) and a kind about half the time (0.5.0). */
+const drapeArb = fc
+  .tuple(drapeBaseArb, fc.option(polygonGeometry, { nil: undefined }), fc.option(fc.constantFrom('plate', 'aerial'), { nil: undefined }))
+  .map(([drape, clip, kind]) => ({ ...drape, ...(clip ? { clip } : {}), ...(kind ? { kind } : {}) }));
 
 const eraRefsArb = fc.integer({ min: 1, max: 6 }).chain((n) =>
   fc
@@ -151,6 +160,14 @@ export const messageArbitraries: Readonly<Record<MessageType, Arb<BridgeMessage>
     }),
   ),
   'scene/setDepth': message('scene/setDepth', fc.record({ depth: milli(0, 64) })),
+  'scene/focusLot': message('scene/focusLot', fc.record({ lot: polygonalGeometry })),
+  'scene/clearLot': message('scene/clearLot', fc.constant({})),
+  'scene/setDrapeMode': message(
+    'scene/setDrapeMode',
+    fc
+      .tuple(fc.constantFrom('lit', 'original'), fc.option(sourceIdArb, { nil: undefined }))
+      .map(([mode, sourceId]) => (sourceId === undefined ? { mode } : { mode, sourceId })),
+  ),
   'debug/markers': message(
     'debug/markers',
     fc.record({

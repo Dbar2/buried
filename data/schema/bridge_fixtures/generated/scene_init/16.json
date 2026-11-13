@@ -1,7 +1,7 @@
 {
   "type": "scene/init",
   "payload": {
-    "bridgeVersion": "0.4.0",
+    "bridgeVersion": "0.5.0",
     "origin": {
       "easting": 445322.367,
       "northing": 3177693.645

@@ -3,6 +3,6 @@
   "payload": {
     "code": "bounds_too_far",
     "message": "e%}m2#7A@k",
-    "messageType": "cameraChanged"
+    "messageType": "scene/loadEra"
   }
 }

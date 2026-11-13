@@ -3,6 +3,6 @@
   "payload": {
     "code": "texture_load_failed",
     "message": " upSet",
-    "messageType": "scene/loadEra"
+    "messageType": "debug/setCamera"
   }
 }

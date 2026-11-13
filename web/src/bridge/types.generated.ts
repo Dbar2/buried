@@ -16,6 +16,9 @@ export type BridgeMessage =
   | SceneLoadEraMessage
   | SceneAddFeaturesMessage
   | SceneSetDepthMessage
+  | SceneFocusLotMessage
+  | SceneClearLotMessage
+  | SceneSetDrapeModeMessage
   | DebugMarkersMessage
   | DebugSetCameraMessage
   | ReadyMessage
@@ -112,13 +115,19 @@ export interface BridgeSchemaTypes {
   sceneAddFeaturesMessage?: SceneAddFeaturesMessage;
   sceneAddFeaturesPayload?: SceneAddFeaturesPayload;
   sceneBounds?: SceneBounds;
+  sceneClearLotMessage?: SceneClearLotMessage;
+  sceneClearLotPayload?: SceneClearLotPayload;
   sceneFeature?: SceneFeature;
+  sceneFocusLotMessage?: SceneFocusLotMessage;
+  sceneFocusLotPayload?: SceneFocusLotPayload;
   sceneInitMessage?: SceneInitMessage;
   sceneInitPayload?: SceneInitPayload;
   sceneLoadEraMessage?: SceneLoadEraMessage;
   sceneLoadEraPayload?: SceneLoadEraPayload;
   sceneSetDepthMessage?: SceneSetDepthMessage;
   sceneSetDepthPayload?: SceneSetDepthPayload;
+  sceneSetDrapeModeMessage?: SceneSetDrapeModeMessage;
+  sceneSetDrapeModePayload?: SceneSetDrapeModePayload;
   sourceId?: SourceId;
 }
 /**
@@ -136,7 +145,7 @@ export interface SceneInitMessage {
  * via the `definition` "sceneInitPayload".
  */
 export interface SceneInitPayload {
-  bridgeVersion: '0.4.0';
+  bridgeVersion: '0.5.0';
   origin: OriginPoint;
   bounds: SceneBounds;
   initialView: Rect;
@@ -257,6 +266,10 @@ export interface SceneFeature {
   geometry: Geometry;
   confidence: 'documented' | 'estimated' | 'unknown';
   heightM: number;
+  /**
+   * Optional (bridge 0.5.0). The recorded storey count of a building: the Player draws one line per storey. Absent: no count is recorded and no storey lines are drawn; heightM is the display height either way. Never invented.
+   */
+  storeys?: number;
 }
 /**
  * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
@@ -293,6 +306,10 @@ export interface Drape {
   widthPx: number;
   heightPx: number;
   clip?: PolygonGeometry1;
+  /**
+   * Optional (bridge 0.5.0). plate: the lit display tones the greyscale scan toward `ink` paper. aerial: lit but not recoloured. Absent: plate.
+   */
+  kind?: 'plate' | 'aerial';
 }
 /**
  * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
@@ -351,6 +368,62 @@ export interface SceneSetDepthPayload {
    * 0 is Today. An integer is an era; a fraction is a transition. The Player also refuses a depth past the last era it was told about.
    */
   depth: number;
+}
+/**
+ * Shell to Player (0.5.0). Pins a lot: outlined on the ground in `lantern` in every era with one small warm light beside it, the lit map sheet's light pool moves to it, and the camera flies to frame it (eased, 900 ms; a cut under reduced motion). A second scene/focusLot replaces the first.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneFocusLotMessage".
+ */
+export interface SceneFocusLotMessage {
+  type: 'scene/focusLot';
+  payload: SceneFocusLotPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneFocusLotPayload".
+ */
+export interface SceneFocusLotPayload {
+  /**
+   * Polygon or MultiPolygon.
+   */
+  lot: PolygonGeometry | MultiPolygonGeometry;
+}
+/**
+ * Shell to Player (0.5.0). Unpins the lot and restores the default view (eased, or a cut under reduced motion). With no lot pinned it does nothing.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneClearLotMessage".
+ */
+export interface SceneClearLotMessage {
+  type: 'scene/clearLot';
+  payload: SceneClearLotPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneClearLotPayload".
+ */
+export interface SceneClearLotPayload {}
+/**
+ * Shell to Player (0.5.0). Switches drapes between the lit display (the default: toned toward `ink` paper under the light pool) and the untouched scan ("view original scan"). Affects the Explorer scene only.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneSetDrapeModeMessage".
+ */
+export interface SceneSetDrapeModeMessage {
+  type: 'scene/setDrapeMode';
+  payload: SceneSetDrapeModePayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneSetDrapeModePayload".
+ */
+export interface SceneSetDrapeModePayload {
+  mode: 'lit' | 'original';
+  /**
+   * A source id, built as in structure.md: lowercase snake_case.
+   */
+  sourceId?: string;
 }
 /**
  * Shell to Player. Only honoured when scene/init had debug: true.
@@ -549,7 +622,7 @@ export interface ReadyMessage {
  * via the `definition` "readyPayload".
  */
 export interface ReadyPayload {
-  bridgeVersion: '0.4.0';
+  bridgeVersion: '0.5.0';
   unityVersion: string;
 }
 /**

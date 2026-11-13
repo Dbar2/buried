@@ -11,5 +11,8 @@ namespace Buried.Interop
         public GeometryDto geometry;
         public string confidence;
         public double heightM;
+
+        /// <summary>The recorded storey count (bridge 0.5.0), or 0 when none is recorded: the schema's minimum is 1.</summary>
+        public int storeys;
     }
 }

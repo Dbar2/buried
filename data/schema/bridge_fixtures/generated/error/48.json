@@ -3,6 +3,6 @@
   "payload": {
     "code": "bounds_too_far",
     "message": "(|5g",
-    "messageType": "ready"
+    "messageType": "debug/markers"
   }
 }

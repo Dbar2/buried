@@ -61,11 +61,12 @@
               ]
             ]
           ]
-        }
+        },
+        "kind": "plate"
       },
       {
-        "sourceId": "5_8h_09h2",
-        "url": "/data/tiles/b9ll2n_x.jpg",
+        "sourceId": "a3_9_21_786",
+        "url": "/data/tiles/n_x.jpg",
         "corners": {
           "topLeft": [
             398959.424,
@@ -138,7 +139,8 @@
               ]
             ]
           ]
-        }
+        },
+        "kind": "aerial"
       }
     ]
   }

@@ -164,6 +164,7 @@ namespace Buried.Scene
                 string cls = GhostMaterials.ClassOf(feature.confidence);
                 var options = FootprintBuilder.Options.Default;
                 options.Outline = GhostMaterials.HasOutline(cls);
+                options.Storeys = feature.storeys; // 0 when none is recorded: no storey lines, and no count is invented
 
                 FootprintBuilder.Result built;
                 try

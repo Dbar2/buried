@@ -72,85 +72,10 @@
           ]
         },
         "confidence": "unknown",
-        "heightM": 118.876
+        "heightM": 118.876,
+        "storeys": 62
       }
     ],
-    "drapes": [
-      {
-        "sourceId": "9e",
-        "url": "/data/tiles/5h4rr_bezhh.jpg",
-        "corners": {
-          "topLeft": [
-            333796.135,
-            5300793.955
-          ],
-          "topRight": [
-            262055.329,
-            9211713.464
-          ],
-          "bottomRight": [
-            302087.668,
-            5261701.545
-          ],
-          "bottomLeft": [
-            185077.05,
-            4200994.372
-          ]
-        },
-        "widthPx": 10256,
-        "heightPx": 354
-      },
-      {
-        "sourceId": "3gsp76_8nsem_bx8n_p1097f",
-        "url": "/data/tiles/f_va9s19_0i2.jpg",
-        "corners": {
-          "topLeft": [
-            272366.157,
-            2789394.687
-          ],
-          "topRight": [
-            679296.701,
-            9051405.751
-          ],
-          "bottomRight": [
-            211918.697,
-            8388017.653
-          ],
-          "bottomLeft": [
-            616206.757,
-            7105732.774
-          ]
-        },
-        "widthPx": 10565,
-        "heightPx": 10303,
-        "clip": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [
-                426855.901,
-                6691545.986
-              ],
-              [
-                253139.199,
-                3490134.649
-              ],
-              [
-                449306.909,
-                44718.101
-              ],
-              [
-                434592.908,
-                9005463.137
-              ],
-              [
-                426855.901,
-                6691545.986
-              ]
-            ]
-          ]
-        }
-      }
-    ]
+    "drapes": []
   }
 }

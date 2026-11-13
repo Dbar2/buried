@@ -42,26 +42,32 @@
           ]
         },
         "confidence": "unknown",
-        "heightM": 691.513
+        "heightM": 691.513,
+        "storeys": 67
       },
       {
-        "id": "use_06ys68_ybm1s_8049",
+        "id": "use_6ys_xkyb_9218",
         "kind": "water",
         "geometry": {
           "type": "LineString",
           "coordinates": [
             [
-              699653.752,
-              7708597.801
+              247328.666,
+              1090497.374
             ],
             [
-              507706.831,
-              7299182.778
+              562548.047,
+              2062385.717
+            ],
+            [
+              419332.85,
+              7708597.801
             ]
           ]
         },
         "confidence": "documented",
-        "heightM": 141.347
+        "heightM": 136.807,
+        "storeys": 91
       }
     ]
   }

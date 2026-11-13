@@ -31,6 +31,9 @@ namespace Buried.Interop
                 case BridgeMessageTypes.SceneLoadEra: payload = Write((SceneLoadEraPayload)message.payload); break;
                 case BridgeMessageTypes.SceneAddFeatures: payload = Write((SceneAddFeaturesPayload)message.payload); break;
                 case BridgeMessageTypes.SceneSetDepth: payload = Write((SceneSetDepthPayload)message.payload); break;
+                case BridgeMessageTypes.SceneFocusLot: payload = Write((SceneFocusLotPayload)message.payload); break;
+                case BridgeMessageTypes.SceneClearLot: payload = new JObject(); break;
+                case BridgeMessageTypes.SceneSetDrapeMode: payload = Write((SceneSetDrapeModePayload)message.payload); break;
                 case BridgeMessageTypes.DebugMarkers: payload = Write((DebugMarkersPayload)message.payload); break;
                 case BridgeMessageTypes.DebugSetCamera: payload = Write((DebugSetCameraPayload)message.payload); break;
                 case BridgeMessageTypes.Ready: payload = Write((ReadyPayload)message.payload); break;
@@ -137,16 +140,30 @@ namespace Buried.Interop
             var features = new JArray();
             foreach (SceneFeatureDto f in list)
             {
-                features.Add(new JObject
+                var feature = new JObject
                 {
                     ["id"] = f.id,
                     ["kind"] = f.kind,
                     ["geometry"] = Write(f.geometry),
                     ["confidence"] = f.confidence,
                     ["heightM"] = Num(f.heightM),
-                });
+                };
+                if (f.storeys > 0) feature["storeys"] = f.storeys;
+                features.Add(feature);
             }
             return features;
+        }
+
+        private static JObject Write(SceneFocusLotPayload p)
+        {
+            return new JObject { ["lot"] = Write(p.lot) };
+        }
+
+        private static JObject Write(SceneSetDrapeModePayload p)
+        {
+            var o = new JObject { ["mode"] = p.mode };
+            if (p.sourceId != null) o["sourceId"] = p.sourceId;
+            return o;
         }
 
         private static JObject Write(SceneAddFeaturesPayload p)
@@ -175,6 +192,7 @@ namespace Buried.Interop
                     ["heightPx"] = d.heightPx,
                 };
                 if (d.clip != null) drape["clip"] = Write(d.clip);
+                if (d.kind != null) drape["kind"] = d.kind;
                 drapes.Add(drape);
             }
             return new JObject { ["eraId"] = p.eraId, ["features"] = features, ["drapes"] = drapes };

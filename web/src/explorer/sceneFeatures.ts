@@ -24,13 +24,20 @@ export function toSceneFeature(entry: EraFeature): SceneFeature | null {
   } else {
     heightM = Math.max(WATER_RIBBON_MIN_M, 2 * entry.positionErrorM);
   }
-  return {
+  const feature: SceneFeature = {
     id: entry.id,
     kind: entry.kind,
     geometry: entry.geometry as SceneFeature['geometry'],
     confidence: entry.confidence,
     heightM,
   };
+  // Bridge 0.5.0: a recorded storey count goes with the building so the Player draws one line per
+  // storey. Never a count that was not recorded (an unrecorded building has none and no lines).
+  if (entry.kind === 'building') {
+    const storeys = entry.attributes.storeys;
+    if (storeys !== undefined && Number.isInteger(storeys) && storeys >= 1 && storeys <= 100) feature.storeys = storeys;
+  }
+  return feature;
 }
 
 /** Every drawable scene feature of an Era list, in the list's order. */
