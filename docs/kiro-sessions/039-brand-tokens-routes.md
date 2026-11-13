@@ -70,7 +70,7 @@ needs a schema field that another session is adding.
 
 `npm --prefix web test -- <the files you touched>` and `npm --prefix web run typecheck`. At the
 end, once: `npm --prefix web test`, `npm --prefix web run build`, then
-`npm --prefix web run test:e2e:hosting`. Leave the long Unity-backed browser suites to the
+`cd web && npx playwright test -c playwright.hosting.config.ts`. Leave the long Unity-backed browser suites to the
 maintainer; say in your notes which of their expectations you changed.
 
 ## Notes file
