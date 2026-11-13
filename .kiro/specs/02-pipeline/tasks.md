@@ -181,13 +181,13 @@ task 16), 7, 8, 16, 11, 9.
     Requirements: 1.8.
 
 - [ ] 7. Extract footprint proposals (tune on plate 229 only)
-  - [ ] 7.1 Implement the parameter set loader with `TUNING_SOURCES = ("fip_v3_1911_229",
+  - [x] 7.1 Implement the parameter set loader with `TUNING_SOURCES = ("fip_v3_1911_229",
     "fip_v3_1935_229")` and the `tuned_on` check; add `params/v1.json` with placeholder values.
     Files: `pipeline/buried_pipeline/extract/__init__.py`,
     `pipeline/buried_pipeline/extract/params.py`, `pipeline/buried_pipeline/extract/params/v1.json`,
     `pipeline/tests/extract/test_params.py`.
     Requirements: 8.4, 9.1.
-  - [ ] 7.2 Write the held-out guard test exactly as in design.md "Tuning fixtures and the held-out
+  - [x] 7.2 Write the held-out guard test exactly as in design.md "Tuning fixtures and the held-out
     guard". It must pass on an empty fixture directory and fail on planted bad fixtures created in a
     temp dir by the test itself.
     Files: `pipeline/tests/extract/test_held_out.py`.

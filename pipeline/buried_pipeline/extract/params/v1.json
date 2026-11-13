@@ -1,0 +1,24 @@
+{
+  "id": "v1",
+  "note": "Placeholder values. Real values are set during tuning (spec 02 task 7.10).",
+  "tuned_on": ["fip_v3_1911_229", "fip_v3_1935_229"],
+  "working_pixel_size_m": 0.0,
+  "normalise": { "window_m": 0.0, "clip_limit": 0.0 },
+  "outline": { "max_grey": 0.0, "closing_kernel_m": 0.0 },
+  "tone": {
+    "light_min": 0.0,
+    "dark_max": 0.0,
+    "hatch_min": 0.0,
+    "hatch_min_density": 0.0,
+    "mixed_spread": 0.0
+  },
+  "text": { "max_mark_area_m2": 0.0 },
+  "regions": {
+    "min_area_m2": 0.0,
+    "max_area_m2": 0.0,
+    "hole_fill_m2": 0.0,
+    "min_outline_closure": 0.0
+  },
+  "simplify_tolerance_m": 0.0,
+  "fixture_baseline": {}
+}
