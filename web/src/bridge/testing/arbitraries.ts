@@ -78,6 +78,7 @@ const sceneFeatureArb = fc
   .tuple(
     fc.oneof(
       fc.record({ id: featureIdArb, kind: fc.constant('building'), geometry: polygonalGeometry, confidence: confidenceArb, heightM: heightArb }),
+      fc.record({ id: featureIdArb, kind: fc.constant('land_use'), geometry: polygonalGeometry, confidence: confidenceArb, heightM: heightArb }),
       fc.record({ id: featureIdArb, kind: fc.constant('water'), geometry: anyGeometry, confidence: confidenceArb, heightM: heightArb }),
     ),
     storeysArb,

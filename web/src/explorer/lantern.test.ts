@@ -9,6 +9,7 @@ import {
   buildSetLantern,
   buildShowEvidence,
   lanternEra,
+  lanternHelp,
   lanternLabel,
   moveByKey,
   toScreenPoint,
@@ -114,6 +115,22 @@ describe('the Lantern control label', () => {
   it('is just "Lantern" when the lens era has no drape or the source is unknown', () => {
     expect(lanternLabel(sources, [])).toBe('Lantern');
     expect(lanternLabel(sources, [{ sourceId: 'nope' }])).toBe('Lantern');
+  });
+});
+
+describe('the Lantern help line', () => {
+  const sources = new Map([
+    ['fip_v3_1935_229', { id: 'fip_v3_1935_229', type: 'fire_insurance_plan', year_from: 1931, year_to: 1935 }],
+  ]) as unknown as SourceIndex;
+
+  it('names the keys, the touch gesture and the plan inside the circle, with no id', () => {
+    const line = lanternHelp(sources, [{ sourceId: 'fip_v3_1935_229' }]);
+    expect(line).toBe('Hold Space or press L (on a touch screen, press and hold) to see the 1931-35 plan inside a circle.');
+    expect(line).not.toMatch(/fip_|_229/);
+  });
+
+  it('still reads as one plain line when there is no drape to name', () => {
+    expect(lanternHelp(sources, [])).toBe('Hold Space or press L (on a touch screen, press and hold) to see an older view inside a circle.');
   });
 });
 

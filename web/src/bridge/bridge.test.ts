@@ -30,7 +30,7 @@ function fakeUnity() {
 
 describe('the schema', () => {
   it('has the version this module reports', () => {
-    expect(BRIDGE_VERSION).toBe('0.6.0');
+    expect(BRIDGE_VERSION).toBe('0.7.0');
   });
 
   it('has one message definition and one payload definition per message type', () => {
@@ -129,7 +129,7 @@ describe('checkMessage', () => {
       JSON.stringify({
         type: 'scene/init',
         payload: {
-          bridgeVersion: '0.6.0',
+          bridgeVersion: '0.7.0',
           origin: { easting: 632500, northing: 4835000 },
           bounds: { minE: 631900, minN: 4834400, maxE: 633200, maxN: 4835600 },
           initialView: { minE: 632000, minN: 4834500, maxE: 633100, maxN: 4835500 },

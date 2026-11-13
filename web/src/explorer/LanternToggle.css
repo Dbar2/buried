@@ -16,3 +16,7 @@
   background: var(--ink);
   color: var(--night);
 }
+
+.lantern-toggle-word {
+  white-space: nowrap;
+}

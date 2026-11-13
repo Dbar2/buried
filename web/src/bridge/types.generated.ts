@@ -152,7 +152,7 @@ export interface SceneInitMessage {
  * via the `definition` "sceneInitPayload".
  */
 export interface SceneInitPayload {
-  bridgeVersion: '0.6.0';
+  bridgeVersion: '0.7.0';
   origin: OriginPoint;
   bounds: SceneBounds;
   initialView: Rect;
@@ -262,14 +262,14 @@ export interface SceneLoadEraPayload {
   drapes: Drape[];
 }
 /**
- * What the Player needs to draw one feature of an era. A building has polygon geometry; water may be any of the four geometry types.
+ * What the Player needs to draw one feature of an era. A building or a land-use area has polygon geometry; water may be any of the four geometry types. A land_use area (0.7.0) is drawn flat on the ground as a hatched `ink` fill at low opacity with a thin outline, under the ghosts, and can be clicked: the Player draws it as a sheet a few centimetres thick whatever heightM says (the Shell sends 0.05), and nothing of it rises.
  *
  * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
  * via the `definition` "sceneFeature".
  */
 export interface SceneFeature {
   id: FeatureId;
-  kind: 'building' | 'water';
+  kind: 'building' | 'water' | 'land_use';
   geometry: Geometry;
   confidence: 'documented' | 'estimated' | 'unknown';
   heightM: number;
@@ -696,7 +696,7 @@ export interface ReadyMessage {
  * via the `definition` "readyPayload".
  */
 export interface ReadyPayload {
-  bridgeVersion: '0.6.0';
+  bridgeVersion: '0.7.0';
   unityVersion: string;
 }
 /**

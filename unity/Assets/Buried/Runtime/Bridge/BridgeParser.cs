@@ -232,12 +232,13 @@ namespace Buried.Interop
         {
             JObject o = JsonFields.Object(t, p);
             JsonFields.ExactlyWithOptional(o, p, new[] { "id", "kind", "geometry", "confidence", "heightM" }, new[] { "storeys" });
-            string kind = JsonFields.OneOf(o, "kind", p, SceneFeatureDto.KindBuilding, SceneFeatureDto.KindWater);
+            string kind = JsonFields.OneOf(o, "kind", p, SceneFeatureDto.KindBuilding, SceneFeatureDto.KindWater, SceneFeatureDto.KindLandUse);
             return new SceneFeatureDto
             {
                 id = JsonFields.Matching(o, "id", p, JsonFields.FeatureIdPattern),
                 kind = kind,
-                geometry = ParseGeometry(o["geometry"], p + ".geometry", kind == SceneFeatureDto.KindBuilding),
+                geometry = ParseGeometry(
+                    o["geometry"], p + ".geometry", kind == SceneFeatureDto.KindBuilding || kind == SceneFeatureDto.KindLandUse),
                 confidence = JsonFields.OneOf(o, "confidence", p, "documented", "estimated", "unknown"),
                 heightM = JsonFields.NumberIn(o, "heightM", p, 0.0, 1000.0, true),
                 storeys = o["storeys"] == null ? 0 : JsonFields.IntegerIn(o, "storeys", p, 1, 100),

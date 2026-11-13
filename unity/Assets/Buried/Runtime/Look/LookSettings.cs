@@ -194,5 +194,36 @@ namespace Buried.Look
         /// <summary>Show Evidence: the untouched scan is shown this far (m) around the ghost's footprint box, and the ghost's own fill is left at this alpha.</summary>
         public const float EvidenceMarginM = 4f;
         public const float EvidenceFillAlpha = 0.05f;
+
+        // ---- Land-use areas (bridge 0.7.0, session 034) ----
+        // An area is drawn flat on the ground: diagonal `ink` stripes, each with a `night` casing so the stripes
+        // read on a pale plate and on the dark ground (and in a greyscale screenshot), over a faint `ink` tint,
+        // with the class's thin outline. It sits above the drapes and under every ghost.
+
+        /// <summary>The thickness of the sheet an area is drawn as. The Player ignores any height it is sent for an area.</summary>
+        public const float AreaHeightM = 0.05f;
+
+        /// <summary>Render queues: the fill is above the drapes (2900 and up, Show Evidence's patch at 2990) and the outline above the fill.</summary>
+        public const int AreaFillQueue = 2950;
+        public const int AreaEdgeQueue = 2955;
+
+        /// <summary>
+        /// The stripe period in metres, and the shortest it is allowed on screen in CSS pixels. Where the metre period
+        /// would be finer than the pixel period, the period doubles until it is not (octaves, so it does not shimmer).
+        /// </summary>
+        public const float AreaHatchPeriodM = 2.5f;
+        public const float AreaHatchPeriodCssPx = 12f;
+
+        /// <summary>A stripe's `ink` core as a share of the period, and the `night` casing each side of it as a share of the period.</summary>
+        public const float AreaHatchInkShare = 0.30f;
+        public const float AreaHatchCasingShare = 0.11f;
+
+        /// <summary>The alpha between the stripes, as a share of the stripe alpha.</summary>
+        public const float AreaHatchGapShare = 0.2f;
+
+        /// <summary>Stripe alpha by confidence class: low opacity, and lighter the less sure the record is.</summary>
+        public const float AreaDocumentedAlpha = 0.6f;
+        public const float AreaEstimatedAlpha = 0.4f;
+        public const float AreaUnknownAlpha = 0.26f;
     }
 }

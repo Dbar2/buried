@@ -55,6 +55,8 @@ namespace Buried.Scene
         private sealed class ClassGroup
         {
             public readonly string Class;
+            /// <summary>True for land-use areas: hatched sheets, not volumes.</summary>
+            public readonly bool Area;
             public readonly List<MeshChunk> Chunks = new List<MeshChunk>();
             public readonly List<MeshData> EdgeChunks = new List<MeshData>();
             public readonly Material Fill;
@@ -62,11 +64,13 @@ namespace Buried.Scene
             private MeshChunk _chunk;
             private MeshData _edgeChunk;
 
-            public ClassGroup(string cls, GhostMaterials materials, string name)
+            public ClassGroup(string cls, GhostMaterials materials, string name, bool area)
             {
                 Class = cls;
-                Fill = new Material(materials.FillOf(cls)) { name = materials.FillOf(cls).name + " " + name };
-                Material edge = materials.EdgeOf(cls);
+                Area = area;
+                Material fill = area ? materials.AreaFillOf(cls) : materials.FillOf(cls);
+                Fill = new Material(fill) { name = fill.name + " " + name };
+                Material edge = area ? materials.AreaEdgeOf(cls) : materials.EdgeOf(cls);
                 if (edge != null) Edge = new Material(edge) { name = edge.name + " " + name };
             }
 
@@ -146,13 +150,40 @@ namespace Buried.Scene
             _materials = materials;
             var groups = new Dictionary<string, ClassGroup>();
             FeatureCount += Build(features, frame, groups, EraId, onFailure, false);
-            foreach (string cls in GhostMaterials.Classes)
+            foreach (string key in GroupKeys)
             {
                 ClassGroup group;
-                if (!groups.TryGetValue(cls, out group)) continue;
+                if (!groups.TryGetValue(key, out group)) continue;
                 _groups.Add(group);
                 AddRenderers(group, "");
             }
+        }
+
+        /// <summary>The key of a group: the confidence class, with a prefix for land-use areas (which draw with other materials).</summary>
+        private static string KeyOf(string cls, bool area)
+        {
+            return area ? AreaKeyPrefix + cls : cls;
+        }
+
+        private const string AreaKeyPrefix = "area ";
+
+        /// <summary>Every group key in draw order: the buildings' classes, then the areas'.</summary>
+        private static IEnumerable<string> GroupKeys
+        {
+            get
+            {
+                foreach (string cls in GhostMaterials.Classes) yield return KeyOf(cls, false);
+                foreach (string cls in GhostMaterials.Classes) yield return KeyOf(cls, true);
+            }
+        }
+
+        /// <summary>
+        /// The height a feature is built to. A land-use area is a flat sheet whatever height it was sent
+        /// (<see cref="Buried.Look.LookSettings.AreaHeightM"/>): nothing of it rises.
+        /// </summary>
+        private static float HeightOf(SceneFeatureDto feature)
+        {
+            return feature.kind == SceneFeatureDto.KindLandUse ? Buried.Look.LookSettings.AreaHeightM : (float)feature.heightM;
         }
 
         /// <summary>Builds the features into per-class groups. Returns how many were drawn.</summary>
@@ -167,7 +198,8 @@ namespace Buried.Scene
             int added = 0;
             foreach (SceneFeatureDto feature in features)
             {
-                if (feature.kind != SceneFeatureDto.KindBuilding) continue;
+                bool area = feature.kind == SceneFeatureDto.KindLandUse;
+                if (feature.kind != SceneFeatureDto.KindBuilding && !area) continue;
                 if (skipKnownIds && _ids.Contains(feature.id))
                 {
                     onFailure(feature.id, "the era already draws this feature");
@@ -177,12 +209,12 @@ namespace Buried.Scene
                 string cls = GhostMaterials.ClassOf(feature.confidence);
                 var options = FootprintBuilder.Options.Default;
                 options.Outline = GhostMaterials.HasOutline(cls);
-                options.Storeys = feature.storeys; // 0 when none is recorded: no storey lines, and no count is invented
+                options.Storeys = area ? 0 : feature.storeys; // 0 when none is recorded: no storey lines, and no count is invented
 
                 FootprintBuilder.Result built;
                 try
                 {
-                    built = FootprintBuilder.Build(feature.geometry, (float)feature.heightM, frame, options);
+                    built = FootprintBuilder.Build(feature.geometry, HeightOf(feature), frame, options);
                 }
                 catch (InvalidOperationException e)
                 {
@@ -196,10 +228,11 @@ namespace Buried.Scene
                 }
 
                 ClassGroup group;
-                if (!groups.TryGetValue(cls, out group))
+                string key = KeyOf(cls, area);
+                if (!groups.TryGetValue(key, out group))
                 {
-                    group = new ClassGroup(cls, _materials, groupName);
-                    groups[cls] = group;
+                    group = new ClassGroup(cls, _materials, groupName, area);
+                    groups[key] = group;
                 }
                 group.Add(feature.id, built);
                 _ids.Add(feature.id);
@@ -212,17 +245,19 @@ namespace Buried.Scene
         private void AddRenderers(ClassGroup group, string prefix)
         {
             SetLensMode(group);
+            string fillName = group.Area ? "Areas " : "Ghosts ";
+            string edgeName = group.Area ? "Area edges " : "Edges ";
             int n = 0;
             foreach (MeshChunk c in group.Chunks)
             {
-                MeshFilter filter = AddRenderer(prefix + "Ghosts " + group.Class + " " + n, c.BuildMesh("Ghosts " + EraId + " " + group.Class + " " + n), group.Fill);
+                MeshFilter filter = AddRenderer(prefix + fillName + group.Class + " " + n, c.BuildMesh(fillName + EraId + " " + group.Class + " " + n), group.Fill);
                 _chunkFilters[c] = filter;
                 n++;
             }
             n = 0;
             foreach (MeshData e in group.EdgeChunks)
             {
-                AddRenderer(prefix + "Edges " + group.Class + " " + n, e.ToMesh("Edges " + EraId + " " + group.Class + " " + n), group.Edge);
+                AddRenderer(prefix + edgeName + group.Class + " " + n, e.ToMesh(edgeName + EraId + " " + group.Class + " " + n), group.Edge);
                 n++;
             }
         }
@@ -247,10 +282,10 @@ namespace Buried.Scene
                 return 0;
             }
 
-            foreach (string cls in GhostMaterials.Classes)
+            foreach (string key in GroupKeys)
             {
                 ClassGroup group;
-                if (!groups.TryGetValue(cls, out group)) continue;
+                if (!groups.TryGetValue(key, out group)) continue;
                 batch.Groups.Add(group);
                 AddRenderers(group, "Added ");
             }
@@ -400,7 +435,7 @@ namespace Buried.Scene
 
             var options = FootprintBuilder.Options.Default;
             options.Outline = false;
-            FootprintBuilder.Result built = FootprintBuilder.Build(feature.geometry, (float)feature.heightM, frame, options);
+            FootprintBuilder.Result built = FootprintBuilder.Build(feature.geometry, HeightOf(feature), frame, options);
             if (built == null) return false;
 
             _evidenceId = featureId;

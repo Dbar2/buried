@@ -5,7 +5,7 @@
     "features": [
       {
         "id": "use_69n_8528",
-        "kind": "building",
+        "kind": "water",
         "geometry": {
           "type": "Polygon",
           "coordinates": [

@@ -6,13 +6,18 @@
  *
  * Run after `npm run build`: `npx playwright test -c playwright.landuse.config.ts` (the config starts
  * the Studio service on port 8766 and `vite preview` on 4184, and never reuses a server).
- * Screenshots: web/e2e/output/landuse-studio.png and landuse-place.png.
+ * Screenshots: web/e2e/output/landuse-studio.png, landuse-place.png (no Player) and scene-area.png (the Player draws the area,
+ * session 034; with scene-area.json and scene-area-frame-times-*.json).
  */
-import { mkdirSync, readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { expect, test } from '@playwright/test';
+import { chromium, expect, test } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
+import { centroid, measureArea } from './support/areaPixels';
+import type { P } from './support/areaPixels';
+import { project as projectPoint } from './support/drapeMath';
+import { flyDebugCamera, frameTimes, sceneOnlyPng, settleCamera } from './support/scene';
 
 const PLATE = 'fip_v3_1911_229';
 const WEB = fileURLToPath(new URL('..', import.meta.url));
@@ -86,7 +91,7 @@ async function mouseOnPlate(page: Page, canvas: Locator, [x, y]: [number, number
 }
 
 test('trace a land-use area, publish it, and read it on the place page', async ({ page }) => {
-  test.setTimeout(420_000);
+  test.setTimeout(900_000);
   mkdirSync(OUTPUT, { recursive: true });
   const lot = lotUnderTheYard();
 
@@ -253,4 +258,101 @@ test('trace a land-use area, publish it, and read it on the place page', async (
   expect(tones.light, 'the crop holds paper').toBeGreaterThan(50);
   await page.waitForTimeout(400);
   await page.screenshot({ path: join(OUTPUT, 'landuse-place.png') });
+
+  // ---- The place page with the Player: the area is drawn on the ground (bridge 0.7.0, session 034) ----
+  // The picture with the area is compared with the picture of the same view without it (`?areas=0`): inside the
+  // area the difference is the hatching, read here in greyscale, and outside it there is none.
+  const scene = await page.context().newPage();
+  // The workspace with its one area, kept for the frame-rate run below and for looking at the scene again by hand.
+  const workspaceState = await page.context().storageState({ indexedDB: true });
+  writeFileSync(join(OUTPUT, 'landuse-workspace-state.json'), JSON.stringify(workspaceState));
+  writeFileSync(join(OUTPUT, 'landuse-lot.txt'), lot);
+  const sceneUrl = `/place?lot=${encodeURIComponent(lot)}&era=1911&debug=1&markers=0`;
+  const sidecar = readJson<Sidecar>('tiles', `${PLATE}.json`);
+  const origin = readJson<{ origin: { easting: number; northing: number } }>('project.json').origin;
+  const yardWorld = YARD.map(([x, y]) => plateToWorld(sidecar, x, y));
+  const yardCentre: [number, number] = [yardWorld.reduce((s, p) => s + p[0], 0) / yardWorld.length, yardWorld.reduce((s, p) => s + p[1], 0) / yardWorld.length];
+
+  // The camera is flown over the yard, so it fills enough of the canvas to measure (the debug camera; `debug=1`).
+  async function openScene(target: string) {
+    await scene.goto(target);
+    await expect(scene.getByTestId('report')).toBeVisible({ timeout: 60_000 });
+    await expect(scene.getByTestId('view')).toHaveAttribute('data-player-ready', 'true', { timeout: 150_000 });
+    await expect(scene.getByTestId('view')).toHaveAttribute('data-eras-loaded', /1911/, { timeout: 150_000 });
+    await settleCamera(scene);
+    return flyDebugCamera(scene, { target: yardCentre, distanceM: 70, pitchDeg: 55, headingDeg: 20 });
+  }
+
+  const camera = await openScene(sceneUrl);
+  await expect(scene.getByTestId('view')).toHaveAttribute('data-workspace-features', '1');
+  const ring: P[] = yardWorld.map(([e, n]) => projectPoint(camera.viewProjection, camera.canvas, e - origin.easting, 0, n - origin.northing) as P);
+  const withArea = await sceneOnlyPng(scene);
+  await scene.screenshot({ path: join(OUTPUT, 'scene-area.png') });
+
+  const cameraWithout = await openScene(`${sceneUrl}&areas=0`);
+  expect(cameraWithout.viewProjection, 'the same view with and without the area').toEqual(camera.viewProjection);
+  const withoutArea = await sceneOnlyPng(scene);
+
+  const measure = measureArea(withArea, withoutArea, ring, { shrink: 0.6, margin: 40, threshold: 8, amplitude: 12, minRowPixels: 24 });
+  writeFileSync(join(OUTPUT, 'scene-area.json'), `${JSON.stringify({ ring, ...measure }, null, 2)}\n`);
+  console.log(
+    `area on the ground: ${measure.insidePixels} px inside, ${(100 * measure.insideChanged).toFixed(1)}% changed, ${measure.swingsPerRow.toFixed(1)} stripe edges per row (${measure.rows} rows); ` +
+      `${measure.outsidePixels} px away from it, ${(100 * measure.outsideChanged).toFixed(2)}% changed`,
+  );
+  expect(measure.insidePixels, 'the area is on the canvas and big enough to measure').toBeGreaterThan(2000);
+  expect(measure.insideChanged, 'the hatching changes the picture inside the area').toBeGreaterThanOrEqual(0.15);
+  expect(measure.swingsPerRow, 'stripes: the greyscale difference swings along a row (measured 2.9: about one stripe period across the inner region of a row)').toBeGreaterThanOrEqual(2.5);
+  expect(measure.outsideChanged, 'nothing else changes').toBeLessThanOrEqual(0.002);
+
+  // It can be clicked: the card opens on the area, and Show Evidence works on it.
+  await openScene(sceneUrl);
+  const centre = centroid(ring);
+  const canvasBox = (await scene.getByTestId('unity-canvas').boundingBox())!;
+  await scene.mouse.click(canvasBox.x + centre[0], canvasBox.y + centre[1]);
+  await expect(scene.getByTestId('evidence-card')).toBeVisible({ timeout: 20_000 });
+  await expect(scene.getByTestId('card-heading')).toHaveText(USE);
+  await expect(scene.getByTestId('card-confidence')).toContainText('traced from the 1911 plan');
+  await expect(scene.getByTestId('card-confidence')).not.toContainText(PLATE);
+  await scene.waitForTimeout(1500);
+  const beforeEvidence = await sceneOnlyPng(scene);
+  await scene.getByTestId('show-evidence').click();
+  await scene.waitForTimeout(2500);
+  const evidence = measureArea(await sceneOnlyPng(scene), beforeEvidence, ring, { shrink: 0.6, margin: 40, threshold: 8, amplitude: 12, minRowPixels: 24 });
+  expect(evidence.insideChanged, 'Show Evidence changes the picture under the area').toBeGreaterThanOrEqual(0.1);
+  await scene.getByTestId('show-evidence').click();
+  await scene.keyboard.press('Escape');
+  await expect(scene.getByTestId('evidence-card')).toHaveCount(0);
+  await scene.close();
+
+  // ---- Frame rate: a GPU Chromium, with the area in the scene (the workspace travels as storage state) ----
+  const storage = workspaceState;
+  const hardware = await chromium.launch({ headless: true, args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
+  try {
+    for (const rate of [1, 4]) {
+      const context = await hardware.newContext({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1, baseURL: baseUrlOf(page), storageState: storage });
+      const gpu = await context.newPage();
+      try {
+        await gpu.goto(sceneUrl);
+        await expect(gpu.getByTestId('view')).toHaveAttribute('data-player-ready', 'true', { timeout: 150_000 });
+        await expect(gpu.getByTestId('view')).toHaveAttribute('data-eras-loaded', /1911/, { timeout: 150_000 });
+        await expect(gpu.getByTestId('view')).toHaveAttribute('data-workspace-features', '1');
+        await settleCamera(gpu);
+        const cdp = await context.newCDPSession(gpu);
+        await cdp.send('Emulation.setCPUThrottlingRate', { rate });
+        await gpu.waitForTimeout(1500);
+        const stats = await frameTimes(gpu, 4000);
+        console.log(`GPU, ${rate}x throttle, area on screen: ${stats.meanFps.toFixed(1)} fps mean, p95 ${stats.p95Ms.toFixed(1)} ms (${stats.frames} frames)`);
+        writeFileSync(join(OUTPUT, `scene-area-frame-times-${rate}x.json`), `${JSON.stringify(stats, null, 2)}\n`);
+        expect(stats.meanFps, `fps with the area on screen, ${rate}x throttle`).toBeGreaterThanOrEqual(rate === 1 ? 60 : 30);
+      } finally {
+        await context.close();
+      }
+    }
+  } finally {
+    await hardware.close();
+  }
 });
+
+function baseUrlOf(page: Page): string {
+  return new URL(page.url()).origin;
+}

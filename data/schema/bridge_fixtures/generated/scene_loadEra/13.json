@@ -93,7 +93,7 @@
       },
       {
         "id": "use_66p8d_3102",
-        "kind": "building",
+        "kind": "land_use",
         "geometry": {
           "type": "Polygon",
           "coordinates": [
@@ -149,7 +149,7 @@
       },
       {
         "id": "use_iu4kx_3iy63_t2599_9914",
-        "kind": "building",
+        "kind": "land_use",
         "geometry": {
           "type": "MultiPolygon",
           "coordinates": [

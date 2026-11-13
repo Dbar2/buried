@@ -13,7 +13,7 @@ namespace Buried.Scene
     /// <summary>
     /// Handles the Shell's messages and builds the scene from them. It draws what it is told: it never
     /// computes dates, confidence or lot relations, and it never filters the features of an era.
-    /// Bridge 0.6.0: scene/init, scene/loadEra, scene/addFeatures, scene/setDepth, scene/focusLot, scene/clearLot,
+    /// Bridge 0.7.0: scene/init, scene/loadEra, scene/addFeatures, scene/setDepth, scene/focusLot, scene/clearLot,
     /// scene/setDrapeMode, scene/setLantern, scene/showEvidence, debug/markers and debug/setCamera.
     /// The depth is a fraction while the Shell tweens between eras; each era is drawn at its weight
     /// (DepthBlend) and the present buildings drain to a faint outline.

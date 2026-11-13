@@ -12,6 +12,10 @@ export type PlaceCardProps = {
   canViewOriginal: boolean;
   original: boolean;
   onToggleOriginal: () => void;
+  /** Whether Show Evidence is possible for this building (the era is on screen, its source has a scan). */
+  canShowEvidence: boolean;
+  evidenceShown: boolean;
+  onToggleEvidence: () => void;
 };
 
 const CROP_PX = 280;
@@ -22,7 +26,7 @@ const CROP_PX = 280;
  * report. The heading takes focus when the card opens and the opener gets it back on close. Escape
  * closes.
  */
-export function PlaceCard({ card, confidence, onClose, canViewOriginal, original, onToggleOriginal }: PlaceCardProps) {
+export function PlaceCard({ card, confidence, onClose, canViewOriginal, original, onToggleOriginal, canShowEvidence, evidenceShown, onToggleEvidence }: PlaceCardProps) {
   const heading = useRef<HTMLHeadingElement>(null);
   const opener = useRef<Element | null>(null);
 
@@ -89,11 +93,18 @@ export function PlaceCard({ card, confidence, onClose, canViewOriginal, original
       <p className="place-card-source small" data-testid="card-source">
         From {card.source.name}. <span className="mono">{card.source.id}</span>. {card.source.attributionLine}
       </p>
-      {canViewOriginal && (
-        <p>
-          <button type="button" className="primary" aria-pressed={original} onClick={onToggleOriginal} data-testid="view-original">
-            {original ? 'Back to the lit map' : 'View original scan'}
-          </button>
+      {(canViewOriginal || canShowEvidence) && (
+        <p className="place-card-scan-buttons">
+          {canShowEvidence && (
+            <button type="button" aria-pressed={evidenceShown} onClick={onToggleEvidence} data-testid="show-evidence">
+              {evidenceShown ? 'Hide the scan under this building' : 'Show the scan under this building'}
+            </button>
+          )}
+          {canViewOriginal && (
+            <button type="button" className="primary" aria-pressed={original} onClick={onToggleOriginal} data-testid="view-original">
+              {original ? 'Back to the lit map' : 'View original scan'}
+            </button>
+          )}
         </p>
       )}
     </section>

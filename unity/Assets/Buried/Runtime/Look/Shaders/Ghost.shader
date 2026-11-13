@@ -19,6 +19,13 @@ Shader "Buried/Ghost"
         _Soft ("Soft volume (0 or 1)", Range(0, 1)) = 0
         _SoftHeight ("Soft volume: height over which it thins (m)", Float) = 9
         _SoftRoofShare ("Soft volume: share of the alpha left at the top", Range(0, 1)) = 0.25
+        _Hatch ("Hatched sheet for a land-use area (0 or 1)", Range(0, 1)) = 0
+        _HatchPeriodM ("Hatch: stripe period (m)", Float) = 2.5
+        _HatchPeriodPx ("Hatch: shortest stripe period on screen (px)", Float) = 10
+        _HatchInk ("Hatch: share of the period that is the ink core", Range(0.02, 0.9)) = 0.26
+        _HatchCasing ("Hatch: share of the period of the casing each side", Range(0, 0.3)) = 0.09
+        _HatchGap ("Hatch: alpha between the stripes, as a share of the stripe alpha", Range(0, 1)) = 0.2
+        _CasingColor ("Hatch: casing colour", Color) = (0, 0, 0, 1)
         [HideInInspector] _LensMode ("Lantern lens: 0 everywhere, 1 inside, 2 outside", Float) = 0
         [HideInInspector] _SrcBlend ("Src blend", Float) = 5
         [HideInInspector] _DstBlend ("Dst blend", Float) = 10
@@ -52,6 +59,13 @@ Shader "Buried/Ghost"
                 half _Soft;
                 float _SoftHeight;
                 half _SoftRoofShare;
+                half _Hatch;
+                float _HatchPeriodM;
+                float _HatchPeriodPx;
+                half _HatchInk;
+                half _HatchCasing;
+                half _HatchGap;
+                half4 _CasingColor;
                 half _LensMode;
             CBUFFER_END
 
@@ -87,6 +101,29 @@ Shader "Buried/Ghost"
             half4 frag(Varyings input) : SV_Target
             {
                 BuriedLensClip(input.positionCS, _LensMode);
+                if (_Hatch > 0.5)
+                {
+                    // A land-use area: diagonal stripes on the ground, an `ink` core with a casing each side (so the
+                    // stripe reads on a pale plate and on dark ground, and in greyscale), over a faint tint. The
+                    // stripe coordinate runs along x + z, so the lines are diagonal whatever way the camera faces.
+                    // The period is _HatchPeriodM, doubled until a period is at least _HatchPeriodPx pixels wide
+                    // (metres per pixel from the screen derivatives of the ground position), so stripes never
+                    // shrink to the pixel grid; octave steps keep it from shimmering as the camera moves.
+                    float metresPerPixel = max(fwidth(input.positionWS.x) + fwidth(input.positionWS.z), 1e-4);
+                    float octaves = ceil(log2(max(_HatchPeriodPx * metresPerPixel / max(_HatchPeriodM, 1e-3), 1.0)));
+                    float period = _HatchPeriodM * exp2(octaves);
+                    float s = (input.positionWS.x + input.positionWS.z) / period;
+                    float t = abs(frac(s) - 0.5); // 0 at a stripe's centre, 0.5 halfway between two
+                    float aa = max(fwidth(s), 1e-4);
+                    float coreHalf = 0.5 * _HatchInk;
+                    float casingHalf = coreHalf + _HatchCasing;
+                    float core = 1.0 - smoothstep(coreHalf - aa, coreHalf + aa, t);
+                    float cased = 1.0 - smoothstep(casingHalf - aa, casingHalf + aa, t);
+                    half3 stripe = lerp(_CasingColor.rgb, _Color.rgb * (1.0 + _Emission), core);
+                    half3 hatchRgb = BuriedApplyFog(stripe, input.transmission);
+                    half hatchAlpha = _Color.a * _Weight * lerp(_HatchGap, 1.0, cased);
+                    return half4(hatchRgb, hatchAlpha);
+                }
                 half3 n = normalize(input.normalWS);
                 half lit = saturate(dot(n, normalize(half3(0.6, 0.7, 0.35))));
                 half3 rgb = _Color.rgb * lerp(1.0, 0.6 + 0.4 * lit, _Shade) + _Color.rgb * _Emission;

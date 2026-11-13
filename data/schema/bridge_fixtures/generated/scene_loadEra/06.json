@@ -5,7 +5,7 @@
     "features": [
       {
         "id": "use_q9d4n_exz0q_n4_3835",
-        "kind": "water",
+        "kind": "land_use",
         "geometry": {
           "type": "Polygon",
           "coordinates": [

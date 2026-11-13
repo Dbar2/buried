@@ -149,7 +149,7 @@ describe('plain words on the rendered place page', () => {
         for (const entry of list.features) {
           const card = buildPlaceCard(entry, model.features.get(entry.id)!, model.sources, model.tiles, model.workspaceFeatureIds.has(entry.id) ? 'workspace' : 'canon');
           const html = renderToStaticMarkup(
-            <PlaceCard card={card} confidence={entry.confidence} onClose={() => {}} canViewOriginal original={false} onToggleOriginal={() => {}} />,
+            <PlaceCard card={card} confidence={entry.confidence} onClose={() => {}} canViewOriginal original={false} onToggleOriginal={() => {}} canShowEvidence evidenceShown={false} onToggleEvidence={() => {}} />,
           );
           expectPlain(`${name}, card for ${entry.id}`, html);
           cards += 1;

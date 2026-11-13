@@ -23,10 +23,11 @@ import type { GateModel } from './gateModel';
 import { INITIAL_PLAYER_STATE } from './playerState';
 import type { PlayerState } from './playerState';
 import { lotPolygon } from './pinnedLot';
-import { lanternEra, lanternLabel } from './lantern';
+import { lanternEra, lanternHelp, lanternLabel } from './lantern';
 import { LanternToggle } from './LanternToggle';
 import { evidenceCommand } from './showEvidence';
 import { useLantern } from './useLantern';
+import { useSeenOnce } from './useSeenOnce';
 import { PRESENT_BUILDINGS_SOURCE } from './presentBuildings';
 import { fallbackPlan, fallbackReason } from './sceneFallback';
 import { useDepth } from './useDepth';
@@ -59,6 +60,8 @@ export type PlaceBinding = {
   onEraShown: (eraId: string, label: string) => void;
   onStage: (stage: StageKind) => void;
   drapeMode: 'lit' | 'original';
+  /** Show the untouched scan beneath the selected building (the card's toggle). Off when nothing is selected. */
+  showEvidence: boolean;
   /** Asks the Explorer to go to an era. `n` changes with every request, so the same era can be asked for twice. */
   eraRequest: { id: string; n: number } | null;
 };
@@ -95,6 +98,8 @@ export function Explorer({
   onScene?: (state: SceneState) => void;
 }) {
   const debug = useMemo(() => new URLSearchParams(window.location.search).get('debug') === '1', []);
+  // `?areas=0` leaves the land-use areas out of the scene (a test aid). Read once: the place page rewrites its address later.
+  const areasWanted = useMemo(() => new URLSearchParams(window.location.search).get('areas') !== '0', []);
   const reducedMotion = useMemo(
     () => typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     [],
@@ -231,8 +236,21 @@ export function Explorer({
     () => (model && lensEra !== null ? lanternLabel(model.sources, model.drapes.get(lensEra) ?? []) : 'Lantern'),
     [model, lensEra],
   );
+  const lensHelp = useMemo(
+    () => (model && lensEra !== null ? lanternHelp(model.sources, model.drapes.get(lensEra) ?? []) : null),
+    [model, lensEra],
+  );
   const lantern = useLantern({ viewRef, enabled: settled === 0 && player.running, eraId: lensEra });
-  const evidenceId = useMemo(() => new URLSearchParams(window.location.search).get('showEvidence'), []);
+  // One line of help the first time the control is on screen; it goes once the lens has been used.
+  const lanternSeen = useSeenOnce('buried.lanternHelpSeen');
+  const lensUsed = lantern.command?.on === true;
+  const markLanternSeen = lanternSeen.markSeen;
+  useEffect(() => {
+    if (lensUsed) markLanternSeen();
+  }, [lensUsed, markLanternSeen]);
+  const urlEvidenceId = useMemo(() => new URLSearchParams(window.location.search).get('showEvidence'), []);
+  // On the place page the card's toggle chooses the feature; `?showEvidence=<id>` still works without it.
+  const evidenceId = place?.showEvidence && selection ? selection.featureId : urlEvidenceId;
   const evidence = useMemo(() => (model ? evidenceCommand(model, evidenceId, settled) : null), [model, evidenceId, settled]);
   const stepRef = useRef<(delta: number) => void>(() => {});
   stepRef.current = (delta: number) => {
@@ -356,6 +374,7 @@ export function Explorer({
           lantern={lantern.command}
           evidence={evidence}
           drapeMode={place?.drapeMode ?? 'lit'}
+          areas={areasWanted}
           onPlayerState={setPlayer}
           onFeatureClicked={onFeatureClicked}
           onUnavailable={setUnavailable}
@@ -370,6 +389,8 @@ export function Explorer({
   // note or the hint, the reason the 3D view is not shown, data notes, and the list of features.
   const sceneReady = load.status === 'ready';
   const showHint = sceneReady && !fallbackActive && !clicked && selection === null && !eraNote;
+  const lanternOffered = !backdrop && model !== null && settled === 0 && lensEra !== null;
+  const showLanternHelp = variant === 'place' && lanternOffered && !fallbackActive && !lanternSeen.seen && lensHelp !== null;
   const showList = !backdrop && model !== null && (variant === 'place' || fallbackActive);
   const rows = useMemo(() => featureRows(currentEra ? model?.lists.get(currentEra.id) : undefined, model?.features ?? new Map()), [model, currentEra]);
   const showStack = !backdrop && !card && sceneReady;
@@ -395,7 +416,7 @@ export function Explorer({
       {stage}
 
       {!backdrop && model && <DepthGauge eras={model.order} index={dig.state.target} depth={depth} onChange={chooseEra} onDrag={dragDepth} onRelease={release} />}
-      {!backdrop && model && settled === 0 && lensEra !== null && <LanternToggle pressed={lantern.toggled} onToggle={lantern.toggle} label={lensLabel} />}
+      {lanternOffered && <LanternToggle pressed={lantern.toggled} onToggle={lantern.toggle} label={lensLabel} />}
 
       {card && <EvidenceCard card={card} onClose={closeCard} />}
 
@@ -414,6 +435,11 @@ export function Explorer({
           {showHint && (
             <p className="view-hint" data-testid="view-hint">
               {coarsePointer ? 'Tap' : 'Click'} a building in the 3D view to see the evidence behind it.
+            </p>
+          )}
+          {showLanternHelp && (
+            <p className="view-hint" data-testid="lantern-help">
+              {lensHelp}
             </p>
           )}
           {load.problems.length > 0 && (

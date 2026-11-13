@@ -27,6 +27,11 @@ namespace Buried.Scene
         private readonly Material _estimatedFill;
         private readonly Material _estimatedEdge;
         private readonly Material _unknownFill;
+        private readonly Material _documentedAreaFill;
+        private readonly Material _documentedAreaEdge;
+        private readonly Material _estimatedAreaFill;
+        private readonly Material _estimatedAreaEdge;
+        private readonly Material _unknownAreaFill;
 
         public GhostMaterials(BuriedPalette palette, ShaderSet shaders, float pixelScale)
         {
@@ -49,6 +54,38 @@ namespace Buried.Scene
             _unknownFill.SetFloat("_Soft", 1f);
             _unknownFill.SetFloat("_SoftHeight", LookSettings.UnknownFadeHeightM);
             _unknownFill.SetFloat("_SoftRoofShare", LookSettings.UnknownRoofShare);
+
+            // Land-use areas (bridge 0.7.0): the same classes drawn flat as hatched sheets, with the class's outline.
+            _documentedAreaFill = AreaFill("Area fill", shaders.ghost, palette, LookSettings.AreaDocumentedAlpha, pixelScale);
+            _documentedAreaEdge = Edge("Area edge", shaders.edge, palette, pixelScale);
+            _documentedAreaEdge.renderQueue = LookSettings.AreaEdgeQueue;
+            _estimatedAreaFill = AreaFill("Area fill (estimated)", shaders.ghost, palette, LookSettings.AreaEstimatedAlpha, pixelScale);
+            _estimatedAreaEdge = Edge("Area edge (estimated)", shaders.edge, palette, pixelScale);
+            _estimatedAreaEdge.renderQueue = LookSettings.AreaEdgeQueue;
+            _estimatedAreaEdge.SetFloat("_DashPeriod", LookSettings.DashPeriodM);
+            _estimatedAreaEdge.SetFloat("_DashPeriodPx", LookSettings.DashPeriodCssPx);
+            _estimatedAreaEdge.SetFloat("_DashOn", LookSettings.DashOnFraction);
+            _unknownAreaFill = AreaFill("Area fill (unknown)", shaders.ghost, palette, LookSettings.AreaUnknownAlpha, pixelScale);
+        }
+
+        /// <summary>
+        /// A hatched sheet: the ghost shader with _Hatch on. Stripes in `ink` with a `night` casing over a faint tint,
+        /// flat shading (no normal shading), under the ghosts and above the drapes.
+        /// </summary>
+        private static Material AreaFill(string name, Shader shader, BuriedPalette palette, float alpha, float pixelScale)
+        {
+            Material material = Fill(name, shader, palette.ink, alpha);
+            material.SetFloat("_Shade", 0f);
+            material.SetFloat("_Hatch", 1f);
+            material.SetFloat("_HatchPeriodM", LookSettings.AreaHatchPeriodM);
+            material.SetFloat("_HatchPeriodPx", LookSettings.AreaHatchPeriodCssPx * pixelScale);
+            material.SetFloat("_HatchInk", LookSettings.AreaHatchInkShare);
+            material.SetFloat("_HatchCasing", LookSettings.AreaHatchCasingShare);
+            material.SetFloat("_HatchGap", LookSettings.AreaHatchGapShare);
+            material.SetColor("_CasingColor", palette.night);
+            material.SetFloat("_Cull", (float)CullMode.Off);
+            material.renderQueue = LookSettings.AreaFillQueue;
+            return material;
         }
 
         private static Material Fill(string name, Shader shader, Color ink, float alpha)
@@ -117,6 +154,28 @@ namespace Buried.Scene
             }
         }
 
+        /// <summary>The hatched sheet of a class, for a land-use area.</summary>
+        public Material AreaFillOf(string confidence)
+        {
+            switch (ClassOf(confidence))
+            {
+                case Documented: return _documentedAreaFill;
+                case Estimated: return _estimatedAreaFill;
+                default: return _unknownAreaFill;
+            }
+        }
+
+        /// <summary>The outline material of a class for a land-use area, or null for unknown.</summary>
+        public Material AreaEdgeOf(string confidence)
+        {
+            switch (ClassOf(confidence))
+            {
+                case Documented: return _documentedAreaEdge;
+                case Estimated: return _estimatedAreaEdge;
+                default: return null;
+            }
+        }
+
         public void Dispose()
         {
             Destroy(_documentedFill);
@@ -124,6 +183,11 @@ namespace Buried.Scene
             Destroy(_estimatedFill);
             Destroy(_estimatedEdge);
             Destroy(_unknownFill);
+            Destroy(_documentedAreaFill);
+            Destroy(_documentedAreaEdge);
+            Destroy(_estimatedAreaFill);
+            Destroy(_estimatedAreaEdge);
+            Destroy(_unknownAreaFill);
         }
 
         private static void Destroy(Material material)

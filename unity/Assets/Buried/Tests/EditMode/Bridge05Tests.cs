@@ -69,7 +69,7 @@ namespace Buried.Tests
         [Test]
         public void ThePlayerSpeaksTheCurrentBridgeAndKnowsTheBridge05Messages()
         {
-            Assert.AreEqual("0.6.0", BridgeVersion.Value);
+            Assert.AreEqual("0.7.0", BridgeVersion.Value);
             Assert.Contains(BridgeMessageTypes.SceneFocusLot, BridgeMessageTypes.ShellToPlayer);
             Assert.Contains(BridgeMessageTypes.SceneClearLot, BridgeMessageTypes.ShellToPlayer);
             Assert.Contains(BridgeMessageTypes.SceneSetDrapeMode, BridgeMessageTypes.ShellToPlayer);
