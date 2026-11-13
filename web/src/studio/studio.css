@@ -340,3 +340,50 @@
     grid-template-rows: 55% 45%;
   }
 }
+
+/* Land-use areas (requirement 24): the lettering sits on the area, never colour alone. */
+.plate-area-label {
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.area-list ul,
+.trace-panel .corners {
+  list-style: none;
+  margin: var(--space-2) 0;
+  padding: 0;
+}
+
+.area-list li {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: space-between;
+  padding: var(--space-1) 0;
+}
+
+.trace-panel .corners {
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.trace-panel .corners li,
+.trace-panel .crop-fields {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-1) 0;
+}
+
+.trace-panel .corners input,
+.trace-panel .crop-fields input {
+  width: 5.5rem;
+}
+
+.trace-panel h4 {
+  margin: var(--space-3) 0 var(--space-1);
+}

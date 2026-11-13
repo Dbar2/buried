@@ -3,12 +3,14 @@
  * Every action returns a new state. Undo and redo walk `past` and `future`. It decides nothing about
  * geometry, dates or confidence: it records a person's accept or reject, the two optional lettering
  * fields they typed, and writes them out as the decisions file v2 (accept and reject only in this
- * slice; merge, split, trace and vertex edits are later).
+ * slice; merge, split and vertex edits are later) and, for each traced land-use area, a `trace` decision.
  *
  * Invariant (property S7, this slice): a proposal has at most one decision, and every decision names
  * a proposal that is in `order`.
  */
 import type { DecisionsV2, PixelPolygon, ProposalFile, ReviewedAreaDecision } from '../service/types.generated';
+import { areaProblems, traceDecision } from './areaModel';
+import type { AreaContext, TracedArea } from './areaModel';
 
 export type ProposalFeature = ProposalFile['features'][number];
 export type Decision = 'accept' | 'reject';
@@ -19,6 +21,8 @@ type Mutable = {
   decidedAt: Readonly<Record<string, string>>;
   attributes: Readonly<Record<string, ItemAttributes>>;
   current: string | null;
+  /** Land-use areas a person traced (requirement 24), in the order they were saved. */
+  areas: readonly TracedArea[];
 };
 
 export type ReviewState = Mutable & {
@@ -37,6 +41,9 @@ export type ReviewAction =
   | { type: 'reject'; at: string }
   | { type: 'setStoreys'; value: number | undefined }
   | { type: 'setUse'; value: string }
+  /** Save a traced area. A new one has no `id` yet; an existing id is replaced. An area the checks refuse is not saved. */
+  | { type: 'saveArea'; area: Omit<TracedArea, 'id'> & { id?: string }; context: AreaContext }
+  | { type: 'deleteArea'; id: string }
   | { type: 'undo' }
   | { type: 'redo' };
 
@@ -62,6 +69,7 @@ export function initialReview(proposals: readonly ProposalFeature[]): ReviewStat
     decisions: {},
     decidedAt: {},
     attributes: {},
+    areas: [],
     current: order[0] ?? null,
     past: [],
     future: [],
@@ -73,6 +81,7 @@ const snapshot = (s: ReviewState): Mutable => ({
   decidedAt: s.decidedAt,
   attributes: s.attributes,
   current: s.current,
+  areas: s.areas,
 });
 
 function withHistory(state: ReviewState, change: Partial<Mutable>): ReviewState {
@@ -128,6 +137,12 @@ export function cleanUse(text: string): string | undefined {
   return trimmed === '' ? undefined : trimmed;
 }
 
+/** The next local id for an area: one more than the largest `area_<n>` in use, so an id is not reused within a review. */
+export function nextAreaId(areas: readonly TracedArea[]): string {
+  const used = areas.map((a) => Number(/^area_(\d+)$/.exec(a.id)?.[1] ?? 0));
+  return `area_${Math.max(0, ...used) + 1}`;
+}
+
 export function reviewReducer(state: ReviewState, action: ReviewAction): ReviewState {
   switch (action.type) {
     case 'load':
@@ -156,6 +171,15 @@ export function reviewReducer(state: ReviewState, action: ReviewAction): ReviewS
         const use = cleanUse(action.value);
         return use === undefined ? rest : { ...rest, use };
       });
+    case 'saveArea': {
+      if (areaProblems(action.area, action.context).length > 0) return state;
+      const id = action.area.id ?? nextAreaId(state.areas);
+      const saved: TracedArea = { ...action.area, id, use: action.area.use.trim() };
+      const exists = state.areas.some((a) => a.id === id);
+      return withHistory(state, { areas: exists ? state.areas.map((a) => (a.id === id ? saved : a)) : [...state.areas, saved] });
+    }
+    case 'deleteArea':
+      return state.areas.some((a) => a.id === action.id) ? withHistory(state, { areas: state.areas.filter((a) => a.id !== action.id) }) : state;
     case 'undo': {
       const previous = state.past[state.past.length - 1];
       if (!previous) return state;
@@ -182,7 +206,10 @@ export function reviewCounts(state: ReviewState): ReviewCounts {
   return { accepted, rejected, undecided: state.order.length - accepted - rejected };
 }
 
-/** The decisions file v2 for this review (accept and reject only). */
+/**
+ * The decisions file v2 for this review: accept and reject for proposals, and one land-use `trace`
+ * for each saved area. Throws if a saved area has no crop, so a bad one is never sent.
+ */
 export function buildDecisionsV2(
   state: ReviewState,
   proposals: readonly ProposalFeature[],
@@ -220,6 +247,7 @@ export function buildDecisionsV2(
       ...(attribute_reads.length > 0 ? { attributes, attribute_reads } : {}),
     });
   }
+  for (const area of state.areas) decisions.push(traceDecision(area, reviewer, sourceId));
   const reviewed_areas: ReviewedAreaDecision[] = reviewedAreas.map((area) => ({
     pixel_polygon: area.pixel_polygon,
     confirmed_by: reviewer,

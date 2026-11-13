@@ -3,6 +3,8 @@ import { intersectRects, rectToPolygon } from '../plate/plateView';
 import type { Rect } from '../plate/plateView';
 import { buildDecisionsV2, reviewCounts } from '../review/reviewModel';
 import type { ProposalFeature, ReviewState } from '../review/reviewModel';
+import { areaLabel, areaProblems, bannedWarning } from '../review/areaModel';
+import type { AreaContext } from '../review/areaModel';
 import { shortId, undecidedInside } from '../review/reviewText';
 import { ServiceError, ServiceUnavailableError } from '../service/client';
 import type { ServiceClient } from '../service/client';
@@ -29,6 +31,8 @@ export type PublishPanelProps = {
   area: Rect | null;
   drawingArea: boolean;
   reviewer: string;
+  /** What each traced area is checked against; null before an extraction exists. */
+  areaContext: AreaContext | null;
   onReviewer: (name: string) => void;
   onArea: (area: Rect | null) => void;
   onDrawArea: (on: boolean) => void;
@@ -37,12 +41,21 @@ export type PublishPanelProps = {
 type Outcome =
   | { kind: 'idle' }
   | { kind: 'working' }
-  | { kind: 'done'; count: number; kept: boolean; note: string }
+  | { kind: 'done'; buildings: number; areas: number; kept: boolean; note: string }
   | { kind: 'failed'; message: string };
 
-type DryRun = { kind: 'none' } | { kind: 'checking' } | { kind: 'ok'; newFeatures: number } | { kind: 'errors'; errors: PublishError[] } | { kind: 'down'; message: string };
+type DryRun =
+  | { kind: 'none' }
+  | { kind: 'checking' }
+  | { kind: 'ok'; buildings: number; areas: number }
+  | { kind: 'errors'; errors: PublishError[] }
+  | { kind: 'down'; message: string };
 
 const DRY_RUN_DELAY_MS = 400;
+
+const isArea = (id: string): boolean => id.startsWith('use_');
+const countsText = (buildings: number, areas: number): string =>
+  [buildings > 0 || areas === 0 ? `${buildings} ${buildings === 1 ? 'building' : 'buildings'}` : null, areas > 0 ? `${areas} ${areas === 1 ? 'land-use area' : 'land-use areas'}` : null].filter(Boolean).join(' and ');
 
 export function PublishPanel(p: PublishPanelProps) {
   const [confirmed, setConfirmed] = useState(false);
@@ -51,6 +64,14 @@ export function PublishPanel(p: PublishPanelProps) {
   const counts = reviewCounts(p.review);
   const reviewerName = p.reviewer.trim();
 
+  // The same checks the Service makes, so a refusal never arrives late.
+  const areaChecks = useMemo(
+    () => p.review.areas.map((a) => ({ area: a, problems: p.areaContext ? areaProblems(a, p.areaContext) : ['The plate has no map area to check against.'], warning: bannedWarning(a.use) })),
+    [p.review.areas, p.areaContext],
+  );
+  const areaBlocked = areaChecks.some((c) => c.problems.length > 0);
+  const nothingToPublish = counts.accepted + counts.rejected + p.review.areas.length === 0;
+
   const blockers = useMemo(() => (p.area ? undecidedInside(p.area, p.proposals, p.review.decisions) : []), [p.area, p.proposals, p.review.decisions]);
 
   const decisions = useMemo(
@@ -58,11 +79,11 @@ export function PublishPanel(p: PublishPanelProps) {
       buildDecisionsV2(p.review, p.proposals, p.sourceId, reviewerName || 'Reviewer', p.area ? [{ pixel_polygon: rectToPolygon(p.area), at: new Date().toISOString() }] : []),
     // The area's time is set when the inputs change, not on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [p.review.decisions, p.review.attributes, p.review.order, p.proposals, p.sourceId, reviewerName, p.area],
+    [p.review.decisions, p.review.attributes, p.review.order, p.review.areas, p.proposals, p.sourceId, reviewerName, p.area],
   );
 
   // The dry run: the Service's own validation, on entry and after each change (requirement 13.1).
-  const ready = reviewerName !== '' && p.area !== null && confirmed && counts.accepted + counts.rejected > 0;
+  const ready = reviewerName !== '' && p.area !== null && confirmed && !nothingToPublish && !areaBlocked;
   const runId = useRef(0);
   useEffect(() => {
     if (!ready || blockers.length > 0) {
@@ -76,7 +97,11 @@ export function PublishPanel(p: PublishPanelProps) {
         .publish({ sourceId: p.sourceId, proposalFileText: p.proposalFileText, decisions, dryRun: true })
         .then((answer: PublishResponse) => {
           if (mine !== runId.current) return;
-          setDryRun(answer.ok ? { kind: 'ok', newFeatures: answer.new_feature_ids.length } : { kind: 'errors', errors: answer.errors });
+          setDryRun(
+            answer.ok
+              ? { kind: 'ok', buildings: answer.new_feature_ids.filter((id) => !isArea(id)).length, areas: answer.new_feature_ids.filter(isArea).length }
+              : { kind: 'errors', errors: answer.errors },
+          );
         })
         .catch((error: unknown) => {
           if (mine !== runId.current) return;
@@ -87,7 +112,7 @@ export function PublishPanel(p: PublishPanelProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, blockers.length, decisions, p.sourceId, p.proposalFileText]);
 
-  const canPublish = ready && blockers.length === 0 && counts.accepted > 0 && dryRun.kind === 'ok' && outcome.kind !== 'working';
+  const canPublish = ready && blockers.length === 0 && (counts.accepted > 0 || p.review.areas.length > 0) && dryRun.kind === 'ok' && outcome.kind !== 'working';
 
   const publish = async () => {
     setOutcome({ kind: 'working' });
@@ -103,8 +128,10 @@ export function PublishPanel(p: PublishPanelProps) {
         decisionsText: `${JSON.stringify(decisions, null, 2)}\n`,
       });
       await p.db?.putSetting('reviewer', reviewerName).catch(() => {});
-      if (stored.stored) setOutcome({ kind: 'done', count: stored.featureIds.length, kept: true, note: WORKSPACE_PUBLISHED_STATEMENT });
-      else setOutcome({ kind: 'failed', message: `Nothing was kept. ${stored.reason}` });
+      if (stored.stored) {
+        const areas = stored.featureIds.filter(isArea).length;
+        setOutcome({ kind: 'done', buildings: stored.featureIds.length - areas, areas, kept: true, note: WORKSPACE_PUBLISHED_STATEMENT });
+      } else setOutcome({ kind: 'failed', message: `Nothing was kept. ${stored.reason}` });
     } catch (error) {
       setOutcome({ kind: 'failed', message: error instanceof ServiceError || error instanceof ServiceUnavailableError ? error.message : String(error) });
     }
@@ -161,6 +188,31 @@ export function PublishPanel(p: PublishPanelProps) {
         </label>
       </section>
 
+      {p.review.areas.length > 0 && (
+        <section aria-labelledby="areas-publish-heading" data-testid="publish-areas">
+          <h3 id="areas-publish-heading">Land-use areas</h3>
+          <ul>
+            {areaChecks.map(({ area, problems, warning }) => (
+              <li key={area.id}>
+                <span>{areaLabel(area)}</span>
+                {problems.map((problem) => (
+                  <span key={problem} role="alert" className="small">
+                    {' '}
+                    {problem}
+                  </span>
+                ))}
+                {warning && (
+                  <span className="muted small" data-testid="publish-banned-warning">
+                    {' '}
+                    {warning}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {blockers.length > 0 && (
         <section className="blockers" aria-label="Undecided proposals inside the area" data-testid="blockers">
           <p>
@@ -190,7 +242,7 @@ export function PublishPanel(p: PublishPanelProps) {
       {dryRun.kind === 'down' && <p role="status">{dryRun.message}</p>}
       {dryRun.kind === 'ok' && (
         <p className="muted" role="status" data-testid="dry-run-ok">
-          Checked by the Service: {dryRun.newFeatures} {dryRun.newFeatures === 1 ? 'building' : 'buildings'} would be added.
+          Checked by the Service: {countsText(dryRun.buildings, dryRun.areas)} would be added.
         </p>
       )}
 
@@ -208,9 +260,7 @@ export function PublishPanel(p: PublishPanelProps) {
       {outcome.kind === 'done' && (
         <div role="status" className="published" data-testid="published">
           <p>{outcome.note}</p>
-          <p className="mono">
-            {outcome.count} {outcome.count === 1 ? 'building' : 'buildings'} stored.
-          </p>
+          <p className="mono">{countsText(outcome.buildings, outcome.areas)} stored.</p>
           <div className="actions">
             <button type="button" onClick={exportNow} data-testid="export-bundle">
               Export a bundle for review

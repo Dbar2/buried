@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
-import type { Dispatch, KeyboardEvent } from 'react';
+import type { Dispatch } from 'react';
 import type { Rect, Size } from '../plate/plateView';
 import { ProposalCrop } from './ProposalCrop';
 import type { ProposalFeature, ReviewAction, ReviewState } from './reviewModel';
 import { reviewCounts } from './reviewModel';
 import { BAND_LABEL, KEY_LEGEND, bandOf, shortId, toneText, weaknessText } from './reviewText';
+import { areaLabel, areaProblems } from './areaModel';
+import type { AreaContext } from './areaModel';
+import { useDraft } from './useDraft';
 
 export type ReviewPanelProps = {
   proposals: readonly ProposalFeature[];
@@ -16,32 +18,16 @@ export type ReviewPanelProps = {
   /** Metres per plate pixel, to say a proposal's size. */
   pixelSizeM: number;
   onFit: () => void;
+  /** The traced areas' checks, and the ways into the trace tool. */
+  areaContext: AreaContext | null;
+  onTraceArea: () => void;
+  onEditArea: (id: string) => void;
 };
 
 const stateText = (decision: 'accept' | 'reject' | undefined) =>
   decision === 'accept' ? 'Accepted' : decision === 'reject' ? 'Rejected' : 'Undecided';
 
-/** Commit a text or number field on Enter or when it loses focus, then give the keys back to the review. */
-function useDraft(value: string, commit: (draft: string) => void, key: string) {
-  const [draft, setDraft] = useState(value);
-  useEffect(() => setDraft(value), [value, key]);
-  return {
-    value: draft,
-    onChange: (event: { target: { value: string } }) => setDraft(event.target.value),
-    onBlur: () => {
-      if (draft !== value) commit(draft);
-    },
-    onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => {
-      if (event.key === 'Enter') event.currentTarget.blur();
-      if (event.key === 'Escape') {
-        setDraft(value);
-        event.currentTarget.blur();
-      }
-    },
-  };
-}
-
-export function ReviewPanel({ proposals, review, dispatch, imageUrl, tile, crop, pixelSizeM, onFit }: ReviewPanelProps) {
+export function ReviewPanel({ proposals, review, dispatch, imageUrl, tile, crop, pixelSizeM, onFit, areaContext, onTraceArea, onEditArea }: ReviewPanelProps) {
   const counts = reviewCounts(review);
   const byId = new Map(proposals.map((p) => [p.id, p]));
   const current = review.current ? byId.get(review.current) : undefined;
@@ -160,6 +146,41 @@ export function ReviewPanel({ proposals, review, dispatch, imageUrl, tile, crop,
           })}
         </ul>
       </details>
+
+      <section className="area-list" aria-labelledby="areas-heading" data-testid="area-list">
+        <h3 id="areas-heading">Areas</h3>
+        <p className="muted small">Yards, works and shops as the plate letters them. You outline each one and type the lettering; Buried does not propose them.</p>
+        {review.areas.length === 0 ? (
+          <p className="muted small" data-testid="no-areas">
+            No areas traced.
+          </p>
+        ) : (
+          <ul>
+            {review.areas.map((a) => {
+              const problems = areaContext ? areaProblems(a, areaContext) : [];
+              return (
+                <li key={a.id} data-area-id={a.id} data-testid="area-item">
+                  <span data-testid="area-item-use">{areaLabel(a)}</span>
+                  {problems.length > 0 && <span className="muted small"> {problems[0]}</span>}
+                  <span className="actions">
+                    <button type="button" onClick={() => onEditArea(a.id)} data-testid="area-edit">
+                      Edit
+                    </button>
+                    <button type="button" onClick={() => dispatch({ type: 'deleteArea', id: a.id })} data-testid="area-delete">
+                      Delete
+                    </button>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <div className="actions">
+          <button type="button" onClick={onTraceArea} data-testid="trace-area">
+            Trace an area
+          </button>
+        </div>
+      </section>
 
       <dl className="key-legend" aria-label="Keys">
         {KEY_LEGEND.map(([key, what]) => (
