@@ -1,6 +1,7 @@
 /*
  * The Block page (spec 06). Colours from tokens.css only. Square corners (2 px at most), hairline borders, no fill
- * gradients, no pills, nothing heavier than a paper edge for a shadow. `--lantern` appears on the one primary button,
+ * gradients (the one exception is the soft `--soot` fade at the scene's lower edge, under the ruler), no pills,
+ * nothing heavier than a paper edge for a shadow. `--lantern` appears on the one primary button,
  * the selected find and focus rings on dark. Every docked piece is placed by an inline rectangle from `blockLayout`,
  * so the layout the tags avoid is the layout the page draws.
  */
@@ -152,11 +153,21 @@
   z-index: 3;
 }
 
-/* The ruler sits on a plain `--haze` ground, so its marks and labels read over the pale plan. */
+/* The ruler sits directly on the scene, no box. The scene's lower edge fades to `--soot` so its marks and labels stay legible. */
 .ruler-dock {
-  background: var(--haze);
-  border: 1px solid var(--copper);
   padding: var(--space-1) var(--space-2);
+}
+
+.block-stage::after {
+  background: linear-gradient(to top, var(--soot) 0%, color-mix(in srgb, var(--soot) 85%, transparent) 30%, color-mix(in srgb, var(--soot) 45%, transparent) 65%, transparent 100%);
+  bottom: 0;
+  content: '';
+  height: 15rem;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  z-index: 0;
 }
 
 .sheet-dock {
@@ -177,7 +188,7 @@
 }
 
 .list-dock .feature-list button {
-  background: var(--haze);
+  background: transparent;
   border: 1px solid var(--parchment-dim);
   border-radius: 2px;
   color: var(--parchment);
@@ -656,7 +667,7 @@
 
 /* The Lantern ---------------------------------------------------------------------------------- */
 .lens-control {
-  background: var(--haze);
+  background: transparent;
   border: 1px solid var(--parchment-dim);
   border-radius: 2px;
   bottom: var(--space-3);
@@ -671,9 +682,12 @@
   z-index: 3;
 }
 
+/* On: a heavier parchment rule and an underlined label, not a filled slab (and not colour alone). */
 .lens-control[aria-pressed='true'] {
-  background: var(--parchment);
-  color: var(--ink);
+  border-color: var(--parchment);
+  box-shadow: inset 0 0 0 1px var(--parchment);
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .lens-ring {
