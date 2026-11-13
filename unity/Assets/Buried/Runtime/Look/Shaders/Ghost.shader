@@ -27,6 +27,8 @@ Shader "Buried/Ghost"
         _HatchGap ("Hatch: alpha between the stripes, as a share of the stripe alpha", Range(0, 1)) = 0.2
         _CasingColor ("Hatch: casing colour", Color) = (0, 0, 0, 1)
         [HideInInspector] _LensMode ("Lantern lens: 0 everywhere, 1 inside, 2 outside", Float) = 0
+        [HideInInspector] _RaiseOn ("Raise the past drives this ghost (0 or 1)", Float) = 0
+        [HideInInspector] _RaiseParams ("Raise: first find x, z, clock (s), farthest (m)", Vector) = (0, 0, -1, 0)
         [HideInInspector] _SrcBlend ("Src blend", Float) = 5
         [HideInInspector] _DstBlend ("Dst blend", Float) = 10
         [HideInInspector] _ZWrite ("Z write", Float) = 0
@@ -67,12 +69,15 @@ Shader "Buried/Ghost"
                 half _HatchGap;
                 half4 _CasingColor;
                 half _LensMode;
+                half _RaiseOn;
+                float4 _RaiseParams;
             CBUFFER_END
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
+                float2 centre : TEXCOORD1;
             };
 
             struct Varyings
@@ -82,6 +87,7 @@ Shader "Buried/Ghost"
                 float transmission : TEXCOORD1;
                 float3 positionWS : TEXCOORD2;
                 float heightOS : TEXCOORD3;
+                float raiseFill : TEXCOORD4;
             };
 
             Varyings vert(Attributes input)
@@ -89,7 +95,17 @@ Shader "Buried/Ghost"
                 Varyings output;
                 float3 positionOS = input.positionOS.xyz;
                 output.heightOS = positionOS.y; // before the rise, so a soft volume thins the same way while it rises
-                positionOS.y *= _Rise; // a ghost rises from the ground: scale about y = 0 (requirement 10.5)
+                float raiseRise = 1.0;
+                output.raiseFill = 1.0;
+                if (_RaiseOn > 0.5)
+                {
+                    // Raise the past: this ghost stands up after its own delay (RaiseSchedule.cs): the edges lead,
+                    // the fill follows, the volume grows from the ground.
+                    float p = BuriedRaiseProgress(input.centre, _RaiseParams);
+                    raiseRise = BuriedSmooth(p);
+                    output.raiseFill = BuriedSmooth((p - 0.3333333) / 0.6666667);
+                }
+                positionOS.y *= _Rise * raiseRise; // a ghost rises from the ground: scale about y = 0 (requirement 10.5)
                 float3 positionWS = TransformObjectToWorld(positionOS);
                 output.positionWS = positionWS;
                 output.positionCS = TransformWorldToHClip(positionWS);
@@ -121,7 +137,7 @@ Shader "Buried/Ghost"
                     float cased = 1.0 - smoothstep(casingHalf - aa, casingHalf + aa, t);
                     half3 stripe = lerp(_CasingColor.rgb, _Color.rgb * (1.0 + _Emission), core);
                     half3 hatchRgb = BuriedApplyFog(stripe, input.transmission);
-                    half hatchAlpha = _Color.a * _Weight * lerp(_HatchGap, 1.0, cased);
+                    half hatchAlpha = _Color.a * _Weight * lerp(_HatchGap, 1.0, cased) * input.raiseFill;
                     return half4(hatchRgb, hatchAlpha);
                 }
                 half3 n = normalize(input.normalWS);
@@ -129,7 +145,7 @@ Shader "Buried/Ghost"
                 half3 rgb = _Color.rgb * lerp(1.0, 0.6 + 0.4 * lit, _Shade) + _Color.rgb * _Emission;
                 rgb = BuriedApplyFog(rgb, input.transmission);
 
-                half alpha = _Color.a * _Weight;
+                half alpha = _Color.a * _Weight * input.raiseFill;
                 if (_Soft > 0.5)
                 {
                     // Thin toward the roof, and toward the silhouette (a face seen edge-on), so the

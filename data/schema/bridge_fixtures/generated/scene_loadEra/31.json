@@ -167,6 +167,7 @@
         },
         "kind": "plate"
       }
-    ]
+    ],
+    "held": true
   }
 }

@@ -195,12 +195,13 @@ namespace Buried.Interop
         private static SceneLoadEraPayload ParseSceneLoadEra(JObject o)
         {
             const string p = "payload";
-            JsonFields.Exactly(o, p, "eraId", "features", "drapes");
+            JsonFields.ExactlyWithOptional(o, p, new[] { "eraId", "features", "drapes" }, new[] { "held" });
             var result = new SceneLoadEraPayload
             {
                 eraId = JsonFields.Matching(o, "eraId", p, JsonFields.EraIdPattern),
                 features = new List<SceneFeatureDto>(),
                 drapes = new List<DrapeDto>(),
+                held = o["held"] != null && JsonFields.Boolean(o, "held", p),
             };
             JArray features = JsonFields.ArrayAt(o, "features", p);
             for (int i = 0; i < features.Count; i++)

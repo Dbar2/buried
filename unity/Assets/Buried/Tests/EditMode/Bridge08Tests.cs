@@ -62,6 +62,13 @@ namespace Buried.Tests
         }
 
         [Test]
+        public void LoadEraReadsTheOptionalHeldFlagAndAnAbsentOneIsFalse()
+        {
+            Assert.IsTrue(((SceneLoadEraPayload)Valid("scene_loadEra", "held").payload).held);
+            Assert.IsFalse(((SceneLoadEraPayload)Valid("scene_loadEra", "empty").payload).held);
+        }
+
+        [Test]
         public void ThePlayerSpeaksBridge080AndKnowsTheFiveMessagesInTheRightDirections()
         {
             Assert.AreEqual("0.8.0", BridgeVersion.Value);

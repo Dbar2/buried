@@ -186,6 +186,7 @@
         },
         "kind": "plate"
       }
-    ]
+    ],
+    "held": true
   }
 }

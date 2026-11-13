@@ -148,6 +148,15 @@ namespace Buried.Scene
             _material.SetFloat("_UseCoverage", 1f);
         }
 
+        /// <summary>
+        /// The lit display's brightness, 0 to 1. The first visit draws its sheet dim until Raise brightens it
+        /// (<see cref="LookSettings.LandingSheetGain"/>). Only the lit display uses it.
+        /// </summary>
+        public void SetGain(float gain)
+        {
+            _material.SetFloat("_Gain", Mathf.Clamp01(gain));
+        }
+
         /// <summary>0 draws everywhere, 1 only inside the Lantern's lens, 2 only outside it.</summary>
         public void SetLensMode(int mode)
         {

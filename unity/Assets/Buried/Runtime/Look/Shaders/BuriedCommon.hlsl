@@ -17,6 +17,30 @@ float4 _BuriedLightPool;
 // removal, which the opaque present buildings need, so with the lens off no shader may contain it.
 float4 _BuriedLens;
 
+// "Raise the past" (bridge 0.8.0, RaiseSchedule.cs says the same in C#): a ghost material with _RaiseOn 1 reads its
+// feature's centre from TEXCOORD1 (MeshData.uvs2) and stands up after a delay that grows with that point's distance from
+// the first find's. `raise` is the material's _RaiseParams: x, y: the first find's footprint centre on the ground (scene x, z),
+// z: seconds since the raise started (negative while the era is held down), w: the distance of the farthest ghost
+// from that centre (m). The constants below are RaiseSchedule.FirstStartS, LastStartS and RiseS.
+#define BURIED_RAISE_FIRST 0.3
+#define BURIED_RAISE_LAST 1.5
+#define BURIED_RAISE_S 0.7
+
+// A ghost's progress (0 to 1) in the raise: RaiseSchedule.StartDelay and GhostProgress.
+float BuriedRaiseProgress(float2 centre, float4 raise)
+{
+    float farthest = raise.w;
+    float delay = farthest <= 1e-4 ? BURIED_RAISE_FIRST
+        : BURIED_RAISE_FIRST + (BURIED_RAISE_LAST - BURIED_RAISE_FIRST) * saturate(distance(centre, raise.xy) / farthest);
+    return saturate((raise.z - delay) / BURIED_RAISE_S);
+}
+
+float BuriedSmooth(float t)
+{
+    t = saturate(t);
+    return t * t * (3.0 - 2.0 * t);
+}
+
 void BuriedLensClip(float4 positionCS, half mode)
 {
 #if defined(_BURIED_LENS)

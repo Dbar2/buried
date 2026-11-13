@@ -349,6 +349,7 @@
         },
         "kind": "aerial"
       }
-    ]
+    ],
+    "held": true
   }
 }

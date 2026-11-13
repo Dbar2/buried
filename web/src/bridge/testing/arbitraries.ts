@@ -147,11 +147,16 @@ export const messageArbitraries: Readonly<Record<MessageType, Arb<BridgeMessage>
   ),
   'scene/loadEra': message(
     'scene/loadEra',
-    fc.record({
-      eraId: eraIdArb,
-      features: fc.uniqueArray(sceneFeatureArb, { selector: (f) => f.id, maxLength: 4 }),
-      drapes: fc.uniqueArray(drapeArb, { selector: (d) => d.sourceId, maxLength: 2 }),
-    }),
+    fc
+      .tuple(
+        fc.record({
+          eraId: eraIdArb,
+          features: fc.uniqueArray(sceneFeatureArb, { selector: (f) => f.id, maxLength: 4 }),
+          drapes: fc.uniqueArray(drapeArb, { selector: (d) => d.sourceId, maxLength: 2 }),
+        }),
+        fc.option(fc.constant(true), { nil: undefined }),
+      )
+      .map(([payload, held]) => (held === undefined ? payload : { ...payload, held })),
   ),
   'scene/addFeatures': message(
     'scene/addFeatures',

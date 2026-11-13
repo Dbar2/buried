@@ -233,6 +233,7 @@
         },
         "kind": "aerial"
       }
-    ]
+    ],
+    "held": true
   }
 }

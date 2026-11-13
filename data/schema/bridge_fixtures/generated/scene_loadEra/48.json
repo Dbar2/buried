@@ -58,6 +58,7 @@
         "heightPx": 14831,
         "kind": "plate"
       }
-    ]
+    ],
+    "held": true
   }
 }

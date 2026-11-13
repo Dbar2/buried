@@ -288,6 +288,10 @@ export interface SceneLoadEraPayload {
   eraId: string;
   features: SceneFeature[];
   drapes: Drape[];
+  /**
+   * Optional (bridge 0.8.0), absent means false. The landing look of the first visit: while true the era's sheet is drawn at full opacity, dimmed, whatever the depth, its ghosts are held down (not drawn, not clickable), and Today's buildings stay solid. The hold ends at scene/raise for this era. A scene/loadEra that replaces the era without held ends it too.
+   */
+  held?: boolean;
 }
 /**
  * What the Player needs to draw one feature of an era. A building or a land-use area has polygon geometry; water may be any of the four geometry types. A land_use area (0.7.0) is drawn flat on the ground as a hatched `ink` fill at low opacity with a thin outline, under the ghosts, and can be clicked: the Player draws it as a sheet a few centimetres thick whatever heightM says (the Shell sends 0.05), and nothing of it rises.
@@ -550,7 +554,7 @@ export interface SceneSetAnchorsPayload {
   feature_ids: FeatureId[];
 }
 /**
- * Shell to Player (0.8.0). Raise the past: Today's buildings sink to 1 m plinths over 600 ms, the sheet brightens, then each ghost of the era's features draws its edges on and rises, starting staggered by distance from the centroid of first_feature_id so the last starts by 1.5 s and everything has settled by 2.2 s. The camera does not move. With animate false, or with reduced motion from scene/init, the end state is reached at once. The Player answers with scene/raised. An era not named in scene/init is refused (era_not_initialised). A first_feature_id that is not in the era is not an error: the stagger then starts from the centroid of the era's features.
+ * Shell to Player (0.8.0). Raise the past: Today's buildings sink to 1 m plinths over 600 ms, the sheet brightens, then each ghost of the era's features draws its edges on and rises, starting staggered by distance from the centre of first_feature_id's footprint (first start 0.3 s, last start 1.5 s, each rise 0.7 s) so everything has settled by 2.2 s. The camera does not move. With animate false, or with reduced motion from scene/init, the end state is reached at once. The Player answers with scene/raised. From the first raise the Player keeps Today's buildings solid as plinths (they no longer drain to an outline at a deeper depth), and the raised era is drawn whole until the next scene/setDepth takes over. An era not named in scene/init is refused (era_not_initialised); an era not loaded is refused the same way. A first_feature_id that is not in the era is not an error: the stagger then starts from the centre of the era's features.
  *
  * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
  * via the `definition` "sceneRaiseMessage".

@@ -1,0 +1,4 @@
+{
+  "type": "scene/loadEra",
+  "payload": { "eraId": "fip_1911", "features": [], "drapes": [], "held": true }
+}

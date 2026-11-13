@@ -164,6 +164,22 @@ namespace Buried.Scene
             LensMaterial.SetMode(_roofEdge, mode);
         }
 
+        /// <summary>
+        /// How far today's buildings have sunk toward 1 m plinths (0 full height, 1 plinths). The shaders pull every height
+        /// above <see cref="RaiseSchedule.PlinthM"/> down to it, so a block of any height ends 1 m high.
+        /// </summary>
+        public void SetSink(float sink)
+        {
+            Sink = Mathf.Clamp01(sink);
+            foreach (Material m in new[] { _fill, _edge, _roofEdge })
+            {
+                m.SetFloat("_Sink", Sink);
+                m.SetFloat("_PlinthM", RaiseSchedule.PlinthM);
+            }
+        }
+
+        public float Sink { get; private set; }
+
         public void SetStage(Stage stage)
         {
             bool opaque = stage.FillAlpha >= 0.999f;

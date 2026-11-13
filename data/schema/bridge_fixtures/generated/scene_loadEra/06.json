@@ -107,6 +107,7 @@
         "heightPx": 5658,
         "kind": "aerial"
       }
-    ]
+    ],
+    "held": true
   }
 }

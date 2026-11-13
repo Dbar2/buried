@@ -264,6 +264,7 @@
         "storeys": 24
       }
     ],
-    "drapes": []
+    "drapes": [],
+    "held": true
   }
 }

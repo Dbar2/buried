@@ -234,6 +234,11 @@ namespace Buried.Scene
                     group = new ClassGroup(cls, _materials, groupName, area);
                     groups[key] = group;
                 }
+                // The centre of the footprint, on every vertex of the feature (second UV): the raise staggers by it.
+                Vector2 centre = built.Fill.BoxCentreXZ();
+                built.Fill.SetUv2ForAll(centre);
+                built.Edges.SetUv2ForAll(centre);
+                _centres[feature.id] = centre;
                 group.Add(feature.id, built);
                 _ids.Add(feature.id);
                 _features[feature.id] = feature;
@@ -291,6 +296,7 @@ namespace Buried.Scene
             }
             _batches.Add(batch);
             FeatureCount += added;
+            if (Held) ApplyRaise(true, Vector2.zero, -1f, 0f);
             ApplyBatch(batch);
             return added;
         }
@@ -372,6 +378,102 @@ namespace Buried.Scene
         {
             LensMaterial.SetMode(group.Fill, _lensMode);
             LensMaterial.SetMode(group.Edge, _lensMode);
+        }
+
+        // ---- Raise the past (bridge 0.8.0) ----
+
+        /// <summary>
+        /// True while the era is held for the first visit's landing: its ghosts are held down (not drawn and not clickable)
+        /// and its sheet is drawn dim, until scene/raise.
+        /// </summary>
+        public bool Held { get; private set; }
+
+        /// <summary>True from the start of a raise until it has settled: the ghosts stand up on their own clocks.</summary>
+        public bool Raising { get; private set; }
+
+        private readonly Dictionary<string, Vector2> _centres = new Dictionary<string, Vector2>();
+
+        /// <summary>The centre of a feature's footprint on the ground, in scene metres (x east, y north), if the era draws it.</summary>
+        public bool TryGetCentre(string featureId, out Vector2 centre)
+        {
+            return _centres.TryGetValue(featureId, out centre);
+        }
+
+        /// <summary>The centre of every feature this era draws (ghosts and areas), by id.</summary>
+        public IDictionary<string, Vector2> Centres
+        {
+            get { return _centres; }
+        }
+
+        /// <summary>The ground point the stagger starts from: the first find's centre, or the middle of the era's features when it has none.</summary>
+        public Vector2 RaiseOrigin(string firstFeatureId)
+        {
+            Vector2 centre;
+            if (firstFeatureId != null && _centres.TryGetValue(firstFeatureId, out centre)) return centre;
+            if (_centres.Count == 0) return Vector2.zero;
+            Vector2 sum = Vector2.zero;
+            foreach (Vector2 c in _centres.Values) sum += c;
+            return sum / _centres.Count;
+        }
+
+        /// <summary>The landing look: every ghost of this era is held down until <see cref="BeginRaise"/>.</summary>
+        public void Hold()
+        {
+            Held = true;
+            Raising = false;
+            ApplyRaise(true, Vector2.zero, -1f, 0f);
+        }
+
+        /// <summary>Starts the raise from the first find's centre. The clock is then set with <see cref="SetRaiseClock"/>.</summary>
+        public void BeginRaise(string firstFeatureId)
+        {
+            Held = false;
+            Raising = true;
+            _raiseOrigin = RaiseOrigin(firstFeatureId);
+            _raiseFarthest = RaiseSchedule.Farthest(_centres.Values, _raiseOrigin);
+            ApplyRaise(true, _raiseOrigin, 0f, _raiseFarthest);
+        }
+
+        private Vector2 _raiseOrigin;
+        private float _raiseFarthest;
+
+        /// <summary>Seconds since the raise started: each ghost is as far up as its own start says.</summary>
+        public void SetRaiseClock(float clockS)
+        {
+            if (Raising) ApplyRaise(true, _raiseOrigin, clockS, _raiseFarthest);
+        }
+
+        /// <summary>The raise has settled: every ghost is at full height and the shaders stop reading the clock.</summary>
+        public void EndRaise()
+        {
+            Held = false;
+            Raising = false;
+            ApplyRaise(false, Vector2.zero, -1f, 0f);
+        }
+
+        private void ApplyRaise(bool on, Vector2 origin, float clock, float farthest)
+        {
+            var parameters = new Vector4(origin.x, origin.y, clock, farthest);
+            foreach (ClassGroup group in AllGroups())
+            {
+                foreach (Material material in new[] { group.Fill, group.Edge })
+                {
+                    if (material == null) continue;
+                    material.SetFloat("_RaiseOn", on ? 1f : 0f);
+                    material.SetVector("_RaiseParams", parameters);
+                }
+            }
+        }
+
+        /// <summary>The height of a feature's volume (the anchor's y), or 0 for a land-use area, which is flat on the ground.</summary>
+        public bool TryGetAnchor(string featureId, out Vector3 world)
+        {
+            world = Vector3.zero;
+            SceneFeatureDto feature;
+            Vector2 centre;
+            if (!_features.TryGetValue(featureId, out feature) || !_centres.TryGetValue(featureId, out centre)) return false;
+            world = new Vector3(centre.x, feature.kind == SceneFeatureDto.KindLandUse ? 0f : HeightOf(feature), centre.y);
+            return true;
         }
 
         // ---- Show Evidence ----

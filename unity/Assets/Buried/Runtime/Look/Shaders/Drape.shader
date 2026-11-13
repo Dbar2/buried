@@ -25,6 +25,7 @@ Shader "Buried/Drape"
         _ToneLine ("Scan luminance that is line colour", Float) = 0.02
         _TonePaper ("Scan luminance that is paper", Float) = 0.6
         _LightFloor ("Light far from the pool", Range(0, 1)) = 0.38
+        _Gain ("Sheet brightness of the lit display (the first visit dims it until Raise)", Range(0, 1)) = 1
         [HideInInspector] _LensMode ("Lantern lens: 0 everywhere, 1 inside, 2 outside", Float) = 0
     }
     SubShader
@@ -62,6 +63,7 @@ Shader "Buried/Drape"
                 float _ToneLine;
                 float _TonePaper;
                 half _LightFloor;
+                half _Gain;
                 half _LensMode;
             CBUFFER_END
 
@@ -104,7 +106,7 @@ Shader "Buried/Drape"
                     float2 fromPool = input.positionWS.xz - _BuriedLightPool.xy;
                     float radius = max(_BuriedLightPool.z, 1.0);
                     half pool = exp(-dot(fromPool, fromPool) / (radius * radius));
-                    rgb *= lerp(_LightFloor, 1.0, pool);
+                    rgb *= lerp(_LightFloor, 1.0, pool) * _Gain;
                 }
                 float2 maskUv = (input.positionWS.xz - _MaskRect.xy) * _MaskRect.zw;
                 half2 m = SAMPLE_TEXTURE2D(_MaskTex, sampler_MaskTex, maskUv).rg;

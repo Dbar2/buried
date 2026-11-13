@@ -260,7 +260,9 @@ namespace Buried.Interop
             JArray features = WriteFeatures(p.features);
             var drapes = new JArray();
             foreach (DrapeDto d in p.drapes) drapes.Add(WriteDrape(d));
-            return new JObject { ["eraId"] = p.eraId, ["features"] = features, ["drapes"] = drapes };
+            var loadEra = new JObject { ["eraId"] = p.eraId, ["features"] = features, ["drapes"] = drapes };
+            if (p.held) loadEra["held"] = true;
+            return loadEra;
         }
 
         private static JObject Write(SceneSetDepthPayload p)

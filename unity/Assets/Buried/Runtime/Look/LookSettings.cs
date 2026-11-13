@@ -154,6 +154,9 @@ namespace Buried.Look
         public const float LotPitchDeg = 40f;
         public const float LotPaddingM = 40f;
 
+        /// <summary>"Show on the map" (scene/frameFeature): the room kept around the feature's footprint.</summary>
+        public const float FrameFeaturePaddingM = 25f;
+
         /// <summary>The lot's outline on the ground: a `lantern` line this wide, with a `night` casing.</summary>
         public const float LotOutlineWidthCssPx = 3f;
         public const float LotOutlineCasingCssPx = 1.5f;
@@ -171,6 +174,12 @@ namespace Buried.Look
 
         /// <summary>The light a point far from the pool still gets, as a share of full light.</summary>
         public const float LightFloor = 0.38f;
+
+        /// <summary>
+        /// The first visit's sheet before Raise: the lit display at this share of its brightness. Raise takes it to 1
+        /// with the sinking plinths (spec 06 requirement 3.1: "brighten the sheet").
+        /// </summary>
+        public const float LandingSheetGain = 0.6f;
 
         /// <summary>Radius (m) at which the pool has fallen to 1 / e: with no lot pinned, and around a pinned lot.</summary>
         public const float LightPoolRadiusM = 260f;
