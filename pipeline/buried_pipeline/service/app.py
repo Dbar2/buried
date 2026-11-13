@@ -91,7 +91,7 @@ def create_app(
 ) -> FastAPI:
     env = os.environ if env is None else env
     config = config or Config.from_env(env)
-    snap = snapshot or load_snapshot(config.root)
+    snap = snapshot or load_snapshot(config.root, config.cache_dir, config.plate_manifest)
     limits = limiter or Limiter()
     for old in [f for f in log.filters if isinstance(f, RedactingFilter)]:
         log.removeFilter(old)  # one filter, for the app made last
@@ -159,8 +159,8 @@ def create_app(
                 "tile_sidecar": _read_json(sidecar) if sidecar.is_file() else None,
                 "has_alignment_record": snap.paths.alignment_record(source.id).is_file(),
                 "has_map_area": snap.paths.map_area_file(source.id).is_file(),
-                "raster_available": snap.plate_ref_of(source.id) is not None,
-                "plate_ref": snap.plate_ref_of(source.id),
+                "raster_available": snap.listed_available(source.id),
+                "plate_ref": snap.listed_ref(source.id),
             })  # fmt: skip
         return respond("registeredPlatesResponse", {
             "api_version": API_VERSION, "data_version": snap.data_version, "plates": plates,

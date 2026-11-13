@@ -12,7 +12,6 @@ from typing import Any
 
 from hypothesis import HealthCheck, assume, given, settings
 from shapely.geometry import shape
-from shapely.ops import unary_union
 
 from buried_pipeline.match import rules
 from buried_pipeline.match.compute import MatchInputs, MatchResult, compute_match
@@ -49,11 +48,6 @@ def mapped(doc: dict[str, Any]) -> Any:
     return shape(doc["mapped_area"]["geometry"]) if "mapped_area" in doc else None
 
 
-def reviewed(doc: dict[str, Any]) -> Any:
-    areas = [shape(a["geometry"]) for a in doc.get("reviewed_areas", [])]
-    return unary_union(areas) if areas else None
-
-
 def new_observations(
     before: dict[str, dict[str, Any]], after: dict[str, dict[str, Any]]
 ) -> Iterable[tuple[str, dict[str, Any], dict[str, Any]]]:
@@ -66,23 +60,31 @@ def new_observations(
                 yield origin, f, o
 
 
-def r_between(f: rules.Building, g: rules.Building) -> float | None:
-    return rules.overlap_score(f.geom, g.geom, f.error_m + g.error_m)
-
-
-def strong_only(f: rules.Building, plate: list[rules.Building], want: str) -> bool:
-    """Exactly `want` is strong for f on `plate`, and no other candidate reaches COMPETE_MIN."""
+def candidates_on(f: rules.Building, plate: list[rules.Building]) -> list[tuple[float, str]]:
+    """(score, id) of every building on `plate` within `e` of f, best first. Derived from the
+    definition: shift f over the 0.25 m lattice with |t| <= e and take the best IoU."""
+    out = []
     for g in plate:
-        if f.geom.distance(g.geom) > f.error_m + g.error_m:
+        e = f.error_m + g.error_m  # no pairwise registration in these worlds
+        if f.geom.distance(g.geom) > e:
             continue
-        r = r_between(f, g)
-        if r is None:
-            return False
-        if g.id == want and r < rules.MATCH_MIN:
-            return False
-        if g.id != want and r >= rules.COMPETE_MIN:
-            return False
-    return True
+        r = rules.overlap_score(f.geom, g.geom, e)
+        assert r is not None
+        out.append((r, g.id))
+    return sorted(out, key=lambda t: (-t[0], t[1]))
+
+
+def best_is(f: rules.Building, plate: list[rules.Building], want: str) -> bool:
+    ranked = candidates_on(f, plate)
+    return bool(ranked) and ranked[0][1] == want and (len(ranked) == 1 or ranked[0][0] > ranked[1][0])
+
+
+def only_strong(f: rules.Building, plate: list[rules.Building], want: str) -> bool:
+    """`want` scores at least MATCH_MIN and every other candidate scores under COMPETE_MIN."""
+    ranked = candidates_on(f, plate)
+    if not ranked or ranked[0][1] != want or ranked[0][0] < rules.MATCH_MIN:
+        return False
+    return len(ranked) == 1 or ranked[1][0] < rules.COMPETE_MIN
 
 
 # --- M1 ------------------------------------------------------------------------------------------
@@ -90,7 +92,7 @@ def strong_only(f: rules.Building, plate: list[rules.Building], want: str) -> bo
 
 @PROFILE
 @given(worlds())
-def test_m1_a_match_needs_one_clear_mutual_winner(inputs: MatchInputs) -> None:
+def test_m1_a_match_needs_a_clear_winner_that_is_also_the_others_best(inputs: MatchInputs) -> None:
     result = compute_match(inputs)
     feats = features(result.docs)
     links = [
@@ -103,21 +105,23 @@ def test_m1_a_match_needs_one_clear_mutual_winner(inputs: MatchInputs) -> None:
         (fo, ff), (go, gf) = feats[fid], feats[gid]
         assert fo != go
         f, g = building_of(fo, ff), building_of(go, gf)
-        e = f.error_m + g.error_m
-        assert f.geom.distance(g.geom) <= e
-        r = r_between(f, g)
-        assert r is not None and r >= rules.MATCH_MIN
-        # One winner from each side, with no competitor above COMPETE_MIN.
-        assert strong_only(f, published(result.docs, go), gid)
-        assert strong_only(g, published(result.docs, fo), fid)
-        # F grown by e lies inside the other plate's mapped area (and G inside F's).
-        assert mapped(result.docs[go]).contains(rules.grow(f.geom, e))
-        assert mapped(result.docs[fo]).contains(rules.grow(g.geom, e))
+        assert f.geom.distance(g.geom) <= f.error_m + g.error_m
+        # Written from whichever side found it: that side has one winner and no competitor, and
+        # that winner has the written feature as its best candidate on the other plate.
+        f_side = only_strong(f, published(result.docs, go), gid)
+        g_side = only_strong(g, published(result.docs, fo), fid)
+        assert f_side or g_side
+        assert best_is(f, published(result.docs, go), gid)
+        assert best_is(g, published(result.docs, fo), fid)
         # And the link is mirrored, with the presence on both features.
         assert any(
             o["source"] == go and o["present"] and o["visibility"] == "clear"
             and o["method"] == "match_auto" and o["matched_feature"] == gid
             for o in ff["properties"]["observations"]
+        )
+        assert any(
+            o["source"] == fo and o["present"] and o["matched_feature"] == fid
+            for o in gf["properties"]["observations"]
         )
 
 
@@ -126,7 +130,7 @@ def test_m1_a_match_needs_one_clear_mutual_winner(inputs: MatchInputs) -> None:
 
 @PROFILE
 @given(worlds())
-def test_m2_absence_only_inside_reviewed_areas_and_with_an_empty_core(
+def test_m2_absence_only_inside_one_reviewed_area_and_with_no_cover_under_any_shift(
     inputs: MatchInputs,
 ) -> None:
     result = compute_match(inputs)
@@ -136,13 +140,19 @@ def test_m2_absence_only_inside_reviewed_areas_and_with_an_empty_core(
         if o["visibility"] == "clear":
             fb = building_of(origin, f)
             other = o["source"]
-            e_abs = fb.error_m + MIN_ERROR[other]
-            core = rules.shrink(fb.geom, e_abs)
-            assert not core.is_empty
-            area = reviewed(result.docs[other])
-            assert area is not None and area.contains(rules.grow(fb.geom, e_abs))
+            areas = [
+                shape(a["geometry"])
+                for a in result.docs[other].get("reviewed_areas", [])
+                if "building" in a.get("covers", ["building"])
+            ]
+            assert any(a.contains(fb.geom) for a in areas)
             assert mapped(result.docs[other]) is not None
-            assert not any(g.geom.intersects(core) for g in published(result.docs, other))
+            for g in published(result.docs, other):
+                e = fb.error_m + g.error_m
+                if fb.geom.distance(g.geom) > e:
+                    continue
+                ov = rules.overlap(fb.geom, g.geom, e)
+                assert ov is not None and ov.covered < rules.ABSENCE_COVER_MAX
         else:
             # not_covered: the feature misses the other plate's mapped area.
             assert o["visibility"] == "not_covered"
@@ -312,7 +322,13 @@ def test_m6_a_chain_of_matches_that_would_hold_two_features_from_one_source_is_r
         for f in doc["features"]
     }
     plates = {
-        p: rules.Plate(p, mapped(d), reviewed(d), tuple(published(inputs.docs, p)), MIN_ERROR[p])
+        p: rules.Plate(
+            p,
+            mapped(d),
+            tuple(shape(a["geometry"]) for a in d.get("reviewed_areas", [])),
+            tuple(published(inputs.docs, p)),
+            MIN_ERROR[p],
+        )
         for p, d in inputs.docs.items()
     }
     outcomes = {

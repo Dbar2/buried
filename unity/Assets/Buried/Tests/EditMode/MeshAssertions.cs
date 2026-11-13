@@ -122,7 +122,8 @@ namespace Buried.Tests
                 const double step = 1e-3;
                 Assert.IsFalse(
                     InsideSolid(polygon, centroid.x + n.x * step, centroid.z + n.z * step),
-                    "wall triangle " + t + " faces into the solid");
+                    "wall triangle " + t + " faces into the solid (area " + mesh.TriangleArea(t).ToString("R") + ", normal " + n.ToString("F4")
+                    + ", corners " + a.ToString("F4") + " " + b.ToString("F4") + " " + c.ToString("F4") + ")");
                 Assert.IsTrue(
                     InsideSolid(polygon, centroid.x - n.x * step, centroid.z - n.z * step),
                     "wall triangle " + t + " has no solid behind it");

@@ -1140,6 +1140,13 @@
             "present": true,
             "source": "fip_v3_1935_229",
             "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0010",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
           }
         ],
         "position_error_m": 3.3,
@@ -1159,6 +1166,12 @@
           "proposal_id": "fip_v3_1935_229_p_1faf8a161ef3",
           "tone_class": "light"
         },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0010",
+            "method": "match_auto"
+          }
+        ],
         "status": "published"
       },
       "type": "Feature"
@@ -2388,6 +2401,13 @@
             "present": true,
             "source": "fip_v3_1935_229",
             "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0005",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
           }
         ],
         "position_error_m": 3.3,
@@ -2407,6 +2427,12 @@
           "proposal_id": "fip_v3_1935_229_p_57242ee0d5de",
           "tone_class": "mid"
         },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0005",
+            "method": "match_auto"
+          }
+        ],
         "status": "published"
       },
       "type": "Feature"
@@ -2586,6 +2612,13 @@
             "present": true,
             "source": "fip_v3_1935_229",
             "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0077",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
           }
         ],
         "position_error_m": 3.3,
@@ -2605,6 +2638,12 @@
           "proposal_id": "fip_v3_1935_229_p_5e642d26c4bf",
           "tone_class": "mid"
         },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0077",
+            "method": "match_auto"
+          }
+        ],
         "status": "published"
       },
       "type": "Feature"
@@ -2998,6 +3037,13 @@
             "present": true,
             "source": "fip_v3_1935_229",
             "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0014",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
           }
         ],
         "position_error_m": 3.3,
@@ -3017,6 +3063,12 @@
           "proposal_id": "fip_v3_1935_229_p_6dd545cc934e",
           "tone_class": "dark"
         },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0014",
+            "method": "match_auto"
+          }
+        ],
         "status": "published"
       },
       "type": "Feature"
@@ -3661,6 +3713,13 @@
             "present": true,
             "source": "fip_v3_1935_229",
             "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0079",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
           }
         ],
         "position_error_m": 3.3,
@@ -3680,6 +3739,12 @@
           "proposal_id": "fip_v3_1935_229_p_7667215ed712",
           "tone_class": "mid"
         },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0079",
+            "method": "match_auto"
+          }
+        ],
         "status": "published"
       },
       "type": "Feature"
@@ -3768,6 +3833,13 @@
             "present": true,
             "source": "fip_v3_1935_229",
             "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0006",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
           }
         ],
         "position_error_m": 3.3,
@@ -3787,6 +3859,12 @@
           "proposal_id": "fip_v3_1935_229_p_76cca3374b0f",
           "tone_class": "mid"
         },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0006",
+            "method": "match_auto"
+          }
+        ],
         "status": "published"
       },
       "type": "Feature"
@@ -4033,6 +4111,13 @@
             "present": true,
             "source": "fip_v3_1935_229",
             "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0058",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
           }
         ],
         "position_error_m": 3.3,
@@ -4052,6 +4137,12 @@
           "proposal_id": "fip_v3_1935_229_p_8eb6ccdea9e8",
           "tone_class": "mid"
         },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0058",
+            "method": "match_auto"
+          }
+        ],
         "status": "published"
       },
       "type": "Feature"
@@ -4132,6 +4223,13 @@
             "present": true,
             "source": "fip_v3_1935_229",
             "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0046",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
           }
         ],
         "position_error_m": 3.3,
@@ -4151,6 +4249,12 @@
           "proposal_id": "fip_v3_1935_229_p_91338455f298",
           "tone_class": "mid"
         },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0046",
+            "method": "match_auto"
+          }
+        ],
         "status": "published"
       },
       "type": "Feature"
@@ -4798,6 +4902,13 @@
             "present": true,
             "source": "fip_v3_1935_229",
             "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0009",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
           }
         ],
         "position_error_m": 3.3,
@@ -4817,6 +4928,12 @@
           "proposal_id": "fip_v3_1935_229_p_a542c797fa43",
           "tone_class": "light"
         },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0009",
+            "method": "match_auto"
+          }
+        ],
         "status": "published"
       },
       "type": "Feature"
@@ -5095,6 +5212,13 @@
             "present": true,
             "source": "fip_v3_1935_229",
             "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0038",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
           }
         ],
         "position_error_m": 3.3,
@@ -5114,6 +5238,12 @@
           "proposal_id": "fip_v3_1935_229_p_aa9e6864c39f",
           "tone_class": "mid"
         },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0038",
+            "method": "match_auto"
+          }
+        ],
         "status": "published"
       },
       "type": "Feature"
@@ -5800,6 +5930,13 @@
             "present": true,
             "source": "fip_v3_1935_229",
             "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0064",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
           }
         ],
         "position_error_m": 3.3,
@@ -5819,6 +5956,12 @@
           "proposal_id": "fip_v3_1935_229_p_c47758c17ee9",
           "tone_class": "mid"
         },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0064",
+            "method": "match_auto"
+          }
+        ],
         "status": "published"
       },
       "type": "Feature"
@@ -6171,6 +6314,13 @@
             "present": true,
             "source": "fip_v3_1935_229",
             "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0061",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
           }
         ],
         "position_error_m": 3.3,
@@ -6190,6 +6340,12 @@
           "proposal_id": "fip_v3_1935_229_p_e5bc44b1629e",
           "tone_class": "dark"
         },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0061",
+            "method": "match_auto"
+          }
+        ],
         "status": "published"
       },
       "type": "Feature"
@@ -6448,6 +6604,13 @@
             "present": true,
             "source": "fip_v3_1935_229",
             "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0035",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
           }
         ],
         "position_error_m": 3.3,
@@ -6467,6 +6630,12 @@
           "proposal_id": "fip_v3_1935_229_p_f92ced792393",
           "tone_class": "mid"
         },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0035",
+            "method": "match_auto"
+          }
+        ],
         "status": "published"
       },
       "type": "Feature"
@@ -6527,6 +6696,13 @@
             "present": true,
             "source": "fip_v3_1935_229",
             "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0028",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
           }
         ],
         "position_error_m": 3.3,
@@ -6546,6 +6722,12 @@
           "proposal_id": "fip_v3_1935_229_p_fdec7ef759c2",
           "tone_class": "mid"
         },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0028",
+            "method": "match_auto"
+          }
+        ],
         "status": "published"
       },
       "type": "Feature"

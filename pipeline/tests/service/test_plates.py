@@ -268,14 +268,37 @@ def test_a_cached_copy_of_the_held_out_plate_is_not_served_without_a_live_reques
 
 
 def test_nothing_in_the_service_fetches_a_plate_on_its_own() -> None:
-    """No warm-up, no precompute: only plates.py names the fetcher until an endpoint is wired
-    to a request, and that endpoint passes `live` from the request alone."""
+    """No warm-up, no precompute: the fetcher's `ensure` is called from exactly two functions,
+    each a request handler's helper, and always as a live request. Not at startup, not from a
+    listing, not from a thread of its own."""
+    import ast
+
     service = Path(__file__).resolve().parents[2] / "buried_pipeline" / "service"
+    allowed = {("snapshot.py", "resolve_plate"), ("publish.py", "_fetch_for_publish")}
+    found: set[tuple[str, str]] = set()
     for path in sorted(service.glob("*.py")):
         if path.name == "plates.py":
             continue
-        text = path.read_text(encoding="utf-8")
-        assert "PlateFetcher" not in text and ".ensure(" not in text, path.name
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for fn in ast.walk(tree):
+            if not isinstance(fn, ast.FunctionDef):
+                continue
+            for call in ast.walk(fn):
+                if (
+                    isinstance(call, ast.Call)
+                    and isinstance(call.func, ast.Attribute)
+                    and call.func.attr == "ensure"
+                ):
+                    found.add((path.name, fn.name))
+                    live = {k.arg: k.value for k in call.keywords}.get("live")
+                    assert isinstance(live, ast.Constant) and live.value is True, (path.name, fn.name)
+    assert found == allowed
+    # Only the snapshot builds a fetcher, and only when the environment gave it a cache directory.
+    builders = [
+        p.name for p in service.glob("*.py")
+        if p.name != "plates.py" and "PlateFetcher(" in p.read_text(encoding="utf-8")
+    ]
+    assert builders == ["snapshot.py"]
 
 
 # --- S9: only allowlisted downloads --------------------------------------------------------------

@@ -89,7 +89,7 @@ pipeline/
       build.py              # pure: proposals + decisions + record -> features, coverage areas
       run.py                # I/O: read inputs, validate, write
     match/
-      rules.py              # pure: MATCH_MIN, COMPETE_MIN, overlap score, per-pair outcome
+      rules.py              # pure: thresholds, shift lattice, overlap score, per-pair outcome
       links.py              # pure: linked sets (union-find), same-origin check
       apply.py              # pure: strip match_auto results, apply person decisions, write new ones
       run.py                # I/O: read evidence, alignment, tiles, decisions; validate; write
@@ -685,82 +685,107 @@ new features carry only their origin observation.
 - Aerials: every registered `aerial_photograph` with an alignment record and a tile sidecar. Its
   footprint is the sidecar's four corners as a polygon.
 
-All geometry is shapely in EPSG:26917. `shrink(g, d)` is `g.buffer(-d)` and `grow(g, d)` is
-`g.buffer(d)`, both with round joins and 16 segments per quadrant. For an inward buffer the chords
-of the polygonal arcs make the shrunk shape very slightly larger than the exact one, which errs
-toward "something touches the core" and so away from a false absence.
+All geometry is shapely in EPSG:26917. Plates are compared in one frame (plate A's, the lower source
+id) after the pairwise registration below; a plate pair without one is compared as drawn.
 
-### Pairwise error (requirement 13.15)
+### Pairwise registration (requirement 13.15)
 
-Two plates are measured against the same City intersections, so how far one plate's footprint may
-sit from another's is smaller than the sum of their absolute errors. `align/pairwise.py` (pure)
-holds the rule; `match/run.py` reads the committed control files and alignment records and calls it.
+Two plates are measured against the same City intersections, so how one plate's footprints sit
+against another's is better known than the sum of their absolute errors says. `align/pairwise.py`
+(pure) holds the rule; `match/run.py` reads the committed control files and alignment records and
+calls it.
 
 - Shared references: control points of two plates with the same `(reference_source,
-  reference_feature_id, reference_vertex)`. Fewer than four: no figure.
+  reference_feature_id, reference_vertex)`. Fewer than four: no registration.
 - A plate's out-of-sample residual `r` at a point: the supplied residual from its alignment record
   when it chose `supplied`; the leave-one-out residual, recomputed from the control file, when it
   chose `refined` (the in-sample residuals of a refined fit are optimistic).
-- Where plate A puts a reference minus where plate B puts it is `r_A − r_B`, because both
-  transforms predict the same City position `q` and `T(p) = q + r`. `B_pair` is the RMS of those
-  differences (`math.fsum`, so order does not matter). `pairwise_error_m = ceil_0.1(max(1.0, 2 ×
-  B_pair))`. The 1.0 m floor is half the alignment error's 2.0 m: the City reference's own error
-  cancels in a difference, but the control points were read by eye, the transforms are measured at
-  a handful of points inside a hull and extrapolated outside it, and a few points can have a small
-  RMS by luck.
+- Both transforms predict the City position `q` and `T(p) = q + r`, so plate A puts a shared
+  reference at `q + r_A` and plate B at `q + r_B`. The registration `T_BA` takes B's positions to
+  A's: a similarity (rotation, one scale, translation) for four or five references, an affine for
+  six or more, least squares, centred on the two centroids. An affine whose points are nearly on a
+  line (the fit or any leave-one-out fit) falls back to a similarity; if that is degenerate there
+  is no registration. A is the plate with the lower source id; `T_AB` is the inverse of `T_BA`
+  (so `T_AB ∘ T_BA` is the identity), and one registration serves both directions.
+- `pairwise_error_m = ceil_0.1(max(0.5, 2 × L))`, `L` the RMS of the leave-one-out residuals
+  (`T_BA` fitted without a reference, applied to B's position there, minus A's position there;
+  `math.fsum`, so order does not matter). It has the shape of the alignment error: twice an
+  out-of-sample RMS, rounded up. The floor is a quarter of the alignment error's 2.0 m: the City
+  reference's own error cancels, but the control points were read by eye and a few points can fit
+  well by luck.
 - A plate's control file must hash to its alignment record's `control_sha256`; otherwise the plate
   takes no part and `match` says so.
 - `e` for F against G on the other plate is `ceil_0.1(sqrt(pairwise² + own(F)² + own(G)²))`, with
-  `own(X) = sqrt(position_error_m² − provenance.alignment_error_m²)`. For an absence, `own(G)` is
-  replaced by the other plate's smallest digitising term, `max(1.0, 2 × pixel size)`.
+  `own(X) = sqrt(position_error_m² − provenance.alignment_error_m²)`. Without a registration, `e`
+  is the sum of the two position errors and the plates are compared as drawn.
+- The registration is a comparison tool. Published geometry, `position_error_m` and every other
+  field of the evidence files are never changed by it.
 - Everything is recomputable from `data/control/<id>.json` and `data/alignment/<id>.json`. Each
-  `match` run writes the figures it used, with shared references and differences, to
-  `data/work/match/pairwise.json`. Nothing under `data/` changes.
+  `match` run writes the figures it used (shared references, both plates' positions, the
+  leave-one-out residuals, the model and `T_BA`) to `data/work/match/pairwise.json`. Nothing under
+  `data/` changes.
 
-On plate 229 both editions chose their supplied georeferencing, so the figure is built from the
-supplied residuals (RMS of the differences 1.66 m, pairwise error 3.4 m), not from the refined
-fits, whose residuals agree to about 0.2 m but are not the transforms the published footprints
-were drawn under.
+On plate 229 both editions chose their supplied georeferencing. The six shared references give an
+affine registration with a leave-one-out RMS of 0.38 m and a pairwise error of 0.8 m, measured
+inside the hull of the control points (the northern two-thirds of the plate); the figure is an
+extrapolation outside it.
+
+### The overlap score
+
+For footprints F and G with error `e`, `r` is the largest intersection over union of `F + t` and
+`G` over shifts `t` with `|t| <= e` on a lattice of `SHIFT_STEP_M = 0.25` m (zero included). The
+lattice does not depend on `e`, so a larger `e` only adds shifts and `r` never decreases. `r` is
+the same whichever footprint is shifted (the smaller by area is, ties broken by well-known
+binary). Computation is done near the origin of the pair, not near 4.8e6 m. The same shifts give
+`covered`: the largest share of F's area that falls inside G.
+
+Why not shrink F by `e` (the rule of session 025): a typical footprint here is 5 to 10 m across,
+and shrinking it by `e` of a few metres left nothing to compare, and the score was not monotone
+in `e`. A shift is what the error means: the footprint may be drawn up to `e` from where it is.
 
 ### Thresholds
 
 Defined once in `match/rules.py`:
 
-- `MATCH_MIN = 0.5`: at least half of the smaller footprint's certain core lies inside the larger.
-- `COMPETE_MIN = 0.1`: any second footprint with a tenth of the core is a competitor, and the case
-  goes to a person.
+- `MATCH_MIN = 0.5`: the best candidate scores at least this.
+- `COMPETE_MIN = 0.3`: the second-best candidate scores under this; otherwise the case goes to a
+  person.
+- `ABSENCE_COVER_MAX = 0.10`: an absence needs every footprint to cover less than this share of F
+  under every allowed shift.
+- `SHIFT_STEP_M = 0.25`.
 
 These are design values, not tuned on any plate. Changing one is a reviewed change to this file.
 
 ### Per pair: F against another plate P
 
-1. If `F ∩ mapped_area(P)` is empty: `not_covered`.
-2. Candidates: published buildings G on P with `distance(F, G) <= e_FG`, where
-   `e_FG = F.position_error_m + G.position_error_m`. For each, `r` as in requirement 13.2. If the
-   shrunk smaller footprint is empty, the pair goes to review ("too small for its error").
-3. Match: exactly one G with `r >= MATCH_MIN`, no other with `r >= COMPETE_MIN`, and
-   `grow(F, e_FG)` inside `mapped_area(P)`; and the same holds the other way round (F is G's only
-   strong candidate on F's plate, with no competitor), so the outcome does not depend on which
-   feature is processed first. Matches found this way are only candidate links until the
-   same-origin check below.
+1. If `F ∩ mapped_area(P)` is empty: `not_covered`. If P has no mapped area, or F has no area:
+   review.
+2. Candidates: published buildings G on P with `distance(F, G) <= e_FG` in the common frame, `e_FG`
+   as above. For each, `r` and `covered`.
+3. Match: F's best candidate (not one a person ruled out with `no_link`) scores `r >= MATCH_MIN`,
+   F's second-best scores under `COMPETE_MIN`, and F is also G's best candidate on F's plate (the
+   unique highest `r`; scores are the same from both sides, so the outcome does not depend on
+   which feature is processed first). A tie for best is no best. Matches found this way are only
+   candidate links until the same-origin check below. A match near the edge of the mapped area is
+   still a match: both plates draw the building.
 
    Same-origin check (`match/links.py`): after all plate pairs are scored, build the linked sets
    from person links plus every candidate link. In any set that would contain two features with the
    same origin source, every candidate link in that set goes to review and none of them, nor their
    presences, is written. This is done on the whole graph at once so the result does not depend on
    processing order.
-4. Absence: `e_abs = F.position_error_m + min_error(P)`. `shrink(F, e_abs)` is not empty,
-   `grow(F, e_abs)` lies inside the union of `reviewed_areas(P)`, and no published building on P
-   intersects `shrink(F, e_abs)`: `present: false, clear`.
+4. Absence: F lies wholly inside one of P's reviewed areas (one at a time, not their union), and no
+   published building on P, including one a person ruled out, has `covered >= ABSENCE_COVER_MAX`:
+   `present: false, clear`.
 5. Otherwise: review, with the reason (partial overlap, competing candidates, outside reviewed
-   areas, on the plate edge) and every candidate's id and `r`.
+   areas, overlaps a footprint a person ruled out) and every candidate's id, `r` and `covered`.
 
-Rules 3 and 4 cannot both hold: a match needs a candidate whose overlap with F's core is positive,
-and absence needs no building touching F's core.
+Rules 3 and 4 cannot both hold: a match needs a candidate with `r >= 0.5`, which covers more than
+a tenth of F at the best shift, and an absence needs every `covered` under a tenth.
 
 A clear absence can also mean a different building stands on the spot (`evidence.md`). Code cannot
-tell that from the same building redrawn, so a footprint that overlaps F's core but does not match
-always goes to review.
+tell that from the same building redrawn, so a footprint that covers a tenth of F or more under an
+allowed shift but does not match always goes to review.
 
 ### Per pair: F against an aerial A
 

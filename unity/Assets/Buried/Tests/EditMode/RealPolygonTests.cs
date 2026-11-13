@@ -96,6 +96,7 @@ namespace Buried.Tests
             int withHoles = 0;
             int files = 0;
             var droppedIds = new List<string>();
+            var failures = new List<string>();
 
             foreach (string file in DataFiles())
             {
@@ -126,7 +127,11 @@ namespace Buried.Tests
                         }
                         catch (AssertionException e)
                         {
-                            Assert.Fail("E15 failed on " + id + " (" + prepared.Outer.Count + " vertices, " + prepared.Holes.Count + " holes): " + e.Message);
+                            failures.Add(id + " (" + prepared.Outer.Count + " vertices, " + prepared.Holes.Count + " holes): " + e.Message.Replace("\n", " "));
+                        }
+                        catch (InvalidOperationException e)
+                        {
+                            failures.Add(id + " (" + prepared.Outer.Count + " vertices, " + prepared.Holes.Count + " holes): " + e.Message);
                         }
                         tested++;
                         if (prepared.Holes.Count > 0) withHoles++;
@@ -136,9 +141,40 @@ namespace Buried.Tests
 
             TestContext.WriteLine(
                 "E15: " + tested + " polygons tested in " + files + " files (" + withHoles + " with holes); " + dropped
-                + " dropped by preparation" + (dropped > 0 ? ": " + string.Join(", ", droppedIds) : ""));
+                + " dropped by preparation" + (dropped > 0 ? ": " + string.Join(", ", droppedIds) : "") + "; " + failures.Count + " failed");
             Assert.Greater(files, 0, "no committed data files were found");
             Assert.Greater(tested, 0, "no polygon was tested");
+            Assert.IsEmpty(failures, "E15 failed on " + failures.Count + " of " + tested + " polygons:\n" + string.Join("\n", failures));
+        }
+
+        // Regression: bld_fip_v3_1935_229_0009 (EPSG:26917 as committed, 39 vertices). Found by E15 in session 023.
+        private static readonly double[][] Bld1935_229_0009 =
+        {
+            new[] { 632485.715614, 4835071.143343 }, new[] { 632482.088649, 4835068.141384 }, new[] { 632482.430717, 4835065.175623 },
+            new[] { 632487.279824, 4835059.466722 }, new[] { 632487.33198, 4835058.843142 }, new[] { 632488.764158, 4835057.737335 },
+            new[] { 632488.816314, 4835057.113755 }, new[] { 632491.636972, 4835053.738562 }, new[] { 632492.854418, 4835052.952056 },
+            new[] { 632492.447976, 4835052.191359 }, new[] { 632491.693357, 4835052.221403 }, new[] { 632487.51194, 4835048.542326 },
+            new[] { 632489.392379, 4835046.292198 }, new[] { 632490.295008, 4835046.178573 }, new[] { 632490.051143, 4835045.722155 },
+            new[] { 632490.54733, 4835044.847832 }, new[] { 632490.958001, 4835044.71495 }, new[] { 632491.364443, 4835045.475648 },
+            new[] { 632492.004412, 4835045.411325 }, new[] { 632491.010157, 4835044.09137 }, new[] { 632493.878742, 4835040.986177 },
+            new[] { 632509.758165, 4835054.298949 }, new[] { 632506.641486, 4835057.841303 }, new[] { 632504.944768, 4835055.927813 },
+            new[] { 632504.567458, 4835055.942835 }, new[] { 632504.663313, 4835056.482834 }, new[] { 632505.351209, 4835056.688511 },
+            new[] { 632506.541403, 4835058.194884 }, new[] { 632503.491446, 4835061.501518 }, new[] { 632502.822344, 4835060.790121 },
+            new[] { 632502.082291, 4835061.208025 }, new[] { 632498.488688, 4835058.088205 }, new[] { 632498.492917, 4835057.194625 },
+            new[] { 632497.442277, 4835057.391831 }, new[] { 632487.395886, 4835069.600376 }, new[] { 632486.474461, 4835070.21972 },
+            new[] { 632485.724071, 4835069.356184 }, new[] { 632485.42805, 4835069.523346 }, new[] { 632486.259729, 4835070.539021 },
+        };
+
+        [Test]
+        public void Regression_Bld_fip_v3_1935_229_0009_ExtrudesWithOutwardWalls()
+        {
+            ProjectFrame frame = Frame();
+            var ring = new List<Vec2d>();
+            foreach (double[] p in Bld1935_229_0009) ring.Add(frame.ToLocal(p[0], p[1]));
+            PreparedPolygon prepared = PolygonPrep.Prepare(ring, null);
+            Assert.IsNotNull(prepared);
+            MeshData mesh = Extruder.Extrude(prepared, HeightM);
+            MeshAssertions.AssertExtrusion(prepared, mesh, HeightM);
         }
     }
 }

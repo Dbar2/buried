@@ -453,31 +453,32 @@ evidence file against every other registered fire insurance plan that has an evi
 every registered 1947 aerial that has an alignment record.
 
 13.2 THE Pipeline SHALL compare a building F with a published building G on another plate using
-`e = F.position_error_m + G.position_error_m` and the overlap score
-`r = area(shrink(S, e) ∩ L) / area(shrink(S, e))`, where S is the smaller of F and G by area, L is
-the larger, and `shrink` is an inward buffer. G is a candidate when it lies within `e` of F.
+`e`, the root-sum-square of the pairwise error (13.15) and the digitising terms of F and G, rounded
+up to 0.1 m (without a pairwise registration: the sum of the two position errors), and the overlap
+score `r`: the largest intersection over union of `F + t` and `G` over shifts `t` with `|t| ≤ e`,
+on a lattice of 0.25 m that includes zero and does not depend on `e`. G is a candidate when it
+lies within `e` of F. Both footprints are first brought into one frame by the pairwise
+registration of 13.15; published geometry is not changed.
 
-13.3 WHEN exactly one candidate G has `r ≥ MATCH_MIN` and no other candidate has
-`r ≥ COMPETE_MIN`, the same holds from G's side (F is G's only strong candidate on F's plate), and
-F grown by `e` lies inside the other plate's mapped area, THE Pipeline SHALL write on F an
-observation from G's origin source with `present: true`, `visibility: clear`,
+13.3 WHEN F's best candidate G has `r ≥ MATCH_MIN`, F's second-best candidate has `r < COMPETE_MIN`,
+and F is also G's best candidate on F's plate (scores are the same from both sides), THE Pipeline
+SHALL write on F an observation from G's origin source with `present: true`, `visibility: clear`,
 `method: match_auto` and `matched_feature: G`, write the mirror observation on G, and link F and G
 with `same_as` (`method: match_auto`) on both.
 
-13.4 WHEN F grown by `e_abs` lies inside a reviewed area of the other plate, F shrunk inward by
-`e_abs` is not empty, and no published building on that plate intersects F shrunk inward by
-`e_abs`, THE Pipeline SHALL write on F an observation from that plate with `present: false`,
-`visibility: clear`, `method: match_auto`. Here `e_abs` is F's position error plus the smallest
-position error a feature on the other plate can have (the root-sum-square of its alignment error
-and its digitising term, rounded up to 0.1 m).
+13.4 WHEN F lies wholly inside one reviewed area of the other plate and, over all shifts `t` with
+`|t| ≤ e`, no published building on that plate covers `ABSENCE_COVER_MAX` (10 per cent) or more of
+F's area, THE Pipeline SHALL write on F an observation from that plate with `present: false`,
+`visibility: clear`, `method: match_auto`.
 
 13.5 WHEN F does not intersect the other plate's mapped area, THE Pipeline SHALL write an
 observation with `present: false`, `visibility: not_covered`, `method: match_auto`.
 
-13.6 IN every other case (partial overlap, competing candidates, an empty shrunk footprint, a spot
-on the plate outside its reviewed areas, or a link that would put two features with the same
-origin source in one linked set), THE Pipeline SHALL write no observation and no link for that
-pair, and SHALL add the case with its reason and scores to the match review list.
+13.6 IN every other case (partial overlap, competing candidates, a footprint with no area, a spot
+on the plate outside every reviewed area, a candidate a person ruled out that still covers F, or a
+link that would put two features with the same origin source in one linked set), THE Pipeline
+SHALL write no observation and no link for that pair, and SHALL add the case with its reason and
+scores (`r`, and the largest share of F covered) to the match review list.
 
 13.7 FOR a 1947 aerial, WHEN F does not intersect the photo's footprint under its chosen transform,
 THE Pipeline SHALL write `not_covered` with `method: match_auto`; otherwise it SHALL write nothing
@@ -501,25 +502,30 @@ link and recompute them, so that the same inputs give byte-identical evidence fi
 13.12 THE Pipeline SHALL validate the whole would-be `data/` state with spec 01's Validator before
 writing, and IF validation fails, THEN it SHALL write nothing and print the errors.
 
-13.13 THE thresholds `MATCH_MIN` and `COMPETE_MIN` SHALL be defined once, in the design, and SHALL
-NOT vary by plate.
+13.13 THE thresholds `MATCH_MIN` (0.5), `COMPETE_MIN` (0.3), `ABSENCE_COVER_MAX` (0.10) and the shift
+lattice step (0.25 m) SHALL be defined once, in the design, and SHALL NOT vary by plate.
 
 13.14 THE Pipeline SHALL print counts per source pair: matched, absent, not covered, sent to review,
 pending aerial checks; and SHALL write the match review list.
 
 13.15 FOR two plates that cite at least four of the same control references (same reference source,
-feature id and vertex), THE Pipeline SHALL compute a pairwise alignment error: at each shared
-reference, the difference between where the two plates put it under their chosen transforms (the
-difference of their residuals, out of sample); `B_pair` is the root mean square of those
-differences, and `pairwise_error_m = ceil_0.1(max(1.0, 2 × B_pair))`. FOR a plate-to-plate test of
-features F and G from those plates, THE Pipeline SHALL then use
+feature id and vertex), THE Pipeline SHALL compute a pairwise registration: at each shared
+reference, take where each plate puts it under its chosen transform (the reference position plus
+the plate's out-of-sample residual), and fit by least squares, centred, a transform `T_BA` taking
+B's positions to A's (a similarity for four or five references, an affine for six or more; an
+unstable affine falls back to a similarity). `pairwise_error_m = ceil_0.1(max(0.5, 2 × L))`, where
+`L` is the leave-one-out RMS of the registration at the shared references. `T_AB` is the inverse of
+`T_BA`; the two compose to the identity within tolerance. FOR a plate-to-plate test of features F
+and G from those plates, THE Pipeline SHALL compare F with `T_BA` applied to G (or the reverse,
+in plate A's frame, so both sides of a pair score the same numbers) and use
 `e = ceil_0.1(sqrt(pairwise_error_m² + own(F)² + own(G)²))`, where `own` is a feature's position
-error beyond its source's alignment error (its digitising term and any reviewer raise), and
-`e_abs = ceil_0.1(sqrt(pairwise_error_m² + own(F)² + own_min(P)²))` for an absence. WHEN the plates
-share fewer than four references, a control file no longer matches its alignment record, or a
-feature has no alignment error in its provenance, THE Pipeline SHALL use the absolute errors of
-13.2 and 13.4. THE pairwise figure SHALL be symmetric in the two plates and SHALL be written, with
-its shared references and differences, to `data/work/match/pairwise.json`.
+error beyond its source's alignment error (its digitising term and any reviewer raise). WHEN the
+plates share fewer than four references, the shared points are too degenerate to fit, a control
+file no longer matches its alignment record, or a feature has no alignment error in its
+provenance, THE Pipeline SHALL use the identity for `T_BA` and the sum of the two position errors
+for `e`. THE registration SHALL NOT change any published geometry. THE Pipeline SHALL write, for
+each pair of plates, the shared references, both plates' positions, the leave-one-out residuals,
+the model, `T_BA` and the figures to `data/work/match/pairwise.json`.
 
 ## Requirement 14: Plates as TIFF or JPEG, and the control points they ship with
 
