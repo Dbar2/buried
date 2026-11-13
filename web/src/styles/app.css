@@ -13,8 +13,8 @@ body,
 }
 
 body {
-  background: var(--night);
-  color: var(--text);
+  background: var(--soot);
+  color: var(--parchment);
   font-family: var(--font-body);
   font-size: 1rem;
   line-height: 1.5;
@@ -23,12 +23,12 @@ body {
 h1,
 h2 {
   font-family: var(--font-heading);
-  font-weight: 600;
+  font-weight: 400;
   margin: 0;
 }
 
 a {
-  color: var(--text);
+  color: var(--parchment);
 }
 
 code,
@@ -44,7 +44,7 @@ code,
 }
 
 .muted {
-  color: var(--muted);
+  color: var(--parchment-dim);
 }
 
 .visually-hidden {

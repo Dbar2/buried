@@ -1,5 +1,5 @@
 /*
- * The social card (session 031): 1200 x 630, the dusk backdrop of the landing, the core-sample mark,
+ * The social card (session 031): 1200 x 630, the soot table, the core-sample mark,
  * the wordmark and the tagline. No map imagery and no generated art. Colours and type come from the
  * tokens (src/styles/tokens.css, inlined in front of this file by scripts/renderSocialCard.ts).
  */
@@ -16,10 +16,9 @@ body {
 
 body {
   align-items: center;
-  background:
-    linear-gradient(to top, var(--fog) 0, transparent 22%),
-    linear-gradient(to bottom, var(--night) 0%, var(--night) 35%, var(--present) 100%);
-  color: var(--ink);
+  background: var(--soot);
+  border-bottom: 1px solid var(--copper);
+  color: var(--parchment);
   display: flex;
   flex-direction: column;
   gap: 28px;
@@ -27,7 +26,7 @@ body {
 }
 
 .card-mark {
-  color: var(--ink);
+  color: var(--parchment);
   height: 190px;
   width: 190px;
 }
@@ -41,14 +40,14 @@ body {
 h1 {
   font-family: var(--font-heading);
   font-size: 132px;
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: 0.01em;
   line-height: 1;
   margin: 0;
 }
 
 p {
-  color: var(--text);
+  color: var(--parchment-dim);
   font-family: var(--font-heading);
   font-size: 44px;
   font-weight: 400;

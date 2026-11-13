@@ -39,12 +39,12 @@ describe('Header', () => {
     expect(html).not.toContain('style=');
   });
 
-  it('draws the favicon in the ink and night tokens, with four strata lines', () => {
+  it('draws the favicon in the parchment and soot tokens, with four strata lines', () => {
     const svg = readFileSync(fileURLToPath(new URL('../../public/favicon.svg', import.meta.url)), 'utf8');
     const css = readFileSync(fileURLToPath(new URL('../styles/tokens.css', import.meta.url)), 'utf8');
     const token = (name: string) => new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6})`).exec(css)?.[1]?.toLowerCase();
-    expect(svg).toContain(`stroke="${token('ink')}"`);
-    expect(svg).toContain(`fill="${token('night')}"`);
+    expect(svg).toContain(`stroke="${token('parchment')}"`);
+    expect(svg).toContain(`fill="${token('soot')}"`);
     expect(svg.match(/h\d+/g)).toHaveLength(4);
   });
 });

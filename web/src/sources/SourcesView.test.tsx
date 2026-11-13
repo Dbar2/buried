@@ -51,6 +51,13 @@ describe('the Sources page on the committed data', async () => {
     expect(text).toContain('Library and Archives Canada');
   });
 
+  it('credits the three typefaces with their licence', () => {
+    expect(html).toContain('<h2 id="sources-typefaces">Typefaces</h2>');
+    expect(html).toContain('Libre Baskerville');
+    expect(html).toContain('Source Sans 3');
+    expect(html).toContain('SIL Open Font License 1.1');
+  });
+
   it('is plain paper-theme text: no source shows a photograph it does not have', () => {
     for (const s of data.sources.filter((x) => !data.sidecars.has(x.id))) expect(html).not.toContain(`data-testid="source-photo-${s.id}"`);
     expect(html).toContain('<h2 id="sources-archival">Plans and photographs</h2>');

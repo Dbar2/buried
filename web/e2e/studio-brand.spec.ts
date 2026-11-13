@@ -33,7 +33,7 @@ test('the Studio restyle: ink primary, lantern underline on the active step and 
     const s = getComputedStyle(el);
     return { background: s.backgroundColor, color: s.color, radius: s.borderTopLeftRadius, shadow: s.boxShadow };
   });
-  expect(style).toEqual({ background: rgb('ink'), color: rgb('night'), radius: '2px', shadow: 'none' });
+  expect(style).toEqual({ background: rgb('parchment'), color: rgb('ink'), radius: '2px', shadow: 'none' });
 
   await page.getByTestId('extract').click();
   const summary = page.locator('.proposal-list summary');
