@@ -5,6 +5,9 @@
 float4 _BuriedFogColor;    // the `fog` colour
 float _BuriedFogDensity;
 
+// The lit map sheet's one light pool: x and z of its centre in world space, its radius in metres.
+float4 _BuriedLightPool;
+
 // Exponential distance fog: the share of the surface colour that survives at this point.
 float BuriedTransmission(float3 positionWS)
 {

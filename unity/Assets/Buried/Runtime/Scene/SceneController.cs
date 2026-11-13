@@ -55,6 +55,12 @@ namespace Buried.Scene
         private float _lastCameraSent = float.NegativeInfinity;
         private Vector2 _pointerDown;
 
+        // The lit map sheet: the drape display (lit unless asked for the original scan) and the one light pool.
+        private bool _allLit = true;
+        private readonly Dictionary<string, bool> _litBySource = new Dictionary<string, bool>();
+        private float _poolX, _poolZ, _poolRadius;
+        private Vector2 _defaultPoolCentre;
+
         public void Configure(Bridge bridge, BuriedPalette palette, ShaderSet shaders, CameraRig rig)
         {
             _bridge = bridge;
@@ -99,6 +105,9 @@ namespace Buried.Scene
                         break;
                     case BridgeMessageTypes.SceneSetDepth:
                         HandleSetDepth((SceneSetDepthPayload)message.payload);
+                        break;
+                    case BridgeMessageTypes.SceneSetDrapeMode:
+                        HandleSetDrapeMode((SceneSetDrapeModePayload)message.payload);
                         break;
                     case BridgeMessageTypes.DebugMarkers:
                         HandleMarkers((DebugMarkersPayload)message.payload);
@@ -189,6 +198,8 @@ namespace Buried.Scene
                 _ghostMaterials = null;
             }
             _ground = null;
+            _allLit = true;
+            _litBySource.Clear();
             _initialised = false;
         }
 
@@ -257,6 +268,10 @@ namespace Buried.Scene
             Vec2d viewMin = _frame.ToLocal(init.initialView.minE, init.initialView.minN);
             Vec2d viewMax = _frame.ToLocal(init.initialView.maxE, init.initialView.maxN);
             _rig.SetDefaultPose((float)viewMin.X, (float)viewMin.Y, (float)viewMax.X, (float)viewMax.Y);
+
+            // The lit map sheet's light pool starts at the middle of the default view.
+            _defaultPoolCentre = new Vector2((float)(viewMin.X + viewMax.X) * 0.5f, (float)(viewMin.Y + viewMax.Y) * 0.5f);
+            SetLightPool(_defaultPoolCentre.x, _defaultPoolCentre.y, LookSettings.LightPoolRadiusM);
         }
 
         private IEnumerator LoadEra(SceneLoadEraPayload payload)
@@ -314,7 +329,9 @@ namespace Buried.Scene
                 }
                 else
                 {
-                    layer.AddDrape(DrapeLayer.Create(layer.Parent, _frame, drape, texture, _shaders.drape, order));
+                    DrapeLayer created = DrapeLayer.Create(layer.Parent, _frame, drape, texture, _shaders.drape, order, _palette);
+                    created.SetLit(IsLit(drape.sourceId));
+                    layer.AddDrape(created);
                 }
                 order++;
             }
@@ -391,6 +408,44 @@ namespace Buried.Scene
             _shownIndex = (int)Math.Floor(depth + 0.5);
             if (_present != null) _present.SetStage(DepthBlend.Present(depth, _reducedMotion));
             foreach (EraLayer layer in _layers.Values) layer.SetWeight(DepthBlend.EraWeight(depth, layer.Index), _reducedMotion);
+        }
+
+        /// <summary>
+        /// scene/setDrapeMode: the lit display (the default) or the untouched scan, for one drape or all of
+        /// them. It is remembered, so a drape that loads later is shown the way it was last asked for.
+        /// </summary>
+        private void HandleSetDrapeMode(SceneSetDrapeModePayload payload)
+        {
+            bool lit = payload.mode == SceneSetDrapeModePayload.Lit;
+            if (payload.sourceId == null)
+            {
+                _allLit = lit;
+                _litBySource.Clear();
+            }
+            else
+            {
+                _litBySource[payload.sourceId] = lit;
+            }
+
+            foreach (EraLayer layer in _layers.Values)
+            {
+                foreach (DrapeLayer drape in layer.Drapes) drape.SetLit(IsLit(drape.SourceId));
+            }
+        }
+
+        private bool IsLit(string sourceId)
+        {
+            bool lit;
+            return _litBySource.TryGetValue(sourceId, out lit) ? lit : _allLit;
+        }
+
+        /// <summary>Puts the lit map sheet's one light pool at a ground point (Unity world x and z).</summary>
+        private void SetLightPool(float x, float z, float radiusM)
+        {
+            _poolX = x;
+            _poolZ = z;
+            _poolRadius = radiusM;
+            Shader.SetGlobalVector("_BuriedLightPool", new Vector4(x, z, radiusM, 0f));
         }
 
         private void HandleMarkers(DebugMarkersPayload payload)

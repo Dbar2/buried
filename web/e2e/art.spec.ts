@@ -6,7 +6,7 @@
  *
  * Screenshots go to e2e/output/art-*.png for the maintainer.
  */
-import { mkdirSync, readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
@@ -87,6 +87,21 @@ export async function canvasPng(page: Page): Promise<PNG> {
   return PNG.sync.read(await page.getByTestId('unity-canvas').screenshot());
 }
 
+/**
+ * Save a whole-page screenshot as e2e/output/<name>.png, and a copy named <name>-<time>.png (the
+ * previous copies of the same picture are removed). The copy has a file name that has not been
+ * seen before, so a reviewer who opens pictures one run after another is never shown a cached one.
+ */
+export async function shoot(page: Page, name: string): Promise<void> {
+  await page.screenshot({ path: join(OUTPUT, `${name}.png`) });
+  for (const file of readdirSync(OUTPUT)) {
+    if (file.startsWith(`${name}-`) && /-\d{6}\.png$/.test(file)) rmSync(join(OUTPUT, file));
+  }
+  const now = new Date();
+  const stamp = [now.getHours(), now.getMinutes(), now.getSeconds()].map((n) => String(n).padStart(2, '0')).join('');
+  await page.screenshot({ path: join(OUTPUT, `${name}-${stamp}.png`) });
+}
+
 test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(() => {
@@ -105,7 +120,7 @@ test('art: a close view of mixed estimated and documented ghosts', async ({ brow
     const ring = ((documented as EvidenceFeature).geometry.coordinates as number[][][])[0] as number[][];
     const centre = centroidOf(ring);
     await flyDebugCamera(page, { target: centre, distanceM: 110, pitchDeg: 42, headingDeg: 20 });
-    await page.screenshot({ path: join(OUTPUT, 'art-estimated-close.png') });
+    await shoot(page, 'art-estimated-close');
   } finally {
     await context.close();
   }
