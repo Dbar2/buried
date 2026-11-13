@@ -15,6 +15,9 @@ import { reviewCommand } from './review/keymap';
 import { ReviewPanel } from './review/ReviewPanel';
 import { initialReview, reviewReducer } from './review/reviewModel';
 import type { ProposalFeature } from './review/reviewModel';
+import { TracePanel } from './review/TracePanel';
+import { traceReducer } from './review/traceDraft';
+import type { AreaContext } from './review/areaModel';
 import { ServiceError, ServiceUnavailableError, UNAVAILABLE_MESSAGE, createServiceClient, fetchDataVersion } from './service/client';
 import type { ServiceClient } from './service/client';
 import { studioServiceBase } from './service/serviceUrl';
@@ -65,6 +68,7 @@ export function StudioPage() {
   const [extraction, setExtraction] = useState<Extraction | null>(null);
   const [drawn, setDrawn] = useState(0);
   const [review, dispatch] = useReducer(reviewReducer, emptyReview);
+  const [trace, dispatchTrace] = useReducer(traceReducer, null);
   const [area, setArea] = useState<Rect | null>(null);
   const [visible, setVisible] = useState<Rect>({ x: 0, y: 0, width: 1, height: 1 });
   const [fitSignal, setFitSignal] = useState(0);
@@ -115,6 +119,7 @@ export function StudioPage() {
     setArea(null);
     setMode('view');
     setDrawn(0);
+    dispatchTrace({ type: 'cancel' });
     setRegion(defaultRegion(s.crop_px as Rect, s.source_pixel_size_m));
     dispatch({ type: 'load', proposals: [] });
     setFitSignal((n) => n + 1);
@@ -166,9 +171,9 @@ export function StudioPage() {
     return () => clearInterval(timer);
   }, [extraction, reducedMotion]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Review keys.
+  // Review keys. They stay off while an area is being traced, so a letter typed there decides nothing.
   useEffect(() => {
-    if (step === 'extract' || !extraction) return;
+    if (step === 'extract' || !extraction || trace !== null) return;
     const onKey = (event: KeyboardEvent) => {
       const command = reviewCommand(event);
       if (!command) return;
@@ -183,7 +188,7 @@ export function StudioPage() {
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [step, extraction]);
+  }, [step, extraction, trace !== null]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Moving to another proposal brings it into view when it is outside the visible part of the plate.
   useEffect(() => {
@@ -199,10 +204,48 @@ export function StudioPage() {
     (rect: Rect) => {
       if (mode === 'region') setRegion(rect);
       else if (mode === 'area') setArea(rect);
+      else if (mode === 'read') {
+        dispatchTrace({ type: 'setRead', read: rect });
+        setMode('trace');
+        return;
+      }
       setMode('view');
     },
     [mode],
   );
+
+  // An area is only traced in the Review step; leaving it drops the draft.
+  useEffect(() => {
+    if (step !== 'review') {
+      dispatchTrace({ type: 'cancel' });
+      setMode((m) => (m === 'trace' || m === 'read' ? 'view' : m));
+    }
+  }, [step]);
+
+  const startTrace = () => {
+    dispatchTrace({ type: 'start' });
+    setMode('trace');
+  };
+  const editArea = (id: string) => {
+    const found = review.areas.find((a) => a.id === id);
+    if (!found) return;
+    dispatchTrace({ type: 'edit', area: found });
+    setMode('trace');
+  };
+  const stopTrace = useCallback(() => {
+    dispatchTrace({ type: 'cancel' });
+    setMode('view');
+  }, []);
+  const areaContext: AreaContext | null = extraction && crop ? { mapAreaPx: extraction.proposals.map_area_px, plate: crop } : null;
+  const saveArea = () => {
+    if (!trace || !areaContext) return;
+    dispatch({
+      type: 'saveArea',
+      area: { id: trace.editingId ?? undefined, ring: trace.ring, use: trace.use, read: trace.read, confidence: trace.confidence, reason: trace.reason, at: new Date().toISOString() },
+      context: areaContext,
+    });
+    stopTrace();
+  };
 
   if (health.kind === 'checking') return <main className="studio studio-message"><p>Checking the Studio service.</p></main>;
   if (health.kind === 'down') {
@@ -214,7 +257,7 @@ export function StudioPage() {
     );
   }
 
-  const counts = { decided: Object.keys(review.decisions).length };
+  const counts = { decided: Object.keys(review.decisions).length + review.areas.length };
   const era = sidecar ? eraForYears(eras, yearsOf(plate as RegisteredPlate).from, yearsOf(plate as RegisteredPlate).to) : null;
   const regionNote = region ? regionProblem(region, pixelSizeM) : null;
   const regionSize = region ? regionSizeM(region, pixelSizeM) : null;
@@ -235,9 +278,16 @@ export function StudioPage() {
             mode={mode}
             fitSignal={fitSignal}
             focusSignal={focusSignal}
+            areas={review.areas}
+            editingAreaId={trace?.editingId ?? null}
+            draft={trace ? { ring: trace.ring, closed: trace.closed } : null}
+            readRect={trace?.read ?? null}
             onSelect={(id) => dispatch({ type: 'select', id })}
             onRect={onRect}
             onVisible={setVisible}
+            onDraftAdd={(vertex) => dispatchTrace({ type: 'add', vertex })}
+            onDraftMove={(index, vertex) => dispatchTrace({ type: 'move', index, vertex })}
+            onDraftClose={() => dispatchTrace({ type: 'close' })}
           />
         ) : (
           <div className="studio-empty">
@@ -330,16 +380,36 @@ export function StudioPage() {
         {plate && step === 'review' && extraction && tile && crop && (
           <section aria-labelledby="review-heading" className="step-body">
             <h2 id="review-heading">Review</h2>
-            <ReviewPanel
-              proposals={proposals}
-              review={review}
-              dispatch={dispatch}
-              imageUrl={imageUrl}
-              tile={tile}
-              crop={crop}
-              pixelSizeM={pixelSizeM}
-              onFit={() => setFocusSignal((n) => n + 1)}
-            />
+            {trace && areaContext ? (
+              <TracePanel
+                form={trace}
+                dispatch={dispatchTrace}
+                context={areaContext}
+                sourceId={plate.source.id}
+                imageUrl={imageUrl}
+                tile={tile}
+                crop={crop}
+                visible={visible}
+                choosingCrop={mode === 'read'}
+                onChooseCrop={(on) => setMode(on ? 'read' : 'trace')}
+                onSave={saveArea}
+                onCancel={stopTrace}
+              />
+            ) : (
+              <ReviewPanel
+                proposals={proposals}
+                review={review}
+                dispatch={dispatch}
+                imageUrl={imageUrl}
+                tile={tile}
+                crop={crop}
+                pixelSizeM={pixelSizeM}
+                onFit={() => setFocusSignal((n) => n + 1)}
+                areaContext={areaContext}
+                onTraceArea={startTrace}
+                onEditArea={editArea}
+              />
+            )}
           </section>
         )}
 
@@ -362,6 +432,7 @@ export function StudioPage() {
               area={area}
               drawingArea={mode === 'area'}
               reviewer={reviewer}
+              areaContext={areaContext}
               onReviewer={setReviewer}
               onArea={setArea}
               onDrawArea={(on) => setMode(on ? 'area' : 'view')}

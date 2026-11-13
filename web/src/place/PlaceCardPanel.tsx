@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { CropCanvas } from '../report/CropCanvas';
+import { LetteringCrop } from './LetteringCrop';
 import type { PlaceCard as PlaceCardModel } from './placeCard';
 
 export type PlaceCardProps = {
@@ -66,6 +67,14 @@ export function PlaceCard({ card, confidence, onClose, canViewOriginal, original
         <p className="small" data-testid="card-no-crop">
           {card.cropLabel}.
         </p>
+      )}
+      {card.reading && (
+        <figure className="place-card-reading">
+          <LetteringCrop reading={card.reading} testId="card-reading-crop" />
+          <figcaption className="small" data-testid="card-reading-caption">
+            {card.reading.label}. The scan is shown as it is.
+          </figcaption>
+        </figure>
       )}
       <dl className="place-card-rows">
         {card.rows.map((row) => (

@@ -1,14 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent } from 'react';
+import { areaLabel } from '../review/areaModel';
+import type { TracedArea, Vertex } from '../review/areaModel';
 import type { ProposalFeature, ReviewState } from '../review/reviewModel';
 import { bandOf } from '../review/reviewText';
 import type { Band } from '../review/reviewText';
 import { readTokens, withAlpha } from './colours';
 import type { Tokens } from './colours';
-import { fitView, panBy, pointInPolygon, polygonArea, rectFromDrag, toPlate, toScreen, visibleRect, zoomAt } from './plateView';
+import { fitView, panBy, pointInPolygon, polygonArea, polygonCentroid, rectFromDrag, toPlate, toScreen, visibleRect, zoomAt } from './plateView';
 import type { Point, Rect, Size, View } from './plateView';
 
-export type StageMode = 'view' | 'region' | 'area';
+/** `trace` places the corners of a land-use area; `read` drags the crop its lettering was read from. */
+export type StageMode = 'view' | 'region' | 'area' | 'trace' | 'read';
+
+/** The outline being traced: its corners so far, and whether it has been closed. */
+export type TraceDraft = { ring: readonly Vertex[]; closed: boolean };
 
 export type PlateStageProps = {
   imageUrl: string;
@@ -27,12 +33,23 @@ export type PlateStageProps = {
   fitSignal: number;
   /** Changes when the view should fit the current proposal. */
   focusSignal: number;
+  /** Saved land-use areas, drawn hatched with their lettering. */
+  areas?: readonly TracedArea[];
+  /** The area being edited, drawn from its draft instead. */
+  editingAreaId?: string | null;
+  draft?: TraceDraft | null;
+  /** The crop a use was read from, while it is being set. */
+  readRect?: Rect | null;
   onSelect: (id: string) => void;
   onRect: (rect: Rect) => void;
   onVisible: (rect: Rect) => void;
+  onDraftAdd?: (vertex: Vertex) => void;
+  onDraftMove?: (index: number, vertex: Vertex) => void;
+  onDraftClose?: () => void;
 };
 
 const CLICK_SLOP_PX = 4;
+const VERTEX_HIT_PX = 9;
 const ZOOM_STEP = 1.25;
 
 function dashFor(band: Band): number[] {
@@ -41,7 +58,10 @@ function dashFor(band: Band): number[] {
 
 type Drag =
   | { kind: 'pan'; startX: number; startY: number; lastX: number; lastY: number; moved: boolean }
-  | { kind: 'rect'; from: Point; to: Point };
+  | { kind: 'rect'; from: Point; to: Point }
+  | { kind: 'vertex'; index: number };
+
+const wholePixel = (p: Point): Vertex => [Math.max(0, Math.round(p.x)), Math.max(0, Math.round(p.y))];
 
 /**
  * The plate fills the main area: pan, zoom and fit, with the proposals outlined on it. Colours come
@@ -237,11 +257,70 @@ export function PlateStage(props: PlateStageProps) {
     };
     if (region) frame(region, [10, 6], withAlpha(tokens.text, 0.8), 1.5);
     if (area) frame(area, [4, 4], tokens.ink, 2, withAlpha(tokens.ink, 0.07));
+
+    // Land-use areas: a hatched `ink` outline, so they are never mistaken for a building outline.
+    const ringPath = (ring: readonly Vertex[], closed: boolean) => {
+      ctx.beginPath();
+      ring.forEach(([x, y], i) => (i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)));
+      if (closed) ctx.closePath();
+    };
+    const hatch = (ring: readonly Vertex[], alpha: number) => {
+      const xs = ring.map((v) => v[0]);
+      const ys = ring.map((v) => v[1]);
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys);
+      const step = px(7);
+      ctx.save();
+      ringPath(ring, true);
+      ctx.clip();
+      ctx.beginPath();
+      for (let c = minX + minY - (maxY - minY); c <= maxX + maxY; c += step) {
+        ctx.moveTo(c - minY, minY);
+        ctx.lineTo(c - maxY, maxY);
+      }
+      ctx.setLineDash([]);
+      ctx.strokeStyle = withAlpha(tokens.ink, alpha);
+      ctx.lineWidth = px(1);
+      ctx.stroke();
+      ctx.restore();
+    };
+    for (const a of props.areas ?? []) {
+      if (a.id === props.editingAreaId) continue;
+      hatch(a.ring, 0.55);
+      ringPath(a.ring, true);
+      halo(4, 0.85);
+      ctx.setLineDash([]);
+      ctx.strokeStyle = tokens.ink;
+      ctx.lineWidth = px(2);
+      ctx.stroke();
+    }
+    const draft = props.draft;
+    if (draft && draft.ring.length > 0) {
+      if (draft.closed) hatch(draft.ring, 0.35);
+      ringPath(draft.ring, draft.closed);
+      halo(5, 0.85);
+      ctx.setLineDash(draft.closed ? [] : [px(6), px(4)]);
+      ctx.strokeStyle = tokens.ink;
+      ctx.lineWidth = px(2.5);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Each corner is a small square, the first one larger so the start is easy to find.
+      draft.ring.forEach(([x, y], i) => {
+        const half = px(i === 0 ? 6 : 4.5);
+        ctx.fillStyle = tokens.night;
+        ctx.fillRect(x - half - px(1.5), y - half - px(1.5), 2 * half + px(3), 2 * half + px(3));
+        ctx.fillStyle = tokens.ink;
+        ctx.fillRect(x - half, y - half, 2 * half, 2 * half);
+      });
+    }
+    if (props.readRect) frame(props.readRect, [3, 3], tokens.text, 2, withAlpha(tokens.text, 0.1));
     if (drag?.kind === 'rect') {
       const live = rectFromDrag(drag.from, drag.to, crop);
       if (live) frame(live, [6, 4], tokens.text, 1.5, withAlpha(tokens.text, 0.06));
     }
-  }, [view, size, image, tokens, proposals, drawnCount, review, region, area, drag, crop, byId]);
+  }, [view, size, image, tokens, proposals, drawnCount, review, region, area, drag, crop, byId, props.areas, props.editingAreaId, props.draft, props.readRect]);
 
   // ---- pointer ----
 
@@ -254,7 +333,18 @@ export function PlateStage(props: PlateStageProps) {
     if (event.button !== 0) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     const at = localPoint(event);
-    if (mode === 'view') {
+    if (mode === 'view' || mode === 'trace') {
+      if (mode === 'trace' && props.draft) {
+        // A corner under the pointer is picked up; anything else pans, and a click adds a corner.
+        const index = props.draft.ring.findIndex((v) => {
+          const s = toScreen(view, { x: v[0], y: v[1] });
+          return Math.hypot(s.x - at.x, s.y - at.y) <= VERTEX_HIT_PX;
+        });
+        if (index >= 0) {
+          setDrag({ kind: 'vertex', index });
+          return;
+        }
+      }
       setDrag({ kind: 'pan', startX: at.x, startY: at.y, lastX: at.x, lastY: at.y, moved: false });
     } else {
       const plate = toPlate(view, at);
@@ -265,7 +355,9 @@ export function PlateStage(props: PlateStageProps) {
   const onPointerMove = (event: ReactPointerEvent<HTMLCanvasElement>) => {
     if (!drag) return;
     const at = localPoint(event);
-    if (drag.kind === 'pan') {
+    if (drag.kind === 'vertex') {
+      props.onDraftMove?.(drag.index, wholePixel(toPlate(view, at)));
+    } else if (drag.kind === 'pan') {
       const moved = drag.moved || Math.hypot(at.x - drag.startX, at.y - drag.startY) > CLICK_SLOP_PX;
       if (moved) {
         fitted.current = false;
@@ -281,8 +373,18 @@ export function PlateStage(props: PlateStageProps) {
     if (!drag) return;
     const at = localPoint(event);
     if (drag.kind === 'pan' && !drag.moved) {
-      const hit = hitTest(toPlate(view, at), proposals.slice(0, drawnCount));
-      if (hit) props.onSelect(hit);
+      if (mode === 'trace') {
+        const draft = props.draft;
+        if (!draft?.closed) {
+          const vertex = wholePixel(toPlate(view, at));
+          const last = draft?.ring[draft.ring.length - 1];
+          // The second click of a double-click lands on the corner the first one placed.
+          if (!last || last[0] !== vertex[0] || last[1] !== vertex[1]) props.onDraftAdd?.(vertex);
+        }
+      } else {
+        const hit = hitTest(toPlate(view, at), proposals.slice(0, drawnCount));
+        if (hit) props.onSelect(hit);
+      }
     } else if (drag.kind === 'rect') {
       const rect = rectFromDrag(drag.from, toPlate(view, at), crop);
       if (rect) props.onRect(rect);
@@ -301,6 +403,10 @@ export function PlateStage(props: PlateStageProps) {
     currentProposal && proposals.indexOf(currentProposal) < drawnCount
       ? toScreen(view, { x: currentProposal.properties.crop_px.x, y: currentProposal.properties.crop_px.y })
       : null;
+  // Each saved area's lettering sits on it in the DOM, so it is text a reader can reach.
+  const areaLabels = (props.areas ?? [])
+    .filter((a) => a.id !== props.editingAreaId)
+    .map((a) => ({ area: a, at: toScreen(view, polygonCentroid(a.ring)) }));
 
   return (
     <div className="plate-stage" ref={wrapRef} data-mode={mode}>
@@ -310,6 +416,7 @@ export function PlateStage(props: PlateStageProps) {
         data-testid="plate-canvas"
         data-view={JSON.stringify({ k: view.k, tx: view.tx, ty: view.ty })}
         data-drawn={drawnCount}
+        data-draft-corners={props.draft?.ring.length ?? 0}
         role="img"
         aria-label="The plate with the proposed building outlines drawn on it. Use the review list or the keys to move between proposals."
         style={{ width: size.width, height: size.height, cursor: mode === 'view' ? (drag?.kind === 'pan' && drag.moved ? 'grabbing' : 'grab') : 'crosshair' }}
@@ -317,12 +424,20 @@ export function PlateStage(props: PlateStageProps) {
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={() => setDrag(null)}
+        onDoubleClick={() => {
+          if (mode === 'trace') props.onDraftClose?.();
+        }}
       />
       {label && currentProposal && (
         <span className="plate-label mono" style={{ left: label.x, top: Math.max(0, label.y - 24) }} data-testid="plate-label">
           Current {currentProposal.id.slice(-6)}
         </span>
       )}
+      {areaLabels.map(({ area: a, at }) => (
+        <span key={a.id} className="plate-label plate-area-label" style={{ left: at.x, top: at.y, transform: 'translate(-50%, -50%)' }} data-testid="plate-area-label" data-area-id={a.id}>
+          {areaLabel(a)}
+        </span>
+      ))}
       <div className="plate-tools" role="group" aria-label="Plate view">
         <button type="button" onClick={() => zoomBy(ZOOM_STEP)} aria-label="Zoom in">
           +
@@ -342,7 +457,13 @@ export function PlateStage(props: PlateStageProps) {
       </div>
       {mode !== 'view' && (
         <p className="plate-hint" role="status">
-          {mode === 'region' ? 'Drag on the plate to choose the extraction region.' : 'Drag on the plate to draw the reviewed area.'}
+          {mode === 'region'
+            ? 'Drag on the plate to choose the extraction region.'
+            : mode === 'area'
+              ? 'Drag on the plate to draw the reviewed area.'
+              : mode === 'read'
+                ? 'Drag a box around the lettering the use was read from.'
+                : 'Click to place corners. Enter or double-click closes the outline, Backspace removes the last corner, Escape cancels.'}
         </p>
       )}
     </div>

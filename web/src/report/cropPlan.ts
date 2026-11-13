@@ -33,7 +33,16 @@ export type TileRef = {
 export type CropShapes = { lot: Pt[][]; buildings: Pt[][][]; lots: Pt[][][] };
 
 export type Crop =
-  | { kind: 'tile'; window: CropWindow; tile: TileRef; lot: Pt[][] }
+  | {
+      kind: 'tile';
+      window: CropWindow;
+      tile: TileRef;
+      lot: Pt[][];
+      /** Draw `lot` hatched, as a land-use area is drawn, instead of as a plain outline. */
+      hatch?: boolean;
+      /** Land-use areas of the era near the lot, each as its rings, drawn hatched under the lot outline. */
+      areas?: Pt[][][];
+    }
   | { kind: 'vector'; window: CropWindow; shapes: CropShapes }
   | { kind: 'none'; text: string };
 

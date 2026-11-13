@@ -13,6 +13,7 @@ import type { LotPolygon } from './pinnedLot';
 
 export type FallbackFootprint = {
   id: string;
+  kind: 'building' | 'water' | 'land_use';
   confidence: 'documented' | 'estimated' | 'unknown';
   /** Polygon rings (closed) or line strings (open). */
   rings: Pt[][];
@@ -60,7 +61,7 @@ export function fallbackPlan(model: GateModel, eraId: string, lot: LotPolygon | 
     const rings: Pt[][] = closed
       ? ringsOf(g as PolygonalGeometry)
       : (g.type === 'LineString' ? [g.coordinates] : g.coordinates).map((line) => (line as number[][]).map((p) => [p[0] as number, p[1] as number] as Pt));
-    return { id: entry.id, confidence: entry.confidence, rings, closed };
+    return { id: entry.id, kind: entry.kind, confidence: entry.confidence, rings, closed };
   });
 
   const lotRings = lot ? ringsOf(lot as PolygonalGeometry) : null;
