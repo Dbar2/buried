@@ -17,6 +17,7 @@ beforeAll(() => {
   }
   writeFileSync(join(dataDir, 'project.json'), '{}');
   writeFileSync(join(dataDir, 'sources.json'), '{}');
+  writeFileSync(join(dataDir, 'finds.json'), '{}');
   writeFileSync(join(dataDir, 'secret.json'), '{}');
   writeFileSync(join(dataDir, 'evidence', 'a.geojson'), '{}');
   writeFileSync(join(dataDir, 'evidence', 'notes.txt'), 'x');
@@ -39,6 +40,7 @@ describe('resolveAllowedPath', () => {
     for (const ok of [
       'project.json',
       'sources.json',
+      'finds.json',
       'evidence/a.geojson',
       'present/p.geojson',
       'tiles/t.json',
@@ -95,7 +97,7 @@ describe('resolveAllowedPath', () => {
         if (!result.startsWith(root + sep)) return false;
         const relative = result.slice(root.length + 1).split(sep);
         if (relative.some((s) => s === '..' || s === '.' || s === '')) return false;
-        if (relative.length === 1) return ['project.json', 'sources.json'].includes(relative[0] as string);
+        if (relative.length === 1) return ['project.json', 'sources.json', 'finds.json'].includes(relative[0] as string);
         return relative.length === 2 && (ALLOWED_DIRS as readonly string[]).includes(relative[0] as string);
       }),
       { numRuns: 500 },
@@ -140,6 +142,7 @@ describe('copyAllowedData', () => {
       [
         'control/c.json',
         'evidence/a.geojson',
+        'finds.json',
         'index.json',
         'present/p.geojson',
         'project.json',

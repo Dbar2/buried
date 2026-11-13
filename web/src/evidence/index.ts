@@ -44,6 +44,20 @@ export {
   provenanceFacts,
 } from './plainWords';
 export type { ProvenanceFacts } from './plainWords';
+export { parseFindsFile } from './findsFile';
+export {
+  findPositionLine,
+  ghostTitle,
+  kickerText,
+  LETTERING_IN_CROP,
+  letteredLines,
+  NO_RECORD_LOADED,
+  rulerLine,
+  seenOnText,
+  sheetNumber,
+} from './findText';
+export type { PlanSource } from './findText';
+export type { Find, FindsFile, Reading } from './finds.types.generated';
 export { clearPresenceSourceIds, FIRST_DRAWN_ON, firstDrawnText, outlineAttribution } from './rowWording';
 export type { OutlineAttribution, RowPlan } from './rowWording';
 export type { SourceIndex } from './sources';
