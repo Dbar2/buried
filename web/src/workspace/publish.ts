@@ -19,6 +19,8 @@ export const WORKSPACE_PUBLISHED_STATEMENT =
 export function workspaceEvidencePath(sourceId: string): string {
   return `${WORKSPACE_EVIDENCE_PREFIX}${sourceId}.geojson`;
 }
+/** Same as `workspaceEvidencePath`; the name the export code reads best with. */
+export const workEvidenceStoredPath = workspaceEvidencePath;
 
 /** The file text holding only the features this publish added. Throws if it is not a valid file. */
 export function additionsText(evidenceFileText: string, newFeatureIds: readonly string[], path: string): string {
@@ -32,11 +34,20 @@ export function additionsText(evidenceFileText: string, newFeatureIds: readonly 
 
 export type StoreResult = { stored: true; featureIds: string[] } | { stored: false; reason: string };
 
+/** The review inputs of a publish, kept so the workspace can be exported (spec 04 design "Export bundle"). */
+export type PublishWork = { proposalFileText: string; decisionsText: string };
+
+export const workProposalsPath = (sourceId: string) => `work/proposals/${sourceId}.geojson`;
+export const workDecisionsPath = (sourceId: string) => `work/review/${sourceId}.json`;
+/** The whole evidence file the Service returned, verbatim: what `buried publish` should reproduce. */
+export const workExpectedPath = (sourceId: string) => `work/expected/${sourceId}.geojson`;
+
 export async function storePublished(
   db: WorkspaceDb | null,
   sourceId: string,
   response: PublishResponse,
   now: string,
+  work?: PublishWork,
 ): Promise<StoreResult> {
   if (!response.ok) return { stored: false, reason: 'The Service did not accept the publish.' };
   if (db === null) return { stored: false, reason: 'This browser cannot keep a workspace (IndexedDB is not available).' };
@@ -48,5 +59,10 @@ export async function storePublished(
     return { stored: false, reason: error instanceof Error ? error.message : String(error) };
   }
   await db.putFile(path, text, now);
+  if (work) {
+    await db.putFile(workProposalsPath(sourceId), work.proposalFileText, now);
+    await db.putFile(workDecisionsPath(sourceId), work.decisionsText, now);
+    await db.putFile(workExpectedPath(sourceId), response.evidence_file_text, now);
+  }
   return { stored: true, featureIds: [...response.new_feature_ids] };
 }

@@ -8,6 +8,7 @@ import { ServiceError, ServiceUnavailableError } from '../service/client';
 import type { ServiceClient } from '../service/client';
 import type { PublishError, PublishResponse } from '../service/types.generated';
 import { WORKSPACE_PUBLISHED_STATEMENT, storePublished } from '../../workspace/publish';
+import { buildExport, downloadBytes } from '../../workspace/exportBundle';
 import type { WorkspaceDb } from '../../workspace/db';
 import { NO_EXPLORER_ERA_MESSAGE } from '../../workspace/seen';
 
@@ -97,13 +98,27 @@ export function PublishPanel(p: PublishPanelProps) {
         setOutcome({ kind: 'failed', message: 'Nothing was published. The Service found problems; they are listed beside the items.' });
         return;
       }
-      const stored = await storePublished(p.db, p.sourceId, answer, new Date().toISOString());
+      const stored = await storePublished(p.db, p.sourceId, answer, new Date().toISOString(), {
+        proposalFileText: p.proposalFileText,
+        decisionsText: `${JSON.stringify(decisions, null, 2)}\n`,
+      });
       await p.db?.putSetting('reviewer', reviewerName).catch(() => {});
       if (stored.stored) setOutcome({ kind: 'done', count: stored.featureIds.length, kept: true, note: WORKSPACE_PUBLISHED_STATEMENT });
       else setOutcome({ kind: 'failed', message: `Nothing was kept. ${stored.reason}` });
     } catch (error) {
       setOutcome({ kind: 'failed', message: error instanceof ServiceError || error instanceof ServiceUnavailableError ? error.message : String(error) });
     }
+  };
+
+  const [exportNote, setExportNote] = useState<string | null>(null);
+  const exportNow = async () => {
+    const result = await buildExport(p.db, p.sourceId, new Date().toISOString());
+    if (!result.ok) {
+      setExportNote(result.reason);
+      return;
+    }
+    downloadBytes(result.fileName, result.bytes);
+    setExportNote(`Saved ${result.fileName}. Give it to the maintainer to read; it is not part of Buried's record until they publish it.`);
   };
 
   const sizeM = (r: Rect) => `${Math.round(r.width * p.pixelSizeM)} × ${Math.round(r.height * p.pixelSizeM)} m`;
@@ -196,6 +211,16 @@ export function PublishPanel(p: PublishPanelProps) {
           <p className="mono">
             {outcome.count} {outcome.count === 1 ? 'building' : 'buildings'} stored.
           </p>
+          <div className="actions">
+            <button type="button" onClick={exportNow} data-testid="export-bundle">
+              Export a bundle for review
+            </button>
+          </div>
+          {exportNote && (
+            <p role="status" data-testid="export-note">
+              {exportNote}
+            </p>
+          )}
           {p.eraId ? (
             <a className="button primary" href={`/?era=${encodeURIComponent(p.eraId)}`} data-testid="open-explorer">
               Open in the Explorer
