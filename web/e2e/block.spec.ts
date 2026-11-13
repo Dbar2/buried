@@ -13,7 +13,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { cropLoaded } from './support/cropLoaded';
+import { cropLoaded, stillLoaded } from './support/cropLoaded';
 
 const OUTPUT = join(dirname(fileURLToPath(import.meta.url)), 'output');
 const PLAYER_TIMEOUT = 180_000;
@@ -37,6 +37,7 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
     expect(Date.now() - started, 'the button is usable within 2 s of first paint (requirement 2.1)').toBeLessThan(2000);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Something used to stand here.');
     await expect(page.getByTestId('still')).toBeVisible();
+    await stillLoaded(page);
     await expect(page.locator('body')).not.toContainText("Buried screens; it doesn't certify.");
     await page.screenshot({ path: join(OUTPUT, 'block-landing-1440.png') });
 

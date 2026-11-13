@@ -10,7 +10,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
-import { cropLoaded } from './support/cropLoaded';
+import { cropLoaded, stillLoaded } from './support/cropLoaded';
 
 const OUTPUT = join(dirname(fileURLToPath(import.meta.url)), 'output');
 const PLAYER_TIMEOUT = 180_000;
@@ -23,6 +23,7 @@ test.describe('@unity the Block page on a phone', { tag: '@unity' }, () => {
     test.setTimeout(PLAYER_TIMEOUT + 60_000);
     await page.goto('/');
     await expect(page.getByTestId('still')).toHaveAttribute('data-kind', 'tall');
+    await stillLoaded(page);
     await expect(page.getByTestId('raise-button')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), 'nothing scrolls sideways').toBe(true);
     await page.screenshot({ path: join(OUTPUT, 'block-phone-landing.png') });
