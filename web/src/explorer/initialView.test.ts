@@ -64,6 +64,25 @@ describe('initialView (design.md "Initial view")', () => {
     });
   });
 
+  it('frames the plates\' map areas with 15 per cent of their size on each side, centred', () => {
+    const ring = [
+      [632312, 4835087],
+      [632596, 4835177],
+      [632644, 4834832],
+      [632416, 4834760],
+      [632312, 4835087],
+    ];
+    // Features and drapes are ignored when a map area exists.
+    const view = initialView([listOf({ at: [632000, 4834500], size: [10, 10] })], [drapeAt(632000, 4834500, 633000, 4835500)], BOUNDS, [ring]);
+    const w = 632644 - 632312;
+    const h = 4835177 - 4834760;
+    expect(view.minE).toBeCloseTo(632312 - 0.15 * w, 6);
+    expect(view.maxE).toBeCloseTo(632644 + 0.15 * w, 6);
+    expect(view.minN).toBeCloseTo(4834760 - 0.15 * h, 6);
+    expect(view.maxN).toBeCloseTo(4835177 + 0.15 * h, 6);
+    expect((view.minE + view.maxE) / 2).toBeCloseTo((632312 + 632644) / 2, 6);
+  });
+
   it('with an empty Era list and no drapes frames the project bounds', () => {
     const empty = featuresForEra([], sources, ERA_1911);
     expect(initialView([empty], [], BOUNDS)).toEqual(BOUNDS);

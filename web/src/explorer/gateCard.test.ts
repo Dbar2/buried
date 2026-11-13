@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { loadData } from '../data/loadData';
 import { featuresForEra, findBannedWords } from '../evidence';
-import { CardError, buildGateCard } from './gateCard';
+import { CardError, buildGateCard, formatUtc } from './gateCard';
 import { diskFetch } from './testing/diskFetch';
 
 async function setup() {
@@ -11,6 +11,17 @@ async function setup() {
   const byId = new Map(data.evidence.flatMap((c) => c.features).map((f) => [f.id, f]));
   return { data, list, byId };
 }
+
+describe('formatUtc', () => {
+  it('words an ISO time as day, month name, year and UTC time', () => {
+    expect(formatUtc('2026-11-12T21:32:05Z')).toBe('12 Nov 2026, 21:32 UTC');
+    expect(formatUtc('2026-01-02T03:04:00+00:00')).toBe('2 Jan 2026, 03:04 UTC');
+    expect(formatUtc('2026-11-12T23:32:00-05:00')).toBe('13 Nov 2026, 04:32 UTC');
+  });
+  it('returns text it cannot parse unchanged', () => {
+    expect(formatUtc('not a time')).toBe('not a time');
+  });
+});
 
 describe('buildGateCard (requirement 24.3)', () => {
   it('shows the feature id, origin source, position phrase, who confirmed it and when, and the attribution line', async () => {
@@ -25,7 +36,8 @@ describe('buildGateCard (requirement 24.3)', () => {
     expect(row('Position')).toBe('Positioned within about 4.5 m');
     expect(row('Read from')).toBe('Synthetic plate 229, 1911 edition (fip_v3_1911_229)');
     expect(row('Confirmed by')).toBe('Synthetic Reviewer');
-    expect(row('Confirmed at')).toBe('2026-11-13T10:00:00Z');
+    expect(row('Confirmed at')).toBe('13 Nov 2026, 10:00 UTC');
+    expect(card.rows.find((r) => r.label === 'Confirmed at')?.title).toBe('2026-11-13T10:00:00Z');
     expect(row('Attribution')).toBe('Synthetic attribution for the 1911 plate.');
     expect(row('Confidence')).toBe('Documented. Synthetic: outline and storeys read from the synthetic plate.');
   });

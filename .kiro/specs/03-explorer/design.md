@@ -259,24 +259,27 @@ code.
 
 ### Initial view
 
-`initialView(eraLists, drapes, bounds)` (pure, `initialView.ts`) gives the rectangle the default
-camera pose frames, so the first view shows the reconstructed block rather than the whole plate:
+`initialView(eraLists, drapes, bounds, mapAreas)` (pure, `initialView.ts`) gives the rectangle the
+default camera pose frames. Session 015 (maintainer decision): the opening view frames the mapped
+ground of the showcase plates, centred, with a margin.
 
 ```
-INITIAL_VIEW_MARGIN_M = 60
+INITIAL_VIEW_MAP_AREA_MARGIN = 0.15   // of the box's width and height, on each side
+INITIAL_VIEW_MARGIN_M = 60            // fallback paths
 INITIAL_VIEW_MIN_M    = 200
 ```
 
-1. Take the bounding box of the geometry of every entry in every era's Era list (the features the
-   Player will draw, from `featuresForEra`; `land_use` excluded as for scene features).
-2. If there are none, take the bounding box of every drape's four corners. If there are none
+1. Take the bounding box of the map-area polygons of the tile sidecars (`mapAreas`), and grow it by
+   `INITIAL_VIEW_MAP_AREA_MARGIN` of its width and height on each side.
+2. With no map area, take the bounding box of the geometry of every entry in every era's Era list
+   (the features the Player will draw, from `featuresForEra`; `land_use` excluded as for scene
+   features), grown by `INITIAL_VIEW_MARGIN_M` on each side.
+3. With none, the bounding box of every drape's four corners, grown the same way. With none
    either, return the project bounds.
-3. Grow the box by `INITIAL_VIEW_MARGIN_M` on each side, then widen each side about the centre to
-   at least `INITIAL_VIEW_MIN_M`.
-4. Clip to the project bounds.
+4. Widen each side about the centre to at least `INITIAL_VIEW_MIN_M`, then clip to the project
+   bounds.
 
-It reads only geometry; no year, date or source rule is involved. With the gate data it frames a
-200 m square centred on the one building.
+It reads only geometry; no year, date or source rule is involved.
 
 ### Layout
 
@@ -584,7 +587,8 @@ over 1500 ms to a target at the lot centroid with a distance that frames the lot
 ### Camera
 
 `CameraRig`: target point on the ground, distance, pitch, heading. Default pose after init: target
-at the centre of `initialView` (see Shell "Initial view"), heading 0 (looking north), pitch 50°,
+at the centre of `initialView` (see Shell "Initial view"), heading 22.5° (north-north-east), pitch 21°,
+vertical field of view 58°,
 and the smallest distance at which the whole rectangle is in view for the canvas's aspect ratio and
 the camera's vertical field of view. Inputs per requirement 16.2; limits per 16.3. The rig never
 changes without input, a fly-to or `debug/setCamera`. The rig's maths (pose to view, the fit
@@ -645,11 +649,17 @@ DRAPE_MASK_MAX_PX = 512      // mask long edge
 - Colour space Linear. HDR on. Tonemapping **None**, so LDR colours, including drapes, reach the
   screen unchanged. Bloom threshold 1.0, intensity 0.3; only edge and `lantern` emission exceeds 1.
   No other post effect.
-- Sky: a gradient sky shader from `night` at the zenith to `lerp(night, muted, 0.25)` at the
-  horizon. Ambient: flat, `fog` at intensity 0.3.
+- Sky: a gradient sky shader: `fog` at and below the horizon, a lighter band
+  `lerp(night, muted, 0.25)` at sin(elevation) 0.035, and `night` from sin(elevation) 0.12 up (about
+  7°), so the top of the default view, which ends 8° above the horizon, is `night`. Ambient: flat,
+  `fog` at intensity 0.3.
+- Present buildings: matte `present` colour in three steps from the low west sun and the sky:
+  walls facing away, walls facing the sun, roofs lightest. The look test measures the roof against
+  the ground at least 1.35 : 1 (WCAG ratio) and below a ghost.
 - Sun: directional, azimuth 270° (from the west), elevation 8°, colour `muted`, intensity 0.6, no
   shadows (cost; the dusk light is low and soft).
-- Fog: exponential, colour `fog`, density `ln(50) / R` where R is the distance from the bounds
+- Fog: exponential, colour `fog` (session 015 dropped the earlier darkening to `night`), density
+  `ln(50) / R` where R is the distance from the bounds
   centre to its farthest corner plus 300 m. The ground quad extends to 4 × R in every direction in
   `fog` colour, so there is no world edge.
 - `BuriedPalette.asset` holds the eight tokens. An EditMode test parses `web/src/styles/tokens.css`

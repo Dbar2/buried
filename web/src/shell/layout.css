@@ -134,13 +134,17 @@
   font-weight: 600;
 }
 
-/* Evidence card: at the left edge of the view, 360 px, on `fog`. It opens beside the building. */
+/* Evidence card: at the left edge of the view, 360 px, on `fog`. It opens beside the building.
+   A column: the heading and the Close button stay put and only the fields scroll, so the title is
+   never pushed out of view (session 015). */
 .card {
   background: var(--fog);
   bottom: auto;
+  display: flex;
+  flex-direction: column;
   left: 0;
-  max-height: calc(100% - 7rem);
-  overflow: auto;
+  max-height: calc(100% - 5.5rem);
+  overflow: hidden;
   padding: var(--space-3) var(--space-4);
   position: absolute;
   top: var(--space-3);
@@ -148,6 +152,7 @@
 }
 
 .card h2 {
+  flex: none;
   font-family: var(--font-heading);
   font-size: 22px;
   font-weight: 600;
@@ -156,8 +161,15 @@
 
 .card dl {
   display: grid;
+  flex: 1 1 auto;
   gap: var(--space-2);
   margin: var(--space-3) 0 0;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.card p {
+  flex: none;
 }
 
 .card dt {

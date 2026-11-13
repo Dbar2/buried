@@ -28,17 +28,17 @@ export function EvidenceCard({ card, onClose }: { card: GateCard; onClose: () =>
   }, [onClose]);
 
   useEffect(() => {
-    closeRef.current?.focus();
+    closeRef.current?.focus({ preventScroll: true });
   }, [card]);
 
   return (
     <section className="card" aria-label="Evidence" data-testid="evidence-card">
-      <h2>{card.heading}</h2>
+      <h2 data-testid="card-heading">{card.heading}</h2>
       <dl>
         {card.rows.map((row) => (
           <div key={row.label} className="card-row">
             <dt>{row.label}</dt>
-            <dd className={row.mono ? 'mono' : undefined} data-testid={rowTestId(row.label)}>
+            <dd className={row.mono ? 'mono' : undefined} data-testid={rowTestId(row.label)} title={row.title}>
               {row.value}
             </dd>
           </div>

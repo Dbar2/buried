@@ -12,7 +12,7 @@ const card: GateCard = {
     { label: 'Position', value: 'Positioned within about 4.5 m', mono: true },
     { label: 'Read from', value: 'Goad plan (fip_v3_1911_229)', mono: false },
     { label: 'Confirmed by', value: 'A reviewer', mono: false },
-    { label: 'Confirmed at', value: '2026-11-13T12:00:00Z', mono: true },
+    { label: 'Confirmed at', value: '13 Nov 2026, 12:00 UTC', mono: true, title: '2026-11-13T12:00:00Z' },
     { label: 'Attribution', value: 'Digitized and georeferenced by the University of Toronto Map & Data Library.', mono: false },
   ],
 };
@@ -21,7 +21,7 @@ describe('EvidenceCard', () => {
   const html = renderToStaticMarkup(<EvidenceCard card={card} onClose={() => {}} />);
 
   it('shows the heading and every field with its label', () => {
-    expect(html).toContain('<h2>Building</h2>');
+    expect(html).toContain('<h2 data-testid="card-heading">Building</h2>');
     for (const row of card.rows) {
       expect(html).toContain(`<dt>${row.label}</dt>`);
       expect(html).toContain(`data-testid="${rowTestId(row.label)}"`);
@@ -33,6 +33,7 @@ describe('EvidenceCard', () => {
     expect(html).toMatch(/class="mono" data-testid="card-feature"/);
     expect(html).toMatch(/class="mono" data-testid="card-position"/);
     expect(html).toMatch(/class="mono" data-testid="card-confirmed-at"/);
+    expect(html).toContain('title="2026-11-13T12:00:00Z"');
     expect(html).not.toMatch(/class="mono" data-testid="card-confidence"/);
     expect(html).not.toMatch(/class="mono" data-testid="card-attribution"/);
   });

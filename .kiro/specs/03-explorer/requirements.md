@@ -494,7 +494,8 @@ the Player and zoom. From task 3.1 on, 16.5 applies and only Ctrl or Shift with 
 for the whole drag, and SHALL stop the camera when the pointer stops or is released (no inertia).
 
 16.8 THE default pose after `scene/init` SHALL show the whole `initialView` rectangle the Shell
-sent, centred on the canvas, looking north at a pitch of 50 degrees.
+sent, centred on the canvas, looking north-north-east (heading 22.5 degrees) at a pitch of 21 degrees
+(session 015; see requirement 26.2).
 
 ## Requirement 17: Keyboard, list view and screen readers
 
@@ -727,9 +728,14 @@ pose, debug off). (a) to (f) of task 16.7 automate parts of 26.1, 26.2, 26.5, 26
 canvas, and at least two corners of its plate's drape SHALL lie outside the canvas, so that the
 view frames the block and not the whole photograph.
 
-26.2 THE top of the canvas SHALL be the darkest part of the sky and close to `night`; the band just
-above the horizon SHALL be lighter and grey-blue. There SHALL be no default Unity skybox, no pure
-black and no visible horizon line where the ground ends.
+26.2 THE default view SHALL show the horizon (maintainer decision, session 015). THE top rows of the
+canvas SHALL be within a small distance of `night`; THE horizon row SHALL lie between 12 and 22 per
+cent of the canvas height from the top; THE rows just above the horizon SHALL be lighter and bluer
+than the top rows; and no building silhouette SHALL cross the horizon with more than low contrast.
+There SHALL be no default Unity skybox, no pure black and no visible horizon line where the ground
+ends. The ground and the sky meet in the `fog` colour. (The brief asked for a pitch of about 32
+degrees and a vertical field of view of about 50; with those the top edge is below the horizon, so
+the defaults are 21 degrees and 58 degrees, which put the horizon 15 per cent down.)
 
 26.3 THE drape SHALL fade into the ground with no hard straight edge; beyond it the ground SHALL
 continue in `fog` into the distance, so that nothing reads as a rectangle floating in a void.

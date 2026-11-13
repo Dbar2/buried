@@ -27,8 +27,8 @@ namespace Buried.Tests
                 new[] { -50f, 40f, 50f, 460f },
             })
             {
-                float distance = CameraRigMath.FitDistance(rect[0], rect[1], rect[2], rect[3], LookSettings.DefaultPitchDeg, 0f, Fov, Aspect);
-                var pose = CameraRigMath.MakePose((rect[0] + rect[2]) * 0.5f, (rect[1] + rect[3]) * 0.5f, distance, LookSettings.DefaultPitchDeg, 0f);
+                float distance = CameraRigMath.FitDistance(rect[0], rect[1], rect[2], rect[3], LookSettings.DefaultPitchDeg, LookSettings.DefaultHeadingDeg, Fov, Aspect);
+                var pose = CameraRigMath.MakePose((rect[0] + rect[2]) * 0.5f, (rect[1] + rect[3]) * 0.5f, distance, LookSettings.DefaultPitchDeg, LookSettings.DefaultHeadingDeg);
 
                 var corners = new[]
                 {
@@ -52,13 +52,25 @@ namespace Buried.Tests
         }
 
         [Test]
-        public void TheDefaultPoseLooksNorthAtFiftyDegrees()
+        public void TheDefaultPoseLooksNorthNorthEastAndShowsTheHorizon()
         {
-            var pose = CameraRigMath.MakePose(0f, 0f, 300f, LookSettings.DefaultPitchDeg, 0f);
+            var pose = CameraRigMath.MakePose(0f, 0f, 300f, LookSettings.DefaultPitchDeg, LookSettings.DefaultHeadingDeg);
             Vector3 forward = CameraRigMath.Rotation(pose) * Vector3.forward;
             Assert.Greater(forward.z, 0f, "looking north (+z)");
-            Assert.AreEqual(0f, forward.x, 1e-6f);
-            Assert.AreEqual(-Mathf.Sin(50f * Mathf.Deg2Rad), forward.y, 1e-5f, "50 degrees below the horizontal");
+            Assert.Greater(forward.x, 0f, "and a little east");
+            Assert.AreEqual(Mathf.Tan(22.5f * Mathf.Deg2Rad), forward.x / forward.z, 1e-4f, "north-north-east");
+            Assert.AreEqual(-Mathf.Sin(LookSettings.DefaultPitchDeg * Mathf.Deg2Rad), forward.y, 1e-5f, "the default pitch below the horizontal");
+            Assert.GreaterOrEqual(LookSettings.DefaultPitchDeg, LookSettings.MinPitchDeg);
+
+            // The horizon is the vanishing line of the ground: the row of a far point straight ahead on the
+            // horizontal. Between 12 and 22 per cent of the canvas height from the top (requirement 26.2).
+            Vector3 ahead = CameraRigMath.Position(pose) + new Vector3(forward.x, 0f, forward.z).normalized * 1.0e6f;
+            ahead.y = CameraRigMath.Position(pose).y;
+            Vector2 ndc;
+            Assert.IsTrue(CameraRigMath.ProjectToNdc(pose, Fov, Aspect, ahead, out ndc));
+            float fromTop = (1f - (ndc.y * 0.5f + 0.5f));
+            Assert.GreaterOrEqual(fromTop, 0.12f);
+            Assert.LessOrEqual(fromTop, 0.22f);
         }
 
         [Test]

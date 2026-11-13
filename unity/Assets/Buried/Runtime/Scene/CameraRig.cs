@@ -52,7 +52,8 @@ namespace Buried.Scene
         }
 
         /// <summary>
-        /// The default pose after scene/init (requirement 16.8): looking north at the default pitch, with
+        /// The default pose after scene/init (requirement 16.8): looking north-north-east at the default
+        /// pitch, with
         /// the target at the centre of the view rectangle and the smallest distance at which the whole
         /// rectangle is in view for the canvas's aspect ratio.
         /// </summary>
@@ -60,8 +61,9 @@ namespace Buried.Scene
         {
             float aspect = _camera.aspect > 0f ? _camera.aspect : 1f;
             float distance = CameraRigMath.FitDistance(
-                minX, minZ, maxX, maxZ, LookSettings.DefaultPitchDeg, 0f, LookSettings.CameraFovDeg, aspect);
-            _pose = CameraRigMath.MakePose((minX + maxX) * 0.5f, (minZ + maxZ) * 0.5f, distance, LookSettings.DefaultPitchDeg, 0f);
+                minX, minZ, maxX, maxZ, LookSettings.DefaultPitchDeg, LookSettings.DefaultHeadingDeg, LookSettings.CameraFovDeg, aspect);
+            _pose = CameraRigMath.MakePose(
+                (minX + maxX) * 0.5f, (minZ + maxZ) * 0.5f, distance, LookSettings.DefaultPitchDeg, LookSettings.DefaultHeadingDeg);
             _ready = true;
             Apply(CameraRigMath.ClampPose(_pose, _minX, _minZ, _maxX, _maxZ));
         }

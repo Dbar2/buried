@@ -4,12 +4,14 @@
  * requirement 26 item by item, and automate the parts of 26.1, 26.2, 26.5, 26.6 and 26.9 that a
  * script can judge.
  *
- * Two things in task 16.7's wording cannot be done as written, and the tests say so:
- *  - (c) The horizon is not in the frame at the default pose: the camera looks 50 degrees down with
- *    a 40 degree field of view, so the top of the canvas is 30 degrees below the horizon. (It is
- *    not in the frame at any pose the limits allow: at the lowest pitch, 20 degrees, the top edge
- *    is exactly the horizon.) The test records where the horizon projects and checks the top rows
- *    against `night` and against the darkest-of-the-upper-half rule instead.
+ * Session 015 (maintainer decision, recorded in docs/kiro-sessions/015-look-review-and-drape.md):
+ * the default view shows the horizon, so requirement 26.2 now reads: the top rows are within a
+ * small distance of `night`; the horizon row lies between 12 and 22 per cent of the canvas height;
+ * the rows just above the horizon are lighter and bluer than the top rows; no building silhouette
+ * crosses the horizon with more than low contrast. The old (c), which recorded that the horizon
+ * was off the canvas, is replaced by that.
+ *
+ * One thing in task 16.7's wording cannot be done as written, and the test says so:
  *  - (f) Down then Up on the gauge goes from Today to 1947 and back, because 1947 sits between
  *    Today and 1935. The test presses Down twice to reach 1935 and Up twice to return to Today.
  */
@@ -91,6 +93,15 @@ function meanRows(png: PNG, from: number, to: number): [number, number, number] 
 }
 
 const luminance = (c: readonly number[]): number => 0.2126 * (c[0] as number) + 0.7152 * (c[1] as number) + 0.0722 * (c[2] as number);
+
+/** WCAG relative luminance of an sRGB colour, 0 to 1. */
+function wcagLuminance(c: readonly number[]): number {
+  const lin = (v: number): number => {
+    const s = v / 255;
+    return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * lin(c[0] as number) + 0.7152 * lin(c[1] as number) + 0.0722 * lin(c[2] as number);
+}
 
 /** Pixels within `tolerance` per channel of a colour. */
 function countNear(png: PNG, target: readonly number[], tolerance: number): number {
@@ -176,7 +187,7 @@ test('Today, 1935 and 1911 are reached with the Down key and saved', async () =>
   await shoot('1911');
 });
 
-test('26.1 / (d) the published building is in the middle third and two corners of the 1911 drape are off the canvas', async () => {
+test('26.1 the published building is in the middle third of the canvas', async () => {
   const camera = await currentCamera();
   const { widthPx: w, heightPx: h } = camera.canvas;
 
@@ -204,21 +215,17 @@ test('26.1 / (d) the published building is in the middle third and two corners o
   expect(centre.x, 'building x').toBeLessThan((2 * w) / 3);
   expect(centre.y, 'building y').toBeGreaterThan(h / 3);
   expect(centre.y, 'building y').toBeLessThan((2 * h) / 3);
-
-  const tile = readJson<{ corners: Record<'top_left' | 'top_right' | 'bottom_right' | 'bottom_left', [number, number]> }>('tiles', 'fip_v3_1911_229.json');
-  const outside = Object.values(tile.corners).filter((c) => {
-    const p = projectToPixels(camera, c[0], c[1], 0);
-    return p.x < 0 || p.x > w || p.y < 0 || p.y > h;
-  });
-  expect(outside.length, 'drape corners outside the canvas').toBeGreaterThanOrEqual(2);
 });
 
-test('26.2 / (c) the top of the canvas is the darkest part and close to night; the horizon is not in the frame', async () => {
+test('26.2 / (c) night at the top, the horizon at 12 to 22 per cent, lighter and bluer sky above it, no building silhouette across it', async () => {
   const camera = await currentCamera();
   const row = horizonRow(camera);
-  console.log(`the horizon projects to canvas row ${row === null ? 'behind the camera' : row.toFixed(1)} of ${camera.canvas.heightPx}`);
-  // The geometry fact behind the deviation described at the top of this file.
-  expect(row === null || row < 0, 'the horizon lies above the canvas at the default pose').toBe(true);
+  const h = camera.canvas.heightPx;
+  console.log(`the horizon projects to canvas row ${row === null ? 'behind the camera' : row.toFixed(1)} of ${h}`);
+  expect(row, 'the horizon is in front of the camera').not.toBeNull();
+  const horizon = row as number;
+  expect(horizon / h, 'the horizon row as a share of the canvas height').toBeGreaterThanOrEqual(0.12);
+  expect(horizon / h, 'the horizon row as a share of the canvas height').toBeLessThanOrEqual(0.22);
 
   for (const name of ['today', '1935', '1911']) {
     const png = shots[name] as PNG;
@@ -226,12 +233,122 @@ test('26.2 / (c) the top of the canvas is the darkest part and close to night; t
     for (let c = 0; c < 3; c++) {
       expect(Math.abs((top[c] as number) - (tokens.night[c] as number)), `${name} top rows channel ${c}`).toBeLessThanOrEqual(6);
     }
-    // The darkest of the first ten 5% bands (the upper half of the canvas).
-    const bands = Array.from({ length: 10 }, (_, i) => luminance(meanRows(png, png.height * 0.05 * i, png.height * 0.05 * (i + 1))));
-    expect(bands[0], `${name} top band is the darkest of the upper half`).toBeLessThanOrEqual(Math.min(...bands) + 1e-9);
+    // The rows just above the horizon (a band 3 to 12 px above it) are lighter and bluer than the top rows.
+    const above = meanRows(png, horizon - 12, horizon - 3);
+    expect(luminance(above), `${name} sky above the horizon is lighter than the top`).toBeGreaterThan(luminance(top));
+    expect((above[2] as number) - (above[0] as number), `${name} sky above the horizon is bluer than the top`).toBeGreaterThan(
+      (top[2] as number) - (top[0] as number),
+    );
+    // No building silhouette crosses the horizon with more than low contrast: against the sky band
+    // beside it, no column of the band 4 px above the horizon differs by more than 1.25 : 1 (WCAG ratio).
+    const reference = wcagLuminance(meanRows(png, horizon - 5, horizon - 3));
+    let worst = 1;
+    const y = Math.max(0, Math.round(horizon) - 4);
+    for (let x = 0; x < png.width; x++) {
+      const l = wcagLuminance(pixel(png, x, y));
+      worst = Math.max(worst, (Math.max(l, reference) + 0.05) / (Math.min(l, reference) + 0.05));
+    }
+    console.log(`${name}: worst contrast across the horizon band ${worst.toFixed(3)} : 1`);
+    expect(worst, `${name} contrast of a silhouette across the horizon`).toBeLessThanOrEqual(1.25);
     // No pure black anywhere on the page's canvas.
     expect(countNear(png, [0, 0, 0], 2), `${name} pure black pixels`).toBe(0);
   }
+});
+
+test('Today is not flat: roofs read at least 1.35 : 1 against the ground, and below a ghost', async () => {
+  const camera = await currentCamera();
+  const png = shots.today as PNG;
+  const { widthPx: w, heightPx: h } = camera.canvas;
+  const layer = readJson<{ features: Array<{ geometry: { type: string; coordinates: number[][][] | number[][][][] } }> }>(
+    'present',
+    'present_toronto_building_outlines_2026.geojson',
+  );
+  const rings: number[][][] = [];
+  for (const f of layer.features) {
+    const polygons = (f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates : [f.geometry.coordinates]) as number[][][][];
+    for (const polygon of polygons) if (polygon[0]) rings.push(polygon[0]);
+  }
+  const areaOf = (ring: number[][]): number => {
+    let a = 0;
+    for (let i = 0; i < ring.length - 1; i++) a += (ring[i] as number[])[0]! * (ring[i + 1] as number[])[1]! - (ring[i + 1] as number[])[0]! * (ring[i] as number[])[1]!;
+    return a / 2;
+  };
+  const centroidOf = (ring: number[][]): [number, number] => {
+    const a = areaOf(ring);
+    let cx = 0;
+    let cy = 0;
+    for (let i = 0; i < ring.length - 1; i++) {
+      const [x0, y0] = ring[i] as [number, number];
+      const [x1, y1] = ring[i + 1] as [number, number];
+      const cross = x0 * y1 - x1 * y0;
+      cx += (x0 + x1) * cross;
+      cy += (y0 + y1) * cross;
+    }
+    return [cx / (6 * a), cy / (6 * a)];
+  };
+  const patchMedian = (x: number, y: number, r: number): [number, number, number] => {
+    const sub = new PNG({ width: 2 * r + 1, height: 2 * r + 1 });
+    for (let dy = -r; dy <= r; dy++) {
+      for (let dx = -r; dx <= r; dx++) {
+        const p = pixel(png, x + dx, y + dy);
+        const i = ((dy + r) * sub.width + (dx + r)) * 4;
+        sub.data[i] = p[0];
+        sub.data[i + 1] = p[1];
+        sub.data[i + 2] = p[2];
+      }
+    }
+    return meanRows(sub, 0, sub.height);
+  };
+  const inside = (p: Point): boolean => p.x > 30 && p.x < w - 30 && p.y > 0.25 * h && p.y < h - 30;
+
+  // Roofs: the centroids of the large buildings (over 400 m2) in the lower half of the canvas, the
+  // near half of the block, where the fog has not yet taken most of the colour; the roof is 7 m up.
+  const roofs: number[] = [];
+  for (const ring of rings) {
+    if (Math.abs(areaOf(ring)) < 400) continue;
+    const [cx, cy] = centroidOf(ring);
+    const p = projectToPixels(camera, cx, cy, 7);
+    if (p.w <= 0 || !inside(p) || p.y < 0.5 * h) continue;
+    roofs.push(wcagLuminance(patchMedian(Math.round(p.x), Math.round(p.y), 2)));
+  }
+  expect(roofs.length, 'large present buildings in the lower half of the canvas').toBeGreaterThanOrEqual(3);
+  roofs.sort((a, b) => a - b);
+  const roof = roofs[Math.floor(roofs.length / 2)] as number;
+
+  // Ground: points on a 15 m grid that are 45 m or more from every footprint, so no wall hides them.
+  const distToRing = (px: number, py: number, ring: number[][]): number => {
+    let best = Infinity;
+    for (let i = 0; i < ring.length - 1; i++) {
+      const [x0, y0] = ring[i] as [number, number];
+      const [x1, y1] = ring[i + 1] as [number, number];
+      const dx = x1 - x0;
+      const dy = y1 - y0;
+      const t = dx === 0 && dy === 0 ? 0 : Math.max(0, Math.min(1, ((px - x0) * dx + (py - y0) * dy) / (dx * dx + dy * dy)));
+      best = Math.min(best, Math.hypot(px - (x0 + t * dx), py - (y0 + t * dy)));
+    }
+    return best;
+  };
+  const grounds: number[] = [];
+  for (let e = 632000; e <= 632900 && grounds.length < 200; e += 15) {
+    for (let n = 4834600; n <= 4835400 && grounds.length < 200; n += 15) {
+      const p = projectToPixels(camera, e, n, 0);
+      if (p.w <= 0 || !inside(p)) continue;
+      if (rings.some((ring) => distToRing(e, n, ring) < 45)) continue;
+      grounds.push(wcagLuminance(patchMedian(Math.round(p.x), Math.round(p.y), 1)));
+    }
+  }
+  expect(grounds.length, 'open ground samples on the canvas').toBeGreaterThanOrEqual(10);
+  grounds.sort((a, b) => a - b);
+  const ground = grounds[Math.floor(grounds.length / 2)] as number;
+
+  const ratio = (roof + 0.05) / (ground + 0.05);
+  console.log(`roof : ground contrast ${ratio.toFixed(3)} : 1 (roof L ${roof.toFixed(4)} from ${roofs.length} buildings, ground L ${ground.toFixed(4)} from ${grounds.length} points)`);
+  expect(ratio, 'roof against ground, WCAG ratio').toBeGreaterThanOrEqual(1.35);
+
+  // Below ghosts: a documented ghost is `ink` at alpha 0.35 over what lies beneath it, so its
+  // luminance is at least 0.35 of ink's; a roof must stay under that.
+  const ink = wcagLuminance([232, 223, 200]);
+  expect(roof, 'a roof is dimmer than a ghost').toBeLessThan(0.35 * ink);
 });
 
 test('26.5 / (b) no lantern or water colour, and no debug marker, in the canvas or the DOM', async () => {
@@ -311,6 +428,26 @@ test('26.6 / (e) the wordmark is Fraunces, the gauge years and the card id are I
   const card = await page.getByTestId('evidence-card').boundingBox();
   expect(card).not.toBeNull();
   expect((card as { x: number; width: number }).x + (card as { width: number }).width).toBeLessThan((box as { x: number }).x + at.x);
+  // The card's title is always visible: inside the viewport, below the header, and not covered by anything else.
+  const heading = await page.getByTestId('card-heading').boundingBox();
+  expect(heading).not.toBeNull();
+  const hb = heading as { x: number; y: number; width: number; height: number };
+  expect(hb.y, 'heading top is below the header').toBeGreaterThanOrEqual(56);
+  expect(hb.y + hb.height, 'heading bottom is inside the viewport').toBeLessThanOrEqual(800);
+  expect(hb.x).toBeGreaterThanOrEqual(0);
+  expect(hb.x + hb.width).toBeLessThanOrEqual(1280);
+  const covered = await page.evaluate(
+    ({ x, y }) => {
+      const top = document.elementFromPoint(x, y);
+      const heading = document.querySelector('[data-testid="card-heading"]');
+      return !!top && !!heading && (top === heading || heading.contains(top));
+    },
+    { x: hb.x + Math.min(8, hb.width / 2), y: hb.y + hb.height / 2 },
+  );
+  expect(covered, 'the heading is the topmost element at its own position').toBe(true);
+  // The confirmation time is worded for people and carries the ISO string in its title.
+  await expect(page.getByTestId('card-confirmed-at')).toHaveText(/^\d{1,2} [A-Z][a-z]{2} \d{4}, \d{2}:\d{2} UTC$/);
+  await expect(page.getByTestId('card-confirmed-at')).toHaveAttribute('title', /^\d{4}-\d{2}-\d{2}T/);
   await shoot('card-1911');
 });
 
@@ -362,4 +499,19 @@ test('no console errors from the Shell while looking', async () => {
   // Reaching here with the Player running is the check; the Player's own start-up messages about
   // unused URP shaders go to the console as log lines, not as page errors.
   expect(await page.getByTestId('view').getAttribute('data-player-ready')).toBe('true');
+});
+
+// Last in the file and unchanged in strictness, so that a failure here does not stop the serial
+// tests before it. Session 015 item 3 frames the plates' map areas with a 15 per cent margin, which
+// puts the corners of a map-area tile inside the canvas; this criterion and that decision disagree,
+// and the maintainer settles which one gives (see docs/kiro-sessions/015-look-review-and-drape.md).
+test('26.1 / (d) at least two corners of the 1911 drape are off the canvas', async () => {
+  const camera = await currentCamera();
+  const { widthPx: w, heightPx: h } = camera.canvas;
+  const tile = readJson<{ corners: Record<'top_left' | 'top_right' | 'bottom_right' | 'bottom_left', [number, number]> }>('tiles', 'fip_v3_1911_229.json');
+  const outside = Object.values(tile.corners).filter((c) => {
+    const p = projectToPixels(camera, c[0], c[1], 0);
+    return p.x < 0 || p.x > w || p.y < 0 || p.y > h;
+  });
+  expect(outside.length, 'drape corners outside the canvas').toBeGreaterThanOrEqual(2);
 });

@@ -8,11 +8,20 @@ namespace Buried.Look
     /// </summary>
     public static class LookSettings
     {
-        public const float CameraFovDeg = 40f;
+        public const float CameraFovDeg = 58f;
         public const float NearClipM = 5f;
         public const float FarClipM = 20000f;
 
-        public const float DefaultPitchDeg = 50f;
+        // Session 015: the default view shows the horizon, with a band of sky filling about 15 per
+        // cent of the canvas (rows 12 to 22 per cent from the top hold the horizon). The brief asked
+        // for a pitch of about 32 degrees and a field of view of about 50; with those the horizon is
+        // above the top of the canvas (32 degrees below the horizontal, minus half of 50, leaves the
+        // top edge 7 degrees BELOW it). The horizon row is
+        //   (1 - tan(pitch) / tan(fov / 2)) / 2   of the canvas height from the top,
+        // so a pitch of 21 degrees and a field of view of 58 degrees put it 15.4 per cent down.
+        public const float DefaultPitchDeg = 21f;
+        /// <summary>The default heading: north-north-east, so Queen St E runs across the upper part of the view.</summary>
+        public const float DefaultHeadingDeg = 22.5f;
         public const float MinPitchDeg = 20f;
         public const float MaxPitchDeg = 80f;
         public const float MinCameraHeightM = 30f;
@@ -22,13 +31,6 @@ namespace Buried.Look
 
         /// <summary>Extra distance past the farthest bounds corner that the fog radius covers.</summary>
         public const float FogRadiusMarginM = 300f;
-
-        /// <summary>
-        /// The haze is the `fog` colour where at least this share of the light survives, and darkens to
-        /// `night` where this share or less survives, so the far ground reaches the sky's own colour.
-        /// </summary>
-        public const float FogHazeFogAbove = 0.5f;
-        public const float FogHazeNightBelow = 0.25f;
 
         /// <summary>The ground quad reaches this many fog radii in every direction.</summary>
         public const float GroundExtentRadii = 4f;
@@ -62,8 +64,14 @@ namespace Buried.Look
         /// <summary>The horizon band is this far up the palette from night to muted.</summary>
         public const float HorizonMix = 0.25f;
 
-        /// <summary>sin(elevation) at which the sky is at its lightest, a little above the horizon.</summary>
-        public const float SkyBandElevation = 0.08f;
+        /// <summary>sin(elevation) at which the sky is at its lightest, just above the horizon.</summary>
+        public const float SkyBandElevation = 0.035f;
+
+        /// <summary>
+        /// sin(elevation) at which the sky has become `night`. The default view's top edge is about
+        /// 8 degrees above the horizon (sin = 0.139), so the top rows of the canvas are `night`.
+        /// </summary>
+        public const float SkyZenithElevation = 0.12f;
 
         // ---- Sun and ambient ----
 

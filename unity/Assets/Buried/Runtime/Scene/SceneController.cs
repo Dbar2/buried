@@ -206,17 +206,17 @@ namespace Buried.Scene
             // linear value of the palette colour that the materials get through their Color property.
             Color fogLinear = fog.linear;
             Shader.SetGlobalVector("_BuriedFogColor", new Vector4(fogLinear.r, fogLinear.g, fogLinear.b, 1f));
-            Color nightLinear = ((Color)_palette.night).linear;
-            Shader.SetGlobalVector("_BuriedNightColor", new Vector4(nightLinear.r, nightLinear.g, nightLinear.b, 1f));
-            Shader.SetGlobalVector("_BuriedFogRamp", new Vector4(LookSettings.FogHazeNightBelow, LookSettings.FogHazeFogAbove, 0f, 0f));
             Shader.SetGlobalFloat("_BuriedFogDensity", LookSettings.FogDensity(fogRadius));
 
-            // Sky: night at the zenith, a lighter grey-blue band a little above the horizon, fog at the horizon.
+            // Sky: night at the top, a lighter grey-blue band just above the horizon, and the `fog`
+            // colour at and below the horizon, which is the colour the fogged ground reaches far
+            // away, so the ground meets the sky without a hard line.
             _skyMaterial = new Material(_shaders.sky) { name = "Sky" };
             _skyMaterial.SetColor("_Zenith", _palette.night);
             _skyMaterial.SetColor("_Band", Color.Lerp(_palette.night, _palette.muted, LookSettings.HorizonMix));
-            _skyMaterial.SetColor("_Haze", _palette.night);
+            _skyMaterial.SetColor("_Haze", _palette.fog);
             _skyMaterial.SetFloat("_BandElevation", LookSettings.SkyBandElevation);
+            _skyMaterial.SetFloat("_ZenithElevation", LookSettings.SkyZenithElevation);
             RenderSettings.skybox = _skyMaterial;
 
             // Ground: one big quad in the fog colour, so the edge of the coverage area dissolves.

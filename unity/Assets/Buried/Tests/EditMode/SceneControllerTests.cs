@@ -76,7 +76,7 @@ namespace Buried.Tests
             "{\"type\":\"debug/setCamera\",\"payload\":{\"target\":[632550,4835040],\"distanceM\":250,\"pitchDeg\":80,\"headingDeg\":0}}";
 
         [Test]
-        public void SceneInitFramesTheInitialViewLookingNorthAtFiftyDegrees()
+        public void SceneInitFramesTheInitialViewLookingNorthNorthEastAtTheDefaultPitch()
         {
             _bridge.Receive(Init(false));
 
@@ -85,7 +85,7 @@ namespace Buried.Tests
             Assert.AreEqual(632550f - 632500f, centre.x, 0.01f);
             Assert.AreEqual(4835000f - 4835000f, centre.z, 0.01f);
             Assert.AreEqual(LookSettings.DefaultPitchDeg, _rig.Pose.PitchDeg, 0f);
-            Assert.AreEqual(0f, _rig.Pose.HeadingDeg, 0f);
+            Assert.AreEqual(LookSettings.DefaultHeadingDeg, _rig.Pose.HeadingDeg, 0f);
 
             // Every corner of the rectangle is in view, so the centre of the rectangle is at the canvas centre.
             var rect = new[] { new Vector3(-500f, 0f, -500f), new Vector3(-500f, 0f, 500f), new Vector3(600f, 0f, 500f), new Vector3(600f, 0f, -500f) };

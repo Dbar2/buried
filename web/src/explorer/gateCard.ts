@@ -8,7 +8,23 @@
 import type { EraFeature, Feature, SourceIndex } from '../evidence';
 import { positionPhrase } from '../evidence';
 
-export type CardRow = { label: string; value: string; mono: boolean };
+export type CardRow = {
+  label: string;
+  value: string;
+  mono: boolean;
+  /** Shown as the element's `title` (a tooltip): the exact value behind a shortened display. */
+  title?: string;
+};
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const;
+
+/** "2026-11-12T21:32:05Z" as "12 Nov 2026, 21:32 UTC". An unparseable string is returned unchanged. */
+export function formatUtc(iso: string): string {
+  const t = new Date(iso);
+  if (Number.isNaN(t.getTime())) return iso;
+  const pad = (n: number): string => String(n).padStart(2, '0');
+  return `${t.getUTCDate()} ${MONTHS[t.getUTCMonth()]} ${t.getUTCFullYear()}, ${pad(t.getUTCHours())}:${pad(t.getUTCMinutes())} UTC`;
+}
 
 export type GateCard = {
   heading: string;
@@ -43,7 +59,7 @@ export function buildGateCard(entry: EraFeature, feature: Feature, sources: Sour
       { label: 'Position', value: positionPhrase(entry.positionErrorM), mono: true },
       { label: 'Read from', value: `${origin.title} (${origin.id})`, mono: false },
       { label: 'Confirmed by', value: provenance.confirmed_by, mono: false },
-      { label: 'Confirmed at', value: provenance.confirmed_at, mono: true },
+      { label: 'Confirmed at', value: formatUtc(provenance.confirmed_at), mono: true, title: provenance.confirmed_at },
       { label: 'Attribution', value: origin.attribution_line, mono: false },
     ],
   };

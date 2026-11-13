@@ -8,6 +8,11 @@ import type { Drape } from './drapes';
 
 export const INITIAL_VIEW_MARGIN_M = 60;
 export const INITIAL_VIEW_MIN_M = 200;
+/** Margin around the plates' map areas, as a share of the box's width and height, on each side (session 015). */
+export const INITIAL_VIEW_MAP_AREA_MARGIN = 0.15;
+
+/** A polygon ring (or any list of positions) in EPSG:26917 metres, easting first. */
+export type Ring = ReadonlyArray<readonly number[]>;
 
 /** A rectangle in EPSG:26917 metres. */
 export type Rect = { minE: number; minN: number; maxE: number; maxN: number };
@@ -42,19 +47,41 @@ function visitPositions(coordinates: unknown, visit: (e: number, n: number) => v
 /**
  * Where the default camera looks.
  *
- * 1. The bounding box of every Era list entry's geometry, in every era (land use excluded, as for
- *    scene features, because the Player is never sent it).
- * 2. With none, the bounding box of every drape's four corners.
- * 3. With none either, the project bounds.
- * 4. Grown by INITIAL_VIEW_MARGIN_M on each side, widened about its centre to at least
- *    INITIAL_VIEW_MIN_M in each direction, then clipped to the project bounds.
+ * 1. The bounding box of the plates' map areas (`mapAreas`, one ring per plate), grown by
+ *    INITIAL_VIEW_MAP_AREA_MARGIN of its width and height on each side. This is the maintainer's
+ *    decision of session 015: the opening view frames the mapped ground, centred.
+ * 2. With no map area, the bounding box of every Era list entry's geometry, in every era (land use
+ *    excluded, as for scene features, because the Player is never sent it), grown by
+ *    INITIAL_VIEW_MARGIN_M on each side.
+ * 3. With none, the bounding box of every drape's four corners, grown the same way.
+ * 4. With none either, the project bounds.
+ *
+ * The result is widened about its centre to at least INITIAL_VIEW_MIN_M in each direction, then
+ * clipped to the project bounds.
  */
-export function initialView(eraLists: Iterable<EraFeatureList>, drapes: Iterable<Drape>, bounds: Rect): Rect {
+export function initialView(
+  eraLists: Iterable<EraFeatureList>,
+  drapes: Iterable<Drape>,
+  bounds: Rect,
+  mapAreas: Iterable<Ring> = [],
+): Rect {
   const box = emptyBox();
-  for (const list of eraLists) {
-    for (const entry of list.features) {
-      if (entry.kind === 'land_use') continue;
-      visitPositions((entry.geometry as { coordinates?: unknown }).coordinates, (e, n) => extend(box, e, n));
+  let marginE = INITIAL_VIEW_MARGIN_M;
+  let marginN = INITIAL_VIEW_MARGIN_M;
+
+  for (const ring of mapAreas) {
+    for (const p of ring) extend(box, p[0] as number, p[1] as number);
+  }
+  if (!isEmpty(box)) {
+    marginE = (box.maxE - box.minE) * INITIAL_VIEW_MAP_AREA_MARGIN;
+    marginN = (box.maxN - box.minN) * INITIAL_VIEW_MAP_AREA_MARGIN;
+  }
+  if (isEmpty(box)) {
+    for (const list of eraLists) {
+      for (const entry of list.features) {
+        if (entry.kind === 'land_use') continue;
+        visitPositions((entry.geometry as { coordinates?: unknown }).coordinates, (e, n) => extend(box, e, n));
+      }
     }
   }
   if (isEmpty(box)) {
@@ -66,10 +93,10 @@ export function initialView(eraLists: Iterable<EraFeatureList>, drapes: Iterable
   if (isEmpty(box)) return { ...bounds };
 
   const grown: Box = {
-    minE: box.minE - INITIAL_VIEW_MARGIN_M,
-    minN: box.minN - INITIAL_VIEW_MARGIN_M,
-    maxE: box.maxE + INITIAL_VIEW_MARGIN_M,
-    maxN: box.maxN + INITIAL_VIEW_MARGIN_M,
+    minE: box.minE - marginE,
+    minN: box.minN - marginN,
+    maxE: box.maxE + marginE,
+    maxN: box.maxN + marginN,
   };
   const widen = (min: number, max: number): [number, number] => {
     if (max - min >= INITIAL_VIEW_MIN_M) return [min, max];

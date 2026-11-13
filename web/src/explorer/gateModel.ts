@@ -69,7 +69,7 @@ export function buildGateModel(data: LoadedData): GateModel {
     minN: b.min_n,
     maxE: b.max_e,
     maxN: b.max_n,
-  });
+  }, tiles.flatMap((tile) => (tile.map_area ? [tile.map_area.coordinates[0] as ReadonlyArray<readonly number[]>] : [])));
 
   const features = new Map<string, Feature>();
   for (const collection of data.evidence) {

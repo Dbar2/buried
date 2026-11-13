@@ -1,15 +1,16 @@
-// The dusk sky: `night` at the zenith, a lighter grey-blue band a little above the horizon, and
-// `night` again at and below the horizon, which is the colour the fogged ground reaches far away
-// (BuriedApplyFog), so the ground meets the sky without a hard line (requirement 26.2). A skybox
-// shader, so Unity's default skybox is never used. No time, no stars.
+// The dusk sky: the `fog` colour at and below the horizon (the colour the fogged ground reaches
+// far away, so the ground meets the sky with no hard line, requirement 26.2), a lighter grey-blue
+// band a little above it, and `night` from about 7 degrees up, so the top of the default view is
+// `night`. A skybox shader, so Unity's default skybox is never used. No time, no stars.
 Shader "Buried/Sky"
 {
     Properties
     {
-        _Zenith ("Zenith (night)", Color) = (0, 0, 0, 1)
+        _Zenith ("Top (night)", Color) = (0, 0, 0, 1)
         _Band ("Horizon band", Color) = (0.2, 0.2, 0.2, 1)
-        _Haze ("Haze at the horizon (fog)", Color) = (0.1, 0.1, 0.1, 1)
-        _BandElevation ("sin(elevation) of the band", Range(0.01, 0.5)) = 0.08
+        _Haze ("At and below the horizon (fog)", Color) = (0.1, 0.1, 0.1, 1)
+        _BandElevation ("sin(elevation) of the band", Range(0.005, 0.5)) = 0.035
+        _ZenithElevation ("sin(elevation) where the sky is night", Range(0.02, 1)) = 0.12
     }
     SubShader
     {
@@ -31,6 +32,7 @@ Shader "Buried/Sky"
                 half4 _Band;
                 half4 _Haze;
                 half _BandElevation;
+                half _ZenithElevation;
             CBUFFER_END
 
             struct Attributes
@@ -59,8 +61,8 @@ Shader "Buried/Sky"
                 half3 colour;
                 if (e >= b)
                 {
-                    half t = saturate((e - b) / (1.0 - b));
-                    colour = lerp(_Band.rgb, _Zenith.rgb, sqrt(t));
+                    half t = saturate((e - b) / max(_ZenithElevation - b, 0.001));
+                    colour = lerp(_Band.rgb, _Zenith.rgb, smoothstep(0.0, 1.0, t));
                 }
                 else
                 {

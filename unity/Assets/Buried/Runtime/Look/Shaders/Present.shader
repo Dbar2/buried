@@ -6,8 +6,9 @@ Shader "Buried/Present"
     Properties
     {
         _Color ("Colour", Color) = (1, 1, 1, 1)
-        _Ambient ("Flat light", Range(0, 2)) = 0.85
-        _SunGain ("Sun gain", Range(0, 4)) = 2.0
+        _Ambient ("Leeward wall light", Range(0, 4)) = 1.5
+        _SunGain ("Sun gain (sunward walls)", Range(0, 8)) = 4.5
+        _RoofGain ("Roof gain (sky light)", Range(0, 4)) = 2.3
         _Alpha ("Alpha", Range(0, 1)) = 1
         [HideInInspector] _SrcBlend ("Src blend", Float) = 1
         [HideInInspector] _DstBlend ("Dst blend", Float) = 0
@@ -36,6 +37,7 @@ Shader "Buried/Present"
                 half4 _Color;
                 half _Ambient;
                 half _SunGain;
+                half _RoofGain;
                 half _Alpha;
             CBUFFER_END
 
@@ -67,7 +69,9 @@ Shader "Buried/Present"
                 half3 n = normalize(input.normalWS);
                 Light sun = GetMainLight();
                 half lit = saturate(dot(n, sun.direction));
-                half3 rgb = _Color.rgb * (_Ambient + sun.color * (lit * _SunGain));
+                // Three steps of one cold grey: walls facing away from the low west sun, walls
+                // facing it (the sun term), and roofs (the sky term), lightest. Same hue, no warm light.
+                half3 rgb = _Color.rgb * (_Ambient + _RoofGain * saturate(n.y) + sun.color * (lit * _SunGain));
                 rgb = BuriedApplyFog(rgb, input.transmission);
                 return half4(rgb, _Alpha);
             }

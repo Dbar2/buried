@@ -192,7 +192,7 @@ task 16), 7, 8, 16, 11, 9.
     temp dir by the test itself.
     Files: `pipeline/tests/extract/test_held_out.py`.
     Requirements: 9.1, 9.2, 9.3.
-  - [ ] 7.3 Implement the pure steps for greyscale plates (design.md "Steps", requirement 17): grey
+  - [x] 7.3 Implement the pure steps for greyscale plates (design.md "Steps", requirement 17): grey
     band, local-contrast normalisation, outlines, regions, polygons, tone class, scores with
     weakness flags, proposal ids. No colour classes and no material.
     Files: `pipeline/buried_pipeline/extract/tone.py`, `pipeline/buried_pipeline/extract/outline.py`,
@@ -200,16 +200,16 @@ task 16), 7, 8, 16, 11, 9.
     `pipeline/buried_pipeline/extract/score.py`, `pipeline/tests/extract/test_steps.py`,
     `pipeline/tests/helpers/synthetic_plate.py`.
     Requirements: 1.4, 1.5, 8.1, 8.6, 17.1 to 17.5.
-  - [ ] 7.4 **[PBT] X1** Proposals are valid polygons above the minimum area.
+  - [x] 7.4 **[PBT] X1** Proposals are valid polygons above the minimum area.
     Files: `pipeline/tests/extract/test_extract_properties.py`.
     Requirements: 8.1.
-  - [ ] 7.5 **[PBT] X3** Proposal geometry equals the chosen transform applied to its pixel polygon.
+  - [x] 7.5 **[PBT] X3** Proposal geometry equals the chosen transform applied to its pixel polygon.
     Files: `pipeline/tests/extract/test_extract_properties.py`.
     Requirements: 8.2.
-  - [ ] 7.6 **[PBT] X4** Scores are bounded and equal the minimum component.
+  - [x] 7.6 **[PBT] X4** Scores are bounded and equal the minimum component.
     Files: `pipeline/tests/extract/test_extract_properties.py`.
     Requirements: 8.2.
-  - [ ] 7.7 **[PBT] X5** Synthetic greyscale rectangles are recovered with IoU at least 0.9 and
+  - [x] 7.7 **[PBT] X5** Synthetic greyscale rectangles are recovered with IoU at least 0.9 and
     their tone class, with no extras.
     Files: `pipeline/tests/extract/test_extract_properties.py`.
     Requirements: 8.1.
