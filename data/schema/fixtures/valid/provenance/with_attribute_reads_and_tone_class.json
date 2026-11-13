@@ -40,5 +40,8 @@
       "confirmed_at": "2026-11-12T10:05:00Z"
     }
   ],
-  "tone_class": "hatched"
+  "tone_class": "hatched",
+  "review": {
+    "state": "draft_hand"
+  }
 }

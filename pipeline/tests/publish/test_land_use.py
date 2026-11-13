@@ -11,7 +11,7 @@ import json
 from typing import Any
 
 import pytest
-from hypothesis import HealthCheck, given, settings
+from hypothesis import HealthCheck, example, given, settings
 from hypothesis import strategies as st
 from shapely.geometry import shape
 
@@ -130,6 +130,7 @@ def test_a_traced_area_is_published_as_a_valid_use_feature(world: World) -> None
          "read_by": "person", "confirmed_by": REVIEWER, "confirmed_at": CONFIRMED_AT}
     ]  # fmt: skip
     assert "extraction_params_id" not in prov and "tone_class" not in prov
+    assert prov["review"] == {"state": "reviewed", "by": REVIEWER, "on": "2026-11-12"}
     assert len(feature["geometry"]["coordinates"][0]) == 5
     counts = plan.build.counts
     assert (counts.accepted, counts.published_now) == (4, 4)
@@ -284,7 +285,19 @@ def test_a_later_trace_continues_the_numbering_and_leaves_the_first_alone(world:
 MARGIN = 10
 
 
+def trace_with_crop_in(box: tuple[int, int, int, int]) -> dict[str, Any]:
+    """A trace whose lettering crop is the area itself, so the crop lies on the plate whenever
+    the area does. (`trace()` puts a fixed 40 by 12 px crop 4 px in from the corner, which
+    leaves the plate for an area near the right edge even when the area is inside the map area;
+    publish rightly refuses that crop, which is a different cause from the map area.)"""
+    x0, y0, x1, y1 = box
+    t = trace(box)
+    t["attribute_reads"][0]["crop_px"] = {"x": x0, "y": y0, "width": x1 - x0, "height": y1 - y0}
+    return t
+
+
 @settings(max_examples=60, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture])
+@example(x0=557, y0=10, w=2, h=2)  # inside the map area; its old fixed crop ran off the plate
 @given(
     x0=st.integers(0, WIDTH + 20),
     y0=st.integers(0, HEIGHT + 20),
@@ -302,7 +315,7 @@ def test_published_areas_never_reach_outside_the_map_area(
         and box[3] <= HEIGHT - MARGIN
     )  # fmt: skip
     try:
-        plan = publish(world, v2(world, [trace(box)]))
+        plan = publish(world, v2(world, [trace_with_crop_in(box)]))
     except PipelineError:
         assert not inside
         return

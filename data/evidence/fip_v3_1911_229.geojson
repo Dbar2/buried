@@ -70,7 +70,10 @@
             "y": 1285
           },
           "digitising_error_m": 1.0,
-          "origin_source": "fip_v3_1911_229"
+          "origin_source": "fip_v3_1911_229",
+          "review": {
+            "state": "draft_hand"
+          }
         },
         "status": "published"
       },
@@ -133,6 +136,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_01b1c37cae7f",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -220,6 +226,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_02e4dbaf08cd",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -283,6 +292,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_05ff2c41fb20",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -377,6 +389,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_09b885951dc4",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "same_as": [
@@ -453,6 +468,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_0a2ccde002c6",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -522,6 +540,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_0cd6632a688e",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -585,6 +606,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_0cfec6abe72a",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -659,6 +683,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_0d876d8f72a7",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "same_as": [
@@ -735,6 +762,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_0e643f2ba176",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "same_as": [
@@ -812,6 +842,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_112beed66819",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -907,6 +940,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_114668e671c4",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -982,6 +1018,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_117b68910f84",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -1068,6 +1107,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_126a0dd93365",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -1173,6 +1215,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_12e7f2825fc0",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -1248,6 +1293,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_194fe27fa079",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -1311,6 +1359,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_196cb1dec18d",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -1398,6 +1449,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_1b662a2a5cda",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -1489,6 +1543,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_1e07dda86ca9",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -1596,6 +1653,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_1f211351d9b2",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -1675,6 +1735,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_20085bb97541",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -1786,6 +1849,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_23d362e043ca",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -1849,6 +1915,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_250f825ffb21",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -1912,6 +1981,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_27ecce586a26",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -1991,6 +2063,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_2da6b5517e32",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -2054,6 +2129,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_32fe030090a3",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -2245,6 +2323,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_33a36fbd13c1",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -2315,6 +2396,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_349142abc1f8",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -2384,6 +2468,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_35c69a67c3dc",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -2447,6 +2534,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_39a1dd782240",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -2526,6 +2616,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_3d8d047d65d1",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -2589,6 +2682,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_3fee63e8c46e",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -2656,6 +2752,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_445d8a8de76a",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -2743,6 +2842,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_461bead59d58",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -2813,6 +2915,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_4848839723c9",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -2882,6 +2987,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_4b06da2c0197",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -2957,6 +3065,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_5268be7fe33d",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -3027,6 +3138,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_556fd4cef70c",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -3136,6 +3250,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_5a9d0aeb8211",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -3199,6 +3316,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_63bc47bf137d",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -3398,6 +3518,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_63f11dbf28f1",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -3461,6 +3584,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_663b37f5f6c6",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -3612,6 +3738,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_6b01c8b3cbca",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -3675,6 +3804,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_6cbee10d4061",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -3742,6 +3874,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_6df6b9207fd4",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -3812,6 +3947,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_736928075226",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -3885,6 +4023,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_738b71817702",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -3964,6 +4105,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_74b126609570",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -4027,6 +4171,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_79ed0c20ff7f",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -4110,6 +4257,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_7ad5a513d269",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -4189,6 +4339,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_8200f6d9ff4b",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -4256,6 +4409,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_8a8e9ca86586",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -4331,6 +4487,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_8f020044b0c7",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -4446,6 +4605,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_8f27367e27d1",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -4521,6 +4683,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_94f9b733f209",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -4584,6 +4749,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_95cfff0f38af",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -4647,6 +4815,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_966514c6e16b",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -4721,6 +4892,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_967ca588938e",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -4870,6 +5044,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_970dc8087267",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -4977,6 +5154,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_975addd889fb",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -5063,6 +5243,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_98e7590e4a92",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "dark"
         },
         "same_as": [
@@ -5188,6 +5371,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_9b2c5b7ffe18",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -5255,6 +5441,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_9b56acc085a4",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -5341,6 +5530,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_9ba05d351cbc",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "same_as": [
@@ -5438,6 +5630,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_9f09cdcc8853",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -5505,6 +5700,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_9f1ca789d7dd",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -5572,6 +5770,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_a3a6f7ab8d68",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -5635,6 +5836,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_a77d19aa31f2",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -5734,6 +5938,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_a90983f09f80",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -5821,6 +6028,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_abe17ab8b1f6",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -5888,6 +6098,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_abfbe27ebb82",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -5971,6 +6184,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_acbdbfac500e",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -6034,6 +6250,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_af08906a1eab",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -6101,6 +6320,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_b31663e85da5",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -6176,6 +6398,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_b39246a6980b",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -6239,6 +6464,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_b4c09599ce2f",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -6309,6 +6537,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_b5710a407527",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "same_as": [
@@ -6378,6 +6609,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_b6c3f6a2ee5d",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -6464,6 +6698,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_bb2534f58886",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "same_as": [
@@ -6541,6 +6778,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_be4e51dc9b99",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -6620,6 +6860,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_c032b223e4ef",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -6699,6 +6942,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_c168a103e4ce",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -6819,6 +7065,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_c9aec8543581",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "merged",
@@ -6968,6 +7217,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_ca1f9bc2f649",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "merged",
@@ -7032,6 +7284,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_ce05f543d4c1",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -7191,6 +7446,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_cecc5f0cc25f",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -7299,6 +7557,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_d17920cc8521",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "merged",
@@ -7363,6 +7624,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_d633f404f7c2",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -7442,6 +7706,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_df03d9253c7f",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -7505,6 +7772,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_e461bd39b6f0",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -7568,6 +7838,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_e60817c71ac2",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -7675,6 +7948,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_e6e8ba6f2b97",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "dark"
         },
         "status": "published"
@@ -7939,6 +8215,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_e7a7c34924ce",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "merged",
@@ -8003,6 +8282,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_e802587f5448",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -8066,6 +8348,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_e864a17c141c",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -8133,6 +8418,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_e8fba4bd10e8",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -8212,6 +8500,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_f5a094f5dae5",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "light"
         },
         "status": "published"
@@ -8275,6 +8566,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_f5cbda4535d8",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -8358,6 +8652,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_f935c6109f41",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -8421,6 +8718,9 @@
           "extraction_params_id": "v1",
           "origin_source": "fip_v3_1911_229",
           "proposal_id": "fip_v3_1911_229_p_fc0d55c39c79",
+          "review": {
+            "state": "draft_rule"
+          },
           "tone_class": "mid"
         },
         "status": "published"
@@ -8517,7 +8817,10 @@
             "y": 1288
           },
           "digitising_error_m": 1.0,
-          "origin_source": "fip_v3_1911_229"
+          "origin_source": "fip_v3_1911_229",
+          "review": {
+            "state": "draft_hand"
+          }
         },
         "same_as": [
           {
@@ -8619,7 +8922,10 @@
             "y": 1755
           },
           "digitising_error_m": 1.0,
-          "origin_source": "fip_v3_1911_229"
+          "origin_source": "fip_v3_1911_229",
+          "review": {
+            "state": "draft_hand"
+          }
         },
         "same_as": [
           {
@@ -8725,7 +9031,10 @@
             "y": 4104
           },
           "digitising_error_m": 1.0,
-          "origin_source": "fip_v3_1911_229"
+          "origin_source": "fip_v3_1911_229",
+          "review": {
+            "state": "draft_hand"
+          }
         },
         "same_as": [
           {
@@ -8827,7 +9136,10 @@
             "y": 1281
           },
           "digitising_error_m": 1.0,
-          "origin_source": "fip_v3_1911_229"
+          "origin_source": "fip_v3_1911_229",
+          "review": {
+            "state": "draft_hand"
+          }
         },
         "same_as": [
           {
@@ -8929,7 +9241,10 @@
             "y": 5746
           },
           "digitising_error_m": 1.0,
-          "origin_source": "fip_v3_1911_229"
+          "origin_source": "fip_v3_1911_229",
+          "review": {
+            "state": "draft_hand"
+          }
         },
         "same_as": [
           {
@@ -9027,7 +9342,10 @@
             "y": 3712
           },
           "digitising_error_m": 1.0,
-          "origin_source": "fip_v3_1911_229"
+          "origin_source": "fip_v3_1911_229",
+          "review": {
+            "state": "draft_hand"
+          }
         },
         "status": "published"
       },
@@ -9132,6 +9450,6 @@
       ]
     }
   ],
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "type": "FeatureCollection"
 }

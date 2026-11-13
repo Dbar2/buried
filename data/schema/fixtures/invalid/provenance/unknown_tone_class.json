@@ -40,5 +40,8 @@
       "confirmed_at": "2026-11-12T10:05:00Z"
     }
   ],
-  "tone_class": "brick"
+  "tone_class": "brick",
+  "review": {
+    "state": "draft_rule"
+  }
 }

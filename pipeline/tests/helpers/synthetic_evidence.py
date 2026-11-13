@@ -67,6 +67,7 @@ def building(
             "digitising_error_m": DIGITISING_M,
             "confirmed_by": WHO,
             "confirmed_at": CONFIRMED_AT,
+            "review": {"state": "draft_rule"},
         },
         "status": status,
     }
@@ -103,7 +104,7 @@ def evidence_doc(
 ) -> dict[str, Any]:
     doc: dict[str, Any] = {
         "type": "FeatureCollection",
-        "schema_version": "1.1.0",
+        "schema_version": "1.2.0",
         "crs": "EPSG:26917",
         "origin_source": origin,
         "features": features,

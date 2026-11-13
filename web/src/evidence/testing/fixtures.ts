@@ -132,6 +132,7 @@ export function makeFeature(origin: string, observations: Observation[], opts: F
         digitising_error_m: 1,
         confirmed_by: 'synthetic reviewer',
         confirmed_at: LONG_AGO,
+        review: { state: 'draft_rule' },
       },
       status,
     },

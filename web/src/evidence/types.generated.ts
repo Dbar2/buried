@@ -121,6 +121,7 @@ export interface ContractFiles {
   project?: Project;
   provenance?: Provenance;
   residual?: Residual;
+  reviewState?: ReviewState;
   schemaVersion?: SchemaVersion;
   source?: Source;
   sourceId?: SourceId;
@@ -436,6 +437,7 @@ export interface Provenance {
   digitising_error_m: number;
   confirmed_by: string;
   confirmed_at: IsoDateTime;
+  review: ReviewState;
   proposal_id?: string;
   extraction_params_id?: string;
   /**
@@ -446,6 +448,17 @@ export interface Provenance {
    * The fill tone extraction observed on the scan. A fact about the image, not an attribute: no consumer presents it as a material.
    */
   tone_class?: 'light' | 'mid' | 'dark' | 'hatched' | 'mixed';
+}
+/**
+ * Whether a named person has reviewed the feature. reviewed: a person looked at the feature against its source and named themselves (by) and the day (on). draft_rule: drawn by rule-based extraction and published, not reviewed. draft_hand: traced by hand and published, not reviewed. A draft carries no by or on. This is not the publishing record: confirmed_by and confirmed_at say who accepted the proposal into the file and are never printed as a status.
+ *
+ * This interface was referenced by `ContractFiles`'s JSON-Schema
+ * via the `definition` "reviewState".
+ */
+export interface ReviewState {
+  state: 'reviewed' | 'draft_rule' | 'draft_hand';
+  by?: string;
+  on?: IsoDate;
 }
 /**
  * A link to a feature from another source that shows the same thing. Linking is not merging.

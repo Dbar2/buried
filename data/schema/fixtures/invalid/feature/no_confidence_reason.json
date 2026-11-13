@@ -47,6 +47,7 @@
     "confidence": "documented",
     "confidence_reason": "",
     "provenance": {
+      "review": { "state": "draft_rule" },
       "origin_source": "fip_v3_1911_229",
       "crop_px": {
         "x": 100,

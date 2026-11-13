@@ -4,4 +4,4 @@ It moves with `data/schema/evidence.schema.json` (spec 01 requirement 1.5): a sc
 this constant and every committed contract file in the same change.
 """
 
-SCHEMA_VERSION = "1.1.0"
+SCHEMA_VERSION = "1.2.0"

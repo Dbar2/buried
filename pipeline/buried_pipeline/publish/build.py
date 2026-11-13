@@ -220,6 +220,13 @@ def _undecided_in_areas(
 # --- building -------------------------------------------------------------------------------------
 
 
+def _reviewed(confirmed_by: str, confirmed_at: str) -> dict[str, str]:
+    """`provenance.review` for a feature a named person accepted: that person and the day of the
+    decision (the date part of its RFC 3339 time)."""
+    return {"state": "reviewed", "by": confirmed_by, "on": confirmed_at[:10]}
+
+
+
 def _feature(
     d: Decision,
     proposal: dict[str, Any],
@@ -253,6 +260,7 @@ def _feature(
         "digitising_error_m": digitising,
         "confirmed_by": d.confirmed_by,
         "confirmed_at": d.confirmed_at,
+        "review": _reviewed(d.confirmed_by, d.confirmed_at),
         "proposal_id": d.proposal_id,
         "extraction_params_id": i.proposals["params_id"],
         "tone_class": props["tone_class"],
@@ -316,6 +324,7 @@ def _land_use_feature(t: TraceDecision, seq: int, i: BuildInputs) -> dict[str, A
         "digitising_error_m": digitising_error_m(i.source_pixel_size_m),
         "confirmed_by": t.confirmed_by,
         "confirmed_at": t.confirmed_at,
+        "review": _reviewed(t.confirmed_by, t.confirmed_at),
         "proposal_id": t.review_item_id,
         "attribute_reads": _read_records(t.attribute_reads, t.confirmed_by, t.confirmed_at),
     }

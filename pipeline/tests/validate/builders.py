@@ -202,6 +202,7 @@ def feature(origin: str, seq: int = 1, **over: Any) -> dict[str, Any]:
                 "digitising_error_m": 1.0,
                 "confirmed_by": "synthetic reviewer",
                 "confirmed_at": LONG_AGO,
+                "review": {"state": "draft_rule"},
             },
             "status": "published",
         },
@@ -226,7 +227,7 @@ def link_features(a: dict[str, Any], b: dict[str, Any], method: str = "match_aut
 
 def evidence(origin: str, features: list[dict[str, Any]]) -> dict[str, Any]:
     return {
-        "type": "FeatureCollection", "schema_version": "1.0.0", "crs": "EPSG:26917",
+        "type": "FeatureCollection", "schema_version": "1.2.0", "crs": "EPSG:26917",
         "origin_source": origin,
         "mapped_area": {"geometry": polygon(E0 - 50, N0 - 50, 400, 300), "method": "neatline"},
         "reviewed_areas": [{

@@ -1,6 +1,6 @@
 {
   "type": "FeatureCollection",
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "crs": "EPSG:26917",
   "source": "present_toronto_building_outlines_2026",
   "ckan_package_id": "topographic-mapping-building-outlines",
