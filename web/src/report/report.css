@@ -1,0 +1,225 @@
+/*
+ * The Report's screen styles (spec 05 design "Views"). Light paper, dark ink, grey rules; no fog,
+ * no glow, no lantern, no water. Colours come from the `--report-*` tokens in styles/tokens.css.
+ * Body text is at least 16 px on screen; the printed sizes are in report.print.css, which
+ * ReportView imports after this file so its rules win in print.
+ */
+
+.report-scroll {
+  background: var(--report-paper);
+  color: var(--report-ink);
+}
+
+.report {
+  background: var(--report-paper);
+  color: var(--report-ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0 auto;
+  max-width: 52rem;
+  padding: var(--space-4);
+}
+
+.report h1,
+.report h2,
+.report h3 {
+  color: var(--report-ink);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.report h1 {
+  font-size: 1.875rem;
+  margin: var(--space-2) 0 var(--space-3);
+}
+
+.report h2 {
+  border-top: 1px solid var(--report-rule);
+  font-size: 1.375rem;
+  margin: var(--space-4) 0 var(--space-2);
+  padding-top: var(--space-3);
+}
+
+.report h3 {
+  font-size: 1.0625rem;
+  margin: 0 0 var(--space-1);
+}
+
+.report p {
+  margin: 0 0 var(--space-2);
+}
+
+.report a {
+  color: var(--report-ink);
+  text-decoration: underline;
+}
+
+.report :focus-visible {
+  outline: 2px solid var(--report-ink);
+  outline-offset: 2px;
+}
+
+.report .mono {
+  font-family: var(--font-mono);
+  font-size: 0.9375em;
+}
+
+.report .small {
+  color: var(--report-ink-soft);
+  font-size: 0.875rem;
+}
+
+.report-screens {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.report-lead {
+  font-size: 1.25rem;
+}
+
+.report-note {
+  border: 1px solid var(--report-rule);
+  padding: var(--space-2) var(--space-3);
+}
+
+.bands {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.band {
+  border-left: 3px solid var(--report-rule);
+  padding: 0 0 0 var(--space-3);
+}
+
+.band h3 button {
+  background: none;
+  border: 1px solid var(--report-rule);
+  color: var(--report-ink);
+  cursor: pointer;
+  font: inherit;
+  padding: var(--space-1) var(--space-2);
+}
+
+.findings {
+  display: grid;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.finding {
+  border: 1px solid var(--report-rule);
+  padding: var(--space-2) var(--space-3);
+}
+
+.finding-head {
+  margin: 0 0 var(--space-1);
+}
+
+/* Status and confidence: a label in text, plus a line pattern. */
+.status-badge,
+.confidence-badge {
+  border: 2px solid var(--report-ink);
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0 var(--space-2);
+}
+
+.status-solid {
+  background: var(--report-ink);
+  color: var(--report-paper);
+}
+
+.status-dashed {
+  border-style: dashed;
+}
+
+.status-dotted {
+  border-style: dotted;
+}
+
+.checked {
+  margin: 0 0 var(--space-2);
+  padding-left: var(--space-4);
+}
+
+.next-step {
+  border-top: 1px dotted var(--report-rule);
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+.source-list {
+  padding-left: var(--space-4);
+}
+
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.report-actions button,
+.report-search button {
+  background: var(--report-paper);
+  border: 2px solid var(--report-ink);
+  color: var(--report-ink);
+  cursor: pointer;
+  font: inherit;
+  padding: var(--space-1) var(--space-3);
+}
+
+.print-only {
+  display: none;
+}
+
+/* The route around the Report: search, and messages. */
+.report-route {
+  margin: 0 auto;
+  max-width: 52rem;
+  padding: var(--space-4);
+}
+
+.report-search label {
+  display: block;
+  font-weight: 600;
+}
+
+.report-search input {
+  background: var(--report-paper);
+  border: 2px solid var(--report-ink);
+  color: var(--report-ink);
+  font: inherit;
+  margin: var(--space-1) 0 var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  width: 100%;
+}
+
+.report-search ul {
+  list-style: none;
+  margin: 0 0 var(--space-3);
+  padding: 0;
+}
+
+.report-search li button {
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--report-rule);
+  color: var(--report-ink);
+  cursor: pointer;
+  font: inherit;
+  padding: var(--space-1) 0;
+  text-align: left;
+  width: 100%;
+}

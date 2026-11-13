@@ -315,6 +315,12 @@ steps they extend, then 17 and 18.
     Requirements: 6.4, 6.5, 14.3 to 14.5, 15.5.
 
 - [ ] 14. Export
+  - Session 021: `exportBundle.ts`, `zip.ts` and an "Export a bundle for review" button are in. The
+    bundle holds the proposals, the decisions (v2), the evidence file the Service returned (as
+    `expected/`) and a README naming the plate and reviewer; `importBundle` puts it back (round trip
+    tested). Registered plates only: no `sources_entry.json`, control or alignment files, no upload
+    id rewrite and no Python rewrite fixtures, because the Studio has no uploads yet. 14.1 stays open
+    for those.
   - [ ] 14.1 Implement `exportBundle.ts` (bundle layout and README from design.md "Export bundle",
     verbatim texts, upload id rewrite) with fixtures checked against the Python rewrite from task 8.4.
     Files: `web/src/workspace/exportBundle.ts`, `web/src/workspace/exportBundle.test.ts`,

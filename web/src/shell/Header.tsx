@@ -3,7 +3,7 @@
  * the Explorer and to Sources in Inter at the right, on `night`. No router library: a link is a
  * full page load, which is enough for two routes.
  */
-export type HeaderPage = 'explorer' | 'studio' | 'sources';
+export type HeaderPage = 'explorer' | 'studio' | 'report' | 'sources';
 
 export function Header({ current }: { current: HeaderPage }) {
   return (
@@ -17,6 +17,9 @@ export function Header({ current }: { current: HeaderPage }) {
         </a>
         <a href="/studio" aria-current={current === 'studio' ? 'page' : undefined} data-testid="nav-studio">
           Studio
+        </a>
+        <a href="/report" aria-current={current === 'report' ? 'page' : undefined} data-testid="nav-report">
+          Report
         </a>
         <a href="/sources" aria-current={current === 'sources' ? 'page' : undefined} data-testid="nav-sources">
           Sources

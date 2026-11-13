@@ -234,6 +234,13 @@ invent commands; when one is added, record it here.
     page is `/studio`; the Explorer opens at an era with `/?era=<era id>`. The Service limits
     `POST /v1/publish` to 120 requests an hour per address, and the Studio's dry runs count.
     Report print tests (`npm run test:e2e:report`) by spec 05 task 7.3.
+  - Report (spec 05, session 021), from `web/`: the page is `/report?lot=<lot id>&era=<era id>`. After
+    `npm run build`, `npx playwright test e2e/report.spec.ts` opens the Report for the lot with the
+    committed building, saves `web/e2e/output/report-screen.png`, `report-print.png`,
+    `report-letter.pdf` and `report-a4.pdf`, and fails if either PDF is more than one page. The ghost
+    close-up measure is in `e2e/look.spec.ts` (`-g "ghost at close"`), which writes
+    `look-ghost-close.png` and `look-ghost-contrast.json`. Studio export: the "Export a bundle for
+    review" button after a workspace publish (spec 04 task 14).
 
 ## Model use in Kiro
 

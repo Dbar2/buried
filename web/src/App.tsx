@@ -6,13 +6,27 @@ import { Header } from './shell/Header';
 const SourcesPage = lazy(() => import('./sources/SourcesPage').then((m) => ({ default: m.SourcesPage })));
 // The Studio is loaded on demand too: the Explorer and the Sources page never pull it in.
 const StudioPage = lazy(() => import('./studio/StudioPage').then((m) => ({ default: m.StudioPage })));
+// The Report never loads the Explorer, the bridge or Unity.
+const ReportRoute = lazy(() => import('./report/ReportRoute').then((m) => ({ default: m.ReportRoute })));
 
 /**
- * Routes: `/` is the Explorer, `/studio` the Studio, `/sources` the Sources page. The Report route is
- * added by its spec. No router library: a full page load per route is enough.
+ * Routes: `/` is the Explorer, `/studio` the Studio, `/report` the Report, `/sources` the Sources
+ * page. No router library: a full page load per route is enough.
  */
 export function App() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
+  if (path === '/report') {
+    return (
+      <div className="page">
+        <Header current="report" />
+        <div className="page-scroll report-scroll">
+          <Suspense fallback={<p>Loading the Report.</p>}>
+            <ReportRoute />
+          </Suspense>
+        </div>
+      </div>
+    );
+  }
   if (path === '/studio') {
     return (
       <div className="page">

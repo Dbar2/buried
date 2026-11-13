@@ -1,0 +1,210 @@
+/*
+ * The Report's print stylesheet (spec 05 design "Print"). One page, Letter or A4 by the printer's
+ * page size, margins 12 mm. The paragraphs of a section run on as one block of text so a page holds
+ * the whole Report; the findings beyond PRINT_FINDINGS_PER_GROUP are hidden and a line says how many
+ * (printModel.ts). Report links print as their URL text. This is the one place the 16 px screen
+ * minimum does not apply (design.md "Type").
+ *
+ * Sizes, as set by the print test (e2e/report.spec.ts) on the committed building's lot: body 9 pt
+ * Inter (the design said 9.5 pt; 9 pt was needed for the page to hold the sources), headings 10 to
+ * 14 pt Fraunces, ids and years 8.5 pt Plex Mono, the checked records run on in one line, and the
+ * sources block 7 pt in two columns without the source URLs (each source's id, title, years, licence
+ * note and attribution line are printed; its address is on the Sources page and in the live report).
+ */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  html,
+  body,
+  #root {
+    height: auto;
+  }
+
+  body {
+    background: var(--report-paper);
+  }
+
+  /* App chrome, the search and the buttons do not print. */
+  .site-header,
+  .report-search,
+  .no-print {
+    display: none !important;
+  }
+
+  .page {
+    display: block;
+    height: auto;
+  }
+
+  .page-scroll,
+  .report-scroll {
+    overflow: visible;
+  }
+
+  .report-route {
+    max-width: none;
+    padding: 0;
+  }
+
+  .report {
+    font-size: 9pt;
+    line-height: 1.22;
+    max-width: none;
+    padding: 0;
+  }
+
+  .report h1 {
+    font-size: 14pt;
+    margin: 1pt 0 2pt;
+  }
+
+  .report h2,
+  .report h3 {
+    border: 0;
+    display: inline;
+    font-size: 10pt;
+    margin: 0 4pt 0 0;
+    padding: 0;
+  }
+
+  /* Each section is a block: its heading, then its text running on. */
+  .report section {
+    break-inside: avoid;
+    margin: 4pt 0 0;
+  }
+
+  .report section:not(.report-links) p {
+    display: inline;
+    margin: 0 4pt 0 0;
+  }
+
+  .report .mono {
+    font-size: 8.5pt;
+  }
+
+  .report .small {
+    font-size: 8pt;
+  }
+
+  .report-screens {
+    font-size: 10pt;
+  }
+
+  .bands,
+  .findings {
+    display: block;
+    margin: 0;
+    padding: 0;
+  }
+
+  .band {
+    border-left: 2px solid var(--report-rule);
+    display: block;
+    margin: 1pt 0 0;
+    padding-left: 4pt;
+  }
+
+  .band h3 a,
+  .band h3 button {
+    border: 0;
+    padding: 0;
+    text-decoration: none;
+  }
+
+  .finding {
+    border: 0;
+    border-left: 2px solid var(--report-rule);
+    margin: 2pt 0 0;
+    padding: 0 0 0 4pt;
+  }
+
+  .print-extra {
+    display: none;
+  }
+
+  .print-only {
+    display: block;
+  }
+
+  span.print-only {
+    display: inline;
+  }
+
+  .status-badge,
+  .confidence-badge {
+    border-width: 1px;
+    font-size: 8pt;
+    padding: 0 2pt;
+  }
+
+  /* The checked records run on in one line. */
+  .checked {
+    display: inline;
+    font-size: 7.5pt;
+    margin: 0;
+    padding: 0;
+  }
+
+  .checked .mono,
+  .finding-sources,
+  .finding-sources .mono {
+    font-size: 7.5pt;
+  }
+
+  .sources-block .mono {
+    font-size: 7pt;
+  }
+
+  .finding-sources {
+    display: inline;
+  }
+
+  .checked li {
+    display: inline;
+  }
+
+  .checked li::after {
+    content: '; ';
+  }
+
+  .next-step {
+    border: 0;
+    font-size: 8.5pt;
+    font-style: italic;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sources-block .source-list {
+    column-count: 2;
+    column-gap: 10pt;
+    font-size: 7pt;
+    line-height: 1.15;
+    margin: 0;
+    padding-left: 8pt;
+  }
+
+  .sources-block .source-list li {
+    break-inside: avoid;
+  }
+
+  .sources-block .source-title,
+  .sources-block .source-url {
+    display: none;
+  }
+
+  .report a {
+    text-decoration: none;
+  }
+
+  .report-links {
+    break-inside: avoid;
+    margin-top: 4pt;
+  }
+
+  .report-links p {
+    margin: 0;
+  }
+}

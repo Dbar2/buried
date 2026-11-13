@@ -117,21 +117,26 @@ function pastBand(input: CoreSampleInput, era: Era, plates: readonly Source[]): 
     .filter((s) => input.sidecars.some((t) => t.source === s.id && aerialCoversLot(input.lot, t)))
     .map((s) => s.id)
     .sort(byString);
+  const list = featuresForEra(input.collections, input.sources, era);
   const platesCover = plateRows.filter((r) => r.coverage === 'reviewed' || r.coverage === 'mapped');
-  const covered = platesCover.length > 0 || aerialIds.length > 0;
+  // A feature drawn in this era also means the era's records reach the lot, even when the plate's own
+  // file is not read yet (a building drawn on the 1911 plate and seen on a 1935 plate by a person).
+  const covered = platesCover.length > 0 || aerialIds.length > 0 || list.features.length > 0;
 
   const sentences: Sentence[] = [];
-  if (covered) {
+  if (platesCover.length > 0 || aerialIds.length > 0) {
     const parts: Slot[] = [
       ...platesCover.map((r) => joined([id(r.source.id), words(` (${COVERAGE_WORDING[r.coverage]})`)], '')),
       ...aerialIds.map((a) => joined([id(a), words(' (photograph covers this lot)')], '')),
     ];
     sentences.push(sentence`Covered by: ${joined(parts, '; ')}.`);
+  } else if (list.features.length > 0) {
+    const cited = [...new Set(list.features.flatMap((f) => f.sourceIds))].sort(byString);
+    sentences.push(sentence`Records of this era are read from: ${joined(cited.map(id), ', ')}.`);
   } else {
     sentences.push(fixed('Not covered by these records.'));
   }
 
-  const list = featuresForEra(input.collections, input.sources, era);
   const buildings: Array<{ entry: EraFeature; relation: LotRelation }> = [];
   const water: Array<{ entry: EraFeature; relation: LotRelation }> = [];
   for (const entry of list.features) {

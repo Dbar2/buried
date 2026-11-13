@@ -163,6 +163,19 @@ export function allSentences(report: Report): Sentence[] {
   ];
 }
 
+/**
+ * A plate's evidence file may state no `mapped_area`. The plate's tile sidecar states the same fact
+ * (its map area, in EPSG:26917 through the chosen transform), so a file without one takes it from
+ * the sidecar. A file that states its own keeps it.
+ */
+export function withMappedAreas(collections: readonly FeatureCollection[], sidecars: readonly TileSidecar[]): FeatureCollection[] {
+  return collections.map((c) => {
+    if (c.mapped_area) return c;
+    const sidecar = sidecars.find((t) => t.source === c.origin_source && t.map_area !== undefined);
+    return sidecar?.map_area ? { ...c, mapped_area: { geometry: sidecar.map_area, method: 'map_area' as const } } : c;
+  });
+}
+
 export function buildReport(inputs: ReportInputs): ReportModel {
   const lotFeature = inputs.canon.lots?.features.find((f) => f.id === inputs.lotId);
   if (!lotFeature) return NOT_RECONSTRUCTED;
@@ -170,8 +183,9 @@ export function buildReport(inputs: ReportInputs): ReportModel {
   if (!lot) return NOT_RECONSTRUCTED;
 
   try {
+    const canonCollections = withMappedAreas(inputs.canon.collections, inputs.canon.sidecars);
     const workspaceCollections = inputs.workspace?.collections ?? [];
-    if (!lotInCoverage(lot, [...inputs.canon.collections, ...workspaceCollections])) return NOT_RECONSTRUCTED;
+    if (!lotInCoverage(lot, [...canonCollections, ...workspaceCollections])) return NOT_RECONSTRUCTED;
 
     const sources = indexSources(inputs.canon.registry);
     const plateSources = inputs.canon.registry.sources.filter(isPlateSource).sort((a, b) => byString(a.id, b.id));
@@ -183,8 +197,8 @@ export function buildReport(inputs: ReportInputs): ReportModel {
       lot,
       lotErrorM: LOT_POSITION_ERROR_M,
       sources,
-      collections: inputs.canon.collections,
-      coverageCollections: inputs.canon.collections,
+      collections: canonCollections,
+      coverageCollections: canonCollections,
       plateSources,
       withEmptyFindings: true,
     });
@@ -195,7 +209,7 @@ export function buildReport(inputs: ReportInputs): ReportModel {
         lotErrorM: LOT_POSITION_ERROR_M,
         eras,
         sources,
-        collections: inputs.canon.collections,
+        collections: canonCollections,
         sidecars: inputs.canon.sidecars,
         buildings: inputs.canon.buildings,
       },
@@ -212,7 +226,7 @@ export function buildReport(inputs: ReportInputs): ReportModel {
       ],
     };
 
-    const byOrigin = new Map(inputs.canon.collections.map((c) => [c.origin_source, c]));
+    const byOrigin = new Map(canonCollections.map((c) => [c.origin_source, c]));
     const covering: Array<[number, number]> = [];
     for (const s of plateSources) {
       const c = lotCoverage(lot, byOrigin.get(s.id), STRUCTURE_RADIUS_M);

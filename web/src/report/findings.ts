@@ -466,16 +466,17 @@ export function buildGroups(input: GroupsInput): [Group, Group, Group] {
 
   // Past land use
   const landRows = coveragesFor(input, LAND_USE_RADIUS_M, ['building', 'land_use']);
-  const inLandRange: Array<{ feature: Feature; relation: LotRelation }> = [];
+  const inLandRange: Array<{ feature: Feature; relation: LotRelation; setKey: string }> = [];
   for (const i of infos) {
     if (i.kind === 'water') continue;
     for (const member of i.set.members) {
       const relation = memberRelation(member, input);
-      if (inRange(relation, LAND_USE_RADIUS_M)) inLandRange.push({ feature: member, relation });
+      if (inRange(relation, LAND_USE_RADIUS_M)) inLandRange.push({ feature: member, relation, setKey: i.set.memberIds[0] as string });
     }
   }
   const landUse = useFindings(input, inLandRange);
-  const withoutUse = inLandRange.filter((x) => x.feature.properties.attributes.use === undefined).length;
+  // Counted per linked set: one building drawn on two plates is one building.
+  const withoutUse = new Set(inLandRange.filter((x) => x.feature.properties.attributes.use === undefined).map((x) => x.setKey)).size;
   if (input.withEmptyFindings) {
     const reviewed = landRows.filter((r) => r.coverage === 'reviewed');
     const mapped = landRows.filter((r) => r.coverage === 'mapped');

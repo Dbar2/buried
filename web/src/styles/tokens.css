@@ -24,4 +24,12 @@
   --space-5: 2rem;
 
   --header-height: 56px;
+
+  /* The Report's light paper theme (spec 05 design "Views"). Near-monochrome: no lantern, water or
+     fog. The Report lives in web/src/report/, but hex colours stay in this one file (the boundary
+     test keeps them here), so these four tokens are defined here and not in report/report.tokens.css. */
+  --report-paper: #fbfaf7;
+  --report-ink: #1a1a18;
+  --report-ink-soft: #4d4c48;
+  --report-rule: #8e8d88;
 }
