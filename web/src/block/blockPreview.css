@@ -1,0 +1,79 @@
+/*
+ * Layout for `/block-preview` only (spec 06 session 041). Part three removes this file with the preview.
+ * The look of each part is in block.css; this places them on the stand-in stage. Colours from tokens.css only.
+ */
+.block-preview .preview-scene {
+  inset: 0;
+  position: absolute;
+}
+
+/* A flat `--haze` plate on the `--soot` table where the scene will be. */
+.block-preview .preview-plate {
+  background: var(--haze);
+  border: 1px solid var(--copper);
+  bottom: 104px;
+  left: var(--space-5);
+  position: absolute;
+  right: var(--space-5);
+  top: 72px;
+}
+
+.block-preview .preview-label {
+  bottom: var(--space-2);
+  color: var(--parchment-dim);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  position: absolute;
+  right: var(--space-3);
+}
+
+.block-preview .block-top {
+  left: var(--space-3);
+  pointer-events: none;
+  position: absolute;
+  right: var(--space-3);
+  top: var(--space-2);
+  z-index: 3;
+}
+
+.block-preview .block-top .tag-row {
+  pointer-events: auto;
+}
+
+.block-preview .card-dock {
+  max-height: calc(100% - 72px - 16px);
+  overflow-y: auto;
+  position: absolute;
+  right: 24px;
+  top: 72px;
+  width: 360px;
+  z-index: 3;
+}
+
+.block-preview .ruler-dock {
+  bottom: 16px;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+  width: 560px;
+  z-index: 3;
+}
+
+.block-preview[data-phone='true'] .ruler-dock {
+  bottom: calc(var(--sheet-peek) + 12px);
+  width: calc(100% - 32px);
+}
+
+.block-preview[data-phone='true'] .preview-plate {
+  bottom: calc(var(--sheet-peek) + 96px);
+  left: var(--space-2);
+  right: var(--space-2);
+}
+
+.block-preview[data-phone='true'] .lens-control {
+  bottom: calc(var(--sheet-peek) + 12px + 76px + 8px);
+}
+
+.block-preview[data-state='landing'] .preview-plate {
+  bottom: var(--space-5);
+}

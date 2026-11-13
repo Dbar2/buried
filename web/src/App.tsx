@@ -12,6 +12,8 @@ const PlacePage = lazy(() => import('./place/PlacePage').then((m) => ({ default:
 const BlockPage = lazy(() => import('./block/BlockPage').then((m) => ({ default: m.BlockPage })));
 // The Sources page does not need the Explorer, the bridge or Unity.
 const SourcesPage = lazy(() => import('./sources/SourcesPage').then((m) => ({ default: m.SourcesPage })));
+// The design preview of the Block page's parts (spec 06 session 041). Not linked; part three removes it.
+const BlockPreview = lazy(() => import('./block/BlockPreview').then((m) => ({ default: m.BlockPreview })));
 // The Studio is loaded on demand too: the Explorer and the Sources page never pull it in.
 const StudioPage = lazy(() => import('./studio/StudioPage').then((m) => ({ default: m.StudioPage })));
 // The Report never loads the Explorer, the bridge or Unity.
@@ -25,6 +27,16 @@ const ReportRoute = lazy(() => import('./report/ReportRoute').then((m) => ({ def
  * Sources page. No router library: a full page load per route is enough.
  */
 export function App() {
+  if (window.location.pathname.replace(/\/+$/, '') === '/block-preview') {
+    return (
+      <div className="page">
+        <Header current="block" />
+        <Suspense fallback={<Loading text="Loading." />}>
+          <BlockPreview />
+        </Suspense>
+      </div>
+    );
+  }
   const route = routeFor(window.location.pathname, window.location.search);
   switch (route) {
     case 'block':
