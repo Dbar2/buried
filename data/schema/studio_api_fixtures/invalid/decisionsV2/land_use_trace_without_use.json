@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "source": "fip_v3_1911_229",
+  "decisions": [
+    {
+      "type": "trace",
+      "kind": "land_use",
+      "pixel_geometry": {
+        "type": "Polygon",
+        "coordinates": [[[100, 100], [400, 100], [400, 300], [100, 300], [100, 100]]]
+      },
+      "confidence": "documented",
+      "confidence_reason": "Area and use traced by a person from fip_v3_1911_229",
+      "confirmed_by": "Test Reviewer",
+      "confirmed_at": "2026-11-15T10:00:00-05:00"
+    }
+  ],
+  "reviewed_areas": []
+}

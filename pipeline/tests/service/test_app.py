@@ -343,3 +343,77 @@ def test_the_service_can_be_started_from_the_environment(sw: ServiceWorld) -> No
     app = create_app(env={"BURIED_REPO_ROOT": str(sw.root)})
     assert app.state.snapshot.data_version == sw.snapshot.data_version
     assert Path(app.state.config.root) == sw.root.resolve()
+
+
+def land_use_trace(**over) -> dict:
+    trace = {
+        "type": "trace",
+        "kind": "land_use",
+        "pixel_geometry": {"type": "Polygon", "coordinates": [
+            [[400, 100], [520, 100], [520, 200], [400, 200], [400, 100]]]},
+        "attributes": {"use": "Placeholder lettering"},
+        "attribute_reads": [{"attribute": "use", "read_by": "person",
+                             "crop_px": {"x": 404, "y": 104, "width": 40, "height": 12}}],
+        "confidence": "documented",
+        "confidence_reason": f"Area and use traced by a person from {SOURCE}",
+        "confirmed_by": "Test Reviewer",
+        "confirmed_at": CONFIRMED_AT,
+    }  # fmt: skip
+    trace.update(over)
+    return trace
+
+
+def v2_with(doc: dict, *traces: dict) -> dict:
+    accepts = [{**accept(i), "type": "accept"} for i in (f["id"] for f in doc["features"])]
+    for a in accepts:
+        del a["decision"]
+    return {"version": 2, "source": SOURCE, "decisions": [*accepts, *traces],
+            "reviewed_areas": decisions_for(doc)["reviewed_areas"]}  # fmt: skip
+
+
+def test_publish_builds_a_traced_land_use_area_and_writes_nothing(
+    sw: ServiceWorld, synthetic: None
+) -> None:
+    before = snapshot_of_files(sw.root)
+    client = client_for(sw)
+    text, doc = proposals_from_service(sw, client)
+    r = client.post("/v1/publish", json=publish_body(sw, text, v2_with(doc, land_use_trace())))
+    assert r.status_code == 200, r.text
+    result = r.json()
+    assert result["ok"] is True, result
+    assert result["new_feature_ids"][-1] == f"use_{SOURCE}_0004"
+    evidence = json.loads(result["evidence_file_text"])
+    area = evidence["features"][-1]
+    assert area["properties"]["kind"] == "land_use"
+    assert area["properties"]["attributes"] == {"use": "Placeholder lettering"}
+    target = sw.world.paths.evidence_file(SOURCE)
+    assert validate_would_be(sw.world.paths, {target: evidence}, NOW) == []
+    assert snapshot_of_files(sw.root) == before
+
+
+def test_publish_refuses_a_land_use_area_without_its_use_or_crop_at_the_contract(
+    sw: ServiceWorld, synthetic: None
+) -> None:
+    client = client_for(sw)
+    text, doc = proposals_from_service(sw, client)
+    for bad in (
+        land_use_trace(attributes={}),
+        land_use_trace(attribute_reads=[]),
+        land_use_trace(pixel_geometry={"type": "LineString",
+                                       "coordinates": [[400, 100], [520, 200]]}),
+    ):
+        r = client.post("/v1/publish", json=publish_body(sw, text, v2_with(doc, bad)))
+        assert r.status_code == 422 and error_code(r) == "invalid_request"
+
+
+def test_publish_refuses_a_land_use_area_outside_the_map_area_by_name(
+    sw: ServiceWorld, synthetic: None
+) -> None:
+    client = client_for(sw)
+    text, doc = proposals_from_service(sw, client)
+    outside = land_use_trace(pixel_geometry={"type": "Polygon", "coordinates": [
+        [[2, 100], [120, 100], [120, 200], [2, 200], [2, 100]]]})
+    result = client.post("/v1/publish", json=publish_body(sw, text, v2_with(doc, outside))).json()
+    assert result["ok"] is False
+    assert "map area" in result["errors"][0]["reason"]
+    assert result["errors"][0]["review_item_id"].startswith(f"{SOURCE}_t_")

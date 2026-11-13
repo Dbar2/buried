@@ -501,9 +501,9 @@
       ],
       "properties": {
         "type": { "const": "trace" },
-        "kind": { "enum": ["building", "water"] },
+        "kind": { "enum": ["building", "water", "land_use"] },
         "pixel_geometry": {
-          "description": "A Polygon (a building, or water) or a LineString (water only) in integer full-resolution pixels.",
+          "description": "A Polygon (a building, water or a land-use area) or a LineString (water only) in integer full-resolution pixels.",
           "type": "object",
           "additionalProperties": false,
           "required": ["type", "coordinates"],
@@ -519,10 +519,26 @@
         "confidence": { "$ref": "#/$defs/confidenceClass" },
         "confidence_reason": { "type": "string", "minLength": 1 },
         "position_error_m": { "type": "number", "minimum": 0 }
+      },
+      "if": { "properties": { "kind": { "const": "land_use" } }, "required": ["kind"] },
+      "then": {
+        "description": "A land-use area is a polygon and carries the use as lettered on the plate with the crop it was read from (spec 04 requirement 24.2).",
+        "required": ["attributes", "attribute_reads"],
+        "properties": {
+          "pixel_geometry": { "properties": { "type": { "const": "Polygon" } } },
+          "attributes": { "required": ["use"] },
+          "attribute_reads": {
+            "contains": {
+              "type": "object",
+              "required": ["attribute"],
+              "properties": { "attribute": { "const": "use" } }
+            }
+          }
+        }
       }
     },
     "decisionV2": {
-      "description": "One decision of the v2 file. The Service builds accept and reject; merge, split and trace are in the contract and are refused by name until spec 04 task 2.1 is done.",
+      "description": "One decision of the v2 file. The Service builds accept, reject and land-use trace; merge, split and the other traces are in the contract and are refused by name until spec 04 task 2.1 is done.",
       "oneOf": [
         { "$ref": "#/$defs/acceptDecisionV2" },
         { "$ref": "#/$defs/rejectDecisionV2" },

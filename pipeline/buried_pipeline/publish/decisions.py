@@ -1,15 +1,18 @@
-"""Read a decisions file (spec 02 design "Decisions file", and the accept/reject part of the
-Studio's decisions file v2) into plain values. Pure: no files, no clock.
+"""Read a decisions file (spec 02 design "Decisions file", and the Studio's decisions file v2) into
+plain values. Pure: no files, no clock.
 
 What is read here is checked for shape only. Whether a decision may be published (it is confirmed,
 the proposal exists, the polygon lies on the plate) is decided in `build.py`.
 
-Merge, split and trace decisions, label reads and street numbers of the v2 file are not built yet
-(spec 04 task 2.1). A v2 file that uses them is refused by name; nothing is silently dropped.
+Accept, reject and land-use trace decisions are read. Merge and split decisions, building and
+water traces, label reads and street numbers of the v2 file are not built yet (spec 04 task 2.1). A
+v2 file that uses them is refused by name; nothing is silently dropped.
 """
 
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -22,7 +25,9 @@ ATTRIBUTES = ("use", "material", "storeys", "street_number")
 CONFIDENCES = ("documented", "estimated", "unknown")
 COVERS = ("building", "water", "land_use")
 READ_BY = ("person", "label_assist")
-V2_UNSUPPORTED_TYPES = ("merge", "split", "trace")
+V2_UNSUPPORTED_TYPES = ("merge", "split")
+TRACE_KINDS_BUILT = ("land_use",)
+TRACE_KINDS = ("building", "water", "land_use")
 
 
 @dataclass(frozen=True)
@@ -70,6 +75,23 @@ class Decision:
 
 
 @dataclass(frozen=True)
+class TraceDecision:
+    """A land-use area a person traced on the plate (spec 04 requirement 24). `review_item_id` is
+    `<source id>_t_<12 hex>` (design "Review item ids")."""
+
+    review_item_id: str
+    kind: str  # "land_use"
+    pixel_polygon: tuple[tuple[int, int], ...]
+    confirmed_by: str
+    confirmed_at: str
+    attributes: dict[str, Any]
+    attribute_reads: tuple[AttributeRead, ...]
+    confidence: str | None = None
+    confidence_reason: str | None = None
+    position_error_m: float | None = None
+
+
+@dataclass(frozen=True)
 class ReviewedAreaDecision:
     pixel_polygon: tuple[tuple[int, int], ...]
     confirmed_by: str
@@ -82,6 +104,7 @@ class Decisions:
     source: str
     decisions: tuple[Decision, ...]
     reviewed_areas: tuple[ReviewedAreaDecision, ...]
+    traces: tuple[TraceDecision, ...] = ()
 
 
 def _is_int(v: Any) -> bool:
@@ -230,6 +253,84 @@ def _decision(raw: Any, index: int, v2: bool, out: list[Problem]) -> Decision | 
     )
 
 
+def trace_review_item_id(source_id: str, kind: str, geometry_type: str, coordinates: Any) -> str:
+    """`<source id>_t_` plus the first 12 hex characters of the SHA-256 of `kind`, the geometry
+    type and the integer pixel coordinates as given, serialised as spec 04's canonical JSON
+    (`json.dumps(obj, sort_keys=True, indent=2, ensure_ascii=False)` plus a newline)."""
+    text = json.dumps(
+        {"coordinates": coordinates, "kind": kind, "type": geometry_type},
+        sort_keys=True, indent=2, ensure_ascii=False,
+    ) + "\n"  # fmt: skip
+    return f"{source_id}_t_{hashlib.sha256(text.encode('utf-8')).hexdigest()[:12]}"
+
+
+def _trace(
+    raw: dict[str, Any], index: int, source_id: str, out: list[Problem]
+) -> TraceDecision | None:
+    kind = raw.get("kind")
+    geometry = raw.get("pixel_geometry")
+    item: str | None = None
+    ring_raw: Any = None
+    if isinstance(geometry, dict) and geometry.get("type") == "Polygon":
+        rings = geometry.get("coordinates")
+        if isinstance(rings, list) and len(rings) == 1 and isinstance(rings[0], list):
+            ring_raw = rings[0]
+    if kind in TRACE_KINDS and ring_raw is not None and isinstance(geometry, dict):
+        item = trace_review_item_id(source_id, kind, "Polygon", geometry["coordinates"])
+    label = item or f"trace #{index}"
+    if kind not in TRACE_KINDS_BUILT:
+        out.append(Problem(f"a trace of kind {kind!r} is not supported yet (only "
+                           f"{list(TRACE_KINDS_BUILT)} is)", label))
+        return None
+    before = len(out)
+    if ring_raw is None:
+        out.append(Problem("pixel_geometry must be a Polygon with one ring of integer pixel "
+                           "vertices", label))
+        return None
+    ring = ring_raw
+    if len(ring) >= 2 and ring[0] == ring[-1]:
+        ring = ring[:-1]  # GeoJSON closes the ring; the polygon check wants it open
+    polygon = _polygon(ring, "pixel_geometry", label, out)
+    attrs = _attributes(raw.get("attributes"), label, out)
+    reads = _reads(raw.get("attribute_reads"), label, out)
+    if not attrs.get("use"):
+        out.append(Problem("a land-use area needs its use as lettered on the plate "
+                           "(attributes.use)", label))
+    if not any(r.attribute == "use" for r in reads):
+        out.append(Problem("a land-use area needs the crop its use was read from (an "
+                           "attribute_reads entry for use with crop_px)", label))
+    confidence, reason = raw.get("confidence"), raw.get("confidence_reason")
+    if confidence is not None and confidence not in CONFIDENCES:
+        out.append(Problem(f"confidence must be one of {list(CONFIDENCES)}", label))
+    if confidence is not None and not (isinstance(reason, str) and reason.strip()):
+        out.append(Problem("a decision that gives a confidence must give its reason", label))
+    err = raw.get("position_error_m")
+    if err is not None and (
+        isinstance(err, bool) or not isinstance(err, int | float) or not err >= 0
+    ):
+        out.append(Problem("position_error_m must be a number, 0 or more", label))
+        err = None
+    by, at = raw.get("confirmed_by"), _time(raw.get("confirmed_at"))
+    if not (isinstance(by, str) and by.strip()):
+        out.append(Problem("a trace needs confirmed_by: it is a person's reading", label))
+    if at is None:
+        out.append(Problem("a trace needs confirmed_at as a date-time with a time zone", label))
+    if len(out) > before or polygon is None or item is None or at is None:
+        return None
+    return TraceDecision(
+        review_item_id=item,
+        kind=str(kind),
+        pixel_polygon=polygon,
+        confirmed_by=by.strip(),
+        confirmed_at=at,
+        attributes=attrs,
+        attribute_reads=reads,
+        confidence=confidence,
+        confidence_reason=reason if confidence is not None else None,
+        position_error_m=float(err) if err is not None else None,
+    )
+
+
 def _area(raw: Any, index: int, out: list[Problem]) -> ReviewedAreaDecision | None:
     label = f"reviewed area #{index}"
     if not isinstance(raw, dict):
@@ -277,7 +378,13 @@ def parse_decisions(doc: Any, source_id: str) -> Decisions:
     if not isinstance(raw_decisions, list) or not isinstance(raw_areas, list):
         raise PublishRefusal([*problems, Problem("decisions and reviewed_areas must be lists")])
 
-    decisions = [_decision(r, i, v2, problems) for i, r in enumerate(raw_decisions)]
+    decisions: list[Decision | None] = []
+    traces: list[TraceDecision | None] = []
+    for index, raw in enumerate(raw_decisions):
+        if v2 and isinstance(raw, dict) and raw.get("type") == "trace":
+            traces.append(_trace(raw, index, source_id, problems))
+        else:
+            decisions.append(_decision(raw, index, v2, problems))
     areas = [_area(r, i, problems) for i, r in enumerate(raw_areas)]
 
     seen: set[str] = set()
@@ -287,10 +394,19 @@ def parse_decisions(doc: Any, source_id: str) -> Decisions:
         if d.proposal_id in seen:
             problems.append(Problem("more than one decision for this proposal", d.proposal_id))
         seen.add(d.proposal_id)
+    seen_traces: set[str] = set()
+    for t in traces:
+        if t is None:
+            continue
+        if t.review_item_id in seen_traces:
+            problems.append(Problem("more than one trace of this exact area", t.review_item_id))
+        seen_traces.add(t.review_item_id)
     if problems:
         raise PublishRefusal(problems)
     return Decisions(
         source=source_id,
         decisions=tuple(d for d in decisions if d is not None),
         reviewed_areas=tuple(a for a in areas if a is not None),
+        traces=tuple(sorted((t for t in traces if t is not None),
+                            key=lambda t: t.review_item_id)),
     )

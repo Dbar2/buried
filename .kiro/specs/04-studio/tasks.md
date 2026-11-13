@@ -56,6 +56,8 @@ steps they extend, then 17 and 18.
     `pipeline/buried_pipeline/publish/run.py`, `pipeline/tests/publish/test_decisions_v2.py`,
     `pipeline/tests/publish/test_build_v2.py`.
     Requirements: 9.8, 13.3, 23.1 to 23.4, 23.6, 23.7, 24.1, 24.2, 27.2.
+    Session 030 built the land-use `trace` part only (not ticked): merge, split, water and building
+    traces, `decisions_v2.py` and the review item ids of the other decision types are still open.
   - [ ] 2.2 **[PBT] S1** Publish never emits a feature the validator rejects (extend spec 02's
     publish strategies with v2 decisions, water and lines).
     Files: `pipeline/tests/publish/test_publish_v2_properties.py`, `pipeline/tests/publish/strategies.py`.
@@ -402,6 +404,11 @@ steps they extend, then 17 and 18.
     `pipeline/buried_pipeline/publish/build.py`, `web/src/studio/reviewModel.test.ts`,
     `pipeline/tests/publish/test_build_v2.py`.
     Requirements: 24.1 to 24.5.
+    Session 030 did the Python side only, not ticked: `trace` with `kind: land_use` is read
+    (`decisions.py`), built as a `use_` feature (`build.py`), accepted by the Service API Schema
+    (`traceDecisionV2`, with `if/then` for the use and its read) and by `POST /v1/publish`. Tests:
+    `pipeline/tests/publish/test_land_use.py`, `pipeline/tests/service/test_app.py`. Left: the
+    web files above, and the warning for a banned word (24.5).
 
 - [ ] 20. The map area step (session 007; needs spec 02 task 14.1)
   - [ ] 20.1 Implement `MapAreaStep.tsx`: canon map area read-only when present; otherwise the
