@@ -9,7 +9,7 @@ import { Mark } from './Mark';
  */
 export type HeaderPage = 'explorer' | 'studio' | 'report' | 'place' | 'sources';
 
-export function Header({ current, address }: { current: HeaderPage; address?: string | null }) {
+export function Header({ current, address, era }: { current: HeaderPage; address?: string | null; era?: string | null }) {
   return (
     <header className="site-header">
       <a className="wordmark" href="/" data-testid="wordmark" aria-label="Buried, home">
@@ -19,6 +19,11 @@ export function Header({ current, address }: { current: HeaderPage; address?: st
       {address ? (
         <p className="header-address" data-testid="header-address">
           {address}
+        </p>
+      ) : null}
+      {era ? (
+        <p className="header-era" data-testid="header-era">
+          {era}
         </p>
       ) : null}
       <nav className="site-nav" aria-label="Pages">
