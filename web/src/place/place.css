@@ -183,12 +183,15 @@
 
 .landing-list a,
 .landing-list button {
+  align-items: center;
   background: none;
   border: 0;
   color: var(--text);
   cursor: pointer;
-  display: block;
+  display: flex;
   font: inherit;
+  /* A touch target of at least 44 px. */
+  min-height: 44px;
   padding: var(--space-2) var(--space-3);
   text-align: left;
   text-decoration: none;
@@ -448,7 +451,9 @@
   font-size: 0.875rem;
 }
 
-/* Narrow screens: the report sits below the scene, and the whole page scrolls. */
+/* Narrow screens: the report sits below the scene, and the whole page scrolls. The scene is about
+   half the screen, so the first lines of the report show under it. The depth gauge is compact: a
+   narrow column of stops, each at least 44 px tall, at the left edge where a thumb reaches it. */
 @media (max-width: 800px) {
   .place {
     display: block;
@@ -456,11 +461,38 @@
   }
 
   .place-scene {
-    height: 70vh;
+    height: max(24rem, 56vh);
   }
 
   .place-report {
     overflow: visible;
+  }
+
+  .view--place .depth-gauge {
+    left: var(--space-2);
+    padding: var(--space-1);
+  }
+
+  .view--place .depth-stop {
+    grid-template-columns: 0.75rem auto;
+    min-height: 44px;
+    padding-right: var(--space-2);
+  }
+
+  .view--place .view-top {
+    left: 5.75rem;
+    max-height: calc(100% - var(--space-3) - 6.5rem);
+    max-width: calc(100% - 5.75rem - var(--space-2));
+  }
+
+  /* The scene is shorter here, and the attribution takes four lines: the open list is kept shorter
+     so that it never reaches the attribution. */
+  .view--place .feature-list-panel {
+    max-height: min(28vh, 12rem);
+  }
+
+  .view--place .stage-message {
+    padding-left: 5.75rem;
   }
 }
 

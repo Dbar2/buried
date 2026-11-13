@@ -339,3 +339,10 @@
   text-align: left;
   width: 100%;
 }
+
+/* A source's id and download address are long words: let them break so they never widen the page
+   (session 031, found on a 390 px screen). */
+.source-list li,
+.source-url {
+  overflow-wrap: anywhere;
+}

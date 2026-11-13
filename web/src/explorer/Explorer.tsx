@@ -96,6 +96,8 @@ export function Explorer({
     [],
   );
   const webgl2 = useMemo(() => hasWebGL2(), []);
+  // On a touch screen the hint says "Tap" (session 031).
+  const coarsePointer = useMemo(() => typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches, []);
 
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
   const [player, setPlayer] = useState<PlayerState>(INITIAL_PLAYER_STATE);
@@ -387,7 +389,7 @@ export function Explorer({
           )}
           {showHint && (
             <p className="view-hint" data-testid="view-hint">
-              Click a building in the 3D view to see the evidence behind it.
+              {coarsePointer ? 'Tap' : 'Click'} a building in the 3D view to see the evidence behind it.
             </p>
           )}
           {load.problems.length > 0 && (

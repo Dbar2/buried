@@ -40,6 +40,33 @@ test('a place page link loads directly, as the first request, with its report', 
   await expect(page.getByTestId('report-summary')).toContainText('fire insurance plan');
 });
 
+test('each route sets its title and description; the static page carries the Open Graph tags', async ({ page }) => {
+  test.setTimeout(120_000);
+  const lot = lotWithTheBuilding();
+
+  await page.goto('/');
+  await expect(page).toHaveTitle('Buried · What was here?');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', 'https://buried.pages.dev/social-card.png');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /Forgotten maps, rebuilt with proof\./);
+
+  await page.goto(`/place?lot=${encodeURIComponent(lot)}&era=1911`);
+  await expect(page).toHaveTitle(/ · Buried$/, { timeout: 60_000 });
+  await expect(page).not.toHaveTitle('The place · Buried');
+  const title = await page.title();
+  await expect(page.getByTestId('header-address')).toHaveText(title.replace(/ · Buried$/, ''));
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /^The documented history of .+\. Buried screens; it doesn't certify\.$/);
+
+  await page.goto('/sources');
+  await expect(page).toHaveTitle('Sources · Buried');
+  await page.goto('/studio');
+  await expect(page).toHaveTitle('Studio · Buried');
+
+  // The card is served, at the size the tags say.
+  const card = await page.request.get('/social-card.png');
+  expect(card.status()).toBe(200);
+  expect(card.headers()['content-type']).toBe('image/png');
+});
+
 test('the other page routes load directly too', async ({ page }) => {
   test.setTimeout(120_000);
   const lot = lotWithTheBuilding();
