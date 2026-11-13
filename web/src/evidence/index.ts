@@ -44,6 +44,8 @@ export {
   provenanceFacts,
 } from './plainWords';
 export type { ProvenanceFacts } from './plainWords';
+export { clearPresenceSourceIds, FIRST_DRAWN_ON, firstDrawnText, outlineAttribution } from './rowWording';
+export type { OutlineAttribution, RowPlan } from './rowWording';
 export type { SourceIndex } from './sources';
 export { reviewedAreaCovers } from './coverage';
 export type { CoverageKind } from './coverage';

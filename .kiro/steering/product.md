@@ -11,38 +11,53 @@ add to it, and get the documented history of a place it covers.
 Entry for Kiroween 2026, category Resurrection (Frankenstein is the fallback, decided at
 submission). Tagline: "Forgotten maps, rebuilt with proof."
 
-## The place page and the three parts
+## The first visit and the find
 
-The first ten seconds: type an address, the camera drops to the lot, the past rises, and a plain
-page says what stood there.
+The unit is a **find**: one thing the plans letter on this block (a building or a yard), with the
+lettering crop that names it. The verb is **"Raise the past"**. Detail: spec 06, `data/finds.json`.
 
-- **The unit is the place page.** One screen per lot: the dig (3D) on the left, a paper report on
-  the right. The Explorer and the Report are two halves of it, not two destinations. The Studio
-  stays its own screen.
-- **Search first.** The landing is the dusk scene with the wordmark and one field, "What was
-  here?", plus two or three real example addresses from the coverage area. No tour, no modal.
+1. **Land** (`/`). The block at once: the 1911 sheet like paper on a dark table, lit warm from
+   the upper left as if by a lamp, today's buildings on it as soot blocks, a little ground fog.
+   "Something used to stand here." One lantern button, "Raise the past", over "Every ghost comes
+   with the map that proves it." Paper tags pinned to the map: "Overall factory", "Bank", "Coal
+   yard". No search field; the header holds the wordmark and "Sources". A still picture of the
+   real scene shows at once while the Player loads; the button never waits on an endless spinner.
+2. **Raise.** Today's blocks sink to low plinths, the sheet brightens, and the 1911 plan's
+   buildings stand up as ghosts, staggered, in about two seconds. The camera stays put.
+3. **First find.** The overall factory selects itself: lantern edges, a leader line to a
+   catalogue card at the right (a bottom sheet on a phone): "LETTERED ON THE 1911 PLAN", the name
+   as lettered, the lettering crop, "Seen on: 1911 plan, sheet 229", "Placed within about N m",
+   "Status: ...", "Show the original sheet".
+4. **Look around.** Find tags along the top switch finds; any ghost can be clicked. The era ruler
+   has Today, 1935, 1911; on a find it says what the other plan letters there. The Lantern is a
+   round lens dragged with a pointer or a finger.
+5. **Keep it.** "Share this find" copies `/find/<slug>`, which opens raised on that find. "Full
+   record" opens the Report for that lot. "Look up an address" is a small link to the place page.
+
+Where the rest sits. "Buried screens; it doesn't certify." is not on the landing; it stays word
+for word at the top of the record, the Report and the print.
+
+1. **Explorer.** The 3D scene on `/`, `/find/<slug>` and the place page: ghosts rise where they
+   stood, each showing how sure we are. Raise, the era ruler (Dig on the place page), the
+   Lantern, Show Evidence (the source beneath a ghost), Water remembers (documented water).
+2. **Reconstruction Studio** (`/studio`, not in the header; the Sources page links it as "The
+   workshop (runs on a maintainer's machine)"). Import a plate, align it with the error in
+   metres, let Buried propose footprints, confirm, publish; they rise in that plate's era with
+   full provenance. This proves Buried is a tool, not a hand-built model.
+3. **Report** (`/report`, the "Full record"): "The documented history of this place." What stood
+   on a covered lot and when, water and past land use, what the records cannot tell you, who to
+   talk to next; a one-page PDF and a share link. It never depends on 3D working.
+4. **Place page** (`/place?lot=`; search at `/place`): unchanged, reached by "Look up an address".
+
 - **The core sample is made of pictures.** For each era the place page shows a real crop of that
-  lot from that era's source (today's map, the 1947 photograph when aligned, the 1931-35 plate,
-  the 1911 plate), with the lot outlined, next to one plain sentence. A crop is evidence a person
-  can read without our interpreting it, so it appears even where nothing has been reviewed,
-  labelled "From the plate, not yet reviewed". The sentence beside an unreviewed crop says what
-  the source is and states no finding.
+  lot from that era's source, with the lot outlined, next to one plain sentence. A crop is
+  evidence a person can read without our interpreting it, so it appears even where nothing has
+  been reviewed, labelled "From the plate, not yet reviewed", beside a sentence that says what the
+  source is and states no finding. A row for one plan says what that plan shows; a feature first
+  read from another plan is worded "first drawn on the 1911 plan; drawn again on the 1935 plan".
 - **Plain words in the body, ids in the footnotes.** Sentences name sources as "the 1911 plan"
   and "the 1931-35 plan". Source ids, plate numbers and error figures sit in mono in a sources
   block and on hover or focus, never in the middle of a sentence.
-
-1. **Explorer.** The left half. A foggy 3D neighbourhood at dusk. Digging down goes back in time,
-   one era per layer. Vanished buildings rise as ghosts where they stood, each showing how sure
-   we are. Includes Dig, ghosts, the Lantern (a lens showing the past inside, the present
-   outside), Show Evidence (the source beneath a ghost) and Water remembers (documented creeks,
-   marsh and shorelines).
-2. **Reconstruction Studio.** Import a plate, align it to today's map with the error in metres,
-   let Buried propose footprints, confirm them, publish. Published buildings rise in the Explorer
-   in that plate's era with full provenance. This proves Buried is a tool, not a hand-built model.
-3. **Report.** The right half. "The documented history of this place." For a lot inside the
-   covered area: what stood there and when, what the records show about water and past land use,
-   what they cannot tell you, and who to talk to next. Also a one-page PDF and a share link. The
-   Report never depends on 3D working.
 
 ## Past land use is the practical value
 
@@ -52,10 +67,11 @@ neighbour would act on. "Buried screens; it doesn't certify" and the dig pointer
 
 ## Who it is for
 
-- **People who live in, are buying, or are about to dig into an old city block** (the face of the
-  demo): what was on my street, what the plans show was used here, and is anything worth asking a
-  professional about. For a dig, a pointer to request locates through Ontario Dig Authority.
-  Buried's maps are not utility locates.
+- **Curious residents and local-history teachers** (first contact, the face of the demo): what
+  stood on this block, what the plans lettered there, and the map that proves it.
+- **People who live in, are buying, or will dig into an old city block:** "Full record" and the
+  Report carry the past-land-use screening, with a pointer to request locates through Ontario Dig
+  Authority before a dig. Buried's maps are not utility locates.
 - **Heritage groups, museums, researchers:** the Studio, to rebuild their own neighbourhoods.
 - **Environmental and property professionals** (later): a faster first pass at historical research.
 
@@ -85,9 +101,12 @@ relations or confidence wording of its own.
 ## Scope at submission
 
 Real, end to end:
-- Place page: search, dig and report on one screen, with the picture core sample.
-- Explorer: the showcase area, four eras, Dig, ghosts, Lantern, Show Evidence, Water remembers.
-- Studio: import, align, extract, review, publish, shown live on the held-out plate.
+- First visit: the block, Raise the past, the three finds with their cards, the era ruler (Today,
+  1935, 1911; 1947 joins once its imagery is aligned), the draggable Lantern, share links. Works
+  on a phone and without WebGL.
+- Place page: address search, dig and report on one screen, with the picture core sample.
+- Explorer: the showcase area, Dig, ghosts, Lantern, Show Evidence, Water remembers.
+- Studio: import, align, extract, review, publish, on the held-out plate, on a maintainer's machine.
 - Report: any lot inside the coverage area, with coverage disclosure, PDF and share link.
 - Kiro kit: steering, hooks, the two agents and the evidence MCP server.
 - Story mode ("The Lost Marsh", industrial waterfront), built only after the three parts work.
@@ -135,6 +154,9 @@ Outside the coverage area, say "Not reconstructed yet." Nothing else.
     the evidence, no sources absent from the evidence pack.
 11. **No invented exact years.** Use "Built by", "Gone by", "Last seen", never "Built in" unless a
     source states that year.
+12. **A find's name is the plate's lettering.** It is quoted as lettered, with the crop it was
+    read from. Buried never names a business, owner or use that the plate does not letter, and
+    never says "confirmed" of a record no named person has reviewed.
 
 ## Tone
 

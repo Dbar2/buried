@@ -1,7 +1,7 @@
 /*
- * The Shell's first real layout (spec 03 design.md "Layout"). Dark theme. Colours come from
- * tokens.css only; there is no `lantern` (nothing is pinned and this view has no primary action)
- * and no `water`. No gradients, no shadows, no rounded-everything cards.
+ * The Shell's layout (spec 03 design.md "Layout", brand from spec 06 W1). Dark theme. Colours come
+ * from tokens.css only. `lantern` marks focus rings and the active nav underline only. Square
+ * corners, 1 px hairlines, no gradients, no shadows, no blur.
  */
 .page {
   display: grid;
@@ -15,10 +15,11 @@
   overflow: auto;
 }
 
-/* Header: across the top, `night`. */
+/* Header: across the top, `haze`, with a hairline rule under it. */
 .site-header {
   align-items: center;
-  background: var(--night);
+  background: var(--haze);
+  border-bottom: 1px solid var(--copper);
   display: flex;
   height: var(--header-height);
   justify-content: space-between;
@@ -27,11 +28,11 @@
 
 .wordmark {
   align-items: center;
-  color: var(--ink);
+  color: var(--parchment);
   display: inline-flex;
   font-family: var(--font-heading);
-  font-size: 1.75rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 400;
   gap: var(--space-2);
   letter-spacing: 0.01em;
   line-height: 1;
@@ -44,7 +45,7 @@
 
 .loading-mark {
   align-items: center;
-  color: var(--muted);
+  color: var(--parchment-dim);
   display: flex;
   gap: var(--space-2);
   margin: 0;
@@ -52,8 +53,8 @@
 
 /* The address of the place on screen, between the wordmark and the nav. */
 .header-address {
-  border-left: 1px solid var(--present);
-  color: var(--text);
+  border-left: 1px solid var(--copper);
+  color: var(--parchment);
   flex: 1 1 auto;
   margin: 0 var(--space-4);
   overflow: hidden;
@@ -63,7 +64,7 @@
 }
 
 .header-era {
-  color: var(--text);
+  color: var(--parchment);
   flex: none;
   font-family: var(--font-mono);
   margin: 0 var(--space-4);
@@ -80,7 +81,7 @@
    too, so the mark is never colour alone. */
 .site-nav a {
   border-bottom: 2px solid transparent;
-  color: var(--muted);
+  color: var(--parchment-dim);
   font-family: var(--font-body);
   font-size: 1rem;
   padding: var(--space-1) 0;
@@ -88,12 +89,12 @@
 }
 
 .site-nav a:hover {
-  color: var(--text);
+  color: var(--parchment);
 }
 
 .site-nav a[aria-current='page'] {
   border-bottom-color: var(--lantern);
-  color: var(--text);
+  color: var(--parchment);
   font-weight: 600;
 }
 
@@ -109,7 +110,7 @@
   }
 
   .wordmark {
-    font-size: 1.375rem;
+    font-size: 1.25rem;
   }
 
   .header-address,
@@ -124,7 +125,7 @@
 
 /* The view fills the window under the header. */
 .view {
-  background: var(--night);
+  background: var(--soot);
   min-height: 0;
   position: relative;
 }
@@ -142,15 +143,17 @@
 }
 
 .stage-message {
-  background: var(--fog);
+  background: var(--haze);
   height: 100%;
   margin: 0;
   padding: var(--space-4);
 }
 
-/* Depth gauge: over the right edge of the view, on `fog` at 90% opacity. */
+/* Depth gauge: over the right edge of the view, on solid `haze` with a hairline border. */
 .depth-gauge {
-  background: color-mix(in srgb, var(--fog) 90%, transparent);
+  background: var(--haze);
+  border: 1px solid var(--copper);
+  border-radius: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
@@ -165,7 +168,7 @@
   align-items: center;
   background: none;
   border: 0;
-  color: var(--muted);
+  color: var(--parchment-dim);
   cursor: pointer;
   display: grid;
   font: inherit;
@@ -177,17 +180,17 @@
 
 /* The mark: a thin tick for the other eras, a filled bar for the current one (shape, not colour). */
 .depth-mark {
-  background: var(--muted);
+  background: var(--parchment-dim);
   height: 1px;
   width: 0.5rem;
 }
 
 .depth-stop[aria-current='true'] {
-  color: var(--text);
+  color: var(--parchment);
 }
 
 .depth-stop[aria-current='true'] .depth-mark {
-  background: var(--text);
+  background: var(--parchment);
   height: 0.5rem;
   width: 0.75rem;
 }
@@ -209,7 +212,7 @@
 /* The marker that follows the depth between the stops. Placed by DepthGauge from the stops' own
    positions; it sits on the current stop's bar when the depth rests. */
 .depth-thumb {
-  background: var(--text);
+  background: var(--parchment);
   height: 0.5rem;
   left: var(--space-2);
   pointer-events: none;
@@ -218,11 +221,12 @@
   width: 0.75rem;
 }
 
-/* Evidence card: at the left edge of the view, 360 px, on `fog`. It opens beside the building.
+/* Evidence card: at the left edge of the view, 360 px, on `haze`. It opens beside the building.
    A column: the heading and the Close button stay put and only the fields scroll, so the title is
    never pushed out of view (session 015). */
 .card {
-  background: var(--fog);
+  background: var(--haze);
+  border: 1px solid var(--copper);
   bottom: auto;
   display: flex;
   flex-direction: column;
@@ -239,7 +243,7 @@
   flex: none;
   font-family: var(--font-heading);
   font-size: 22px;
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1.25;
 }
 
@@ -257,7 +261,7 @@
 }
 
 .card dt {
-  color: var(--muted);
+  color: var(--parchment-dim);
   font-size: 1rem;
 }
 
@@ -274,8 +278,9 @@
 
 .card button {
   background: none;
-  border: 1px solid var(--muted);
-  color: var(--text);
+  border: 1px solid var(--parchment-dim);
+  border-radius: 2px;
+  color: var(--parchment);
   cursor: pointer;
   font: inherit;
   padding: var(--space-1) var(--space-3);
@@ -301,11 +306,11 @@
   pointer-events: auto;
 }
 
-/* The hint and the notes sit on a solid `fog` strip, so they read over any drape, including a
-   white plate (a translucent strip over white gave muted text only about 4:1). */
+/* The hint and the notes sit on a solid `haze` strip, so they read over any drape, including a
+   white plate. */
 .view-hint {
-  background: var(--fog);
-  color: var(--text);
+  background: var(--haze);
+  color: var(--parchment);
   font-size: 1rem;
   margin: 0;
   padding: var(--space-1) var(--space-3);
@@ -313,12 +318,12 @@
 
 /* The one plain line when an era has nothing to show yet (session 018). */
 .view-note {
-  color: var(--text);
+  color: var(--parchment);
 }
 
 .view-notes {
-  background: var(--fog);
-  color: var(--muted);
+  background: var(--haze);
+  color: var(--parchment-dim);
   font-size: 0.875rem;
   margin: 0;
   padding: var(--space-1) var(--space-3);
@@ -330,14 +335,14 @@
 
 /* The 2D map that stands in for the Player. */
 .fallback-2d {
-  background: var(--fog);
+  background: var(--haze);
 }
 
-/* Attribution lines: along the bottom edge, Inter 14 px in `muted` on `night` at 80%. */
+/* Attribution lines: along the bottom edge, 14 px in `parchment-dim` on `soot` at 80%. */
 .attribution {
-  background: color-mix(in srgb, var(--night) 80%, transparent);
+  background: color-mix(in srgb, var(--soot) 80%, transparent);
   bottom: 0;
-  color: var(--muted);
+  color: var(--parchment-dim);
   font-size: 14px;
   left: 0;
   padding: var(--space-1) var(--space-4);

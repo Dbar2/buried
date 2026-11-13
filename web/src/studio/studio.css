@@ -1,13 +1,13 @@
 /*
  * The Studio: a working tool, calm and dense. Dark theme from tokens.css only. The plate is the hero
  * and is dimmed toward mid-grey so traced outlines read; the chrome stays quiet. The one primary
- * action in a panel is filled `ink` with dark text. `lantern` appears here as the underline of the
+ * action in a panel is filled `parchment` with `ink` text. `lantern` appears here as the underline of the
  * active step and nav item and as the focus ring, never on the plate and never as a fill
- * (design.md "Studio look"). The current proposal is drawn in `ink`, thicker, with a mono tag. No
+ * (design.md "Studio look"). The current proposal is drawn in `parchment`, thicker, with a mono tag. No
  * gradients, no shadows, no cards inside cards, no pills, no icons without text.
  */
 .studio {
-  background: var(--night);
+  background: var(--soot);
   display: grid;
   grid-template-columns: minmax(0, 1fr) 26rem;
   height: 100%;
@@ -33,7 +33,7 @@
 }
 
 .studio-side {
-  background: var(--fog);
+  background: var(--haze);
   min-height: 0;
   overflow-y: auto;
   padding: var(--space-3) var(--space-4) var(--space-4);
@@ -76,9 +76,9 @@
 .studio button,
 .studio .button {
   background: none;
-  border: 1px solid var(--muted);
+  border: 1px solid var(--parchment-dim);
   border-radius: 2px;
-  color: var(--text);
+  color: var(--parchment);
   cursor: pointer;
   display: inline-block;
   font: inherit;
@@ -87,39 +87,39 @@
 }
 
 .studio button:hover:not(:disabled) {
-  border-color: var(--text);
+  border-color: var(--parchment);
 }
 
 .studio button:disabled {
-  color: var(--muted);
+  color: var(--parchment-dim);
   cursor: default;
   opacity: 0.6;
 }
 
 .studio button[aria-pressed='true'] {
-  border-color: var(--text);
+  border-color: var(--parchment);
   font-weight: 600;
 }
 
 /* The active step is underlined in `lantern`, and its weight changes too, so it is not colour alone. */
 .studio button[aria-current='step'] {
   border-bottom: 2px solid var(--lantern);
-  border-color: var(--text);
+  border-color: var(--parchment);
   border-bottom-color: var(--lantern);
   font-weight: 600;
 }
 
-/* The primary action of a panel: filled `ink`, dark text. */
+/* The primary action of a panel: filled `parchment`, `ink` text. */
 .studio .primary:not(:disabled) {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--night);
+  background: var(--parchment);
+  border-color: var(--parchment);
+  color: var(--ink);
   font-weight: 600;
 }
 
 .studio kbd {
-  border: 1px solid var(--muted);
-  color: var(--muted);
+  border: 1px solid var(--parchment-dim);
+  color: var(--parchment-dim);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   margin-left: var(--space-1);
@@ -127,8 +127,8 @@
 }
 
 .studio .primary:not(:disabled) kbd {
-  border-color: var(--night);
-  color: var(--night);
+  border-color: var(--ink);
+  color: var(--ink);
 }
 
 .plate-picker li + li {
@@ -174,17 +174,17 @@
 
 .studio input[type='text'],
 .studio input[type='number'] {
-  background: var(--night);
-  border: 1px solid var(--muted);
+  background: var(--soot);
+  border: 1px solid var(--parchment-dim);
   border-radius: 2px;
-  color: var(--text);
+  color: var(--parchment);
   font: inherit;
   padding: var(--space-1) var(--space-2);
 }
 
 /* Review panel */
 .counts {
-  border-bottom: 1px solid var(--present);
+  border-bottom: 1px solid var(--copper);
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
@@ -193,14 +193,14 @@
 }
 
 .state {
-  color: var(--muted);
+  color: var(--parchment-dim);
   font-size: 0.875rem;
   font-weight: 400;
   margin-left: auto;
 }
 
 .proposal-crop {
-  background: var(--night);
+  background: var(--soot);
   display: block;
   height: 200px;
   image-rendering: pixelated;
@@ -216,7 +216,7 @@
 }
 
 .facts dt {
-  color: var(--muted);
+  color: var(--parchment-dim);
 }
 
 .facts dd {
@@ -224,13 +224,13 @@
 }
 
 .weaknesses li {
-  border-left: 2px solid var(--muted);
+  border-left: 2px solid var(--parchment-dim);
   margin: var(--space-1) 0;
   padding-left: var(--space-2);
 }
 
 .proposal-list {
-  border-top: 1px solid var(--present);
+  border-top: 1px solid var(--copper);
   margin-top: var(--space-3);
   padding-top: var(--space-2);
 }
@@ -254,13 +254,13 @@
 }
 
 .proposal-list button[aria-current='true'] {
-  border-left: 3px solid var(--ink);
+  border-left: 3px solid var(--parchment);
   font-weight: 600;
 }
 
 .key-legend {
-  border-top: 1px solid var(--present);
-  color: var(--muted);
+  border-top: 1px solid var(--copper);
+  color: var(--parchment-dim);
   display: grid;
   gap: 0 var(--space-3);
   grid-template-columns: repeat(2, 1fr);
@@ -281,13 +281,13 @@
 
 /* Publish panel */
 .blockers {
-  border-left: 3px solid var(--ink);
+  border-left: 3px solid var(--parchment);
   margin: var(--space-2) 0;
   padding-left: var(--space-2);
 }
 
 .published {
-  border-top: 1px solid var(--present);
+  border-top: 1px solid var(--copper);
   margin-top: var(--space-3);
   padding-top: var(--space-2);
 }
@@ -305,9 +305,9 @@
 }
 
 .plate-label {
-  background: var(--night);
-  border: 1px solid var(--ink);
-  color: var(--ink);
+  background: var(--soot);
+  border: 1px solid var(--parchment);
+  color: var(--parchment);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   padding: 0 var(--space-1);
@@ -316,7 +316,7 @@
 }
 
 .plate-tools {
-  background: var(--night);
+  background: var(--soot);
   bottom: var(--space-3);
   display: flex;
   gap: var(--space-1);
@@ -326,7 +326,7 @@
 }
 
 .plate-hint {
-  background: var(--night);
+  background: var(--soot);
   left: var(--space-3);
   margin: 0;
   padding: var(--space-1) var(--space-2);

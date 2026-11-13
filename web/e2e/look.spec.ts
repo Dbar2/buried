@@ -6,7 +6,7 @@
  *
  * Session 015 (maintainer decision, recorded in docs/kiro-sessions/015-look-review-and-drape.md):
  * the default view shows the horizon, so requirement 26.2 now reads: the top rows are within a
- * small distance of `night`; the horizon row lies between 12 and 22 per cent of the canvas height;
+ * small distance of `soot` (was `night` before spec 06 W1); the horizon row lies between 12 and 22 per cent of the canvas height;
  * the rows just above the horizon are lighter and bluer than the top rows; no building silhouette
  * crosses the horizon with more than low contrast. The old (c), which recorded that the horizon
  * was off the canvas, is replaced by that.
@@ -31,11 +31,11 @@ const ORIGIN = 'http://127.0.0.1:4173';
 const tokens = (() => {
   const css = readFileSync(join(WEB, 'src', 'styles', 'tokens.css'), 'utf8');
   const out: Record<string, [number, number, number]> = {};
-  for (const m of css.matchAll(/--([a-z]+):\s*#([0-9a-fA-F]{6})\s*;/g)) {
+  for (const m of css.matchAll(/--([a-z-]+):\s*#([0-9a-fA-F]{6})\s*;/g)) {
     const hex = m[2] as string;
     out[m[1] as string] = [parseInt(hex.slice(0, 2), 16), parseInt(hex.slice(2, 4), 16), parseInt(hex.slice(4, 6), 16)];
   }
-  return out as Record<'night' | 'fog' | 'lantern' | 'water' | 'text', [number, number, number]>;
+  return out as Record<'soot' | 'haze' | 'lantern' | 'water' | 'parchment', [number, number, number]>;
 })();
 
 const MAGENTA: [number, number, number] = [255, 0, 255];
@@ -248,7 +248,7 @@ test('26.2 / (c) night at the top, the horizon at 12 to 22 per cent, lighter and
     const png = shots[name] as PNG;
     const top = meanRows(png, 0, png.height * 0.05);
     for (let c = 0; c < 3; c++) {
-      expect(Math.abs((top[c] as number) - (tokens.night[c] as number)), `${name} top rows channel ${c}`).toBeLessThanOrEqual(6);
+      expect(Math.abs((top[c] as number) - (tokens.soot[c] as number)), `${name} top rows channel ${c}`).toBeLessThanOrEqual(6);
     }
     // The rows just above the horizon (a band 3 to 12 px above it) are lighter and bluer than the top rows.
     const above = meanRows(png, horizon - 12, horizon - 3);

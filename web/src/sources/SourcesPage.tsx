@@ -55,6 +55,10 @@ export function fullImageAlt(source: Pick<Source, 'id' | 'title'>): string {
   return `The whole photograph of ${plate ?? source.title}, archive labels and ruler included.`;
 }
 
+/** The typefaces the site serves from its own origin, and their licence. */
+export const TYPEFACES_LINE =
+  'Set in Libre Baskerville, Source Sans 3 and IBM Plex Mono, each served from this site under the SIL Open Font License 1.1.';
+
 function SourceEntry({ source, tile }: { source: Source; tile: TileSidecar | undefined }) {
   const archival = isArchival(source);
   const years = archival && source.year_from !== null ? sourceYearsText(source) : yearsText(source);
@@ -105,6 +109,11 @@ export function SourcesView({ data }: { data: SourcesData }) {
         Every plan, photograph and dataset behind what Buried shows, with who holds it, the credit it asks for and what we know about the rights to use it. The plans are shown as they were
         photographed, labels included, so nothing about where they came from is hidden.
       </p>
+      <p>
+        <a href="/studio" data-testid="workshop-link">
+          The workshop (runs on a maintainer's machine)
+        </a>
+      </p>
       <section aria-labelledby="sources-archival">
         <h2 id="sources-archival">Plans and photographs</h2>
         {archival.map((s) => (
@@ -116,6 +125,10 @@ export function SourcesView({ data }: { data: SourcesData }) {
         {present.map((s) => (
           <SourceEntry key={s.id} source={s} tile={undefined} />
         ))}
+      </section>
+      <section aria-labelledby="sources-typefaces" data-testid="sources-typefaces">
+        <h2 id="sources-typefaces">Typefaces</h2>
+        <p>{TYPEFACES_LINE}</p>
       </section>
     </>
   );

@@ -52,7 +52,7 @@ async function playerReady(page: Page): Promise<void> {
 
 test('the landing at 390: wordmark, field and examples fit, and a tap on an example opens its place', async ({ page }) => {
   test.setTimeout(300_000);
-  await page.goto('/');
+  await page.goto('/place');
   const field = page.getByRole('searchbox', { name: 'What was here?' });
   await expect(field).toBeVisible();
   const examples = page.getByTestId('landing-examples').locator('a');

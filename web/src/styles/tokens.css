@@ -1,20 +1,23 @@
 /*
- * Palette tokens (.kiro/steering/design.md). The only hex values in web/src/. The Unity palette
- * asset is written from this file by Buried.Editor.Setup and compared with it by an EditMode test.
- * The WCAG contrast check is task 4.4; until it runs these are the starting values.
+ * Palette tokens (.kiro/steering/design.md "Palette tokens"). The only hex values in web/src/. The
+ * Unity palette asset is written from this file by Buried.Editor.Setup and compared with it by an
+ * EditMode test. contrast.test.ts checks the pairs the design lists against their floors.
  */
 :root {
-  --night: #0e1116;
-  --fog: #1b2129;
-  --present: #2e3742;
-  --ink: #e8dfc8;
-  --lantern: #f2a541;
+  --soot: #121715;
+  --haze: #1f2622;
+  --block: #2b312d;
+  --parchment: #e8dcc1;
+  --parchment-dim: #a99f8a;
+  --ink: #23221f;
+  --ink-soft: #57524a;
+  --rule: #7a7364;
+  --copper: #6d8376;
+  --lantern: #dca34b;
   --water: #5fb3b3;
-  --text: #edeae3;
-  --muted: #9aa3ad;
 
-  --font-heading: 'Fraunces', Georgia, serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Libre Baskerville', Georgia, serif;
+  --font-body: 'Source Sans 3', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 
   --space-1: 0.25rem;

@@ -84,7 +84,7 @@ test('the landing: the scene, the wordmark, one field and three real examples; n
   test.setTimeout(240_000);
   const requested: string[] = [];
   page.on('request', (r) => requested.push(r.url()));
-  await page.goto('/');
+  await page.goto('/place');
 
   await expect(page.getByTestId('landing')).toBeVisible();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Buried');
@@ -104,9 +104,9 @@ test('the landing: the scene, the wordmark, one field and three real examples; n
   await page.screenshot({ path: join(OUTPUT, 'brand-landing.png') });
 
   // Fonts: self-hosted, and the right families.
-  expect(await fontFamily(page, '.landing-wordmark')).toBe('Fraunces');
-  expect(await fontFamily(page, '#landing-address')).toBe('Inter');
-  expect(await page.evaluate(() => document.fonts.check('600 28px Fraunces') && document.fonts.check('16px Inter'))).toBe(true);
+  expect(await fontFamily(page, '.landing-wordmark')).toBe('Libre Baskerville');
+  expect(await fontFamily(page, '#landing-address')).toBe('Source Sans 3');
+  expect(await page.evaluate(() => document.fonts.check('400 28px "Libre Baskerville"') && document.fonts.check('16px "Source Sans 3"'))).toBe(true);
   expect(requested.some((u) => /\.woff2?$/.test(u)), 'the fonts are served from the site').toBe(true);
   const foreign = requested.filter((u) => !u.startsWith(ORIGIN) && !u.startsWith('data:') && !u.startsWith('blob:'));
   expect(foreign).toEqual([]);
@@ -121,7 +121,7 @@ test('the landing: the scene, the wordmark, one field and three real examples; n
 });
 
 test('an example address opens the place page for its lot', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/place');
   const first = page.getByTestId('landing-examples').locator('a').first();
   await expect(first).toBeVisible({ timeout: 60_000 });
   const href = (await first.getAttribute('href')) as string;
@@ -177,8 +177,8 @@ test('the place page dug to 1911: scene left, report right, four bands in order,
   for (const text of bandText) expect(text).not.toMatch(/fip_|aerial_|\bplate\b/);
 
   // Fonts and contrast.
-  expect(await fontFamily(page, '.report h1')).toBe('Fraunces');
-  expect(await fontFamily(page, '.band-text p')).toBe('Inter');
+  expect(await fontFamily(page, '.report h1')).toBe('Libre Baskerville');
+  expect(await fontFamily(page, '.band-text p')).toBe('Source Sans 3');
   expect(await fontFamily(page, '[data-era="1911"] .band-label')).toBe('IBM Plex Mono');
   const dark = await colours(page, '[data-testid="header-address"]');
   expect(contrast(dark.text, dark.background), 'text on the dark theme').toBeGreaterThanOrEqual(4.5);

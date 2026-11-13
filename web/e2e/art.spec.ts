@@ -34,11 +34,11 @@ const project = readJson<{ origin: { easting: number; northing: number } }>('pro
 const tokens = (() => {
   const css = readFileSync(join(WEB, 'src', 'styles', 'tokens.css'), 'utf8');
   const out: Record<string, [number, number, number]> = {};
-  for (const m of css.matchAll(/--([a-z]+):\s*#([0-9a-fA-F]{6})\s*;/g)) {
+  for (const m of css.matchAll(/--([a-z-]+):\s*#([0-9a-fA-F]{6})\s*;/g)) {
     const hex = m[2] as string;
     out[m[1] as string] = [parseInt(hex.slice(0, 2), 16), parseInt(hex.slice(2, 4), 16), parseInt(hex.slice(4, 6), 16)];
   }
-  return out as Record<'night' | 'fog' | 'ink' | 'lantern' | 'water', [number, number, number]>;
+  return out as Record<'soot' | 'haze' | 'parchment' | 'lantern' | 'water', [number, number, number]>;
 })();
 
 type EvidenceFeature = {
@@ -226,7 +226,7 @@ test('art: Today, with no lot pinned, has no lantern anywhere', async ({ browser
   test.setTimeout(300_000);
   const { page, close } = await freshPage(browser);
   try {
-    await page.goto('/');
+    await page.goto('/explorer');
     await expect
       .poll(
         async () => {
@@ -458,7 +458,7 @@ test('art: a pinned lot in 1911 is the only lantern, the sheet is lit and its li
     const paper = at(0.8);
     const line = at(0.02);
     const ratio = (paper + 0.05) / (line + 0.05);
-    const inkLuminance = wcagLuminance(tokens.ink);
+    const inkLuminance = wcagLuminance(tokens.parchment);
 
     writeFileSync(
       join(OUTPUT, 'art-pinned.json'),

@@ -1,0 +1,116 @@
+/**
+ * Where the paper tags go (spec 06 design "Tags and the leader line"). Pure: anchors, tag sizes, the
+ * viewport and the keep-out rectangles in; one placement or `hidden` per tag out. All lengths are CSS
+ * pixels in the Block page's own coordinate space.
+ *
+ * A tag tries above its anchor on a 40 px string, then 60 to 160 px in 20 px steps, then the same
+ * offsets to the left and then to the right. The first spot inside the viewport that overlaps no
+ * keep-out and no earlier visible tag wins; otherwise the tag is hidden (it stays in the top row and
+ * the list). An anchor that is not on screen hides its tag. The selected find has no pinned tag.
+ */
+
+export type Rect = { readonly x: number; readonly y: number; readonly w: number; readonly h: number };
+export type Size = { readonly w: number; readonly h: number };
+
+export type TagAnchor = { readonly id: string; readonly x: number; readonly y: number; readonly onScreen: boolean };
+
+export type TagSide = 'above' | 'left' | 'right';
+
+export type Placement = {
+  readonly rect: Rect;
+  readonly side: TagSide;
+  /** The string's length in px, from the anchor to the tag's nearest edge. */
+  readonly offset: number;
+  /** The string: from the anchor (x1, y1) to the tag (x2, y2). */
+  readonly string: { readonly x1: number; readonly y1: number; readonly x2: number; readonly y2: number };
+};
+
+export type TagResult = { readonly id: string; readonly placement: Placement | 'hidden' };
+
+export const STRING_OFFSETS: readonly number[] = [40, 60, 80, 100, 120, 140, 160];
+
+/** Tag height: the tag is a 44 px touch target on every screen. */
+export const TAG_HEIGHT = 44;
+
+/** A plain estimate of a tag's size from its text, for the first layout before anything is measured. */
+export function estimateTagSize(text: string): Size {
+  return { w: Math.ceil(text.length * 9 + 32), h: TAG_HEIGHT };
+}
+
+/** Rectangles that only touch along an edge do not overlap. */
+export function rectsOverlap(a: Rect, b: Rect): boolean {
+  return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+}
+
+export function insideViewport(rect: Rect, viewport: Size): boolean {
+  return rect.x >= 0 && rect.y >= 0 && rect.x + rect.w <= viewport.w && rect.y + rect.h <= viewport.h;
+}
+
+function candidate(anchor: TagAnchor, size: Size, side: TagSide, offset: number): Placement {
+  switch (side) {
+    case 'above': {
+      const rect = { x: anchor.x - size.w / 2, y: anchor.y - offset - size.h, w: size.w, h: size.h };
+      return { rect, side, offset, string: { x1: anchor.x, y1: anchor.y, x2: anchor.x, y2: rect.y + rect.h } };
+    }
+    case 'left': {
+      const rect = { x: anchor.x - offset - size.w, y: anchor.y - size.h / 2, w: size.w, h: size.h };
+      return { rect, side, offset, string: { x1: anchor.x, y1: anchor.y, x2: rect.x + rect.w, y2: anchor.y } };
+    }
+    case 'right': {
+      const rect = { x: anchor.x + offset, y: anchor.y - size.h / 2, w: size.w, h: size.h };
+      return { rect, side, offset, string: { x1: anchor.x, y1: anchor.y, x2: rect.x, y2: anchor.y } };
+    }
+  }
+}
+
+export type TagLayoutInput = {
+  readonly anchors: readonly TagAnchor[];
+  /** Tag sizes by id. A tag with no size is hidden. */
+  readonly sizes: ReadonlyMap<string, Size>;
+  readonly viewport: Size;
+  /** The header, the card, the ruler, the Lantern control and the top tag row. */
+  readonly keepOut: readonly Rect[];
+  readonly selectedId?: string | null;
+};
+
+export function layoutTags(input: TagLayoutInput): TagResult[] {
+  const placed: Rect[] = [];
+  return input.anchors.map((anchor): TagResult => {
+    const size = input.sizes.get(anchor.id);
+    if (!anchor.onScreen || !size || anchor.id === input.selectedId) return { id: anchor.id, placement: 'hidden' };
+    for (const side of ['above', 'left', 'right'] as const) {
+      for (const offset of STRING_OFFSETS) {
+        const placement = candidate(anchor, size, side, offset);
+        const { rect } = placement;
+        if (!insideViewport(rect, input.viewport)) continue;
+        if (input.keepOut.some((k) => rectsOverlap(rect, k))) continue;
+        if (placed.some((p) => rectsOverlap(rect, p))) continue;
+        placed.push(rect);
+        return { id: anchor.id, placement };
+      }
+    }
+    return { id: anchor.id, placement: 'hidden' };
+  });
+}
+
+export type LeaderLine = { readonly x1: number; readonly y1: number; readonly x2: number; readonly y2: number };
+
+/**
+ * The leader line from the selected find's anchor to the card's left edge at the title row. Null (hidden)
+ * when there is no card, on a phone, when the anchor is off screen, or when it is under the card or past
+ * its left edge (the line would not run to the card).
+ */
+export function leaderLine(input: {
+  anchor: { x: number; y: number; onScreen: boolean } | null;
+  card: Rect | null;
+  /** The y of the card's title row, in the same space. It is clamped to the card's height. */
+  titleY: number;
+  phone: boolean;
+}): LeaderLine | null {
+  const { anchor, card } = input;
+  if (input.phone || !anchor || !card || !anchor.onScreen) return null;
+  const underCard = anchor.x >= card.x && anchor.y >= card.y && anchor.y <= card.y + card.h;
+  if (underCard || anchor.x >= card.x) return null;
+  const y2 = Math.min(card.y + card.h, Math.max(card.y, input.titleY));
+  return { x1: anchor.x, y1: anchor.y, x2: card.x, y2 };
+}

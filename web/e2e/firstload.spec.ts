@@ -47,7 +47,7 @@ async function measure(browser: Browser, throttle: number): Promise<Times> {
       const cdp = await context.newCDPSession(page);
       await cdp.send('Emulation.setCPUThrottlingRate', { rate: throttle });
     }
-    await page.goto('/');
+    await page.goto('/place');
     await expect(page.getByTestId('landing')).not.toHaveAttribute('data-scene', /^(loading|waiting)$/, { timeout: 280_000 });
     const sceneState = await page.getByTestId('landing').getAttribute('data-scene');
     // The fade is a class on the layer; give the recorder its mutation.
@@ -80,7 +80,7 @@ test('the field and the examples are on screen before the scene, with and withou
 
 test('the landing is usable on the still backdrop: the field takes keys before the scene is in', async ({ page }) => {
   test.setTimeout(120_000);
-  await page.goto('/');
+  await page.goto('/place');
   const field = page.getByTestId('landing-address');
   await expect(field).toBeVisible();
   await field.focus();
@@ -95,7 +95,7 @@ test('the scene is a layer that fades in, and with reduced motion it does not fa
     const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, reducedMotion });
     try {
       const page = await context.newPage();
-      await page.goto('/');
+      await page.goto('/place');
       await expect(page.getByTestId('landing-scene')).toBeAttached();
       return await page.getByTestId('landing-scene').evaluate((el) => getComputedStyle(el).transitionDuration);
     } finally {

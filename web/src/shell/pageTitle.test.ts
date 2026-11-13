@@ -6,7 +6,7 @@ import { descriptionFor, SITE_DESCRIPTION, titleFor } from './pageTitle';
 import type { PageName } from './pageTitle';
 
 const BANNED = /\b(contaminated|unsafe|safe|safer|safest|clean|cleaner|cleanest)\b|will flood/i;
-const PAGES: PageName[] = ['landing', 'place', 'report', 'studio', 'sources', 'explorer'];
+const PAGES: PageName[] = ['block', 'landing', 'place', 'report', 'studio', 'sources', 'explorer'];
 
 describe('page titles', () => {
   it('names a place by its address, then the site', () => {
@@ -21,6 +21,7 @@ describe('page titles', () => {
     expect(titleFor('sources')).toBe('Sources · Buried');
     expect(titleFor('explorer')).toBe('Explorer · Buried');
     expect(titleFor('landing')).toBe('Buried · What was here?');
+    expect(titleFor('block')).toBe('Buried · Forgotten maps, rebuilt with proof.');
   });
 
   it('never writes a banned word, whatever the address', () => {

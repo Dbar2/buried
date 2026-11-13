@@ -37,7 +37,7 @@ export function drawPlan(ctx: CanvasRenderingContext2D, plan: FallbackPlan, imag
   const px = Math.max(1, side / 640) * scale;
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.fillStyle = token('--fog');
+  ctx.fillStyle = token('--haze');
   ctx.fillRect(0, 0, width, height);
 
   for (const tile of plan.tiles) {
@@ -52,8 +52,8 @@ export function drawPlan(ctx: CanvasRenderingContext2D, plan: FallbackPlan, imag
 
   // Today's outlines: cold, as in the scene.
   ctx.lineWidth = px;
-  ctx.fillStyle = token('--present');
-  ctx.strokeStyle = token('--muted');
+  ctx.fillStyle = token('--block');
+  ctx.strokeStyle = token('--parchment-dim');
   for (const rings of plan.present) {
     trace(ctx, rings, to, true);
     ctx.fill('evenodd');
@@ -64,7 +64,7 @@ export function drawPlan(ctx: CanvasRenderingContext2D, plan: FallbackPlan, imag
     trace(ctx, f.rings, to, f.closed);
     if (f.closed && f.confidence !== 'unknown') {
       ctx.globalAlpha = f.confidence === 'documented' ? 0.28 : 0.12;
-      ctx.fillStyle = token('--ink');
+      ctx.fillStyle = token('--parchment');
       ctx.fill('evenodd');
       ctx.globalAlpha = 1;
     }
@@ -78,7 +78,7 @@ export function drawPlan(ctx: CanvasRenderingContext2D, plan: FallbackPlan, imag
         ctx.moveTo(c, 0);
         ctx.lineTo(c - height, height);
       }
-      ctx.strokeStyle = token('--ink');
+      ctx.strokeStyle = token('--parchment');
       ctx.globalAlpha = 0.7;
       ctx.lineWidth = px;
       ctx.stroke();
@@ -92,7 +92,7 @@ export function drawPlan(ctx: CanvasRenderingContext2D, plan: FallbackPlan, imag
     ctx.lineWidth = 4.5 * px;
     ctx.stroke();
     ctx.setLineDash(DASHES[f.confidence].map((n) => n * px));
-    ctx.strokeStyle = token('--ink');
+    ctx.strokeStyle = token('--parchment');
     ctx.lineWidth = 2 * px;
     ctx.stroke();
     ctx.setLineDash([]);

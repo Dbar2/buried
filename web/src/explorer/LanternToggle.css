@@ -1,10 +1,10 @@
 /* The Lantern toggle: for touch and for people who cannot hold Space. A plain text button, 2 px radius. */
 .lantern-toggle {
-  background: var(--fog);
-  border: 1px solid var(--muted);
+  background: var(--haze);
+  border: 1px solid var(--parchment-dim);
   border-radius: 2px;
   bottom: 3.5rem;
-  color: var(--text);
+  color: var(--parchment);
   cursor: pointer;
   font: inherit;
   padding: var(--space-1) var(--space-3);
@@ -13,8 +13,8 @@
 }
 
 .lantern-toggle[aria-pressed='true'] {
-  background: var(--ink);
-  color: var(--night);
+  background: var(--parchment);
+  color: var(--ink);
 }
 
 .lantern-toggle-word {

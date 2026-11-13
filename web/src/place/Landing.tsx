@@ -16,7 +16,7 @@ import './place.css';
 export { TAGLINE };
 
 /**
- * The landing (`/`): the wordmark, one field, "What was here?", and three real example addresses
+ * The address search (`/place` without a lot; the old landing, moved here by spec 06 W2): the wordmark, one field, "What was here?", and three real example addresses
  * chosen from the data (lots with a published outline within 15 m). Nothing else. A search result
  * goes to that lot's place page. Everything here is read from the site's own files: the page makes
  * no request to another origin.

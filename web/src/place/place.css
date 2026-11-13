@@ -5,13 +5,10 @@
  */
 
 /* ---- landing ---- */
-/* The still dusk: `night` at the top grading to the cold `present` grey-blue at the horizon, with a
-   low band of `fog` along it. Drawn in CSS from the palette; there is no image. It is what the page
-   shows until the scene reports a first frame. */
+/* The still dusk: flat `soot`, as the table is. Drawn in CSS from the palette; there is no image and
+   no gradient. It is what the page shows until the scene reports a first frame. */
 .landing {
-  background:
-    linear-gradient(to top, var(--fog) 0, transparent 22%),
-    linear-gradient(to bottom, var(--night) 0%, var(--night) 35%, var(--present) 100%);
+  background: var(--soot);
   height: 100%;
   overflow: hidden;
   position: relative;
@@ -42,9 +39,9 @@
   position: absolute;
 }
 
-/* A veil of `night` keeps the text legible over any part of the scene. */
+/* A veil of `soot` keeps the text legible over any part of the scene. */
 .landing-scene::after {
-  background: color-mix(in srgb, var(--night) 55%, transparent);
+  background: color-mix(in srgb, var(--soot) 55%, transparent);
   content: '';
   inset: 0;
   pointer-events: none;
@@ -55,7 +52,7 @@
 .landing-loading {
   align-items: center;
   bottom: var(--space-3);
-  color: var(--muted);
+  color: var(--parchment-dim);
   display: flex;
   font-size: 1rem;
   gap: var(--space-2);
@@ -101,7 +98,7 @@
 
 .landing-wordmark {
   align-items: center;
-  color: var(--ink);
+  color: var(--parchment);
   display: flex;
   font-size: 3.5rem;
   gap: var(--space-3);
@@ -109,7 +106,7 @@
 }
 
 .landing-tagline {
-  color: var(--text);
+  color: var(--parchment);
   font-family: var(--font-heading);
   font-size: 1.25rem;
   margin: calc(-1 * var(--space-2)) 0 0;
@@ -121,12 +118,12 @@
 }
 
 .landing-try p {
-  color: var(--muted);
+  color: var(--parchment-dim);
   margin: 0 0 var(--space-1);
 }
 
 .landing-coverage {
-  color: var(--muted);
+  color: var(--parchment-dim);
   font-size: 1rem;
   margin: 0;
   max-width: 34rem;
@@ -140,10 +137,10 @@
 }
 
 .landing-search input {
-  background: var(--fog);
-  border: 1px solid var(--muted);
+  background: var(--haze);
+  border: 1px solid var(--parchment-dim);
   border-radius: 2px;
-  color: var(--text);
+  color: var(--parchment);
   font: inherit;
   font-size: 1.25rem;
   padding: var(--space-3);
@@ -151,17 +148,17 @@
 }
 
 .landing-search input::placeholder {
-  color: var(--muted);
+  color: var(--parchment-dim);
 }
 
 .landing-search p {
-  background: var(--fog);
+  background: var(--haze);
   margin: var(--space-2) 0 0;
   padding: var(--space-2) var(--space-3);
 }
 
 .landing-list {
-  background: var(--fog);
+  background: var(--haze);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -169,7 +166,7 @@
 }
 
 .landing-search .landing-list {
-  border: 1px solid var(--present);
+  border: 1px solid var(--copper);
   border-top: 0;
 }
 
@@ -178,7 +175,7 @@
 }
 
 .landing-list li + li {
-  border-top: 1px solid var(--present);
+  border-top: 1px solid var(--copper);
 }
 
 .landing-list a,
@@ -186,7 +183,7 @@
   align-items: center;
   background: none;
   border: 0;
-  color: var(--text);
+  color: var(--parchment);
   cursor: pointer;
   display: flex;
   font: inherit;
@@ -200,7 +197,7 @@
 
 .landing-list a:hover,
 .landing-list button:hover {
-  background: var(--present);
+  background: var(--block);
 }
 
 /* ---- place page ---- */
@@ -276,10 +273,10 @@
 }
 
 .feature-list button {
-  background: var(--fog);
-  border: 1px solid var(--muted);
+  background: var(--haze);
+  border: 1px solid var(--parchment-dim);
   border-radius: 2px;
-  color: var(--text);
+  color: var(--parchment);
   cursor: pointer;
   font: inherit;
   padding: var(--space-1) var(--space-3);
@@ -291,7 +288,7 @@
 }
 
 .feature-list-panel {
-  background: var(--fog);
+  background: var(--haze);
   max-height: min(40vh, 18rem);
   overflow-y: auto;
   padding: var(--space-2);
@@ -316,16 +313,16 @@
 }
 
 .feature-list-panel li button[aria-current='true'] {
-  border: 2px solid var(--ink);
+  border: 2px solid var(--parchment);
 }
 
 .feature-name {
   font-family: var(--font-heading);
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .feature-meta {
-  color: var(--muted);
+  color: var(--parchment-dim);
   font-size: 0.875rem;
 }
 

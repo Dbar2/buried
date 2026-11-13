@@ -18,7 +18,7 @@ const rgb = (name: string): string => {
   return `rgb(${parseInt(hex.slice(0, 2), 16)}, ${parseInt(hex.slice(2, 4), 16)}, ${parseInt(hex.slice(4, 6), 16)})`;
 };
 
-test('the Studio restyle: ink primary, lantern underline on the active step and nav item, 2 px controls', async ({ page }) => {
+test('the Studio restyle: parchment primary, lantern underline on the active step, 2 px controls', async ({ page }) => {
   test.setTimeout(240_000);
   mkdirSync(OUTPUT, { recursive: true });
   await page.goto('/studio');
@@ -33,7 +33,7 @@ test('the Studio restyle: ink primary, lantern underline on the active step and 
     const s = getComputedStyle(el);
     return { background: s.backgroundColor, color: s.color, radius: s.borderTopLeftRadius, shadow: s.boxShadow };
   });
-  expect(style).toEqual({ background: rgb('ink'), color: rgb('night'), radius: '2px', shadow: 'none' });
+  expect(style).toEqual({ background: rgb('parchment'), color: rgb('ink'), radius: '2px', shadow: 'none' });
 
   await page.getByTestId('extract').click();
   const summary = page.locator('.proposal-list summary');
@@ -44,10 +44,8 @@ test('the Studio restyle: ink primary, lantern underline on the active step and 
   await page.keyboard.press('f');
   await page.waitForTimeout(500);
 
-  // The nav's active item and the active step are underlined in `lantern`.
-  const nav = page.getByTestId('nav-studio');
-  await expect(nav).toHaveAttribute('aria-current', 'page');
-  expect(await nav.evaluate((el) => getComputedStyle(el).borderBottomColor)).toBe(rgb('lantern'));
+  // The header has no Studio link now (spec 06 W2); the active step is still underlined in `lantern`.
+  await expect(page.getByTestId('nav-studio')).toHaveCount(0);
   const step = page.locator('.studio button[aria-current="step"]').first();
   expect(await step.evaluate((el) => getComputedStyle(el).borderBottomColor)).toBe(rgb('lantern'));
 
