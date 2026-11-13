@@ -507,6 +507,20 @@ NOT vary by plate.
 13.14 THE Pipeline SHALL print counts per source pair: matched, absent, not covered, sent to review,
 pending aerial checks; and SHALL write the match review list.
 
+13.15 FOR two plates that cite at least four of the same control references (same reference source,
+feature id and vertex), THE Pipeline SHALL compute a pairwise alignment error: at each shared
+reference, the difference between where the two plates put it under their chosen transforms (the
+difference of their residuals, out of sample); `B_pair` is the root mean square of those
+differences, and `pairwise_error_m = ceil_0.1(max(1.0, 2 × B_pair))`. FOR a plate-to-plate test of
+features F and G from those plates, THE Pipeline SHALL then use
+`e = ceil_0.1(sqrt(pairwise_error_m² + own(F)² + own(G)²))`, where `own` is a feature's position
+error beyond its source's alignment error (its digitising term and any reviewer raise), and
+`e_abs = ceil_0.1(sqrt(pairwise_error_m² + own(F)² + own_min(P)²))` for an absence. WHEN the plates
+share fewer than four references, a control file no longer matches its alignment record, or a
+feature has no alignment error in its provenance, THE Pipeline SHALL use the absolute errors of
+13.2 and 13.4. THE pairwise figure SHALL be symmetric in the two plates and SHALL be written, with
+its shared references and differences, to `data/work/match/pairwise.json`.
+
 ## Requirement 14: Plates as TIFF or JPEG, and the control points they ship with
 
 **User story:** As the maintainer, I want every command that opens a plate to accept the formats

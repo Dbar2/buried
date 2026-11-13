@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Buried.Geo;
 using Buried.Interop;
+using Buried.Look;
 using Buried.Meshing;
 using UnityEngine;
 
@@ -47,6 +48,17 @@ namespace Buried.Scene
 
         public static DrapeLayer Create(Transform parent, ProjectFrame frame, DrapeDto drape, Texture2D texture, Shader shader, int order)
         {
+            return Create(parent, frame, drape, texture, shader, order, null);
+        }
+
+        /// <summary>
+        /// Creates the drape. With a palette it is lit by default (the Explorer's display, design.md
+        /// "Draped rasters: the map sheet is lit"): the paper is `ink` and the line work `night`. A plate is
+        /// toned toward paper; an aerial (<see cref="DrapeDto.KindAerial"/>) is lit but not recoloured.
+        /// </summary>
+        public static DrapeLayer Create(
+            Transform parent, ProjectFrame frame, DrapeDto drape, Texture2D texture, Shader shader, int order, BuriedPalette palette)
+        {
             DrapeCornersDto c = drape.corners;
             Vec2d topLeft = frame.ToLocal(c.topLeft[0], c.topLeft[1]);
             Vec2d topRight = frame.ToLocal(c.topRight[0], c.topRight[1]);
@@ -68,6 +80,16 @@ namespace Buried.Scene
                 "_MaskRect",
                 new Vector4((float)mask.MinX, (float)mask.MinZ, (float)(1.0 / mask.SizeX), (float)(1.0 / mask.SizeZ)));
             layer._material.renderQueue = BaseQueue + order;
+            if (palette != null)
+            {
+                layer._material.SetColor("_PaperColor", palette.ink);
+                layer._material.SetColor("_LineColor", palette.night);
+                layer._material.SetFloat("_ToneLine", LookSettings.ToneLineLuminance);
+                layer._material.SetFloat("_TonePaper", LookSettings.TonePaperLuminance);
+                layer._material.SetFloat("_LightFloor", LookSettings.LightFloor);
+                layer._material.SetFloat("_Recolour", drape.kind == DrapeDto.KindAerial ? 0f : 1f);
+            }
+            layer.SetLit(palette != null);
 
             layer._root = new GameObject("Drape " + drape.sourceId);
             layer._root.transform.SetParent(parent, false);
@@ -104,12 +126,21 @@ namespace Buried.Scene
             _material.SetFloat("_Opacity", Mathf.Clamp01(opacity));
         }
 
+        /// <summary>True when the lit display is on; false shows the untouched scan ("view original scan").</summary>
+        public bool IsLit { get; private set; }
+
+        public void SetLit(bool lit)
+        {
+            IsLit = lit;
+            _material.SetFloat("_Lit", lit ? 1f : 0f);
+        }
+
         public void Dispose()
         {
-            if (_root != null) Object.Destroy(_root);
-            if (_mesh != null) Object.Destroy(_mesh);
-            if (_material != null) Object.Destroy(_material);
-            if (_maskTexture != null) Object.Destroy(_maskTexture);
+            SceneObjects.Destroy(_root);
+            SceneObjects.Destroy(_mesh);
+            SceneObjects.Destroy(_material);
+            SceneObjects.Destroy(_maskTexture);
         }
     }
 }

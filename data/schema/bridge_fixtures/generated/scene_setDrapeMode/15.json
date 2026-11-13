@@ -1,0 +1,7 @@
+{
+  "type": "scene/setDrapeMode",
+  "payload": {
+    "mode": "original",
+    "sourceId": "z_wsi08_b88p"
+  }
+}

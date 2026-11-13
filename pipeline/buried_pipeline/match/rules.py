@@ -8,11 +8,14 @@ may write (a match candidate, a clear absence, `not_covered`) or that a person m
 
 from __future__ import annotations
 
+import math
 from collections.abc import Collection, Mapping
 from dataclasses import dataclass
 from typing import Final
 
 from shapely.geometry.base import BaseGeometry
+
+from buried_pipeline.align.residuals import ceil_tenth
 
 # Defined once, here, and not varied by plate (requirement 13.13). Design values, not tuned on any
 # plate; changing one is a reviewed change to design.md.
@@ -54,6 +57,27 @@ class Building:
     source: str  # the feature's origin source
     geom: BaseGeometry
     error_m: float
+    align_error_m: float | None = None  # its source's alignment error, from its provenance
+
+
+def own_term_m(b: Building) -> float | None:
+    """What a feature's position error holds beyond its source's alignment error: the digitising
+    term, and any raise by a reviewer. `sqrt(error^2 - alignment^2)`; None when the alignment error
+    is not known. The pairwise figure replaces the alignment error, not this part."""
+    if b.align_error_m is None:
+        return None
+    return math.sqrt(max(b.error_m * b.error_m - b.align_error_m * b.align_error_m, 0.0))
+
+
+def pair_error(f: Building, g: Building, pairwise_m: float | None) -> float:
+    """`e` between two footprints from two plates (requirement 13.2). Without a pairwise figure
+    it is the sum of the two position errors. With one, it is the pairwise figure and both
+    features' own terms combined as a root-sum-square, rounded up to 0.1 m, the same rule that
+    builds a feature's position error."""
+    fo, go = own_term_m(f), own_term_m(g)
+    if pairwise_m is None or fo is None or go is None:
+        return f.error_m + g.error_m
+    return float(ceil_tenth(math.sqrt(pairwise_m**2 + fo**2 + go**2)))
 
 
 @dataclass(frozen=True)
@@ -65,6 +89,7 @@ class Plate:
     reviewed_area: BaseGeometry | None  # union of the reviewed areas that attest buildings
     buildings: tuple[Building, ...]
     min_error_m: float  # the smallest position error a feature on this plate can have
+    min_own_term_m: float | None = None  # its digitising term: at least 1.0 m and 2 pixels
 
 
 @dataclass(frozen=True)
@@ -86,13 +111,27 @@ def overlap_score(a: BaseGeometry, b: BaseGeometry, e: float) -> float | None:
     return float(core.intersection(large).area / core.area)
 
 
+def absence_error(f: Building, plate: Plate, pairwise_m: float | None) -> float:
+    """`e_abs`: F's error plus the smallest error a feature on the other plate can have, or with a
+    pairwise figure, the pairwise figure with F's own term and that plate's smallest own term."""
+    fo = own_term_m(f)
+    if pairwise_m is None or fo is None or plate.min_own_term_m is None:
+        return f.error_m + plate.min_error_m
+    return float(ceil_tenth(math.sqrt(pairwise_m**2 + fo**2 + plate.min_own_term_m**2)))
+
+
 def plate_outcome(
-    f: Building, plate: Plate, no_link: Collection[str] = frozenset()
+    f: Building,
+    plate: Plate,
+    no_link: Collection[str] = frozenset(),
+    pairwise_m: float | None = None,
 ) -> Outcome:
     """Building F against another plate P (design.md "Per pair: F against another plate P").
 
     `no_link` holds ids on P a person ruled out as F's twin: they are not candidates, but they
-    still count as buildings on P when judging an absence.
+    still count as buildings on P when judging an absence. `pairwise_m` is the pairwise alignment
+    error of F's plate and P (spec 02 requirement 13.15), or None when the two share fewer than
+    four control references.
     """
     if plate.mapped_area is None:
         return Outcome(REVIEW, reason=NO_MAPPED_AREA)
@@ -103,7 +142,7 @@ def plate_outcome(
     for g in plate.buildings:
         if g.id in no_link:
             continue
-        e = f.error_m + g.error_m
+        e = pair_error(f, g, pairwise_m)
         if f.geom.distance(g.geom) > e:
             continue
         scored.append((g, e, overlap_score(f.geom, g.geom, e)))
@@ -129,7 +168,7 @@ def plate_outcome(
         return Outcome(REVIEW, reason=PARTIAL_OVERLAP, scores=scores)
 
     # No candidate with real overlap: is this a clear absence?
-    e_abs = f.error_m + plate.min_error_m
+    e_abs = absence_error(f, plate, pairwise_m)
     core = shrink(f.geom, e_abs)
     if core.is_empty:
         return Outcome(REVIEW, reason=TOO_SMALL, scores=scores)

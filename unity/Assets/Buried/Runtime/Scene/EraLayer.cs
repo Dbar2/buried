@@ -10,7 +10,8 @@ namespace Buried.Scene
     /// <summary>
     /// What one era draws: the extruded ghosts it was sent, their outlines and its drapes. It draws
     /// exactly the features it received; it never filters or adds any by a rule of its own.
-    /// Every confidence class has the documented treatment until task 4.1 adds the other two.
+    /// The features are drawn by confidence class (<see cref="GhostMaterials"/>): each class has its own
+    /// meshes and its own copy of the class's materials, so a class costs one renderer per chunk.
     /// </summary>
     public sealed class EraLayer
     {
@@ -26,13 +27,69 @@ namespace Buried.Scene
         }
 
         private readonly GameObject _root;
-        private readonly List<MeshChunk> _chunks = new List<MeshChunk>();
-        private readonly List<MeshData> _edgeChunks = new List<MeshData>();
         private readonly List<Mesh> _meshes = new List<Mesh>();
         private readonly List<DrapeLayer> _drapes = new List<DrapeLayer>();
         private readonly HashSet<string> _ids = new HashSet<string>();
         private readonly List<AddedBatch> _batches = new List<AddedBatch>();
+        private readonly List<ClassGroup> _groups = new List<ClassGroup>();
+        private GhostMaterials _materials;
         private bool _reducedMotion;
+
+        /// <summary>
+        /// The features of one confidence class in one scene/loadEra or scene/addFeatures call: their
+        /// meshes, chunked, and this group's own copies of the class's materials.
+        /// </summary>
+        private sealed class ClassGroup
+        {
+            public readonly string Class;
+            public readonly List<MeshChunk> Chunks = new List<MeshChunk>();
+            public readonly List<MeshData> EdgeChunks = new List<MeshData>();
+            public readonly Material Fill;
+            public readonly Material Edge;
+            private MeshChunk _chunk;
+            private MeshData _edgeChunk;
+
+            public ClassGroup(string cls, GhostMaterials materials, string name)
+            {
+                Class = cls;
+                Fill = new Material(materials.FillOf(cls)) { name = materials.FillOf(cls).name + " " + name };
+                Material edge = materials.EdgeOf(cls);
+                if (edge != null) Edge = new Material(edge) { name = edge.name + " " + name };
+            }
+
+            public void Add(string featureId, FootprintBuilder.Result built)
+            {
+                if (_chunk == null || !_chunk.CanTake(built.Fill))
+                {
+                    _chunk = new MeshChunk();
+                    Chunks.Add(_chunk);
+                }
+                _chunk.Add(featureId, built.Fill);
+
+                if (Edge == null || built.Edges.VertexCount == 0) return;
+                if (_edgeChunk == null || _edgeChunk.VertexCount + built.Edges.VertexCount > MeshChunk.MaxVertices)
+                {
+                    _edgeChunk = new MeshData();
+                    EdgeChunks.Add(_edgeChunk);
+                }
+                _edgeChunk.Append(built.Edges);
+            }
+
+            public void Apply(float alpha, float rise)
+            {
+                Fill.SetFloat("_Weight", alpha);
+                Fill.SetFloat("_Rise", rise);
+                if (Edge == null) return;
+                Edge.SetFloat("_Alpha", alpha);
+                Edge.SetFloat("_Rise", rise);
+            }
+
+            public void Dispose()
+            {
+                SceneObjects.Destroy(Fill);
+                SceneObjects.Destroy(Edge);
+            }
+        }
 
         /// <summary>
         /// One scene/addFeatures call: its own meshes and material copies, so that it can rise on its
@@ -40,17 +97,10 @@ namespace Buried.Scene
         /// </summary>
         private sealed class AddedBatch
         {
-            public readonly List<MeshChunk> Chunks = new List<MeshChunk>();
-            public Material Fill;
-            public Material Edge;
+            public readonly List<ClassGroup> Groups = new List<ClassGroup>();
             public float Start = float.NaN;
             public float Progress;
         }
-
-        // This era's own copies of the ghost materials, so that its weight can change without touching
-        // another era's (two eras are drawn at once between them).
-        private Material _fill;
-        private Material _edge;
 
         /// <summary>The weight last set (0 to 1); 1 at rest on this era.</summary>
         public float Weight { get; private set; }
@@ -69,29 +119,57 @@ namespace Buried.Scene
         }
 
         /// <summary>
-        /// Builds a volume and an outline for each building feature. A feature that cannot be built is
-        /// reported through <paramref name="onFailure"/> and skipped; the others are still drawn. Water
-        /// is not drawn yet. The layer draws with its own copies of the two materials.
+        /// Builds a volume and, for every class but unknown, an outline for each building feature. A
+        /// feature that cannot be built is reported through <paramref name="onFailure"/> and skipped; the
+        /// others are still drawn. Water is not drawn yet. The layer draws with its own copies of the
+        /// class materials.
         /// </summary>
         public void AddFeatures(
             IEnumerable<SceneFeatureDto> features,
             ProjectFrame frame,
-            Material fillMaterial,
-            Material edgeMaterial,
+            GhostMaterials materials,
             Action<string, string> onFailure)
         {
-            _fill = new Material(fillMaterial) { name = fillMaterial.name + " " + EraId };
-            _edge = new Material(edgeMaterial) { name = edgeMaterial.name + " " + EraId };
-            MeshChunk chunk = null;
-            MeshData edgeChunk = null;
+            _materials = materials;
+            var groups = new Dictionary<string, ClassGroup>();
+            FeatureCount += Build(features, frame, groups, EraId, onFailure, false);
+            foreach (string cls in GhostMaterials.Classes)
+            {
+                ClassGroup group;
+                if (!groups.TryGetValue(cls, out group)) continue;
+                _groups.Add(group);
+                AddRenderers(group, "");
+            }
+        }
+
+        /// <summary>Builds the features into per-class groups. Returns how many were drawn.</summary>
+        private int Build(
+            IEnumerable<SceneFeatureDto> features,
+            ProjectFrame frame,
+            Dictionary<string, ClassGroup> groups,
+            string groupName,
+            Action<string, string> onFailure,
+            bool skipKnownIds)
+        {
+            int added = 0;
             foreach (SceneFeatureDto feature in features)
             {
                 if (feature.kind != SceneFeatureDto.KindBuilding) continue;
+                if (skipKnownIds && _ids.Contains(feature.id))
+                {
+                    onFailure(feature.id, "the era already draws this feature");
+                    continue;
+                }
+
+                string cls = GhostMaterials.ClassOf(feature.confidence);
+                var options = FootprintBuilder.Options.Default;
+                options.Outline = GhostMaterials.HasOutline(cls);
+                options.Storeys = feature.storeys; // 0 when none is recorded: no storey lines, and no count is invented
 
                 FootprintBuilder.Result built;
                 try
                 {
-                    built = FootprintBuilder.Build(feature.geometry, (float)feature.heightM, frame);
+                    built = FootprintBuilder.Build(feature.geometry, (float)feature.heightM, frame, options);
                 }
                 catch (InvalidOperationException e)
                 {
@@ -104,33 +182,31 @@ namespace Buried.Scene
                     continue;
                 }
 
-                if (chunk == null || !chunk.CanTake(built.Fill))
+                ClassGroup group;
+                if (!groups.TryGetValue(cls, out group))
                 {
-                    chunk = new MeshChunk();
-                    _chunks.Add(chunk);
+                    group = new ClassGroup(cls, _materials, groupName);
+                    groups[cls] = group;
                 }
-                chunk.Add(feature.id, built.Fill);
+                group.Add(feature.id, built);
                 _ids.Add(feature.id);
-
-                if (edgeChunk == null || edgeChunk.VertexCount + built.Edges.VertexCount > MeshChunk.MaxVertices)
-                {
-                    edgeChunk = new MeshData();
-                    _edgeChunks.Add(edgeChunk);
-                }
-                edgeChunk.Append(built.Edges);
-                FeatureCount++;
+                added++;
             }
+            return added;
+        }
 
+        private void AddRenderers(ClassGroup group, string prefix)
+        {
             int n = 0;
-            foreach (MeshChunk c in _chunks)
+            foreach (MeshChunk c in group.Chunks)
             {
-                AddRenderer("Ghosts " + n, c.BuildMesh("Ghosts " + EraId + " " + n), _fill);
+                AddRenderer(prefix + "Ghosts " + group.Class + " " + n, c.BuildMesh("Ghosts " + EraId + " " + group.Class + " " + n), group.Fill);
                 n++;
             }
             n = 0;
-            foreach (MeshData e in _edgeChunks)
+            foreach (MeshData e in group.EdgeChunks)
             {
-                AddRenderer("Edges " + n, e.ToMesh("Edges " + EraId + " " + n), _edge);
+                AddRenderer(prefix + "Edges " + group.Class + " " + n, e.ToMesh("Edges " + EraId + " " + group.Class + " " + n), group.Edge);
                 n++;
             }
         }
@@ -147,66 +223,20 @@ namespace Buried.Scene
             Action<string, string> onFailure)
         {
             var batch = new AddedBatch();
-            var edgeChunks = new List<MeshData>();
-            MeshChunk chunk = null;
-            MeshData edgeChunk = null;
-            int added = 0;
-            foreach (SceneFeatureDto feature in features)
+            var groups = new Dictionary<string, ClassGroup>();
+            int added = Build(features, frame, groups, EraId + " added", onFailure, true);
+            if (added == 0)
             {
-                if (feature.kind != SceneFeatureDto.KindBuilding) continue;
-                if (_ids.Contains(feature.id))
-                {
-                    onFailure(feature.id, "the era already draws this feature");
-                    continue;
-                }
-
-                FootprintBuilder.Result built;
-                try
-                {
-                    built = FootprintBuilder.Build(feature.geometry, (float)feature.heightM, frame);
-                }
-                catch (InvalidOperationException e)
-                {
-                    onFailure(feature.id, e.Message);
-                    continue;
-                }
-                if (built == null)
-                {
-                    onFailure(feature.id, "the footprint has no area after cleaning");
-                    continue;
-                }
-
-                if (chunk == null || !chunk.CanTake(built.Fill))
-                {
-                    chunk = new MeshChunk();
-                    batch.Chunks.Add(chunk);
-                }
-                chunk.Add(feature.id, built.Fill);
-                _ids.Add(feature.id);
-
-                if (edgeChunk == null || edgeChunk.VertexCount + built.Edges.VertexCount > MeshChunk.MaxVertices)
-                {
-                    edgeChunk = new MeshData();
-                    edgeChunks.Add(edgeChunk);
-                }
-                edgeChunk.Append(built.Edges);
-                added++;
+                foreach (ClassGroup unused in groups.Values) unused.Dispose();
+                return 0;
             }
-            if (added == 0) return 0;
 
-            batch.Fill = new Material(_fill) { name = _fill.name + " added" };
-            batch.Edge = new Material(_edge) { name = _edge.name + " added" };
-            int n = 0;
-            foreach (MeshChunk c in batch.Chunks)
+            foreach (string cls in GhostMaterials.Classes)
             {
-                AddRenderer("Added ghosts " + n, c.BuildMesh("Added ghosts " + EraId + " " + n), batch.Fill);
-                n++;
-            }
-            n = 0;
-            foreach (MeshData e in edgeChunks)
-            {
-                AddRenderer("Added edges " + n, e.ToMesh("Added edges " + EraId + " " + n), batch.Edge);
-                n++;
+                ClassGroup group;
+                if (!groups.TryGetValue(cls, out group)) continue;
+                batch.Groups.Add(group);
+                AddRenderers(group, "Added ");
             }
             _batches.Add(batch);
             FeatureCount += added;
@@ -247,10 +277,7 @@ namespace Buried.Scene
         {
             float alpha = DepthBlend.GhostAlpha(Weight) * DepthBlend.AddedAlpha(batch.Progress);
             float rise = DepthBlend.Rise(Weight, _reducedMotion) * DepthBlend.AddedRise(batch.Progress, _reducedMotion);
-            batch.Fill.SetFloat("_Weight", alpha);
-            batch.Fill.SetFloat("_Rise", rise);
-            batch.Edge.SetFloat("_Alpha", alpha);
-            batch.Edge.SetFloat("_Rise", rise);
+            foreach (ClassGroup group in batch.Groups) group.Apply(alpha, rise);
         }
 
         private void AddRenderer(string name, Mesh mesh, Material material)
@@ -270,6 +297,12 @@ namespace Buried.Scene
             _drapes.Add(drape);
         }
 
+        /// <summary>The drapes of this era, in draw order.</summary>
+        public IEnumerable<DrapeLayer> Drapes
+        {
+            get { return _drapes; }
+        }
+
         public void SetVisible(bool visible)
         {
             _root.SetActive(visible);
@@ -286,16 +319,7 @@ namespace Buried.Scene
             _root.SetActive(Weight > DepthBlend.VisibleWeight);
             float alpha = DepthBlend.GhostAlpha(Weight);
             float rise = DepthBlend.Rise(Weight, reducedMotion);
-            if (_fill != null)
-            {
-                _fill.SetFloat("_Weight", alpha);
-                _fill.SetFloat("_Rise", rise);
-            }
-            if (_edge != null)
-            {
-                _edge.SetFloat("_Alpha", alpha);
-                _edge.SetFloat("_Rise", rise);
-            }
+            foreach (ClassGroup group in _groups) group.Apply(alpha, rise);
             float opacity = DepthBlend.DrapeOpacity(Weight);
             foreach (DrapeLayer drape in _drapes) drape.SetOpacity(opacity);
             _reducedMotion = reducedMotion;
@@ -306,7 +330,17 @@ namespace Buried.Scene
         {
             distance = float.PositiveInfinity;
             featureId = null;
-            foreach (MeshChunk chunk in _chunks)
+            foreach (ClassGroup group in _groups) RaycastGroup(group, ray, ref distance, ref featureId);
+            foreach (AddedBatch batch in _batches)
+            {
+                foreach (ClassGroup group in batch.Groups) RaycastGroup(group, ray, ref distance, ref featureId);
+            }
+            return featureId != null;
+        }
+
+        private static void RaycastGroup(ClassGroup group, Ray ray, ref float distance, ref string featureId)
+        {
+            foreach (MeshChunk chunk in group.Chunks)
             {
                 float d;
                 string id;
@@ -316,40 +350,22 @@ namespace Buried.Scene
                     featureId = id;
                 }
             }
-            foreach (AddedBatch batch in _batches)
-            {
-                foreach (MeshChunk chunk in batch.Chunks)
-                {
-                    float d;
-                    string id;
-                    if (chunk.Raycast(ray, out d, out id) && d < distance)
-                    {
-                        distance = d;
-                        featureId = id;
-                    }
-                }
-            }
-            return featureId != null;
         }
 
         public void Dispose()
         {
             foreach (DrapeLayer drape in _drapes) drape.Dispose();
             _drapes.Clear();
-            foreach (Mesh mesh in _meshes)
-            {
-                if (mesh != null) UnityEngine.Object.Destroy(mesh);
-            }
+            foreach (Mesh mesh in _meshes) SceneObjects.Destroy(mesh);
             _meshes.Clear();
-            if (_fill != null) UnityEngine.Object.Destroy(_fill);
-            if (_edge != null) UnityEngine.Object.Destroy(_edge);
+            foreach (ClassGroup group in _groups) group.Dispose();
+            _groups.Clear();
             foreach (AddedBatch batch in _batches)
             {
-                if (batch.Fill != null) UnityEngine.Object.Destroy(batch.Fill);
-                if (batch.Edge != null) UnityEngine.Object.Destroy(batch.Edge);
+                foreach (ClassGroup group in batch.Groups) group.Dispose();
             }
             _batches.Clear();
-            if (_root != null) UnityEngine.Object.Destroy(_root);
+            SceneObjects.Destroy(_root);
         }
     }
 }

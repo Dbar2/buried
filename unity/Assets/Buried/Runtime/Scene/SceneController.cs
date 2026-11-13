@@ -13,7 +13,8 @@ namespace Buried.Scene
     /// <summary>
     /// Handles the Shell's messages and builds the scene from them. It draws what it is told: it never
     /// computes dates, confidence or lot relations, and it never filters the features of an era.
-    /// Bridge 0.4.0: scene/init, scene/loadEra, scene/addFeatures, scene/setDepth, debug/markers and debug/setCamera.
+    /// Bridge 0.5.0: scene/init, scene/loadEra, scene/addFeatures, scene/setDepth, scene/focusLot, scene/clearLot,
+    /// scene/setDrapeMode, debug/markers and debug/setCamera.
     /// The depth is a fraction while the Shell tweens between eras; each era is drawn at its weight
     /// (DepthBlend) and the present buildings drain to a faint outline.
     /// </summary>
@@ -46,14 +47,19 @@ namespace Buried.Scene
         private Mesh _groundMesh;
         private Material _groundMaterial;
         private Material _skyMaterial;
-        private Material _ghostFill;
-        private Material _ghostEdge;
+        private GhostMaterials _ghostMaterials;
         private PresentLayer _present;
         private DebugMarkers _markers;
 
         private bool _cameraDirty;
         private float _lastCameraSent = float.NegativeInfinity;
         private Vector2 _pointerDown;
+
+        // The lit map sheet: the drape display (lit unless asked for the original scan) and the one light pool.
+        private bool _allLit = true;
+        private readonly Dictionary<string, bool> _litBySource = new Dictionary<string, bool>();
+        private float _poolX, _poolZ, _poolRadius;
+        private Vector2 _defaultPoolCentre;
 
         public void Configure(Bridge bridge, BuriedPalette palette, ShaderSet shaders, CameraRig rig)
         {
@@ -99,6 +105,9 @@ namespace Buried.Scene
                         break;
                     case BridgeMessageTypes.SceneSetDepth:
                         HandleSetDepth((SceneSetDepthPayload)message.payload);
+                        break;
+                    case BridgeMessageTypes.SceneSetDrapeMode:
+                        HandleSetDrapeMode((SceneSetDrapeModePayload)message.payload);
                         break;
                     case BridgeMessageTypes.DebugMarkers:
                         HandleMarkers((DebugMarkersPayload)message.payload);
@@ -183,9 +192,14 @@ namespace Buried.Scene
             if (_groundMesh != null) Destroy(_groundMesh);
             if (_groundMaterial != null) Destroy(_groundMaterial);
             if (_skyMaterial != null) Destroy(_skyMaterial);
-            if (_ghostFill != null) Destroy(_ghostFill);
-            if (_ghostEdge != null) Destroy(_ghostEdge);
+            if (_ghostMaterials != null)
+            {
+                _ghostMaterials.Dispose();
+                _ghostMaterials = null;
+            }
             _ground = null;
+            _allLit = true;
+            _litBySource.Clear();
             _initialised = false;
         }
 
@@ -244,33 +258,8 @@ namespace Buried.Scene
             groundRenderer.shadowCastingMode = ShadowCastingMode.Off;
             groundRenderer.receiveShadows = false;
 
-            // The documented ghost: `ink` fill at alpha 0.35 with a little self-illumination, and
-            // thin `ink` edges with emission above 1.
-            Color ink = _palette.ink;
-            Color fill = ink;
-            fill.a = LookSettings.GhostFillAlpha;
-            _ghostFill = new Material(_shaders.ghost) { name = "Ghost fill" };
-            _ghostFill.SetColor("_Color", fill);
-            _ghostFill.SetFloat("_Shade", 0.35f);
-            _ghostFill.SetFloat("_Emission", LookSettings.GhostEmission);
-            _ghostFill.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
-            _ghostFill.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
-            _ghostFill.SetFloat("_ZWrite", 0f);
-            _ghostFill.SetFloat("_Cull", (float)CullMode.Back);
-            _ghostFill.renderQueue = 3000;
-
-            _ghostEdge = new Material(_shaders.edge) { name = "Ghost edge" };
-            _ghostEdge.SetColor("_Color", ink);
-            _ghostEdge.SetFloat("_Alpha", 1f);
-            _ghostEdge.SetFloat("_Emission", LookSettings.EdgeEmission);
-            _ghostEdge.SetFloat("_WidthPx", LookSettings.EdgeWidthCssPx);
-            _ghostEdge.SetFloat("_GlowPx", LookSettings.GhostEdgeCasingPx);
-            _ghostEdge.SetFloat("_GlowAlpha", LookSettings.GhostEdgeCasingAlpha);
-            // A `night` casing inside the glow width keeps the `ink` line readable over a pale plate.
-            _ghostEdge.SetColor("_GlowColor", _palette.night);
-            _ghostEdge.SetFloat("_GlowMix", 1f);
-            _ghostEdge.SetFloat("_PixelScale", PixelScale());
-            _ghostEdge.renderQueue = 3010;
+            // The three confidence classes: documented, estimated (dashed, lighter) and unknown (soft).
+            _ghostMaterials = new GhostMaterials(_palette, _shaders, PixelScale());
 
             _markers = new DebugMarkers(transform, _shaders.marker);
 
@@ -279,6 +268,10 @@ namespace Buried.Scene
             Vec2d viewMin = _frame.ToLocal(init.initialView.minE, init.initialView.minN);
             Vec2d viewMax = _frame.ToLocal(init.initialView.maxE, init.initialView.maxN);
             _rig.SetDefaultPose((float)viewMin.X, (float)viewMin.Y, (float)viewMax.X, (float)viewMax.Y);
+
+            // The lit map sheet's light pool starts at the middle of the default view.
+            _defaultPoolCentre = new Vector2((float)(viewMin.X + viewMax.X) * 0.5f, (float)(viewMin.Y + viewMax.Y) * 0.5f);
+            SetLightPool(_defaultPoolCentre.x, _defaultPoolCentre.y, LookSettings.LightPoolRadiusM);
         }
 
         private IEnumerator LoadEra(SceneLoadEraPayload payload)
@@ -304,8 +297,7 @@ namespace Buried.Scene
             layer.AddFeatures(
                 payload.features,
                 _frame,
-                _ghostFill,
-                _ghostEdge,
+                _ghostMaterials,
                 (featureId, reason) => _bridge.SendError(
                     BridgeErrorCodes.MeshBuildFailed, "feature " + featureId + ": " + reason, BridgeMessageTypes.SceneLoadEra));
 
@@ -337,7 +329,9 @@ namespace Buried.Scene
                 }
                 else
                 {
-                    layer.AddDrape(DrapeLayer.Create(layer.Parent, _frame, drape, texture, _shaders.drape, order));
+                    DrapeLayer created = DrapeLayer.Create(layer.Parent, _frame, drape, texture, _shaders.drape, order, _palette);
+                    created.SetLit(IsLit(drape.sourceId));
+                    layer.AddDrape(created);
                 }
                 order++;
             }
@@ -414,6 +408,44 @@ namespace Buried.Scene
             _shownIndex = (int)Math.Floor(depth + 0.5);
             if (_present != null) _present.SetStage(DepthBlend.Present(depth, _reducedMotion));
             foreach (EraLayer layer in _layers.Values) layer.SetWeight(DepthBlend.EraWeight(depth, layer.Index), _reducedMotion);
+        }
+
+        /// <summary>
+        /// scene/setDrapeMode: the lit display (the default) or the untouched scan, for one drape or all of
+        /// them. It is remembered, so a drape that loads later is shown the way it was last asked for.
+        /// </summary>
+        private void HandleSetDrapeMode(SceneSetDrapeModePayload payload)
+        {
+            bool lit = payload.mode == SceneSetDrapeModePayload.Lit;
+            if (payload.sourceId == null)
+            {
+                _allLit = lit;
+                _litBySource.Clear();
+            }
+            else
+            {
+                _litBySource[payload.sourceId] = lit;
+            }
+
+            foreach (EraLayer layer in _layers.Values)
+            {
+                foreach (DrapeLayer drape in layer.Drapes) drape.SetLit(IsLit(drape.SourceId));
+            }
+        }
+
+        private bool IsLit(string sourceId)
+        {
+            bool lit;
+            return _litBySource.TryGetValue(sourceId, out lit) ? lit : _allLit;
+        }
+
+        /// <summary>Puts the lit map sheet's one light pool at a ground point (Unity world x and z).</summary>
+        private void SetLightPool(float x, float z, float radiusM)
+        {
+            _poolX = x;
+            _poolZ = z;
+            _poolRadius = radiusM;
+            Shader.SetGlobalVector("_BuriedLightPool", new Vector4(x, z, radiusM, 0f));
         }
 
         private void HandleMarkers(DebugMarkersPayload payload)

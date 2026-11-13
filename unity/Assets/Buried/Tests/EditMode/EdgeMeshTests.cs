@@ -117,6 +117,90 @@ namespace Buried.Tests
             }
         }
 
+        // ---- Session 023, item 2: one line per recorded storey ----
+
+        private static float[] FloorHeights(MeshData edges, float heightM)
+        {
+            // A floor line is a segment that is neither at the roof (heightM) nor at the base (0) and is horizontal.
+            var heights = new SortedSet<float>();
+            for (int s = 0; s < EdgeMeshBuilder.SegmentCount(edges); s++)
+            {
+                int i = s * EdgeMeshBuilder.VerticesPerSegment;
+                float y0 = edges.vertices[i].y;
+                float y1 = edges.vertices[i + 2].y;
+                if (Mathf.Abs(y0 - y1) > 1e-4f) continue; // a vertical corner
+                if (y0 > 1e-4f && y0 < heightM - 1e-4f) heights.Add((float)Math.Round(y0, 3));
+            }
+            return heights.ToArray();
+        }
+
+        [Test]
+        public void ABuildingWithNoRecordedStoreysHasNoFloorLines()
+        {
+            PreparedPolygon l = LShape();
+            Assert.IsEmpty(FloorHeights(EdgeMeshBuilder.Build(l, 7f, 0), 7f), "no count, no lines: none is invented");
+            Assert.AreEqual(EdgeMeshBuilder.SegmentCount(EdgeMeshBuilder.Build(l, 7f)), EdgeMeshBuilder.SegmentCount(EdgeMeshBuilder.Build(l, 7f, 0)));
+            Assert.IsEmpty(FloorHeights(EdgeMeshBuilder.Build(l, 3.5f, 1), 3.5f), "one storey is the roof line alone");
+        }
+
+        [Test]
+        public void ABuildingOfThreeStoreysHasALineAtEachFloorBetweenTheBaseAndTheRoof()
+        {
+            PreparedPolygon l = LShape();
+            MeshData edges = EdgeMeshBuilder.Build(l, 10.5f, 3);
+            Assert.AreEqual(new[] { 3.5f, 7f }, FloorHeights(edges, 10.5f));
+            Assert.AreEqual(EdgeMeshBuilder.ExpectedSegments(l, 3), EdgeMeshBuilder.SegmentCount(edges));
+            Assert.AreEqual((3 + 2) * l.Outer.Count, EdgeMeshBuilder.SegmentCount(edges));
+        }
+
+        [Test]
+        public void FloorLinesRunAroundEveryRingIncludingHoles()
+        {
+            PreparedPolygon p = SquareWithHole();
+            MeshData edges = EdgeMeshBuilder.Build(p, 7f, 2);
+            Assert.AreEqual(new[] { 3.5f }, FloorHeights(edges, 7f));
+            Assert.AreEqual((3 + 1) * (4 + 4), EdgeMeshBuilder.SegmentCount(edges));
+        }
+
+        [Test]
+        public void FloorLinesSitOnTheWallsAndNeverMoveTheRoofLine()
+        {
+            PreparedPolygon l = LShape();
+            MeshData plain = EdgeMeshBuilder.Build(l, 7f, 0);
+            MeshData floors = EdgeMeshBuilder.Build(l, 7f, 2);
+            foreach (Vector3 v in plain.vertices) Assert.IsTrue(floors.vertices.Contains(v), "every roof, base and corner vertex is kept");
+            MeshData fill = Extruder.Extrude(l, 7f);
+            foreach (Vector3 v in floors.vertices)
+            {
+                // Each vertex is above a corner of the footprint: its x and z match one of the extruded mesh's corners.
+                Assert.IsTrue(fill.vertices.Any(f => Mathf.Abs(f.x - v.x) < 1e-3f && Mathf.Abs(f.z - v.z) < 1e-3f), "floor line vertex " + v + " is off the footprint");
+            }
+        }
+
+        [Test]
+        public void TheStoreyCountIsCappedAtTheSchemaMaximum()
+        {
+            Assert.AreEqual(99, EdgeMeshBuilder.FloorLines(100));
+            Assert.AreEqual(99, EdgeMeshBuilder.FloorLines(5000));
+            Assert.AreEqual(0, EdgeMeshBuilder.FloorLines(0));
+            Assert.AreEqual(0, EdgeMeshBuilder.FloorLines(-3));
+        }
+
+        // ---- Session 023: the roof line and the flat outline ----
+
+        [Test]
+        public void TheRoofLineIsTheTopRingAloneAndTheFlatOutlineIsOneRingAtOneHeight()
+        {
+            PreparedPolygon l = LShape();
+            MeshData roof = EdgeMeshBuilder.BuildRoof(l, 7f);
+            Assert.AreEqual(l.Outer.Count, EdgeMeshBuilder.SegmentCount(roof));
+            Assert.IsTrue(roof.vertices.All(v => Mathf.Abs(v.y - 7f) < 1e-4f));
+
+            MeshData flat = EdgeMeshBuilder.BuildFlat(SquareWithHole(), 0.1f);
+            Assert.AreEqual(8, EdgeMeshBuilder.SegmentCount(flat));
+            Assert.IsTrue(flat.vertices.All(v => Mathf.Abs(v.y - 0.1f) < 1e-5f));
+        }
+
         [Test]
         public void MeshesWithAndWithoutTangentsCannotBeMixed()
         {

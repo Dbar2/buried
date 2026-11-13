@@ -3,6 +3,6 @@
   "payload": {
     "code": "unknown_type",
     "message": "1=r  Y8:",
-    "messageType": "scene/loadEra"
+    "messageType": "ready"
   }
 }

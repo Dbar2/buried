@@ -41,6 +41,9 @@ namespace Buried.Interop
                 case BridgeMessageTypes.SceneLoadEra: return new ParsedMessage(type, ParseSceneLoadEra(payload));
                 case BridgeMessageTypes.SceneAddFeatures: return new ParsedMessage(type, ParseSceneAddFeatures(payload));
                 case BridgeMessageTypes.SceneSetDepth: return new ParsedMessage(type, ParseSceneSetDepth(payload));
+                case BridgeMessageTypes.SceneFocusLot: return new ParsedMessage(type, ParseSceneFocusLot(payload));
+                case BridgeMessageTypes.SceneClearLot: return new ParsedMessage(type, ParseSceneClearLot(payload));
+                case BridgeMessageTypes.SceneSetDrapeMode: return new ParsedMessage(type, ParseSceneSetDrapeMode(payload));
                 case BridgeMessageTypes.DebugMarkers: return new ParsedMessage(type, ParseDebugMarkers(payload));
                 case BridgeMessageTypes.DebugSetCamera: return new ParsedMessage(type, ParseDebugSetCamera(payload));
                 case BridgeMessageTypes.Ready: return new ParsedMessage(type, ParseReady(payload));
@@ -226,7 +229,7 @@ namespace Buried.Interop
         private static SceneFeatureDto ParseSceneFeature(JToken t, string p)
         {
             JObject o = JsonFields.Object(t, p);
-            JsonFields.Exactly(o, p, "id", "kind", "geometry", "confidence", "heightM");
+            JsonFields.ExactlyWithOptional(o, p, new[] { "id", "kind", "geometry", "confidence", "heightM" }, new[] { "storeys" });
             string kind = JsonFields.OneOf(o, "kind", p, SceneFeatureDto.KindBuilding, SceneFeatureDto.KindWater);
             return new SceneFeatureDto
             {
@@ -235,13 +238,14 @@ namespace Buried.Interop
                 geometry = ParseGeometry(o["geometry"], p + ".geometry", kind == SceneFeatureDto.KindBuilding),
                 confidence = JsonFields.OneOf(o, "confidence", p, "documented", "estimated", "unknown"),
                 heightM = JsonFields.NumberIn(o, "heightM", p, 0.0, 1000.0, true),
+                storeys = o["storeys"] == null ? 0 : JsonFields.IntegerIn(o, "storeys", p, 1, 100),
             };
         }
 
         private static DrapeDto ParseDrape(JToken t, string p)
         {
             JObject o = JsonFields.Object(t, p);
-            JsonFields.ExactlyWithOptional(o, p, new[] { "sourceId", "url", "corners", "widthPx", "heightPx" }, new[] { "clip" });
+            JsonFields.ExactlyWithOptional(o, p, new[] { "sourceId", "url", "corners", "widthPx", "heightPx" }, new[] { "clip", "kind" });
             GeometryDto clip = null;
             if (o["clip"] != null)
             {
@@ -256,6 +260,7 @@ namespace Buried.Interop
                 widthPx = JsonFields.IntegerIn(o, "widthPx", p, 1, 16384),
                 heightPx = JsonFields.IntegerIn(o, "heightPx", p, 1, 16384),
                 clip = clip,
+                kind = o["kind"] == null ? null : JsonFields.OneOf(o, "kind", p, DrapeDto.KindPlate, DrapeDto.KindAerial),
             };
         }
 
@@ -276,6 +281,30 @@ namespace Buried.Interop
             const string p = "payload";
             JsonFields.Exactly(o, p, "depth");
             return new SceneSetDepthPayload { depth = JsonFields.NumberIn(o, "depth", p, 0.0, 64.0) };
+        }
+
+        private static SceneFocusLotPayload ParseSceneFocusLot(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.Exactly(o, p, "lot");
+            return new SceneFocusLotPayload { lot = ParseGeometry(o["lot"], p + ".lot", true) };
+        }
+
+        private static SceneClearLotPayload ParseSceneClearLot(JObject o)
+        {
+            JsonFields.Exactly(o, "payload");
+            return new SceneClearLotPayload();
+        }
+
+        private static SceneSetDrapeModePayload ParseSceneSetDrapeMode(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.ExactlyWithOptional(o, p, new[] { "mode" }, new[] { "sourceId" });
+            return new SceneSetDrapeModePayload
+            {
+                mode = JsonFields.OneOf(o, "mode", p, SceneSetDrapeModePayload.Lit, SceneSetDrapeModePayload.Original),
+                sourceId = o["sourceId"] == null ? null : JsonFields.Matching(o, "sourceId", p, JsonFields.SourceIdPattern),
+            };
         }
 
         private static DebugMarkersPayload ParseDebugMarkers(JObject o)

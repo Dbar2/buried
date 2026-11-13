@@ -52,6 +52,12 @@ class MatchInputs:
     aerials: Mapping[str, AerialInfo]
     year_to: Mapping[str, int]  # per source id
     decisions: Decisions = field(default_factory=Decisions)
+    # Per plate: its smallest digitising term, max(1.0, 2 x pixel size). With `pairwise_error_m`
+    # it lets the absence test use the pairwise figure.
+    min_own_term_m: Mapping[str, float] = field(default_factory=dict)
+    # Pairwise alignment errors keyed by the two plates' source ids in sorted order (requirement
+    # 13.15). A pair of plates that is absent here is compared with their absolute errors.
+    pairwise_error_m: Mapping[tuple[str, str], float] = field(default_factory=dict)
 
 
 @dataclass
@@ -80,11 +86,16 @@ def _building(ref: FeatureRef, feature: Mapping[str, Any]) -> Building:
         source=ref.origin,
         geom=shape(feature["geometry"]),
         error_m=float(ref.props["position_error_m"]),
+        align_error_m=float(ref.props["provenance"]["alignment_error_m"]),
     )
 
 
 def _plate(
-    source: str, doc: Mapping[str, Any], buildings: list[Building], min_error: float
+    source: str,
+    doc: Mapping[str, Any],
+    buildings: list[Building],
+    min_error: float,
+    min_own_term: float | None = None,
 ) -> Plate:
     mapped = doc.get("mapped_area")
     reviewed = [
@@ -98,6 +109,7 @@ def _plate(
         reviewed_area=unary_union(reviewed) if reviewed else None,
         buildings=tuple(sorted(buildings, key=lambda b: b.id)),
         min_error_m=min_error,
+        min_own_term_m=min_own_term,
     )
 
 
@@ -128,6 +140,7 @@ def compute_match(inputs: MatchInputs) -> MatchResult:
             docs[p],
             [b for b in buildings.values() if b.source == p],
             inputs.min_error_m[p],
+            inputs.min_own_term_m.get(p),
         )
         for p in sorted(inputs.plate_sources)
     }
@@ -148,7 +161,14 @@ def compute_match(inputs: MatchInputs) -> MatchResult:
             if p.source == f.source:
                 continue
             excluded = {b for a, b in no_link if a == fid} | {a for a, b in no_link if b == fid}
-            outcomes[(fid, p.source)] = rules.plate_outcome(f, p, excluded)
+            outcomes[(fid, p.source)] = rules.plate_outcome(
+                f,
+                p,
+                excluded,
+                inputs.pairwise_error_m.get(
+                    (min(f.source, p.source), max(f.source, p.source))
+                ),
+            )
 
     source_of = {fid: b.source for fid, b in buildings.items()}
     pairs, demoted = rules.mutual_matches(outcomes, source_of)

@@ -3,6 +3,6 @@
   "payload": {
     "code": "bridge_version_mismatch",
     "message": "94]",
-    "messageType": "debug/markers"
+    "messageType": "scene/focusLot"
   }
 }

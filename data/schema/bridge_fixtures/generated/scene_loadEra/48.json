@@ -34,64 +34,35 @@
           ]
         },
         "confidence": "documented",
-        "heightM": 265.229
+        "heightM": 265.229,
+        "storeys": 45
       }
     ],
     "drapes": [
       {
-        "sourceId": "8n3k3_3i1lu1_42_81h",
-        "url": "/data/tiles/qu3k.jpg",
+        "sourceId": "n3k35_i1lu17",
+        "url": "/data/tiles/q81hjq.jpg",
         "corners": {
           "topLeft": [
+            668260.801,
+            2378258.147
+          ],
+          "topRight": [
+            313572.858,
+            4090283.298
+          ],
+          "bottomRight": [
             318579.441,
             7930770.981
           ],
-          "topRight": [
+          "bottomLeft": [
             429675.306,
             5874188.778
-          ],
-          "bottomRight": [
-            833166.618,
-            8954334.434
-          ],
-          "bottomLeft": [
-            678837.417,
-            2583489.711
           ]
         },
-        "widthPx": 8485,
-        "heightPx": 3324,
-        "clip": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [
-                622421.017,
-                348209.048
-              ],
-              [
-                249128.588,
-                9010132.859
-              ],
-              [
-                793791.917,
-                4760756.723
-              ],
-              [
-                343550.331,
-                7696787.732
-              ],
-              [
-                782136.886,
-                7688297.091
-              ],
-              [
-                622421.017,
-                348209.048
-              ]
-            ]
-          ]
-        }
+        "widthPx": 10139,
+        "heightPx": 14831,
+        "kind": "plate"
       }
     ]
   }

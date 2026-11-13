@@ -1,8 +1,14 @@
-// A source raster draped on the ground. Unlit, sampled as sRGB, no tint, no fog colour, no tone
-// mapping: only the opacity changes (design.md "Draped rasters"; requirement 20.5). The opacity is
-// the drape's opacity times its mask (which removes what is outside the plate's map area and fades
-// the drape into the ground at its boundary, requirements 8.8 and 8.9) times the distance fog's
-// transmission. The mask is sampled at the fragment's world (x, z).
+// A source raster draped on the ground. Unlit and sampled as sRGB. The opacity is the drape's
+// opacity times its mask (which removes what is outside the plate's map area and fades the drape
+// into the ground at its boundary, requirements 8.8 and 8.9) times the distance fog's transmission.
+// The mask is sampled at the fragment's world (x, z).
+//
+// Two displays (design.md "Draped rasters: the map sheet is lit"):
+//  * _Lit 0, "view original scan": the untouched raster, no tint, no tone curve, no light.
+//  * _Lit 1, the Explorer's default: a tone curve on the greyscale scan (lines stay dark, paper goes
+//    to `ink`; _Recolour 0 leaves an aerial's colours alone), multiplied by one soft light pool
+//    (_BuriedLightPool: centre x, z and radius) that falls off to _LightFloor. No sharpening, no
+//    other stylising.
 Shader "Buried/Drape"
 {
     Properties
@@ -12,6 +18,13 @@ Shader "Buried/Drape"
         _MaskRect ("Mask origin x, z and 1 / size x, z", Vector) = (0, 0, 1, 1)
         _Opacity ("Opacity", Range(0, 1)) = 1
         _UseCoverage ("Use the coverage channel (Show Evidence)", Range(0, 1)) = 0
+        _Lit ("Lit display (1) or the untouched scan (0)", Range(0, 1)) = 1
+        _Recolour ("Tone the scan toward paper (plates 1, aerials 0)", Range(0, 1)) = 1
+        _PaperColor ("Paper (ink)", Color) = (0.91, 0.87, 0.78, 1)
+        _LineColor ("Line work (night)", Color) = (0.05, 0.06, 0.07, 1)
+        _ToneLine ("Scan luminance that is line colour", Float) = 0.02
+        _TonePaper ("Scan luminance that is paper", Float) = 0.6
+        _LightFloor ("Light far from the pool", Range(0, 1)) = 0.38
     }
     SubShader
     {
@@ -40,6 +53,13 @@ Shader "Buried/Drape"
                 float4 _MaskRect;
                 half _Opacity;
                 half _UseCoverage;
+                half _Lit;
+                half _Recolour;
+                half4 _PaperColor;
+                half4 _LineColor;
+                float _ToneLine;
+                float _TonePaper;
+                half _LightFloor;
             CBUFFER_END
 
             struct Attributes
@@ -67,11 +87,26 @@ Shader "Buried/Drape"
             half4 frag(Varyings input) : SV_Target
             {
                 half4 c = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+                half3 rgb = c.rgb;
+                if (_Lit > 0.5)
+                {
+                    // The tone curve: the scan's luminance, smoothly, from line work to paper.
+                    half luminance = dot(c.rgb, half3(0.2126, 0.7152, 0.0722));
+                    half t = smoothstep(_ToneLine, _TonePaper, luminance);
+                    half3 toned = lerp(_LineColor.rgb, _PaperColor.rgb, t);
+                    rgb = lerp(rgb, toned, _Recolour);
+
+                    // One light pool, brightest at its centre, falling off to the floor.
+                    float2 fromPool = input.positionWS.xz - _BuriedLightPool.xy;
+                    float radius = max(_BuriedLightPool.z, 1.0);
+                    half pool = exp(-dot(fromPool, fromPool) / (radius * radius));
+                    rgb *= lerp(_LightFloor, 1.0, pool);
+                }
                 float2 maskUv = (input.positionWS.xz - _MaskRect.xy) * _MaskRect.zw;
                 half2 m = SAMPLE_TEXTURE2D(_MaskTex, sampler_MaskTex, maskUv).rg;
                 half mask = lerp(m.r, m.g, _UseCoverage);
                 half fog = lerp(saturate(BuriedTransmission(input.positionWS)), 1.0, _UseCoverage);
-                return half4(c.rgb, _Opacity * mask * fog);
+                return half4(rgb, _Opacity * mask * fog);
             }
             ENDHLSL
         }

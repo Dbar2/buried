@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://buried.invalid/schema/bridge.schema.json",
   "title": "Buried bridge messages",
-  "description": "Every message between the web shell and the Unity Player, bridge version 0.4.0 (the gate subset plus the look pass additions, the drape clip and scene/addFeatures of .kiro/specs/03-explorer). A message is { type, payload }. All positions are EPSG:26917 metres, easting first. No property is named like a year or a date: the Player draws what it is told and never dates anything. Rules JSON Schema cannot express are checked by both parsers (web/src/bridge/bridge.ts and unity/Assets/Buried/Runtime/Bridge/BridgeParser.cs) and covered by the same invalid fixtures: every polygon ring is closed (first position equals last); scene/init eras have unique ids and indexes that are exactly 0 to n-1; scene/init initialView has minE < maxE and minN < maxN and lies inside bounds; scene/init present building ids, scene/loadEra and scene/addFeatures feature ids, scene/loadEra drape source ids and debug/markers ids are each unique. Every change to this file changes the bridge version.",
+  "description": "Every message between the web shell and the Unity Player, bridge version 0.5.0 (the gate subset plus the look pass additions, the drape clip and scene/addFeatures of .kiro/specs/03-explorer; 0.5.0 adds scene/focusLot, scene/clearLot, scene/setDrapeMode, the optional sceneFeature.storeys and the optional drape.kind of session 023). A message is { type, payload }. All positions are EPSG:26917 metres, easting first. No property is named like a year or a date: the Player draws what it is told and never dates anything. Rules JSON Schema cannot express are checked by both parsers (web/src/bridge/bridge.ts and unity/Assets/Buried/Runtime/Bridge/BridgeParser.cs) and covered by the same invalid fixtures: every polygon ring is closed (first position equals last); scene/init eras have unique ids and indexes that are exactly 0 to n-1; scene/init initialView has minE < maxE and minN < maxN and lies inside bounds; scene/init present building ids, scene/loadEra and scene/addFeatures feature ids, scene/loadEra drape source ids and debug/markers ids are each unique. Every change to this file changes the bridge version.",
   "$ref": "#/$defs/bridgeMessage",
   "$defs": {
     "bridgeMessage": {
@@ -12,6 +12,9 @@
         { "$ref": "#/$defs/sceneLoadEraMessage" },
         { "$ref": "#/$defs/sceneAddFeaturesMessage" },
         { "$ref": "#/$defs/sceneSetDepthMessage" },
+        { "$ref": "#/$defs/sceneFocusLotMessage" },
+        { "$ref": "#/$defs/sceneClearLotMessage" },
+        { "$ref": "#/$defs/sceneSetDrapeModeMessage" },
         { "$ref": "#/$defs/debugMarkersMessage" },
         { "$ref": "#/$defs/debugSetCameraMessage" },
         { "$ref": "#/$defs/readyMessage" },
@@ -60,6 +63,36 @@
       "properties": {
         "type": { "const": "scene/setDepth" },
         "payload": { "$ref": "#/$defs/sceneSetDepthPayload" }
+      }
+    },
+    "sceneFocusLotMessage": {
+      "description": "Shell to Player (0.5.0). Pins a lot: outlined on the ground in `lantern` in every era with one small warm light beside it, the lit map sheet's light pool moves to it, and the camera flies to frame it (eased, 900 ms; a cut under reduced motion). A second scene/focusLot replaces the first.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "scene/focusLot" },
+        "payload": { "$ref": "#/$defs/sceneFocusLotPayload" }
+      }
+    },
+    "sceneClearLotMessage": {
+      "description": "Shell to Player (0.5.0). Unpins the lot and restores the default view (eased, or a cut under reduced motion). With no lot pinned it does nothing.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "scene/clearLot" },
+        "payload": { "$ref": "#/$defs/sceneClearLotPayload" }
+      }
+    },
+    "sceneSetDrapeModeMessage": {
+      "description": "Shell to Player (0.5.0). Switches drapes between the lit display (the default: toned toward `ink` paper under the light pool) and the untouched scan (\"view original scan\"). Affects the Explorer scene only.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "scene/setDrapeMode" },
+        "payload": { "$ref": "#/$defs/sceneSetDrapeModePayload" }
       }
     },
     "debugMarkersMessage": {
@@ -138,7 +171,7 @@
       "additionalProperties": false,
       "required": ["bridgeVersion", "origin", "bounds", "initialView", "eras", "present", "reducedMotion", "debug"],
       "properties": {
-        "bridgeVersion": { "const": "0.4.0" },
+        "bridgeVersion": { "const": "0.5.0" },
         "origin": { "$ref": "#/$defs/originPoint" },
         "bounds": { "$ref": "#/$defs/sceneBounds" },
         "initialView": {
@@ -193,6 +226,35 @@
         }
       }
     },
+    "sceneFocusLotPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lot"],
+      "properties": {
+        "lot": {
+          "description": "The lot polygon (or MultiPolygon) in EPSG:26917 metres, from the City property boundaries. Rings are closed (checked by both parsers).",
+          "$ref": "#/$defs/polygonalGeometry"
+        }
+      }
+    },
+    "sceneClearLotPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {}
+    },
+    "sceneSetDrapeModePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": {
+        "mode": { "enum": ["lit", "original"] },
+        "sourceId": {
+          "description": "Optional. The drape to switch. Absent: every drape in the scene.",
+          "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/sourceId"
+        }
+      }
+    },
     "debugMarkersPayload": {
       "type": "object",
       "additionalProperties": false,
@@ -217,7 +279,7 @@
       "additionalProperties": false,
       "required": ["bridgeVersion", "unityVersion"],
       "properties": {
-        "bridgeVersion": { "const": "0.4.0" },
+        "bridgeVersion": { "const": "0.5.0" },
         "unityVersion": { "type": "string", "minLength": 1, "maxLength": 64 }
       }
     },
@@ -348,7 +410,13 @@
         "kind": { "enum": ["building", "water"] },
         "geometry": { "$ref": "#/$defs/geometry" },
         "confidence": { "enum": ["documented", "estimated", "unknown"] },
-        "heightM": { "type": "number", "exclusiveMinimum": 0, "maximum": 1000 }
+        "heightM": { "type": "number", "exclusiveMinimum": 0, "maximum": 1000 },
+        "storeys": {
+          "description": "Optional (bridge 0.5.0). The recorded storey count of a building: the Player draws one line per storey. Absent: no count is recorded and no storey lines are drawn; heightM is the display height either way. Never invented.",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       },
       "allOf": [
         {
@@ -371,6 +439,10 @@
         "clip": {
           "description": "Optional (bridge 0.3.0). The plate's map area as a closed Polygon in EPSG:26917 metres, from the tile sidecar's map_area. The drape shows only inside it. Absent: the four corners bound the drape.",
           "$ref": "#/$defs/polygonGeometry"
+        },
+        "kind": {
+          "description": "Optional (bridge 0.5.0). plate: the lit display tones the greyscale scan toward `ink` paper. aerial: lit but not recoloured. Absent: plate.",
+          "enum": ["plate", "aerial"]
         }
       }
     },

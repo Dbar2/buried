@@ -30,34 +30,10 @@
           ]
         },
         "confidence": "documented",
-        "heightM": 300.809
+        "heightM": 300.809,
+        "storeys": 43
       }
     ],
-    "drapes": [
-      {
-        "sourceId": "7rnw_r_3n",
-        "url": "/data/tiles/7zg.jpg",
-        "corners": {
-          "topLeft": [
-            550886.778,
-            565341.21
-          ],
-          "topRight": [
-            371302.423,
-            6257160.318
-          ],
-          "bottomRight": [
-            445859.661,
-            2517045.305
-          ],
-          "bottomLeft": [
-            370742.305,
-            5927023.655
-          ]
-        },
-        "widthPx": 8310,
-        "heightPx": 3640
-      }
-    ]
+    "drapes": []
   }
 }

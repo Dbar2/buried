@@ -1,0 +1,7 @@
+{
+  "type": "scene/setDrapeMode",
+  "payload": {
+    "mode": "original",
+    "sourceId": "fe63_ghmw_t"
+  }
+}

@@ -13,10 +13,10 @@ import json
 from pathlib import Path
 
 from buried_pipeline.extract import params as params_module
-from buried_pipeline.extract.params import PARAMS_DIR, TUNING_SOURCES
+from buried_pipeline.extract.params import HELD_OUT_PATTERNS, PARAMS_DIR, TUNING_SOURCES
 
 HELD_OUT = "fip_v3_1935_232"
-FORBIDDEN_TEXT = ("fip_v3_1935_232", "1935_232", "1935-232")
+FORBIDDEN_TEXT = HELD_OUT_PATTERNS
 FIXTURES_DIR = Path(__file__).resolve().parent.parent / "fixtures" / "extract"
 
 
@@ -76,6 +76,15 @@ def guard_problems(
 
 def test_the_committed_parameter_sets_and_fixtures_pass_the_guard() -> None:
     assert guard_problems(PARAMS_DIR, FIXTURES_DIR) == []
+
+
+def test_the_held_out_patterns_are_defined_once() -> None:
+    assert HELD_OUT_PATTERNS == ("fip_v3_1935_232", "1935_232", "1935-232")
+    package = Path(params_module.__file__).parent.parent
+    for path in package.rglob("*.py"):
+        if path.name == "params.py":
+            continue
+        assert "HELD_OUT_PATTERNS =" not in path.read_text(encoding="utf-8"), path.name
 
 
 def test_tuning_sources_are_the_two_plate_229_editions() -> None:

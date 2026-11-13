@@ -1,0 +1,6 @@
+{
+  "type": "scene/focusLot",
+  "payload": {
+    "lot": { "type": "LineString", "coordinates": [[632440, 4834980], [632452, 4834980]] }
+  }
+}

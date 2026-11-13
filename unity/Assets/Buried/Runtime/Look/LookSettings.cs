@@ -114,5 +114,46 @@ namespace Buried.Look
 
         /// <summary>Alpha of the present buildings' outline once the depth has left Today (DepthBlend).</summary>
         public const float PresentFaintEdgeAlpha = 0.2f;
+
+        // ---- Confidence classes (design.md "Confidence encoding"; session 023) ----
+        // The three classes differ by pattern, so they stay apart in a greyscale screenshot:
+        // documented is a solid line and the fill above; estimated is a dashed line and a lighter
+        // fill; unknown has no line at all and a soft volume that thins toward the roof.
+
+        /// <summary>Estimated fill alpha: about half of the documented fill.</summary>
+        public const float EstimatedFillAlpha = 0.22f;
+
+        /// <summary>
+        /// A dash's share of its period, the shortest period in metres, and the shortest period on screen
+        /// in CSS pixels. The period is the larger of the two, so a dashed line still reads as dashes
+        /// from the default view and is not finer than the pixel grid.
+        /// </summary>
+        public const float DashOnFraction = 0.55f;
+        public const float DashPeriodM = 2.5f;
+        public const float DashPeriodCssPx = 11f;
+
+        /// <summary>Unknown: fill alpha at the foot of the volume, and how much of it is left at the roof.</summary>
+        public const float UnknownFillAlpha = 0.34f;
+        public const float UnknownRoofShare = 0.25f;
+
+        /// <summary>The height over which an unknown volume thins from its foot to its roof, in metres.</summary>
+        public const float UnknownFadeHeightM = 9f;
+
+        // ---- The lit map sheet (design.md "Draped rasters: the map sheet is lit"; session 023) ----
+        // A draped plate reads as warm paper lit from above by one lantern: the greyscale scan is
+        // toned toward `ink` (paper) with its line work kept dark (`night`), brightest under one
+        // soft light pool and falling off to the floor, then into the fog. The floor keeps the line
+        // work at 4.5 : 1 or better against the paper even far from the light (a test checks it).
+
+        /// <summary>The scan's luminance (linear) at and below which a pixel is line colour, and at and above which it is paper.</summary>
+        public const float ToneLineLuminance = 0.02f;
+        public const float TonePaperLuminance = 0.60f;
+
+        /// <summary>The light a point far from the pool still gets, as a share of full light.</summary>
+        public const float LightFloor = 0.38f;
+
+        /// <summary>Radius (m) at which the pool has fallen to 1 / e: with no lot pinned, and around a pinned lot.</summary>
+        public const float LightPoolRadiusM = 260f;
+        public const float LightPoolRadiusPinnedM = 150f;
     }
 }

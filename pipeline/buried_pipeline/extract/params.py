@@ -5,8 +5,9 @@ are in metres so the same set applies to any plate whatever its pixel size; grey
 on the normalised 0 to 1 scale after local-contrast normalisation. There are no plate-specific
 values.
 
-`TUNING_SOURCES` is defined here and nowhere else. A parameter set may only claim to have been
-tuned on those plates (`tuned_on` is checked on load, and again by the held-out guard test).
+`TUNING_SOURCES` and `HELD_OUT_PATTERNS` are defined here and nowhere else. A parameter set may only
+claim to have been tuned on those plates (`tuned_on` is checked on load, and again by the held-out
+guard test).
 """
 
 from __future__ import annotations
@@ -20,6 +21,9 @@ from typing import Any
 from buried_pipeline.errors import PipelineError
 
 TUNING_SOURCES = ("fip_v3_1911_229", "fip_v3_1935_229")
+# Text that names the held-out plate (fip_v3_1935_232). Defined once, here: the pytest guard
+# (tests/extract/test_held_out.py) and the write hook (hooks/held_out_write.py) both read it.
+HELD_OUT_PATTERNS = ("fip_v3_1935_232", "1935_232", "1935-232")
 PARAMS_DIR = Path(__file__).parent / "params"
 DEFAULT_PARAMS_ID = "v1"
 

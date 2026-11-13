@@ -492,13 +492,13 @@ task 16), 7, 8, 16, 11, 9.
     Files: `pipeline/tests/extract/test_held_out.py`, `pipeline/tests/extract/test_fixtures.py`.
     Requirements: 9.3, 17.2.
 
-- [ ] 17. Held-out write guard for the Kiro hook (session 012; needs task 7.1)
-  - [ ] 17.1 Move the held-out text patterns (`fip_v3_1935_232`, `1935_232`, `1935-232`) into one
+- [x] 17. Held-out write guard for the Kiro hook (session 012; needs task 7.1)
+  - [x] 17.1 Move the held-out text patterns (`fip_v3_1935_232`, `1935_232`, `1935-232`) into one
     constant, `HELD_OUT_PATTERNS`, in `extract/params.py` next to `TUNING_SOURCES`, and make
     `tests/extract/test_held_out.py` read them from there. No behaviour change.
     Files: `pipeline/buried_pipeline/extract/params.py`, `pipeline/tests/extract/test_held_out.py`.
     Requirements: 9.2, 9.3.
-  - [ ] 17.2 Implement `pipeline/buried_pipeline/hooks/held_out_write.py`, run by the `PreToolUse`
+  - [x] 17.2 Implement `pipeline/buried_pipeline/hooks/held_out_write.py`, run by the `PreToolUse`
     hook in `.kiro/hooks/held-out.json` as
     `uv --directory pipeline run python -m buried_pipeline.hooks.held_out_write`. It reads the hook
     event as JSON on standard input and:
@@ -508,7 +508,8 @@ task 16), 7, 8, 16, 11, 9.
     - resolves the path against the repository root (the nearest parent directory that holds
       `.kiro/`), not against its own working directory, which is `pipeline/`;
     - if the path is under `pipeline/buried_pipeline/extract/params/` or
-      `pipeline/tests/fixtures/extract/`, and the path or any of the text matches one of
+      `pipeline/tests/fixtures/extract/` (session 025: or `data/control/map_area/`, matching
+      the pytest guard in `test_maparea_held_out.py`), and the path or any of the text matches one of
       `HELD_OUT_PATTERNS` (case-insensitive), writes to standard error
       "Blocked: <path> is an extraction tuning file and this write mentions the held-out plate
       fip_v3_1935_232. Plate 232 (1935) is never used to tune extraction (product.md, evidence.md)."
@@ -526,3 +527,36 @@ task 16), 7, 8, 16, 11, 9.
     `pipeline/buried_pipeline/hooks/held_out_write.py`, `pipeline/tests/hooks/test_held_out_write.py`,
     `.kiro/steering/tech.md`.
     Requirements: 9.2, 9.3.
+
+- [ ] 18. Pairwise alignment error for `match` (session 025)
+  - [x] 18.1 `align/pairwise.py` (pure rule and loader), the use in `match/rules.py`, `compute.py` and
+    `run.py` (`own_term_m`, `pair_error`, `absence_error`; `data/work/match/pairwise.json`),
+    requirement 13.15 and design "Pairwise error". Properties: the figure is symmetric, order
+    independent, never defined with fewer than four shared references, conservative and rounded up;
+    `pairwise_figures` refuses a stale control file.
+    Files: `pipeline/buried_pipeline/align/pairwise.py`, `pipeline/buried_pipeline/match/*.py`,
+    `pipeline/buried_pipeline/paths.py`, `pipeline/tests/align/test_pairwise.py`,
+    `pipeline/tests/match/test_pairwise_use.py`.
+    Requirements: 13.2, 13.4, 13.15.
+  - [ ] 18.2 Property: matching with a larger error never produces more matches or absences than
+    with a smaller one. **Not done.** It is false for the rules of 13.2 and 13.4 as written:
+    `r` is measured on the core shrunk by `e`, so a larger `e` can turn a partial overlap into a
+    match, and a larger `e_abs` shrinks F's core until a building overlapping F's edge no longer
+    touches it, which turns a review into a clear absence. The test is in
+    `tests/match/test_pairwise_use.py` as a strict `xfail` with the counterexample. It needs a
+    decision on the rule (for example, absence also requires that no building touches F itself, or
+    that `e` only widens the search), not a change to the test.
+    Requirements: 13.2, 13.4.
+
+- [ ] 19. The `buried-evidence` MCP server (session 025)
+  - [x] 19.1 `pipeline/buried_pipeline/mcp/` (`store.py` reads the committed files and
+    `data/work/`; `server.py` is the stdio JSON-RPC server; `python -m buried_pipeline.mcp`).
+    Read-only tools `find_places`, `features_near`, `list_sources`, `plate_alignment`,
+    `plate_work`. It derives no date window, "on this lot" or confidence wording. Tests on small
+    fixtures, and one that starts the server and lists its tools. Command and the
+    "Nothing else is a server" sentence updated in `tech.md`.
+    Files: `pipeline/buried_pipeline/mcp/*.py`, `pipeline/tests/mcp/*.py`,
+    `.kiro/steering/tech.md`.
+  - [ ] 19.2 Register the server in `.kiro/settings/mcp.json`. **Not done:** the builder's write
+    to that path was refused by a permission rule. The JSON to paste is in `tech.md` under
+    "Evidence MCP server".

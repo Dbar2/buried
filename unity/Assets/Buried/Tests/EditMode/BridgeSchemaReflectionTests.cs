@@ -19,6 +19,13 @@ namespace Buried.Tests
         private JObject _defs;
         private Dictionary<string, Type> _dtoByDef;
 
+        private static readonly Dictionary<string, string[]> OptionalProperties = new Dictionary<string, string[]>
+        {
+            { "drape", new[] { "clip", "kind" } },
+            { "sceneFeature", new[] { "storeys" } },
+            { "sceneSetDrapeModePayload", new[] { "sourceId" } },
+        };
+
         [SetUp]
         public void Load()
         {
@@ -71,8 +78,8 @@ namespace Buried.Tests
 
                 Assert.AreEqual(schemaNames, fieldNames, pair.Value.Name + ": field names differ from the schema properties");
                 // A DTO field cannot say "optional", so the schema's optional properties are listed here:
-                // each is a reference type that is null when the property is absent.
-                string[] optional = pair.Key == "drape" ? new[] { "clip" } : new string[0];
+                // each is null (or 0 for storeys, whose schema minimum is 1) when the property is absent.
+                string[] optional = OptionalProperties.ContainsKey(pair.Key) ? OptionalProperties[pair.Key] : new string[0];
                 string[] expectedRequired = schemaNames.Where(n => !optional.Contains(n)).ToArray();
                 Assert.AreEqual(expectedRequired, required, pair.Key + ": every property but the listed optional ones must be required");
 
