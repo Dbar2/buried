@@ -547,3 +547,16 @@ task 16), 7, 8, 16, 11, 9.
     decision on the rule (for example, absence also requires that no building touches F itself, or
     that `e` only widens the search), not a change to the test.
     Requirements: 13.2, 13.4.
+
+- [ ] 19. The `buried-evidence` MCP server (session 025)
+  - [x] 19.1 `pipeline/buried_pipeline/mcp/` (`store.py` reads the committed files and
+    `data/work/`; `server.py` is the stdio JSON-RPC server; `python -m buried_pipeline.mcp`).
+    Read-only tools `find_places`, `features_near`, `list_sources`, `plate_alignment`,
+    `plate_work`. It derives no date window, "on this lot" or confidence wording. Tests on small
+    fixtures, and one that starts the server and lists its tools. Command and the
+    "Nothing else is a server" sentence updated in `tech.md`.
+    Files: `pipeline/buried_pipeline/mcp/*.py`, `pipeline/tests/mcp/*.py`,
+    `.kiro/steering/tech.md`.
+  - [ ] 19.2 Register the server in `.kiro/settings/mcp.json`. **Not done:** the builder's write
+    to that path was refused by a permission rule. The JSON to paste is in `tech.md` under
+    "Evidence MCP server".

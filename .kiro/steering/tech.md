@@ -38,7 +38,10 @@ the contract between the pipeline, the shell and Unity, whatever comes later.
   swappable. The Explorer, the Report and the Sources page work with the service down.
 - **API server** (spec 04): one, the Studio service. It is stateless and exposes the pipeline's own
   pure functions (inspect, align, extract, match, publish with validation) plus label assist. It
-  never computes dates, lot relations or confidence wording. Nothing else is a server.
+  never computes dates, lot relations or confidence wording. The only other server is the
+  `buried-evidence` MCP server (session 025): a local, read-only stdio process that Kiro starts,
+  not a network service. It serves facts from the committed files and computes no dates, lot
+  relations or confidence wording either.
 - **Runtime AI provider** (spec 04): Amazon Bedrock, behind a label provider interface in the
   service, for label assist only (product rule 9). The model id comes from
   `BURIED_LABEL_MODEL_ID` and must be a vision-capable Anthropic Claude model enabled in the
@@ -207,6 +210,16 @@ invent commands; when one is added, record it here.
     with a message when a write under `pipeline/buried_pipeline/extract/params/`,
     `pipeline/tests/fixtures/extract/` or `data/control/map_area/` names plate 232 (1935), else 0.
     The patterns are `HELD_OUT_PATTERNS` in `extract/params.py`.
+  - Evidence MCP server (session 025), read-only, stdio: `uv --directory pipeline run python -m
+    buried_pipeline.mcp` (from the repository root; `BURIED_REPO_ROOT` overrides the root, default
+    the nearest ancestor with `.kiro/`). Tools: `find_places`, `features_near`, `list_sources`,
+    `plate_alignment`, `plate_work`. It reads `data/` and `data/work/` and writes nothing. It is
+    hand-written JSON-RPC over lines on stdin and stdout, so the pipeline gains no dependency.
+    Tests: `uv run pytest tests/mcp`. Register it for Kiro in `.kiro/settings/mcp.json` (the
+    builder's write there was refused by a permission rule in session 025; the maintainer adds it):
+    `{"mcpServers": {"buried-evidence": {"command": "uv", "args": ["--directory", "pipeline",
+    "run", "python", "-m", "buried_pipeline.mcp"], "autoApprove": ["find_places",
+    "features_near", "list_sources", "plate_alignment", "plate_work"]}}}`.
 - Unity (spec 03), run from the repository root with `tools/unity.sh` (headless Unity 6000.3.26f1;
   set `UNITY_BIN` to override the editor path; logs in `unity/Logs/`):
   - `tools/unity.sh exec Buried.Editor.Setup.Run`: creates the palette asset, URP assets, player
