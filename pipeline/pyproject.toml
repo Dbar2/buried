@@ -19,11 +19,20 @@ dependencies = [
 [project.scripts]
 buried = "buried_pipeline.cli:main"
 
+[project.optional-dependencies]
+# The Studio service (spec 04). Install with `uv sync --extra service`.
+service = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+]
+
 [dependency-groups]
 dev = [
     "pytest>=8.0",
     "hypothesis>=6.100",
     "ruff>=0.6",
+    "pathspec>=0.12",
+    "fastapi>=0.115",
 ]
 
 [build-system]

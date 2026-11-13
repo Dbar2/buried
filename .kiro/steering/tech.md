@@ -192,10 +192,27 @@ invent commands; when one is added, record it here.
   - `tools/unity.sh build`: WebGL build into `web/public/unity/` (gitignored).
   - Equivalent raw commands: `Unity -batchmode -quit -projectPath unity -executeMethod Buried.Editor.Build.WebGL`
     and `Unity -batchmode -projectPath unity -runTests -testPlatform EditMode -testResults unity/Logs/editmode-results.xml`.
-- Studio service (spec 04), run from `pipeline/`: dev server, service tests, Docker build and
-  deploy steps are added by spec 04 tasks 3 and 15.2 (spec 04 requirement 22.4). Studio end-to-end tests
-  (`npm run test:e2e:studio`) by spec 04 task 16.2. Report print tests
-  (`npm run test:e2e:report`) by spec 05 task 7.3.
+- Studio service (spec 04), run from `pipeline/`:
+  - Install the server: `uv sync --extra service` (adds `uvicorn`; `fastapi` is also in the dev
+    group, so `uv run pytest tests/service` needs no extra). A plain `uv sync` removes `uvicorn`
+    again.
+  - Dev server: `uv run uvicorn buried_pipeline.service.app:create_app --factory --reload`
+    (add `--port N`; reads the environment: `BURIED_REPO_ROOT` (default: nearest ancestor with
+    `.kiro/`), `BURIED_ALLOWED_ORIGINS` (comma-separated, for CORS), `BURIED_TEST_MODE=1`).
+    Endpoints that exist: `GET /v1/health`, `GET /v1/plates/registered`, `POST /v1/extract`,
+    `POST /v1/publish`. Plate rasters are read from `data/raw/<id>/` on the machine the Service
+    runs on; the image has none, so extract and publish need the plate fetch (spec 04 task 4).
+    The Service writes nothing under `data/`.
+  - Tests: `uv run pytest tests/service`. Docker image (spec 04 task 3.4), from the repository
+    root: `docker build -f pipeline/Dockerfile .`. Its context is set by
+    `pipeline/Dockerfile.dockerignore` (BuildKit reads it next to the Dockerfile; a
+    `pipeline/.dockerignore` would not be read for a root context). The image build and deploy
+    steps are not yet run or recorded (spec 04 task 15.2).
+  - The Service API Schema is `data/schema/studio_api.schema.json`; its fixtures are in
+    `data/schema/studio_api_fixtures/`. TypeScript types: `npx tsx scripts/genStudioApiTypes.ts`
+    from `web/`, which writes `web/src/studio/service/types.generated.ts` (no `npm run` alias yet).
+  - Studio end-to-end tests (`npm run test:e2e:studio`) by spec 04 task 16.2. Report print tests
+    (`npm run test:e2e:report`) by spec 05 task 7.3.
 
 ## Model use in Kiro
 

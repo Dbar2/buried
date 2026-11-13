@@ -21,7 +21,7 @@ Run order: 1, 2, 3, 4, 5, 6, 7, 8 (Service), then 9 to 16 (Studio) with 19 to 22
 steps they extend, then 17 and 18.
 
 - [ ] 1. The Service API Schema and the data version
-  - [ ] 1.1 Write `data/schema/studio_api.schema.json` (draft 2020-12): request and response bodies
+  - [x] 1.1 Write `data/schema/studio_api.schema.json` (draft 2020-12): request and response bodies
     for every endpoint in design.md "Endpoints", the proposal file (from spec 02 design "Proposal
     file"), `decisionsV2`, `labelRead`, the workspace state, the error body, and `api_version`
     `1.0.0`; `$ref` to `evidence.schema.json` for `source`, `controlPoints`, `alignmentRecord`,
@@ -66,7 +66,7 @@ steps they extend, then 17 and 18.
   - [ ] 2.4 **[PBT] S11** Mapped areas stay inside the bounds.
     Files: `pipeline/tests/publish/test_publish_v2_properties.py`.
     Requirements: 23.4.
-  - [ ] 2.5 Implement `extract/region.py`: region crop at the working pixel size and border drop,
+  - [x] 2.5 Implement `extract/region.py`: region crop at the working pixel size and border drop,
     inside the map area (spec 02 task 14.1's reader). No neatline detection and no
     `neatline_pixel_size_m` (session 007: the map area is set by a person). The held-out guard
     (spec 02 task 7.2) must still pass.
@@ -88,22 +88,22 @@ steps they extend, then 17 and 18.
     `pipeline/buried_pipeline/service/contract.py`, `pipeline/buried_pipeline/service/snapshot.py`,
     `pipeline/.env.example`, `pipeline/tests/service/test_app.py`.
     Requirements: 1.1, 1.4, 2.2, 2.5, 2.6, 3.4, 3.5, 3.9.
-  - [ ] 3.2 Implement `limits.py` (per-address hourly limits, the extraction concurrency limit and the
+  - [x] 3.2 Implement `limits.py` (per-address hourly limits, the extraction concurrency limit and the
     daily label cap) with 429 and a retry time. Tests with an injected clock.
     Files: `pipeline/buried_pipeline/service/limits.py`, `pipeline/tests/service/test_limits.py`.
     Requirements: 1.4, 3.6.
-  - [ ] 3.3 Add a logging filter and a test that request bodies, uploaded bytes, crops, label text
+  - [x] 3.3 Add a logging filter and a test that request bodies, uploaded bytes, crops, label text
     and credential values never reach the log output.
     Files: `pipeline/buried_pipeline/service/app.py`, `pipeline/tests/service/test_logging.py`.
     Requirements: 3.8.
-  - [ ] 3.4 Write `pipeline/Dockerfile` (Python 3.12 slim, `uv sync --extra service --frozen`,
+  - [x] 3.4 Write `pipeline/Dockerfile` (Python 3.12 slim, `uv sync --extra service --frozen`,
     uvicorn) and `pipeline/.dockerignore` with the include list in design.md "Hosting". Write the
     held-out guard over the build context, and the test that the extract endpoint has no stored-result
     path (spy on spec 02's extraction entry point, two calls, two runs).
     Files: `pipeline/Dockerfile`, `pipeline/.dockerignore`,
     `pipeline/tests/service/test_held_out_service.py`.
     Requirements: 1.5, 17.1 to 17.3, 19.1.
-  - [ ] 3.5 Record in `.kiro/steering/tech.md`: `uv sync --extra service`,
+  - [x] 3.5 Record in `.kiro/steering/tech.md`: `uv sync --extra service`,
     `uv run uvicorn buried_pipeline.service.app:create_app --factory --reload` (dev server, from
     `pipeline/`), and `docker build -f pipeline/Dockerfile .` (from the repository root).
     Files: `.kiro/steering/tech.md`.
@@ -151,7 +151,7 @@ steps they extend, then 17 and 18.
     Requirements: 7.4, 7.7.
 
 - [ ] 6. Extract endpoint
-  - [ ] 6.1 Implement `POST /v1/extract`: refuse without an alignment record (request or canon),
+  - [x] 6.1 Implement `POST /v1/extract`: refuse without an alignment record (request or canon),
     check the region size (300 m a side), run `extract/region.py` with the committed parameter set,
     drop proposals outside the project bounds, return the proposal file text and dropped counts.
     Files: `pipeline/buried_pipeline/service/app.py`, `pipeline/buried_pipeline/service/extract.py`,

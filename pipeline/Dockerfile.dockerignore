@@ -1,0 +1,26 @@
+# Build context rules for `docker build -f pipeline/Dockerfile .` (context: the repository root).
+# BuildKit reads <Dockerfile name>.dockerignore next to the Dockerfile; a pipeline/.dockerignore
+# would not be read for a root context. Spec 04 design "Hosting" names the include list.
+#
+# Everything is excluded, then the include list is let back in. The Service image holds no raw
+# archival download, no work file, no proposal, no tile image and no test: it can hold no
+# precomputed result for any plate, the held-out plate included (spec 04 requirements 17.1 to 17.3).
+**
+
+!pipeline/pyproject.toml
+!pipeline/uv.lock
+!pipeline/buried_pipeline/**
+
+!data/project.json
+!data/sources.json
+!data/schema/evidence.schema.json
+!data/schema/studio_api.schema.json
+!data/evidence/*.geojson
+!data/present/*.geojson
+!data/control/*.json
+!data/control/map_area/*.json
+!data/alignment/*.json
+!data/tiles/*.json
+
+**/__pycache__
+**/*.pyc
