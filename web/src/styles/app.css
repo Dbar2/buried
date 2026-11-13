@@ -47,32 +47,6 @@ code,
   color: var(--muted);
 }
 
-.sources {
-  margin: 0 auto;
-  max-width: 60rem;
-  padding: var(--space-4);
-}
-
-.sources article {
-  border-top: 1px solid var(--present);
-  padding: var(--space-3) 0;
-}
-
-.sources dl {
-  display: grid;
-  gap: var(--space-1) var(--space-3);
-  grid-template-columns: max-content 1fr;
-  margin: var(--space-2) 0 0;
-}
-
-.sources dt {
-  color: var(--muted);
-}
-
-.sources dd {
-  margin: 0;
-}
-
 .visually-hidden {
   border: 0;
   clip: rect(0 0 0 0);

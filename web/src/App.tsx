@@ -59,7 +59,7 @@ export function App() {
       return (
         <div className="page">
           <Header current="sources" />
-          <div className="page-scroll">
+          <div className="page-scroll report-scroll">
             <Suspense fallback={<Loading text="Loading the Sources page." />}>
               <SourcesPage />
             </Suspense>
