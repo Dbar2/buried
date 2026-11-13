@@ -85,3 +85,9 @@ class Paths:
 
     def alignment_record(self, source_id: str) -> Path:
         return self.alignment_dir / f"{source_id}.json"
+
+    def proposals_file(self, source_id: str) -> Path:
+        return self.work / "proposals" / f"{source_id}.geojson"
+
+    def extract_preview(self, source_id: str) -> Path:
+        return self.work / "extract" / f"{source_id}_preview.jpg"

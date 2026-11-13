@@ -213,13 +213,13 @@ task 16), 7, 8, 16, 11, 9.
     their tone class, with no extras.
     Files: `pipeline/tests/extract/test_extract_properties.py`.
     Requirements: 8.1.
-  - [ ] 7.8 Implement `buried extract <SOURCE_ID>`: refuse without an alignment record or a map
+  - [x] 7.8 Implement `buried extract <SOURCE_ID>`: refuse without an alignment record or a map
     area file (task 14.1), work inside the map area, write the proposal file with sorted output and
     the map area header (`map_area_sha256`, `map_area_px`, `map_area_geometry`).
     Files: `pipeline/buried_pipeline/extract/run.py`, `pipeline/buried_pipeline/cli.py`,
     `pipeline/tests/extract/test_run.py`.
     Requirements: 8.2, 8.3, 8.5, 8.7, 9.4, 16.3.
-  - [ ] 7.9 **[PBT] X2** Determinism: two runs give byte-identical files.
+  - [x] 7.9 **[PBT] X2** Determinism: two runs give byte-identical files.
     Files: `pipeline/tests/extract/test_extract_properties.py`.
     Requirements: 8.3.
   - [ ] 7.10 Tune on the tuning plates only. The maintainer cuts crops (at most 1024×1024 px) from

@@ -702,3 +702,27 @@ files that validate against it.
 20.3 THE decisions file v2 SHALL carry label reads and attribute reads with their crops, and publish
 SHALL write them as `provenance.attribute_reads` (spec 01 requirement 25). A decision that sets
 `material` without a read SHALL be refused.
+
+## Requirement 21: Extraction preview
+
+**User story:** As the maintainer, I want one image of an extraction that shows every proposal on the
+plate, so that I can judge a run at a glance without opening the proposal file. It is a debugging
+aid.
+
+### Acceptance criteria
+
+21.1 WHEN `buried extract <SOURCE_ID> --preview` runs, THE Pipeline SHALL also write
+`data/work/extract/<source id>_preview.jpg`: the grey band of the map area's bounding box,
+area-averaged so the long edge is at most 4096 pixels, with the map area boundary and the pixel
+polygon of every proposal drawn on it.
+
+21.2 EACH proposal outline SHALL be coloured by quality band of its score: high (at least 0.9),
+medium (at least 0.6) or low (below 0.6). The bands and colours are for the reader of the preview;
+they are not confidence classes and are never shown in the Explorer, the Studio or the Report.
+
+21.3 THE preview SHALL NOT change the proposal file, and a run without `--preview` SHALL NOT write
+one. The preview is not evidence and is never published or copied to `data/tiles/`.
+
+21.4 THE summary printed by `buried extract` SHALL give the number of proposals, the quartiles of
+their scores, the count per quality band, per tone class and per weakness flag, the number of
+regions dropped by each filter, and the run time.

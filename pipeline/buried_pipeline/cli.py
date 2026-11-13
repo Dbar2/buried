@@ -15,7 +15,7 @@ from buried_pipeline.io.registry import load_registry
 from buried_pipeline.paths import Paths, find_repo_root
 from buried_pipeline.timeutil import utc_now
 
-NOT_IMPLEMENTED = ("extract", "publish", "match")
+NOT_IMPLEMENTED = ("publish", "match")
 HttpFactory = Callable[[], HttpClient]
 
 
@@ -79,6 +79,16 @@ def build_parser() -> argparse.ArgumentParser:
         "tile", parents=[parent], help="write each plate as a light JPEG with exact corners"
     )
     tile.add_argument("source_ids", nargs="*", metavar="SOURCE_ID")
+
+    extract = sub.add_parser(
+        "extract", parents=[parent], help="propose building footprints from a plate"
+    )
+    extract.add_argument("source_id", metavar="SOURCE_ID")
+    extract.add_argument(
+        "--preview",
+        action="store_true",
+        help="also write a JPEG of the map area with every proposal outlined, by quality band",
+    )
 
     validate = sub.add_parser(
         "validate",
@@ -163,6 +173,12 @@ def _dispatch(
         from buried_pipeline.tile.run import run_tile
 
         run_tile(paths, registry, list(args.source_ids))
+        return 0
+
+    if command == "extract":
+        from buried_pipeline.extract.run import run_extract
+
+        run_extract(paths, registry, args.source_id, preview=args.preview)
         return 0
 
     if command == "control-crops":

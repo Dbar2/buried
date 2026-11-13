@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 from shapely.geometry import Polygon
 
-from buried_pipeline.extract.document import build_collection
+from buried_pipeline.extract.document import build_collection, dumps
 from buried_pipeline.extract.maparea import MapArea
 from buried_pipeline.extract.propose import Candidate, find_candidates
 from buried_pipeline.extract.score import COMPONENT_NAMES, make_quality
@@ -249,3 +251,35 @@ def test_x4_every_proposal_score_is_the_minimum_of_its_components(img: np.ndarra
         parts = [getattr(cand.quality, name) for name in COMPONENT_NAMES]
         assert all(0.0 <= p <= 1.0 for p in parts)
         assert cand.quality.score == min(parts)
+
+
+# --- X2 -----------------------------------------------------------------------------------------
+
+
+@SLOW
+@given(messy_plates())
+def test_x2_two_runs_give_byte_identical_output(img: np.ndarray) -> None:
+    height, width = img.shape
+    area = whole(width, height)
+
+    def once() -> str:
+        candidates, _ = find_candidates(img.copy(), (0, 0), area, [], PIXEL_SIZE_M, PARAMS)
+        doc, _ = build_collection(
+            "fip_v3_1911_229", PARAMS, "d" * 64, map_area(area), candidates, identity
+        )
+        return dumps(doc)
+
+    first = once()
+    assert once() == first
+
+
+def test_x2_two_extract_runs_write_byte_identical_files(tmp_path: Path) -> None:
+    from tests.extract.test_run import SOURCE, build, extract
+
+    paths = build(tmp_path)
+    extract(paths)
+    first = paths.proposals_file(SOURCE).read_bytes()
+    paths.proposals_file(SOURCE).unlink()
+    extract(paths)
+    assert paths.proposals_file(SOURCE).read_bytes() == first
+    assert len(first) > 1000
