@@ -172,7 +172,15 @@ invent commands; when one is added, record it here.
     `uv run buried control-crops <SOURCE_ID>`.
   - Check every contract file under `data/` against the Schema and the cross-file rules:
     `uv run buried validate [PATH ...]` (exit 1 on any error; with paths, reports only those
-    files but judges them against the whole `data/` tree).
+    files but judges them against the whole `data/` tree). It also checks
+    `data/plate_manifest.json` (shape, then one entry per registered plate, URL, file paths, one
+    raster, sorted; `validate/plate_manifest.py`).
+  - Write the committed plate manifest, `data/plate_manifest.json`, from `data/raw/manifest.json`:
+    `uv run buried manifest` (session 030). It holds, for each registered plate, the URL, file
+    names, sizes and SHA-256 and no raster, the held-out plate included (a hash is not a result).
+    It checks that the files in `data/raw/` still match their recorded hashes, refuses otherwise,
+    and gives the same bytes when run twice. It is not part of the Studio data version. Run it
+    again after `buried fetch` fetches a plate for the first time.
   - Write each plate's map-area tile as a JPEG (long edge at most 4096 px) plus a sidecar with
     exact EPSG:26917 corners, `crop_px` and `map_area`, and its whole photograph as
     `<id>_full.jpg` (long edge at most 2048 px, for the Sources page), into `data/tiles/`:
@@ -190,11 +198,15 @@ invent commands; when one is added, record it here.
   - Write accepted proposals as evidence: `uv run buried publish <SOURCE_ID> [--decisions PATH]`.
     Reads `data/work/proposals/<id>.geojson`, the decisions file (default
     `data/work/review/<id>.json`, spec 02 design "Decisions file"; the Studio's v2 file is read
-    for accept and reject only) and the alignment record, then writes
+    for accept, reject and `trace` with `kind: land_use` (session 030); merge, split and other
+    traces are refused by name) and the alignment record, then writes
     `data/evidence/<id>.geojson` atomically, only if the would-be `data/` state passes the
     Validator. Refuses: unregistered or unconfirmed source, a stale alignment record, no reviewed
     area, an undecided proposal inside a reviewed area, `material` without a read, `documented`
-    without storeys. Prints counts. Running it twice gives the same file.
+    without storeys, a land-use area without its lettered `use` and the crop it was read from, or
+    not wholly inside the plate's map area. A land-use trace becomes a `use_<source>_<NNNN>`
+    feature (review item id `<source>_t_<12 hex>` in `provenance.proposal_id`, no
+    `extraction_params_id` or `tone_class`). Prints counts. Running it twice gives the same file.
   - Add observations and links to published buildings from every other source that covers them:
     `uv run buried match [--decisions PATH]`. Reads every `data/evidence/*.geojson`, the plates'
     alignment records, the tile sidecars of registered aerials that have an alignment record, and
@@ -221,14 +233,20 @@ invent commands; when one is added, record it here.
     The patterns are `HELD_OUT_PATTERNS` in `extract/params.py`.
   - Evidence MCP server (session 025), read-only, stdio: `uv --directory pipeline run python -m
     buried_pipeline.mcp` (from the repository root; `BURIED_REPO_ROOT` overrides the root, default
-    the nearest ancestor with `.kiro/`). Tools: `find_places`, `features_near`, `list_sources`,
-    `plate_alignment`, `plate_work`. It reads `data/` and `data/work/` and writes nothing. It is
+    the nearest ancestor with `.kiro/`). Tools: `find_places`, `features_near`, `plate_features`,
+    `list_sources`, `plate_alignment`, `plate_work`. It reads `data/` and `data/work/` and writes
+    nothing. No result is larger than 20 KB: lists are paged (`limit`, `cursor`; the result says
+    `total`, `returned`, `more` and `next_cursor`). `features_near` takes `source`, `compact` (rows
+    under a shared `columns` list, about 100 per page) and `cursor`; `plate_features` gives one
+    source's published features in that short form with `inside_control_hull` for each (a
+    shapely point-in-polygon test against the alignment record's hull); `plate_work` also lists
+    the flagged proposals (id, flags, score, area, crop rectangle) in pages. It is
     hand-written JSON-RPC over lines on stdin and stdout, so the pipeline gains no dependency.
     Tests: `uv run pytest tests/mcp`. Register it for Kiro in `.kiro/settings/mcp.json` (the
     builder's write there was refused by a permission rule in session 025; the maintainer adds it):
     `{"mcpServers": {"buried-evidence": {"command": "uv", "args": ["--directory", "pipeline",
     "run", "python", "-m", "buried_pipeline.mcp"], "autoApprove": ["find_places",
-    "features_near", "list_sources", "plate_alignment", "plate_work"]}}}`.
+    "features_near", "plate_features", "list_sources", "plate_alignment", "plate_work"]}}}`.
 - Unity (spec 03), run from the repository root with `tools/unity.sh` (headless Unity 6000.3.26f1;
   set `UNITY_BIN` to override the editor path; logs in `unity/Logs/`):
   - `tools/unity.sh exec Buried.Editor.Setup.Run`: creates the palette asset, URP assets, player
@@ -257,7 +275,10 @@ invent commands; when one is added, record it here.
     neither `data/raw/` nor the cache, always as a live request, never at startup and never from a
     listing. A fetched raster must hash to the `plate_ref` of the request or the request is a 404.
     `BURIED_PLATE_MANIFEST` (optional) names a manifest in the shape of `data/raw/manifest.json`;
-    the cache directory's own `manifest.json` is read as well. `GET /v1/plates/registered` never
+    without it the default is the committed `data/plate_manifest.json` (`buried manifest`,
+    session 030), which holds each registered plate's hashes, so a deployment with an empty
+    `data/raw/` knows every `plate_ref`. The cache directory's own `manifest.json` is read as
+    well. `GET /v1/plates/registered` never
     reads the held-out plate's raster: its `plate_ref` comes from a manifest or is null. Another
     plate not on the machine also has a null `plate_ref` unless a manifest has it, and the Studio
     will not start on a plate with a null `plate_ref`.
@@ -276,11 +297,12 @@ invent commands; when one is added, record it here.
        (no trailing slash; comma-separated for more); leave `BURIED_TEST_MODE`,
        `BURIED_LABEL_PROVIDER` and `BURIED_TEST_PLATES_DIR` unset. Railway sets `PORT`; the image
        listens on it. `BURIED_CACHE_DIR` is already `/var/cache/buried` in the image.
-    3. Optional: a volume mounted at `/var/cache/buried`, so a restart keeps fetched plates. For
-       the Studio to start on a plate the Service must know its `plate_ref` before it has the
-       raster: copy `data/raw/manifest.json` from a machine that ran `buried fetch` into that volume
-       as `manifest.json` (or point `BURIED_PLATE_MANIFEST` at it). Without it every `plate_ref` is
-       null and the Studio says the Service does not hold the plate.
+    3. Optional: a volume mounted at `/var/cache/buried`, so a restart keeps fetched plates. The
+       image carries the committed `data/plate_manifest.json`, which the Service reads by default,
+       so every `plate_ref` is known before any plate is fetched and nothing needs copying. Run
+       `buried manifest` and commit the file again if a plate is added or re-fetched. (An older
+       way still works: copy `data/raw/manifest.json` into the volume as `manifest.json`, or
+       point `BURIED_PLATE_MANIFEST` at a manifest.)
     4. Check: `curl https://<service>.up.railway.app/v1/health` shows a `data_version` equal to
        `uv --directory pipeline run python -c "from pathlib import Path; from
        buried_pipeline.service.data_version import data_version_of as v; print(v(Path('../data')))"`

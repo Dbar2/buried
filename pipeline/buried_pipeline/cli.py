@@ -120,6 +120,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="the match decisions file (default: data/work/review/match.json, if it exists)",
     )
+
+    sub.add_parser(
+        "manifest",
+        parents=[parent],
+        help="write data/plate_manifest.json (URLs, file names, sizes, SHA-256) from data/raw/",
+    )
     return parser
 
 
@@ -216,6 +222,12 @@ def _dispatch(
             paths, registry, now(),
             decisions_path=args.decisions.resolve() if args.decisions else None,
         )  # fmt: skip
+        return 0
+
+    if command == "manifest":
+        from buried_pipeline.fetch.plate_manifest import run_manifest
+
+        run_manifest(paths, registry)
         return 0
 
     if command == "control-crops":

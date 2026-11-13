@@ -33,7 +33,8 @@ class Config:
     cache_dir: Path | None = None
     # A manifest of trusted sizes and SHA-256 values for the plates (the shape of
     # `data/raw/manifest.json`), checked by every download and the source of the `plate_ref` of a
-    # plate that is not on this machine yet. Optional.
+    # plate that is not on this machine yet. Default: the committed `data/plate_manifest.json`
+    # when it exists; `BURIED_PLATE_MANIFEST` overrides it.
     plate_manifest: Path | None = None
 
     @classmethod
@@ -57,11 +58,19 @@ class Config:
         manifest = env.get("BURIED_PLATE_MANIFEST", "").strip()
         if manifest and not Path(manifest).is_file():
             raise ConfigError(f"BURIED_PLATE_MANIFEST={manifest!r} is not a file")
+        repo = root or find_repo_root()
+        # Without BURIED_PLATE_MANIFEST the default is the committed `data/plate_manifest.json`
+        # (`buried manifest`), so a deployment with an empty data/raw/ still knows each plate's
+        # `plate_ref` and checks every download against it.
+        committed = repo / "data" / "plate_manifest.json"
+        chosen = Path(manifest).resolve() if manifest else (
+            committed if committed.is_file() else None
+        )
         return cls(
-            root=root or find_repo_root(),
+            root=repo,
             allowed_origins=origins,
             test_mode=test_mode,
             label_provider=provider,
             cache_dir=Path(cache).resolve() if cache else None,
-            plate_manifest=Path(manifest).resolve() if manifest else None,
+            plate_manifest=chosen,
         )

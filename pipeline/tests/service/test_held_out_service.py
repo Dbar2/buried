@@ -58,6 +58,7 @@ ALLOWED = [
         r"pipeline/uv\.lock",
         r"pipeline/buried_pipeline/.+",
         r"data/(project|sources)\.json",
+        r"data/plate_manifest\.json",
         r"data/schema/(evidence|studio_api)\.schema\.json",
         r"data/evidence/[^/]+\.geojson",
         r"data/present/[^/]+\.geojson",
@@ -101,6 +102,26 @@ def test_nothing_that_could_be_a_result_is_in_the_context(path: str) -> None:
 
 def test_no_path_in_the_context_names_the_held_out_plate() -> None:
     assert [f for f in CONTEXT if "232" in f] == []
+
+
+def test_only_the_registry_and_the_plate_manifest_name_the_held_out_plate_in_the_context() -> None:
+    """The plate manifest carries the held-out plate's URL, file names, sizes and SHA-256 so a
+    deployment knows its `plate_ref` before fetching it (session 030). A hash identifies a file;
+    it is not a result. Nothing else in the data the image copies may name the plate, and the
+    manifest holds nothing but those identifying fields."""
+    named = [
+        f for f in CONTEXT
+        if f.startswith("data/") and HELD_OUT in (ROOT / f).read_text(encoding="utf-8")
+    ]  # fmt: skip
+    assert named == ["data/plate_manifest.json", "data/sources.json"]
+    import json
+
+    doc = json.loads((ROOT / "data" / "plate_manifest.json").read_text(encoding="utf-8"))
+    assert set(doc) == {"version", "entries"}
+    for entry in doc["entries"]:
+        assert set(entry) == {"source", "url", "retrieved_at", "zip", "files"}
+        for rec in [entry["zip"], *entry["files"]]:
+            assert set(rec) == {"path", "bytes", "sha256"}
 
 
 def test_the_dockerfile_copies_only_what_the_context_carries() -> None:

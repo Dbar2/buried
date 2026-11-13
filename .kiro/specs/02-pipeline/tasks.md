@@ -565,6 +565,27 @@ task 16), 7, 8, 16, 11, 9.
     "Nothing else is a server" sentence updated in `tech.md`.
     Files: `pipeline/buried_pipeline/mcp/*.py`, `pipeline/tests/mcp/*.py`,
     `.kiro/steering/tech.md`.
+  - [x] 19.3 Paging and size bounds (session 030, found by the plate-qa agent's first run): no
+    result passes 20 KB; `features_near` gains `source`, `limit`, `cursor` and `compact` (rows
+    under shared `columns`, 100 per page under 20 KB); `plate_work` lists flagged proposals in
+    pages; new tool `plate_features` (a source's published features, compact, with
+    `inside_control_hull`). Tests: `pipeline/tests/mcp/test_paging.py` (size bounds, cursors,
+    a Hypothesis property, and the committed evidence files).
+    Files: `pipeline/buried_pipeline/mcp/*.py`, `pipeline/tests/mcp/*.py`.
   - [ ] 19.2 Register the server in `.kiro/settings/mcp.json`. **Not done:** the builder's write
     to that path was refused by a permission rule. The JSON to paste is in `tech.md` under
-    "Evidence MCP server".
+    "Evidence MCP server" (now with `plate_features` in `autoApprove`).
+
+- [x] 20. A committed plate manifest (session 030)
+  - [x] 20.1 `buried manifest` writes `data/plate_manifest.json` (URL, file names, sizes, SHA-256
+    of each registered plate, no raster, the held-out plate included) from `data/raw/manifest.json`,
+    after checking the files in `data/raw/` still match. `buried validate` checks it
+    (`validate/plate_manifest.py`). The Service reads it as the default manifest. The Docker
+    context carries it, and the held-out context test allows exactly it and `sources.json` to name
+    the held-out plate. Tests: `pipeline/tests/fetch/test_plate_manifest.py`,
+    `pipeline/tests/validate/test_plate_manifest.py`, `pipeline/tests/service/test_config.py`,
+    `pipeline/tests/service/test_fetch_wiring.py`, `pipeline/tests/service/test_held_out_service.py`.
+    Files: `pipeline/buried_pipeline/fetch/plate_manifest.py`,
+    `pipeline/buried_pipeline/validate/plate_manifest.py`, `pipeline/buried_pipeline/cli.py`,
+    `pipeline/buried_pipeline/service/config.py`, `pipeline/Dockerfile.dockerignore`,
+    `data/plate_manifest.json`.

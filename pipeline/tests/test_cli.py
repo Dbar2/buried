@@ -15,7 +15,7 @@ def test_all_subcommands_are_registered() -> None:
     sub_action = next(a for a in parser._actions if a.dest == "command")
     assert set(sub_action.choices) == {
         "fetch", "inspect", "present", "align-check", "control-crops", "tile", "extract",
-        "publish", "match", "validate",
+        "publish", "match", "validate", "manifest",
     }  # fmt: skip
 
 

@@ -15,6 +15,7 @@
 !data/sources.json
 !data/schema/evidence.schema.json
 !data/schema/studio_api.schema.json
+!data/plate_manifest.json
 !data/evidence/*.geojson
 !data/present/*.geojson
 !data/control/*.json

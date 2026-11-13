@@ -42,6 +42,11 @@ class Paths:
         return self.raw / "manifest.json"
 
     @property
+    def plate_manifest(self) -> Path:
+        """The committed record of each registered plate's download (`buried manifest`)."""
+        return self.data / "plate_manifest.json"
+
+    @property
     def work(self) -> Path:
         return self.data / "work"
 
