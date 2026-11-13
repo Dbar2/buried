@@ -7,10 +7,11 @@ export const SITE_NAME = 'Buried';
 export const SITE_DESCRIPTION =
   "Forgotten maps, rebuilt with proof. Type an address in the part of Toronto Buried covers and read what archival fire insurance plans show stood there. Buried screens; it doesn't certify.";
 
-export type PageName = 'landing' | 'place' | 'report' | 'studio' | 'sources' | 'explorer';
+export type PageName = 'block' | 'landing' | 'place' | 'report' | 'studio' | 'sources' | 'explorer';
 
-/** The text before " · Buried" for each page; a place or a report is named by its address when it has one. */
-const LABELS: Record<Exclude<PageName, 'landing' | 'place' | 'report'>, string> = {
+/** The text before " · Buried" for each page; a place or a report is named by its address when it has one.
+ *  `landing` is the address search at `/place`; `block` is the first-visit page at `/`. */
+const LABELS: Record<Exclude<PageName, 'block' | 'landing' | 'place' | 'report'>, string> = {
   studio: 'Studio',
   sources: 'Sources',
   explorer: 'Explorer',
@@ -22,6 +23,8 @@ const LABELS: Record<Exclude<PageName, 'landing' | 'place' | 'report'>, string> 
  */
 export function titleFor(page: PageName, address: string | null = null): string {
   switch (page) {
+    case 'block':
+      return `${SITE_NAME} · Forgotten maps, rebuilt with proof.`;
     case 'landing':
       return `${SITE_NAME} · What was here?`;
     case 'place':

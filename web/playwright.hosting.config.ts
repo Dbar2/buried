@@ -5,6 +5,8 @@ import base from './playwright.config';
 // folder's `dist/`, so this config starts its own `vite preview` on its own port and never reuses a
 // server that happens to be listening on 4173 (another checkout's build, for example).
 // Run after `npm run build`: `npx playwright test -c playwright.hosting.config.ts`.
+// hosting.spec.ts loads `/`, `/find/<slug>`, `/place`, `/place?lot=...`, `/report`, `/sources` and
+// `/studio` as first requests (spec 06 W2 added the first three).
 const PORT = 4174;
 const ORIGIN = `http://127.0.0.1:${PORT}`;
 

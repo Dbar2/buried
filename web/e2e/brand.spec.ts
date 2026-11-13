@@ -84,7 +84,7 @@ test('the landing: the scene, the wordmark, one field and three real examples; n
   test.setTimeout(240_000);
   const requested: string[] = [];
   page.on('request', (r) => requested.push(r.url()));
-  await page.goto('/');
+  await page.goto('/place');
 
   await expect(page.getByTestId('landing')).toBeVisible();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Buried');
@@ -121,7 +121,7 @@ test('the landing: the scene, the wordmark, one field and three real examples; n
 });
 
 test('an example address opens the place page for its lot', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/place');
   const first = page.getByTestId('landing-examples').locator('a').first();
   await expect(first).toBeVisible({ timeout: 60_000 });
   const href = (await first.getAttribute('href')) as string;

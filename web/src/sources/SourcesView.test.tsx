@@ -51,6 +51,10 @@ describe('the Sources page on the committed data', async () => {
     expect(text).toContain('Library and Archives Canada');
   });
 
+  it('links the workshop (the Studio), which the header no longer does', () => {
+    expect(html).toMatch(/<a href="\/studio"[^>]*>\s*The workshop \(runs on a maintainer's machine\)\s*<\/a>/);
+  });
+
   it('credits the three typefaces with their licence', () => {
     expect(html).toContain('<h2 id="sources-typefaces">Typefaces</h2>');
     expect(html).toContain('Libre Baskerville');

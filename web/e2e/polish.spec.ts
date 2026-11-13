@@ -18,7 +18,7 @@ test.beforeAll(() => mkdirSync(OUTPUT, { recursive: true }));
 
 test('the landing: wordmark, tagline, field, "Try" and the coverage line', async ({ page }) => {
   test.setTimeout(240_000);
-  await page.goto('/');
+  await page.goto('/place');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Buried');
   await expect(page.getByTestId('landing-tagline')).toHaveText('Forgotten maps, rebuilt with proof.');
   const examples = page.getByTestId('landing-examples').locator('a');

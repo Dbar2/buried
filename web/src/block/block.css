@@ -1,0 +1,59 @@
+/*
+ * The Block page placeholder (spec 06 W2). Colours from tokens.css only. Square corners, a hairline
+ * border, no fill gradients and no shadow. Part two replaces the insides.
+ */
+.block-page {
+  background: var(--soot);
+  display: grid;
+  grid-template-rows: 1fr auto;
+  height: 100%;
+  min-height: 0;
+  padding: var(--space-5) var(--space-4) var(--space-3);
+}
+
+.block-intro {
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 32rem;
+}
+
+.block-headline {
+  font-size: 2.5rem;
+  line-height: 1.15;
+}
+
+.block-raise {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid var(--parchment-dim);
+  border-radius: 2px;
+  color: var(--parchment-dim);
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  padding: var(--space-2) var(--space-4);
+  text-decoration: none;
+}
+
+.block-raise:hover {
+  border-color: var(--parchment);
+  color: var(--parchment);
+}
+
+.block-line {
+  color: var(--parchment-dim);
+  margin: 0;
+}
+
+.block-caption {
+  border-top: 1px solid var(--copper);
+  color: var(--parchment-dim);
+  font-size: 1rem;
+  margin: 0;
+  padding-top: var(--space-2);
+}
+
+.block-caption a {
+  color: var(--parchment);
+}

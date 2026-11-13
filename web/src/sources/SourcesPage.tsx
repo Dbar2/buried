@@ -109,6 +109,11 @@ export function SourcesView({ data }: { data: SourcesData }) {
         Every plan, photograph and dataset behind what Buried shows, with who holds it, the credit it asks for and what we know about the rights to use it. The plans are shown as they were
         photographed, labels included, so nothing about where they came from is hidden.
       </p>
+      <p>
+        <a href="/studio" data-testid="workshop-link">
+          The workshop (runs on a maintainer's machine)
+        </a>
+      </p>
       <section aria-labelledby="sources-archival">
         <h2 id="sources-archival">Plans and photographs</h2>
         {archival.map((s) => (

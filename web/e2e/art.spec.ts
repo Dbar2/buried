@@ -226,7 +226,7 @@ test('art: Today, with no lot pinned, has no lantern anywhere', async ({ browser
   test.setTimeout(300_000);
   const { page, close } = await freshPage(browser);
   try {
-    await page.goto('/');
+    await page.goto('/explorer');
     await expect
       .poll(
         async () => {
