@@ -197,7 +197,16 @@ invent commands; when one is added, record it here.
     recomputes every `match_auto` result on each run, so running it twice gives the same bytes.
     Writes `data/work/match/review.json` (cases for a person, and pending aerial checks) and
     prints counts per source pair. Aerials without an alignment record or tile sidecar are
-    skipped and named. Code writes `not_covered` for an aerial and nothing else.
+    skipped and named. Code writes `not_covered` for an aerial and nothing else. For two plates that
+    share at least four control references, plate-to-plate tests use their pairwise alignment error
+    (spec 02 13.15) instead of the sum of their absolute errors; each run writes the figures it
+    used to `data/work/match/pairwise.json`.
+  - Held-out write hook (spec 02 task 17), run by `.kiro/hooks/held-out.json` (still `"enabled":
+    false`; the maintainer enables it): `uv --directory pipeline run python -m
+    buried_pipeline.hooks.held_out_write`. Reads the hook event as JSON on standard input; exits 2
+    with a message when a write under `pipeline/buried_pipeline/extract/params/`,
+    `pipeline/tests/fixtures/extract/` or `data/control/map_area/` names plate 232 (1935), else 0.
+    The patterns are `HELD_OUT_PATTERNS` in `extract/params.py`.
 - Unity (spec 03), run from the repository root with `tools/unity.sh` (headless Unity 6000.3.26f1;
   set `UNITY_BIN` to override the editor path; logs in `unity/Logs/`):
   - `tools/unity.sh exec Buried.Editor.Setup.Run`: creates the palette asset, URP assets, player
