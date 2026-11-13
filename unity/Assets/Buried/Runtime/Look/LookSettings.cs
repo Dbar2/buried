@@ -75,11 +75,23 @@ namespace Buried.Look
 
         // ---- Sun and ambient ----
 
-        public const float SunElevationDeg = 8f;
-        /// <summary>The sun shines from the west (azimuth 270 degrees), travelling east.</summary>
+        public const float SunElevationDeg = 38f;
+        /// <summary>The lamp shines from the west (azimuth 270 degrees), travelling east: upper left in the first visit's north-west view.</summary>
         public const float SunTravelHeadingDeg = 90f;
         public const float SunIntensity = 0.6f;
         public const float AmbientIntensity = 0.3f;
+
+        /// <summary>How far the lamp's colour goes from `parchment` toward `lantern` (the lamp is the scene's one warm light).</summary>
+        public const float LampWarmth = 0.5f;
+
+        /// <summary>The unit vector from a surface toward the lamp (Unity world: x east, y up, z north).</summary>
+        public static Vector3 LampToward()
+        {
+            return -(Quaternion.Euler(SunElevationDeg, SunTravelHeadingDeg, 0f) * Vector3.forward);
+        }
+
+        /// <summary>How far a face turned from the lamp goes toward `copper` (design.md: faces away from the lamp tinted toward copper).</summary>
+        public const float GhostCopperShade = 0.55f;
 
         // ---- Bloom (the only post effect; tone mapping is None) ----
 
@@ -106,7 +118,7 @@ namespace Buried.Look
         /// The ghost edge's glow ring is drawn in `night` at this alpha, so the `ink` line has a dark
         /// casing on a pale plate. It is the same 1 px wide ring, inside requirement 26.4.
         /// </summary>
-        public const float GhostEdgeCasingAlpha = 1.0f;
+        public const float GhostEdgeCasingAlpha = 0.3f;
 
         /// <summary>The casing's width each side of the line. Under the 2 px of requirement 26.4.</summary>
         public const float GhostEdgeCasingPx = 1.5f;
@@ -179,10 +191,12 @@ namespace Buried.Look
         /// The first visit's sheet before Raise: the lit display at this share of its brightness. Raise takes it to 1
         /// with the sinking plinths (spec 06 requirement 3.1: "brighten the sheet").
         /// </summary>
-        public const float LandingSheetGain = 0.6f;
+        public const float LandingSheetGain = 0.75f;
 
         /// <summary>Radius (m) at which the pool has fallen to 1 / e: with no lot pinned, and around a pinned lot.</summary>
         public const float LightPoolRadiusM = 260f;
+        /// <summary>The first visit's lamp pool: wide enough that the whole sheet is lit.</summary>
+        public const float LandingPoolRadiusM = 320f;
         public const float LightPoolRadiusPinnedM = 150f;
 
         // ---- The Lantern and Show Evidence (session 028) ----

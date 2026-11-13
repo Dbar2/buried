@@ -26,6 +26,7 @@ Shader "Buried/Drape"
         _TonePaper ("Scan luminance that is paper", Float) = 0.6
         _LightFloor ("Light far from the pool", Range(0, 1)) = 0.38
         _Gain ("Sheet brightness of the lit display (the first visit dims it until Raise)", Range(0, 1)) = 1
+        _SheetFogRelief ("How far the distance fog is kept off the lit sheet", Range(0, 1)) = 0.6
         [HideInInspector] _LensMode ("Lantern lens: 0 everywhere, 1 inside, 2 outside", Float) = 0
     }
     SubShader
@@ -64,6 +65,7 @@ Shader "Buried/Drape"
                 float _TonePaper;
                 half _LightFloor;
                 half _Gain;
+                half _SheetFogRelief;
                 half _LensMode;
             CBUFFER_END
 
@@ -115,11 +117,12 @@ Shader "Buried/Drape"
                 if (_Lit > 0.5)
                 {
                     // The lantern lights the sheet through the fog: under the pool the distance fog hardly
-                    // thins it, and away from the pool the sheet falls off into the fog.
+                    // thins it, and away from the pool the sheet falls off to its floor light. The sheet is a
+                    // sheet with an edge, not endless ground, so the fog thins it only a little (_SheetFog).
                     float2 fromLight = input.positionWS.xz - _BuriedLightPool.xy;
                     float lightRadius = max(_BuriedLightPool.z, 1.0);
                     half inPool = exp(-dot(fromLight, fromLight) / (lightRadius * lightRadius));
-                    fog = lerp(fog, 1.0, inPool * 0.85);
+                    fog = lerp(fog, 1.0, saturate(inPool * 0.85 + _SheetFogRelief));
                 }
                 return half4(rgb, _Opacity * mask * fog);
             }

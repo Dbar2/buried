@@ -90,8 +90,7 @@ namespace Buried.Tests
                 + Building("bld_x_0001", 632500, 4835000) + "," + Building("bld_x_0002", 632540, 4835000) + ","
                 + Building("bld_x_0003", 632600, 4835000) + "],\"drapes\":[]" + (held ? ",\"held\":true" : "") + "}}";
             ParsedMessage parsed = BridgeParser.Parse(json);
-            MethodInfo method = typeof(SceneController).GetMethod("LoadEra", BindingFlags.NonPublic | BindingFlags.Instance);
-            var steps = (IEnumerator)method.Invoke(_controller, new object[] { parsed.payload });
+            IEnumerator steps = _controller.LoadEra((SceneLoadEraPayload)parsed.payload);
             while (steps.MoveNext())
             {
             }

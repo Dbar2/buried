@@ -154,7 +154,7 @@ namespace Buried.Tests
         }
 
         [Test]
-        public void TheHatchIsInkOverACasingOfNightAtLowOpacity()
+        public void TheHatchIsInkOverACasingOfParchmentAtLowOpacity()
         {
             foreach (string cls in GhostMaterials.Classes)
             {
@@ -164,7 +164,7 @@ namespace Buried.Tests
                 Assert.Greater(fill.GetColor("_Color").a, 0.1f, cls + ": visible");
                 Color core = fill.GetColor("_Color");
                 Color casing = fill.GetColor("_CasingColor");
-                Assert.Greater(core.grayscale - casing.grayscale, 0.5f, cls + ": the stripe and its casing differ in grey, not only in hue");
+                Assert.Greater(Mathf.Abs(core.grayscale - casing.grayscale), 0.5f, cls + ": the stripe and its casing differ in grey, not only in hue");
                 Assert.Greater(fill.GetFloat("_HatchPeriodPx"), 4f, cls + ": the stripes are never finer than the pixel grid allows");
             }
             Assert.Greater(_materials.AreaFillOf("documented").GetColor("_Color").a, _materials.AreaFillOf("estimated").GetColor("_Color").a);

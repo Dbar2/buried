@@ -13,6 +13,8 @@ Shader "Buried/Ghost"
     {
         _Color ("Colour", Color) = (1, 1, 1, 1)
         _Shade ("Shade strength", Range(0, 1)) = 0.35
+        _ShadeColor ("Colour of the faces turned from the lamp", Color) = (0.43, 0.51, 0.46, 1)
+        _ShadeMix ("How far a face turned from the lamp goes to that colour", Range(0, 1)) = 0
         _Emission ("Self-illumination", Range(0, 1)) = 0
         _Weight ("Era weight (alpha factor)", Range(0, 1)) = 1
         _Rise ("Vertical scale about y = 0", Range(0, 1)) = 1
@@ -55,6 +57,8 @@ Shader "Buried/Ghost"
             CBUFFER_START(UnityPerMaterial)
                 half4 _Color;
                 half _Shade;
+                half4 _ShadeColor;
+                half _ShadeMix;
                 half _Emission;
                 half _Weight;
                 float _Rise;
@@ -141,8 +145,10 @@ Shader "Buried/Ghost"
                     return half4(hatchRgb, hatchAlpha);
                 }
                 half3 n = normalize(input.normalWS);
-                half lit = saturate(dot(n, normalize(half3(0.6, 0.7, 0.35))));
-                half3 rgb = _Color.rgb * lerp(1.0, 0.6 + 0.4 * lit, _Shade) + _Color.rgb * _Emission;
+                // The one lamp: faces turned from it take `copper` (_ShadeColor), faces toward it keep the fill colour.
+                half lit = saturate(dot(n, normalize(_BuriedLampDir.xyz + 1e-5)));
+                half3 rgb = _Color.rgb * lerp(1.0, 0.6 + 0.4 * lit, _Shade);
+                rgb = lerp(rgb, _ShadeColor.rgb * (0.6 + 0.4 * lit), (1.0 - lit) * _ShadeMix) + _Color.rgb * _Emission;
                 rgb = BuriedApplyFog(rgb, input.transmission);
 
                 half alpha = _Color.a * _Weight * input.raiseFill;

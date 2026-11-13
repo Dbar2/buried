@@ -28,11 +28,19 @@ namespace Buried.Tests
         [Test]
         public void TheLineWorkKeepsFourAndAHalfToOneAgainstThePaperEvenFarFromTheLight()
         {
-            // Paper is `ink`, line work is `night`; the dimmest light a point on the sheet gets is the floor.
-            float atFloor = DrapeTone.Contrast(_palette.ink, _palette.night, LookSettings.LightFloor);
-            float atPool = DrapeTone.Contrast(_palette.ink, _palette.night, 1f);
+            // Paper is `parchment`, line work is `ink`; the dimmest light a point on the sheet gets is the floor.
+            float atFloor = DrapeTone.Contrast(_palette.parchment, _palette.ink, LookSettings.LightFloor);
+            float atPool = DrapeTone.Contrast(_palette.parchment, _palette.ink, 1f);
             Assert.GreaterOrEqual(atFloor, 4.5f, "line work against paper at the floor light");
             Assert.Greater(atPool, atFloor, "the pool is where the sheet reads best");
+        }
+
+        [Test]
+        public void TheLandingSheetIsDimmerThanTheRaisedSheetButTheLineWorkStillReadsAtFourAndAHalfToOne()
+        {
+            Assert.Less(LookSettings.LandingSheetGain, 1f, "Raise brightens the sheet");
+            float dimmest = LookSettings.LightFloor * LookSettings.LandingSheetGain;
+            Assert.GreaterOrEqual(DrapeTone.Contrast(_palette.parchment, _palette.ink, dimmest), 4.5f, "the dim landing sheet at the floor light");
         }
 
         [Test]
@@ -46,9 +54,9 @@ namespace Buried.Tests
         [Test]
         public void ThePaperIsWarmerThanTheLineWorkAndNeitherIsLantern()
         {
-            Color paper = _palette.ink;
-            Assert.Greater(paper.r, paper.b, "paper is `ink`, a warm cream");
-            Assert.AreNotEqual((Color32)_palette.ink, (Color32)_palette.lantern, "the sheet must not take the pinned lot's colour");
+            Color paper = _palette.parchment;
+            Assert.Greater(paper.r, paper.b, "paper is `parchment`, a warm cream");
+            Assert.AreNotEqual((Color32)_palette.parchment, (Color32)_palette.lantern, "the sheet must not take the pinned lot's colour");
             Assert.Greater(LookSettings.TonePaperLuminance, LookSettings.ToneLineLuminance);
             Assert.Greater(LookSettings.LightFloor, 0f);
             Assert.Less(LookSettings.LightFloor, 1f);

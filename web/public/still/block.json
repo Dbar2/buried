@@ -1,0 +1,26 @@
+{
+  "wide": {
+    "width": 1600,
+    "height": 1000,
+    "anchors": [
+      {
+        "feature_id": "bld_fip_v3_1911_229_0001",
+        "x": 1025.4,
+        "y": 486.2,
+        "on_screen": true
+      }
+    ]
+  },
+  "tall": {
+    "width": 780,
+    "height": 1600,
+    "anchors": [
+      {
+        "feature_id": "bld_fip_v3_1911_229_0001",
+        "x": 469.8,
+        "y": 750.4,
+        "on_screen": true
+      }
+    ]
+  }
+}

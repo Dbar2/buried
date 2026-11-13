@@ -35,21 +35,22 @@ namespace Buried.Scene
 
         public GhostMaterials(BuriedPalette palette, ShaderSet shaders, float pixelScale)
         {
-            Color ink = palette.ink;
+            Color parchment = palette.parchment;
 
-            // Documented: `ink` with a little self-illumination, thin `ink` edges with emission above 1.
-            _documentedFill = Fill("Ghost fill", shaders.ghost, ink, LookSettings.GhostFillAlpha);
+            // Documented: a translucent `parchment` volume, faces away from the lamp tinted toward `copper`, with crisp
+            // `ink` edges (and one `ink` line per recorded storey).
+            _documentedFill = Fill("Ghost fill", shaders.ghost, parchment, LookSettings.GhostFillAlpha, palette);
             _documentedEdge = Edge("Ghost edge", shaders.edge, palette, pixelScale);
 
             // Estimated: the same line, dashed, over a lighter fill.
-            _estimatedFill = Fill("Ghost fill (estimated)", shaders.ghost, ink, LookSettings.EstimatedFillAlpha);
+            _estimatedFill = Fill("Ghost fill (estimated)", shaders.ghost, parchment, LookSettings.EstimatedFillAlpha, palette);
             _estimatedEdge = Edge("Ghost edge (estimated)", shaders.edge, palette, pixelScale);
             _estimatedEdge.SetFloat("_DashPeriod", LookSettings.DashPeriodM);
             _estimatedEdge.SetFloat("_DashPeriodPx", LookSettings.DashPeriodCssPx);
             _estimatedEdge.SetFloat("_DashOn", LookSettings.DashOnFraction);
 
             // Unknown: a fog volume. No edge material: an unknown ghost is drawn without an outline.
-            _unknownFill = Fill("Ghost fill (unknown)", shaders.ghost, ink, LookSettings.UnknownFillAlpha);
+            _unknownFill = Fill("Ghost fill (unknown)", shaders.ghost, parchment, LookSettings.UnknownFillAlpha, palette);
             _unknownFill.SetFloat("_Shade", 0.15f);
             _unknownFill.SetFloat("_Soft", 1f);
             _unknownFill.SetFloat("_SoftHeight", LookSettings.UnknownFadeHeightM);
@@ -69,32 +70,35 @@ namespace Buried.Scene
         }
 
         /// <summary>
-        /// A hatched sheet: the ghost shader with _Hatch on. Stripes in `ink` with a `night` casing over a faint tint,
+        /// A hatched sheet: the ghost shader with _Hatch on. Stripes in `ink` with a `parchment` casing over a faint tint,
         /// flat shading (no normal shading), under the ghosts and above the drapes.
         /// </summary>
         private static Material AreaFill(string name, Shader shader, BuriedPalette palette, float alpha, float pixelScale)
         {
-            Material material = Fill(name, shader, palette.ink, alpha);
+            Material material = Fill(name, shader, palette.ink, alpha, palette);
             material.SetFloat("_Shade", 0f);
+            material.SetFloat("_ShadeMix", 0f);
             material.SetFloat("_Hatch", 1f);
             material.SetFloat("_HatchPeriodM", LookSettings.AreaHatchPeriodM);
             material.SetFloat("_HatchPeriodPx", LookSettings.AreaHatchPeriodCssPx * pixelScale);
             material.SetFloat("_HatchInk", LookSettings.AreaHatchInkShare);
             material.SetFloat("_HatchCasing", LookSettings.AreaHatchCasingShare);
             material.SetFloat("_HatchGap", LookSettings.AreaHatchGapShare);
-            material.SetColor("_CasingColor", palette.night);
+            material.SetColor("_CasingColor", palette.parchment);
             material.SetFloat("_Cull", (float)CullMode.Off);
             material.renderQueue = LookSettings.AreaFillQueue;
             return material;
         }
 
-        private static Material Fill(string name, Shader shader, Color ink, float alpha)
+        private static Material Fill(string name, Shader shader, Color colour, float alpha, BuriedPalette palette)
         {
-            Color fill = ink;
+            Color fill = colour;
             fill.a = alpha;
             var material = new Material(shader) { name = name };
             material.SetColor("_Color", fill);
+            material.SetColor("_ShadeColor", palette.copper);
             material.SetFloat("_Shade", 0.35f);
+            material.SetFloat("_ShadeMix", LookSettings.GhostCopperShade);
             material.SetFloat("_Emission", LookSettings.GhostEmission);
             material.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
             material.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
@@ -113,8 +117,9 @@ namespace Buried.Scene
             material.SetFloat("_WidthPx", LookSettings.EdgeWidthCssPx);
             material.SetFloat("_GlowPx", LookSettings.GhostEdgeCasingPx);
             material.SetFloat("_GlowAlpha", LookSettings.GhostEdgeCasingAlpha);
-            // A `night` casing inside the glow width keeps the `ink` line readable over a pale plate.
-            material.SetColor("_GlowColor", palette.night);
+            // A faint `parchment` casing inside the glow width keeps the `ink` line crisp where a ghost passes over the
+            // table's edge; on the sheet itself it is the colour of the paper.
+            material.SetColor("_GlowColor", palette.parchment);
             material.SetFloat("_GlowMix", 1f);
             material.SetFloat("_PixelScale", pixelScale);
             material.renderQueue = 3010;

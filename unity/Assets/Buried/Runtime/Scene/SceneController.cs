@@ -75,6 +75,7 @@ namespace Buried.Scene
         private EraLayer _evidenceEra;
         private DrapeLayer _evidencePatch;
         private int _evidenceGeneration;
+        private bool _blockCameraApplied;
 
         // Raise the past (bridge 0.8.0): the clock and what it pins, and the anchors the Shell asked for.
         private readonly RaiseState _raise = new RaiseState();
@@ -255,6 +256,7 @@ namespace Buried.Scene
             _allLit = true;
             _litBySource.Clear();
             _raise.Reset();
+            _blockCameraApplied = false;
             _anchorIds = new List<string>();
             _anchorsForce = false;
             _anchorsDirty = false;
@@ -279,28 +281,30 @@ namespace Buried.Scene
             }
             float fogRadius = LookSettings.FogRadius(radius);
 
-            Color fog = _palette.fog;
+            Color fog = _palette.haze;
             // A vector, not a colour: Unity does not convert vectors, so the fog colour is exactly the
             // linear value of the palette colour that the materials get through their Color property.
             Color fogLinear = fog.linear;
             Shader.SetGlobalVector("_BuriedFogColor", new Vector4(fogLinear.r, fogLinear.g, fogLinear.b, 1f));
             Shader.SetGlobalFloat("_BuriedFogDensity", LookSettings.FogDensity(fogRadius));
+            Vector3 lamp = LookSettings.LampToward();
+            Shader.SetGlobalVector("_BuriedLampDir", new Vector4(lamp.x, lamp.y, lamp.z, 0f));
 
-            // Sky: night at the top, a lighter grey-blue band just above the horizon, and the `fog`
-            // colour at and below the horizon, which is the colour the fogged ground reaches far
-            // away, so the ground meets the sky without a hard line.
+            // Sky: `soot` at the top, a faint warm band just above the horizon, and the `haze` colour at and
+            // below the horizon, which is the colour the fogged table reaches far away, so the table meets the
+            // sky without a hard line (design.md: no visible edge of the world).
             _skyMaterial = new Material(_shaders.sky) { name = "Sky" };
-            _skyMaterial.SetColor("_Zenith", _palette.night);
-            _skyMaterial.SetColor("_Band", Color.Lerp(_palette.night, _palette.muted, LookSettings.HorizonMix));
-            _skyMaterial.SetColor("_Haze", _palette.fog);
+            _skyMaterial.SetColor("_Zenith", _palette.soot);
+            _skyMaterial.SetColor("_Band", Color.Lerp(_palette.haze, _palette.parchmentDim, LookSettings.HorizonMix));
+            _skyMaterial.SetColor("_Haze", _palette.haze);
             _skyMaterial.SetFloat("_BandElevation", LookSettings.SkyBandElevation);
             _skyMaterial.SetFloat("_ZenithElevation", LookSettings.SkyZenithElevation);
             RenderSettings.skybox = _skyMaterial;
 
-            // Ground: one big quad in the fog colour, so the edge of the coverage area dissolves.
+            // The table: one big quad in `soot` that the distance fog takes toward `haze`, so its edge dissolves.
             _groundMesh = GroundBuilder.Build((float)centre.X, (float)centre.Y, LookSettings.GroundHalfExtent(fogRadius)).ToMesh("Ground");
             _groundMaterial = new Material(_shaders.ghost) { name = "Ground" };
-            _groundMaterial.SetColor("_Color", fog);
+            _groundMaterial.SetColor("_Color", _palette.soot);
             _groundMaterial.SetFloat("_Shade", 0f);
             _groundMaterial.SetFloat("_Emission", 0f);
             _groundMaterial.SetFloat("_SrcBlend", (float)BlendMode.One);
@@ -334,7 +338,7 @@ namespace Buried.Scene
             SetLightPool(_defaultPoolCentre.x, _defaultPoolCentre.y, LookSettings.LightPoolRadiusM);
         }
 
-        private IEnumerator LoadEra(SceneLoadEraPayload payload)
+        public IEnumerator LoadEra(SceneLoadEraPayload payload)
         {
             int index;
             if (!_eraIndexById.TryGetValue(payload.eraId, out index))
@@ -408,6 +412,7 @@ namespace Buried.Scene
             layer.SetLensMode(LensModeFor(layer));
             layer.SetWeight(WeightFor(layer), _reducedMotion);
             _anchorsDirty = true;
+            if (payload.held) ApplyBlockCamera();
 
             _bridge.Send(BridgeMessageTypes.EraLoaded, new EraLoadedPayload
             {
@@ -416,6 +421,28 @@ namespace Buried.Scene
                 drapeCount = layer.DrapeCount,
                 failedDrapes = failed,
             });
+        }
+
+        /// <summary>
+        /// The first visit's opening view (<see cref="BlockCamera"/>): taken when a held era is loaded, the first time and
+        /// only until the visitor has touched the view. A cut, not a flight: nothing has been shown yet.
+        /// </summary>
+        private void ApplyBlockCamera()
+        {
+            if (_blockCameraApplied || _rig.HasBeenMoved) return;
+            _blockCameraApplied = true;
+            float aspect = _camera.aspect > 0f ? _camera.aspect : BlockCamera.WideAspect;
+            BlockCamera.Spec spec = BlockCamera.For(aspect);
+            _rig.SetPose(spec.TargetX, spec.TargetZ, spec.DistanceM, spec.PitchDeg, spec.HeadingDeg);
+
+            // The lamp: its pool sits on the sheet toward the upper left of this view (west of the corner), wide enough
+            // that the whole sheet is lit and falls to its floor light only toward the table.
+            float heading = spec.HeadingDeg * Mathf.Deg2Rad;
+            var forward = new Vector2(Mathf.Sin(heading), Mathf.Cos(heading));
+            var right = new Vector2(Mathf.Cos(heading), -Mathf.Sin(heading));
+            Vector2 pool = new Vector2(BlockCamera.CornerX, BlockCamera.CornerZ) + (forward * 0.05f - right * 0.18f) * spec.DistanceM;
+            SetLightPool(pool.x, pool.y, LookSettings.LandingPoolRadiusM);
+            RequestCameraReport();
         }
 
         private void HandleAddFeatures(SceneAddFeaturesPayload payload)
@@ -950,6 +977,13 @@ namespace Buried.Scene
             _rig.FlyTo(target, _reducedMotion ? 0f : LookSettings.LotFlightS);
             RequestCameraReport();
             _anchorsDirty = true;
+        }
+
+        /// <summary>Reports the anchors now (tests and the editor's Still, which has no frame loop).</summary>
+        public void FlushAnchors()
+        {
+            _anchorsForce = true;
+            UpdateAnchors();
         }
 
         /// <summary>

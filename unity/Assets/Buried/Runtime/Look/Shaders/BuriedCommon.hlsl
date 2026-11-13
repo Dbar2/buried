@@ -2,8 +2,11 @@
 #define BURIED_COMMON_INCLUDED
 
 // Set globally by SceneController when scene/init arrives. The colours are already linear.
-float4 _BuriedFogColor;    // the `fog` colour
+float4 _BuriedFogColor;    // the `haze` colour
 float _BuriedFogDensity;
+
+// The one lamp: the unit direction from a surface toward it (xyz). Set by SceneController from LookSettings.
+float4 _BuriedLampDir;
 
 // The lit map sheet's one light pool: x and z of its centre in world space, its radius in metres.
 float4 _BuriedLightPool;

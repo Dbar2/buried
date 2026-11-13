@@ -14,6 +14,12 @@ namespace Buried.Scene
     {
         private readonly Dictionary<string, Texture2D> _cache = new Dictionary<string, Texture2D>();
 
+        /// <summary>
+        /// When set, the bytes of an image come from here (null: not here, ask the network). For the editor, which has
+        /// no page to download from: `Buried.Editor.Still.Render` reads the tile from data/tiles. Never set in a build.
+        /// </summary>
+        public static Func<string, byte[]> BytesOverride;
+
         /// <summary>Calls <paramref name="done"/> with the texture, or with null and a reason.</summary>
         public IEnumerator Load(string url, Action<Texture2D, string> done)
         {
@@ -21,6 +27,13 @@ namespace Buried.Scene
             if (_cache.TryGetValue(url, out cached) && cached != null)
             {
                 done(cached, null);
+                yield break;
+            }
+
+            byte[] given = BytesOverride == null ? null : BytesOverride(url);
+            if (given != null)
+            {
+                Decode(url, given, done);
                 yield break;
             }
 
@@ -33,22 +46,26 @@ namespace Buried.Scene
                     yield break;
                 }
 
-                byte[] bytes = request.downloadHandler.data;
-                var texture = new Texture2D(2, 2, TextureFormat.RGBA32, true, false);
-                if (!texture.LoadImage(bytes, false))
-                {
-                    UnityEngine.Object.Destroy(texture);
-                    done(null, "the image could not be decoded");
-                    yield break;
-                }
-
-                texture.wrapMode = TextureWrapMode.Clamp;
-                texture.filterMode = texture.mipmapCount > 1 ? FilterMode.Trilinear : FilterMode.Bilinear;
-                texture.anisoLevel = 4;
-                texture.Apply(true, true);
-                _cache[url] = texture;
-                done(texture, null);
+                Decode(url, request.downloadHandler.data, done);
             }
+        }
+
+        private void Decode(string url, byte[] bytes, Action<Texture2D, string> done)
+        {
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, true, false);
+            if (!texture.LoadImage(bytes, false))
+            {
+                SceneObjects.Destroy(texture);
+                done(null, "the image could not be decoded");
+                return;
+            }
+
+            texture.wrapMode = TextureWrapMode.Clamp;
+            texture.filterMode = texture.mipmapCount > 1 ? FilterMode.Trilinear : FilterMode.Bilinear;
+            texture.anisoLevel = 4;
+            texture.Apply(true, true);
+            _cache[url] = texture;
+            done(texture, null);
         }
 
         public void Clear()

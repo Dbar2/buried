@@ -35,13 +35,31 @@ namespace Buried.Scene
             WebGLInput.captureAllKeyboardInput = false;
 #endif
 
+            Build(palette, shaders, _bridge);
+        }
+
+        /// <summary>What <see cref="Build"/> creates.</summary>
+        public sealed class Built
+        {
+            public GameObject Root;
+            public Camera Camera;
+            public CameraRig Rig;
+            public SceneController Controller;
+        }
+
+        /// <summary>
+        /// The camera, the light and the controller, exactly as the Player has them. The editor builds the same thing
+        /// for the Stills (`Buried.Editor.Still.Render`), so a Still is a picture of what the Player draws.
+        /// </summary>
+        public static Built Build(BuriedPalette palette, ShaderSet shaders, Bridge bridge)
+        {
             var root = new GameObject("Root");
 
             var cameraObject = new GameObject("Camera") { tag = "MainCamera" };
             cameraObject.transform.SetParent(root.transform, false);
             Camera camera = cameraObject.AddComponent<Camera>();
             camera.clearFlags = CameraClearFlags.Skybox;
-            camera.backgroundColor = palette.night;
+            camera.backgroundColor = palette.soot;
             camera.fieldOfView = LookSettings.CameraFovDeg;
             camera.nearClipPlane = LookSettings.NearClipM;
             camera.farClipPlane = LookSettings.FarClipM;
@@ -52,22 +70,24 @@ namespace Buried.Scene
             CameraRig rig = cameraObject.AddComponent<CameraRig>();
             rig.Attach(camera);
 
-            // Dusk: a low sun from the west (azimuth 270), cold, no shadows. Flat, low ambient light.
-            var sunObject = new GameObject("Sun");
+            // One warm key light from the upper left, off frame, as if from a desk lamp (light only: no lamp is
+            // drawn), and a low cool ambient. No shadows.
+            var sunObject = new GameObject("Lamp");
             sunObject.transform.SetParent(root.transform, false);
             sunObject.transform.rotation = Quaternion.Euler(LookSettings.SunElevationDeg, LookSettings.SunTravelHeadingDeg, 0f);
             Light sun = sunObject.AddComponent<Light>();
             sun.type = LightType.Directional;
-            sun.color = palette.muted;
+            sun.color = Color.Lerp(palette.parchment, palette.lantern, LookSettings.LampWarmth);
             sun.intensity = LookSettings.SunIntensity;
             sun.shadows = LightShadows.None;
             RenderSettings.sun = sun;
             RenderSettings.ambientMode = AmbientMode.Flat;
-            RenderSettings.ambientLight = (Color)palette.fog * LookSettings.AmbientIntensity;
+            RenderSettings.ambientLight = (Color)palette.haze * LookSettings.AmbientIntensity;
             RenderSettings.fog = false; // the shaders do their own fog
 
             SceneController controller = root.AddComponent<SceneController>();
-            controller.Configure(_bridge, palette, shaders, rig);
+            controller.Configure(bridge, palette, shaders, rig);
+            return new Built { Root = root, Camera = camera, Rig = rig, Controller = controller };
         }
 
         // Start as a coroutine: wait for the end of the first rendered frame, then say ready.

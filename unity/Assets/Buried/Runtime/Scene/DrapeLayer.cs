@@ -85,8 +85,8 @@ namespace Buried.Scene
             layer._material.renderQueue = BaseQueue + order;
             if (palette != null)
             {
-                layer._material.SetColor("_PaperColor", palette.ink);
-                layer._material.SetColor("_LineColor", palette.night);
+                layer._material.SetColor("_PaperColor", palette.parchment);
+                layer._material.SetColor("_LineColor", palette.ink);
                 layer._material.SetFloat("_ToneLine", LookSettings.ToneLineLuminance);
                 layer._material.SetFloat("_TonePaper", LookSettings.TonePaperLuminance);
                 layer._material.SetFloat("_LightFloor", LookSettings.LightFloor);
