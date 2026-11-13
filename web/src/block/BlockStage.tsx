@@ -210,33 +210,37 @@ export function BlockStage(props: BlockStageProps) {
 
   const stillKind = stillKindFor(stage);
   const tile = model ? flatTileFor(model, eraId) : null;
+  const cardOpen = raised && selection !== null;
+  const rects = blockLayout({ w: stage.w, h: stage.h, cardOpen, sheetExpanded, raised });
+  // The Player's canvas and the Flat sheet fill the scene's box, which is the stage except on a phone after the raise.
+  const scene = rects.scene;
+  const sceneSize = useMemo(() => ({ w: scene.w, h: scene.h }), [scene.w, scene.h]);
   const tagAnchors = useMemo((): TagAnchor[] => {
     if (!model || finds.length === 0) return [];
     const ids = finds.map((f) => f.find.slug);
+    const inStage = (a: TagAnchor): TagAnchor => ({ ...a, x: a.x + scene.x, y: a.y + scene.y });
     if (flat) {
       return finds.flatMap((f) => {
         const reading = readingForEra(f, eraId, model) ?? f.primary;
         const centre = featureCentre(reading.feature);
         if (!tile || !centre) return [];
-        return [{ id: f.find.slug, ...flatViewportPoint(tile, centre, stage) }];
+        return [inStage({ id: f.find.slug, ...flatViewportPoint(tile, centre, sceneSize) })];
       });
     }
     if (player.running && anchorReport) {
       const sceneIds = finds.map((f) => sceneFeatureFor(f, eraId, model));
-      return anchorsInStage(anchorReport, sceneIds, stage).map((a, i) => ({ ...a, id: ids[i] as string }));
+      return anchorsInStage(anchorReport, sceneIds, sceneSize).map((a, i) => inStage({ ...a, id: ids[i] as string }));
     }
     if (still) {
       const meta = still[stillKind];
       return finds.flatMap((f) => {
         const anchor = f.readings.map((r) => meta.get(r.reading.feature_id)).find((a) => a !== undefined);
-        return anchor ? [{ ...anchorsInViewport([anchor], STILL_SIZES[stillKind], stage)[0]!, id: f.find.slug }] : [];
+        return anchor ? [inStage({ ...anchorsInViewport([anchor], STILL_SIZES[stillKind], sceneSize)[0]!, id: f.find.slug })] : [];
       });
     }
     return [];
-  }, [model, finds, flat, eraId, tile, stage, player.running, anchorReport, still, stillKind]);
+  }, [model, finds, flat, eraId, tile, sceneSize, scene.x, scene.y, player.running, anchorReport, still, stillKind]);
 
-  const cardOpen = raised && selection !== null;
-  const rects = blockLayout({ w: stage.w, h: stage.h, cardOpen, sheetExpanded });
   const selectedSlug = selectedFind?.find.slug ?? null;
   const tagSizes = useMemo(() => new Map<string, Size>(finds.map((f) => [f.find.slug, estimateTagSize(f.find.tag)])), [finds]);
   const tagLayoutResult = layoutTags({ anchors: tagAnchors, sizes: tagSizes, viewport: stage, keepOut: tagKeepOut(rects, raised), selectedId: raised ? selectedSlug : null });
@@ -413,7 +417,7 @@ export function BlockStage(props: BlockStageProps) {
       data-held-loaded={heldLoaded}
     >
       <SetPageTitle page="block" />
-      <div className="block-scene">
+      <div className="block-scene" style={rectStyle(scene)}>
         {flat ? (
           <>
             {flatLayer(flatEra, flatBare, false)}
@@ -421,7 +425,7 @@ export function BlockStage(props: BlockStageProps) {
               <div
                 className="flat-lens-layer"
                 data-testid="flat-lens-layer"
-                style={{ clipPath: `circle(${Math.round(LENS_RADIUS * stage.h)}px at ${lens.center.x * stage.w}px ${lens.center.y * stage.h}px)` }}
+                style={{ clipPath: `circle(${Math.round(LENS_RADIUS * scene.h)}px at ${lens.center.x * scene.w}px ${lens.center.y * scene.h}px)` }}
               >
                 {flatLayer(otherEra, false, true)}
               </div>
@@ -499,8 +503,10 @@ export function BlockStage(props: BlockStageProps) {
             on={lens.on}
             center={lens.center}
             radius={LENS_RADIUS}
-            area={{ width: stage.w, height: stage.h }}
-            label={lensLabel}
+            area={{ width: scene.w, height: scene.h }}
+            origin={{ x: scene.x, y: scene.y }}
+            label={rects.phone ? 'Lantern' : lensLabel}
+            accessibleName={rects.phone ? lensLabel : undefined}
             onToggle={lens.toggle}
             onMove={lens.setCenter}
             controlStyle={rectStyle(rects.lensControl)}

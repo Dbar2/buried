@@ -158,7 +158,7 @@
   padding: var(--space-1) var(--space-2);
 }
 
-.block-stage::after {
+.block-scene::after {
   background: linear-gradient(to top, var(--soot) 0%, color-mix(in srgb, var(--soot) 85%, transparent) 30%, color-mix(in srgb, var(--soot) 45%, transparent) 65%, transparent 100%);
   bottom: 0;
   content: '';
@@ -690,14 +690,20 @@
   text-underline-offset: 4px;
 }
 
+.lens-area {
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
 .lens-ring {
   border: 2px solid var(--parchment);
   border-radius: 50%;
   cursor: grab;
+  pointer-events: auto;
   position: absolute;
   touch-action: none;
   transform: translate(-50%, -50%);
-  z-index: 2;
 }
 
 .lens-ring::after {
@@ -809,9 +815,28 @@
 
 /* Phone (under 720 px): the tags scroll in one row, the ruler sits on the scene's lower edge, the card is a sheet. */
 @media (max-width: 719px) {
+  /* The caption is the one link; the block's name is still in the page for a screen reader. */
+  .block-caption > span {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+  }
+
   .block-caption {
-    font-size: 0.875rem;
-    line-height: 1.25;
+    font-size: 0.9375rem;
+  }
+
+  .block-scene::after {
+    height: 7rem;
+  }
+
+  .lens-control,
+  .list-dock .feature-list button {
+    padding: 0 var(--space-2);
   }
 
   .block-stage .block-intro {
@@ -854,3 +879,4 @@
     opacity: 1;
   }
 }
+

@@ -11,8 +11,12 @@ export type LanternLensProps = {
   radius: number;
   /** The scene area's size in CSS px, so the ring can be sized. */
   area: { width: number; height: number };
+  /** Where the scene area's top left sits on the stage, in CSS px (default 0, 0): the ring is placed within the area. */
+  origin?: { x: number; y: number };
   /** "Lantern", or "Lantern: 1931-35 plan" (made elsewhere). */
   label: string;
+  /** The control's full name when `label` is shortened for a phone. */
+  accessibleName?: string;
   onToggle: () => void;
   onMove: (center: LensPoint) => void;
   /** Where the control sits, when the page places it (position, left and top in px). */
@@ -25,7 +29,7 @@ export type LanternLensProps = {
  * starts outside reaches the camera (requirement 6.1). The other layer shown inside the ring is the Player's (or the
  * Flat sheet's) to draw; this component draws only the ring.
  */
-export function LanternLens({ on, center, radius, area, label, onToggle, onMove, controlStyle }: LanternLensProps) {
+export function LanternLens({ on, center, radius, area, origin, label, accessibleName, onToggle, onMove, controlStyle }: LanternLensProps) {
   const grab = useRef<LensGrab | null>(null);
   const ring = useRef<HTMLDivElement>(null);
 
@@ -55,18 +59,20 @@ export function LanternLens({ on, center, radius, area, label, onToggle, onMove,
   return (
     <>
       {on ? (
-        <div
-          ref={ring}
-          className="lens-ring"
-          data-testid="lens-ring"
-          style={{ left: `${center.x * 100}%`, top: `${center.y * 100}%`, width: diameter, height: diameter }}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={end}
-          onPointerCancel={end}
-        />
+        <div className="lens-area" style={{ left: origin?.x ?? 0, top: origin?.y ?? 0, width: area.width, height: area.height }}>
+          <div
+            ref={ring}
+            className="lens-ring"
+            data-testid="lens-ring"
+            style={{ left: `${center.x * 100}%`, top: `${center.y * 100}%`, width: diameter, height: diameter }}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={end}
+            onPointerCancel={end}
+          />
+        </div>
       ) : null}
-      <button type="button" className="lens-control" style={controlStyle} aria-pressed={on} onClick={onToggle} data-testid="lens-control">
+      <button type="button" className="lens-control" style={controlStyle} aria-pressed={on} aria-label={accessibleName} onClick={onToggle} data-testid="lens-control">
         {label}
       </button>
     </>

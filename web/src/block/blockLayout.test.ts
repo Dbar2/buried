@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { blockLayout, CARD_WIDTH, isPhone, tagKeepOut } from './blockLayout';
+import { blockLayout, CARD_WIDTH, isPhone, PHONE_CAPTION_HEIGHT, PHONE_SHEET_FAR_EDGE, TOP_ROW_HEIGHT, tagKeepOut } from './blockLayout';
 import { estimateTagSize, layoutTags, rectsOverlap } from './tagLayout';
 import type { Rect } from './tagLayout';
 
@@ -54,6 +54,30 @@ describe('blockLayout', () => {
   it('isPhone is under 720 px', () => {
     expect(isPhone(719)).toBe(true);
     expect(isPhone(720)).toBe(false);
+  });
+
+  it('on a phone the Lantern, List and the ruler share one line directly over the caption', () => {
+    for (const cardOpen of [false, true]) {
+      const r = blockLayout({ w: 390, h: 844, cardOpen, sheetExpanded: false, raised: true });
+      const centreY = (x: Rect) => x.y + x.h / 2;
+      expect(Math.abs(centreY(r.lensControl) - centreY(r.ruler))).toBeLessThanOrEqual(1);
+      expect(Math.abs(centreY(r.listControl) - centreY(r.ruler))).toBeLessThanOrEqual(1);
+      expect(r.ruler.y + r.ruler.h).toBe(r.caption.y);
+      expect(r.lensControl.x + r.lensControl.w).toBeLessThan(r.listControl.x);
+      expect(r.listControl.x + r.listControl.w).toBeLessThan(r.ruler.x);
+      expect(r.caption.h).toBe(PHONE_CAPTION_HEIGHT);
+      for (const c of [r.lensControl, r.listControl]) expect(c.w).toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  it('the scene is the whole stage, except on a phone after the raise, where it stays put whether or not a card is open', () => {
+    expect(blockLayout({ w: 1440, h: 900, cardOpen: true, sheetExpanded: false, raised: true }).scene).toEqual({ x: 0, y: 0, w: 1440, h: 900 });
+    expect(blockLayout({ w: 390, h: 788, cardOpen: false, sheetExpanded: false }).scene).toEqual({ x: 0, y: 0, w: 390, h: 788 });
+    const a = blockLayout({ w: 390, h: 788, cardOpen: false, sheetExpanded: false, raised: true }).scene;
+    const b = blockLayout({ w: 390, h: 788, cardOpen: true, sheetExpanded: true, raised: true }).scene;
+    expect(a).toEqual(b);
+    expect(a.y).toBeLessThan(0);
+    expect(a.y + PHONE_SHEET_FAR_EDGE * a.h).toBeCloseTo(TOP_ROW_HEIGHT, 0);
   });
 
   // P2 again, on the page's own rectangles: no visible tag meets the card, the sheet or any control.
