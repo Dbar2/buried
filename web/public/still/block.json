@@ -8,6 +8,12 @@
         "x": 1025.4,
         "y": 486.2,
         "on_screen": true
+      },
+      {
+        "feature_id": "bld_fip_v3_1911_229_0101",
+        "x": 991.1,
+        "y": 487.3,
+        "on_screen": true
       }
     ]
   },
@@ -19,6 +25,12 @@
         "feature_id": "bld_fip_v3_1911_229_0001",
         "x": 469.8,
         "y": 750.4,
+        "on_screen": true
+      },
+      {
+        "feature_id": "bld_fip_v3_1911_229_0101",
+        "x": 380.8,
+        "y": 753.6,
         "on_screen": true
       }
     ]
