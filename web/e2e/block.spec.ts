@@ -8,12 +8,13 @@
  *
  * Screenshots go to web/e2e/output/block-*.png.
  */
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { cropLoaded, stillLoaded } from './support/cropLoaded';
+import { introContrast } from './support/introContrast';
 
 const OUTPUT = join(dirname(fileURLToPath(import.meta.url)), 'output');
 const PLAYER_TIMEOUT = 180_000;
@@ -40,6 +41,13 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
     await stillLoaded(page);
     await expect(page.locator('body')).not.toContainText("Buried screens; it doesn't certify.");
     await page.screenshot({ path: join(OUTPUT, 'block-landing-1440.png') });
+
+    // The words are read on what is behind them: the worst pixel under each line, against the text colour (design.md floor 4.5).
+    const contrast = await introContrast(page);
+    writeFileSync(join(OUTPUT, 'block-landing-contrast.json'), `${JSON.stringify(contrast, null, 2)}\n`);
+    expect(contrast.map((c) => c.name)).toEqual(['headline', 'line']);
+    for (const c of contrast) expect(c.ratio, `the ${c.name} against what is behind it`).toBeGreaterThanOrEqual(c.floor);
+    await expect(page.locator('.block-line')).toHaveCSS('color', 'rgb(232, 220, 193)');
 
     await button.click();
     await raised(page);

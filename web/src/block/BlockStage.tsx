@@ -462,6 +462,7 @@ export function BlockStage(props: BlockStageProps) {
 
       <FindTags mode="pinned" items={items} layout={tagLayoutResult} selectedId={raised ? selectedSlug : null} onSelect={(slug) => select({ kind: 'find', slug })} />
 
+      {introVisible ? <div className="block-scrim" aria-hidden="true" data-testid="block-scrim" /> : null}
       {introVisible ? (
         <div className="block-intro" data-testid="block-intro">
           {notice ? (

@@ -1,6 +1,7 @@
 /*
  * The Block page (spec 06). Colours from tokens.css only. Square corners (2 px at most), hairline borders, no fill
- * gradients (the one exception is the soft `--soot` fade at the scene's lower edge, under the ruler), no pills,
+ * gradients (the exceptions are the soft `--soot` fade at the scene's lower edge, under the ruler, and the `--soot` scrim
+ * behind the landing's words), no pills,
  * nothing heavier than a paper edge for a shadow. `--lantern` appears on the one primary button,
  * the selected find and focus rings on dark. Every docked piece is placed by an inline rectangle from `blockLayout`,
  * so the layout the tags avoid is the layout the page draws.
@@ -17,8 +18,21 @@
 }
 
 .block-line {
-  color: var(--parchment-dim);
+  color: var(--parchment);
   margin: 0;
+}
+
+/*
+ * The intro's ground: `--soot`, solid at the left edge and gone by about 55 per cent of the width, over the full height,
+ * so the headline and the line are read on dark and not on the plan's buildings. On a phone it comes from the top instead.
+ * It sits under the pinned tags and over the scene. A fade of the stage's own colour, not a panel: it has no edge.
+ */
+.block-scrim {
+  background: linear-gradient(to right, var(--soot) 0%, color-mix(in srgb, var(--soot) 94%, transparent) 38%, color-mix(in srgb, var(--soot) 55%, transparent) 46%, transparent 55%);
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
 }
 
 .block-notice {
@@ -843,6 +857,10 @@
     left: var(--space-3);
     max-width: calc(100% - 2 * var(--space-3));
     top: 12%;
+  }
+
+  .block-scrim {
+    background: linear-gradient(to bottom, var(--soot) 0%, color-mix(in srgb, var(--soot) 94%, transparent) 42%, color-mix(in srgb, var(--soot) 55%, transparent) 52%, transparent 62%);
   }
 
   .tag-row {
