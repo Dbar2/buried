@@ -10,6 +10,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
+import { cropLoaded } from './support/cropLoaded';
 
 const OUTPUT = join(dirname(fileURLToPath(import.meta.url)), 'output');
 const PLAYER_TIMEOUT = 180_000;
@@ -43,6 +44,7 @@ test.describe('@unity the Block page on a phone', { tag: '@unity' }, () => {
 
     await page.getByTestId('sheet-handle').tap();
     await expect(page.getByTestId('card-share')).toBeVisible();
+    await cropLoaded(page);
     await page.screenshot({ path: join(OUTPUT, 'block-phone-card.png') });
   });
 });

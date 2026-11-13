@@ -13,6 +13,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { cropLoaded } from './support/cropLoaded';
 
 const OUTPUT = join(dirname(fileURLToPath(import.meta.url)), 'output');
 const PLAYER_TIMEOUT = 180_000;
@@ -23,6 +24,7 @@ test.use({ viewport: { width: 1440, height: 900 } });
 async function raised(page: Page): Promise<void> {
   await expect(page.getByTestId('block-page')).toHaveAttribute('data-phase', 'raised', { timeout: PLAYER_TIMEOUT });
   await expect(page.getByTestId('card-title')).toHaveText('Glove & Overall Factory');
+  await cropLoaded(page);
 }
 
 test.describe('@unity the Block page', { tag: '@unity' }, () => {

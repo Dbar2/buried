@@ -127,7 +127,7 @@ export function FindCard({ view, shareOutcome, onShowOriginalSheet, onShare, onS
       ))}
       {view.crop && crop ? (
         <div className="card-crop" style={crop.frame} data-testid="card-crop">
-          <img src={view.crop.src} alt={view.crop.alt} style={crop.image} loading="lazy" decoding="async" />
+          <img src={view.crop.src} alt={view.crop.alt} style={crop.image} loading="eager" decoding="async" />
         </div>
       ) : null}
       <Row text={view.seenOn} testId="card-seen-on" />

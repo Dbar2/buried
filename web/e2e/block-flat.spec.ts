@@ -9,6 +9,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { cropLoaded } from './support/cropLoaded';
 
 const OUTPUT = join(dirname(fileURLToPath(import.meta.url)), 'output');
 
@@ -71,6 +72,7 @@ for (const viewport of [
     await expect(page.getByTestId('card-status')).toHaveText('Status: draft, not yet reviewed');
     await expect(page.getByTestId('era-ruler')).toBeVisible();
     await expect(page.getByTestId('ruler-1911')).toHaveAttribute('aria-checked', 'true');
+    if (viewport.width >= 720) await cropLoaded(page);
     await settleImages(page);
     await page.screenshot({ path: join(OUTPUT, `block-flat-raised-${viewport.name}.png`) });
 
@@ -86,6 +88,7 @@ for (const viewport of [
     await expect(page.getByTestId('block-page')).toHaveAttribute('data-era', '1935');
     if (viewport.width < 720) await page.getByTestId('sheet-handle').click();
     await expect(page.getByTestId('card-ruler-line')).toHaveText('On the 1931-35 plan this factory is lettered “Glove & Overall Fac.”.');
+    await cropLoaded(page);
     await settleImages(page);
     await page.screenshot({ path: join(OUTPUT, `block-flat-1935-${viewport.name}.png`) });
 
