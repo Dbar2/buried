@@ -6,6 +6,7 @@ import type { WorkspaceDb } from '../workspace/db';
 import { eraForYears } from '../workspace/seen';
 import { MAX_REGION_SIDE_M, defaultRegion, drawStep, regionProblem, regionSizeM } from './extract/region';
 import { PlateStage } from './plate/PlateStage';
+import { plateTitle } from './plate/plateTitle';
 import type { StageMode } from './plate/PlateStage';
 import { intersectRects } from './plate/plateView';
 import type { Rect, Size } from './plate/plateView';
@@ -129,6 +130,7 @@ export function StudioPage() {
       setArea(null);
       setMode('view');
       setStep('review');
+      setFitSignal((n) => n + 1); // the view stays fitted until the reviewer moves it
     } catch (error) {
       if (error instanceof ServiceUnavailableError) setHealth({ kind: 'down' });
       else setExtractError(error instanceof ServiceError ? error.message : String(error));
@@ -252,8 +254,9 @@ export function StudioPage() {
               return (
                 <li key={entry.source.id}>
                   <button type="button" disabled={problem !== null} aria-pressed={chosen} onClick={() => choosePlate(entry)} data-testid={`plate-${entry.source.id}`}>
-                    <span className="mono">{entry.source.id}</span>
-                    <span className="muted small">{problem ?? entry.source.title}</span>
+                    <span>{plateTitle(entry.source)}</span>
+                    <span className="mono small">{entry.source.id}</span>
+                    {problem && <span className="muted small">{problem}</span>}
                   </button>
                 </li>
               );

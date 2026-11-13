@@ -61,6 +61,9 @@ export function PlateStage(props: PlateStageProps) {
   const [tokens, setTokens] = useState<Tokens | null>(null);
   const latest = useRef(props);
   latest.current = props;
+  // True while the view is the fitted one. A resize of the stage (the side panel changes between
+  // steps) refits it; the reviewer's own pan or zoom ends that until the next fit.
+  const fitted = useRef(true);
 
   useEffect(() => setTokens(readTokens()), []);
 
@@ -92,9 +95,17 @@ export function PlateStage(props: PlateStageProps) {
 
   // Fit to the whole map area when asked, and once when the size is first known.
   useEffect(() => {
-    if (measured) setView(fitView(size, crop));
+    if (!measured) return;
+    fitted.current = true;
+    setView(fitView(size, crop));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fitSignal, crop, measured]);
+
+  // The stage changed size while the view was still the fitted one: fit again.
+  useEffect(() => {
+    if (measured && fitted.current) setView(fitView(size, crop));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [size]);
 
   // Fit the current proposal when asked.
   const byId = useMemo(() => new Map(proposals.map((p) => [p.id, p])), [proposals]);
@@ -103,6 +114,7 @@ export function PlateStage(props: PlateStageProps) {
     const id = latest.current.review?.current;
     const p = id ? byId.get(id) : undefined;
     if (!p) return;
+    fitted.current = false;
     const c = p.properties.crop_px;
     const grow = Math.max(c.width, c.height) * 1.5 + 40;
     setView(fitView(size, { x: c.x - grow / 2 + c.width / 2, y: c.y - grow / 2 + c.height / 2, width: grow, height: grow }, 8));
@@ -117,6 +129,7 @@ export function PlateStage(props: PlateStageProps) {
     if (!canvas) return;
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
+      fitted.current = false;
       const rect = canvas.getBoundingClientRect();
       const at = { x: event.clientX - rect.left, y: event.clientY - rect.top };
       setView((v) => zoomAt(v, at, Math.exp(-event.deltaY * 0.0015)));
@@ -250,7 +263,10 @@ export function PlateStage(props: PlateStageProps) {
     const at = localPoint(event);
     if (drag.kind === 'pan') {
       const moved = drag.moved || Math.hypot(at.x - drag.startX, at.y - drag.startY) > CLICK_SLOP_PX;
-      if (moved) setView((v) => panBy(v, at.x - drag.lastX, at.y - drag.lastY));
+      if (moved) {
+        fitted.current = false;
+        setView((v) => panBy(v, at.x - drag.lastX, at.y - drag.lastY));
+      }
       setDrag({ ...drag, lastX: at.x, lastY: at.y, moved });
     } else {
       setDrag({ ...drag, to: toPlate(view, at) });
@@ -270,7 +286,10 @@ export function PlateStage(props: PlateStageProps) {
     setDrag(null);
   };
 
-  const zoomBy = (factor: number) => setView((v) => zoomAt(v, { x: size.width / 2, y: size.height / 2 }, factor));
+  const zoomBy = (factor: number) => {
+    fitted.current = false;
+    setView((v) => zoomAt(v, { x: size.width / 2, y: size.height / 2 }, factor));
+  };
 
   // The current proposal's label sits beside it in the DOM.
   const currentProposal = review?.current ? byId.get(review.current) : undefined;
@@ -307,7 +326,13 @@ export function PlateStage(props: PlateStageProps) {
         <button type="button" onClick={() => zoomBy(1 / ZOOM_STEP)} aria-label="Zoom out">
           −
         </button>
-        <button type="button" onClick={() => setView(fitView(size, crop))}>
+        <button
+          type="button"
+          onClick={() => {
+            fitted.current = true;
+            setView(fitView(size, crop));
+          }}
+        >
           Fit plate
         </button>
       </div>
