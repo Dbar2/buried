@@ -522,7 +522,11 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
     Files: `web/src/sources/SourcesPage.tsx`, `web/src/sources/SourcesPage.test.tsx`.
     Requirements: 21.3, 21.4.
   - [ ] 17.4 Drape placement check (needs task 16.1 and spec 02 task 14.2, because it needs
-    `crop_px`). `web/e2e/drape.spec.ts` per design.md "Drape placement check", on both gate plates
+    `crop_px`). **Built in session 015, not ticked:** the test runs and the renderer places the
+    tile at offset 0, 0 px at all twelve control points, but only two points per plate are 25 m
+    inside the map area, so each plate fails the "at least three tested points" rule. See
+    `docs/kiro-sessions/015-notes.md`; the maintainer decides the margin or adds control points.
+    `web/e2e/drape.spec.ts` per design.md "Drape placement check", on both gate plates
     with `?debug=1`: for each control point of each plate, place the camera with
     `debug/setCamera`, screenshot the canvas with the Shell overlays hidden, and pass when the
     normalised cross-correlation peak lies within 1 px of the expected position and is at least

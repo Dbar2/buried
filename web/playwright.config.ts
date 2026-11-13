@@ -5,6 +5,8 @@ import { defineConfig } from '@playwright/test';
 // If a run cannot get a WebGL 2 context headless, run it headed: `npx playwright test --headed`.
 export default defineConfig({
   testDir: './e2e',
+  // The helpers under e2e/support/ have vitest tests (*.test.ts); Playwright runs only *.spec.ts.
+  testMatch: '**/*.spec.ts',
   timeout: 240_000,
   expect: { timeout: 20_000 },
   fullyParallel: false,

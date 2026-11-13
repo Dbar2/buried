@@ -2,6 +2,8 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react
 import type { ReactNode } from 'react';
 import { browserFetchText, loadData } from '../data/loadData';
 import { Attribution, attributionLines } from './Attribution';
+import { DebugCamera } from './DebugCamera';
+import type { CameraPose } from './cameraPose';
 import { DebugState } from './DebugState';
 import { DepthGauge, announcementFor } from './DepthGauge';
 import { EvidenceCard } from './EvidenceCard';
@@ -41,6 +43,8 @@ export function Explorer() {
   const [player, setPlayer] = useState<PlayerState>(INITIAL_PLAYER_STATE);
   const [unavailable, setUnavailable] = useState<string | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
+  const [cameraCommand, setCameraCommand] = useState<{ seq: number; pose: CameraPose } | null>(null);
+  const sendPose = useCallback((pose: CameraPose) => setCameraCommand((previous) => ({ seq: (previous?.seq ?? 0) + 1, pose })), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -112,6 +116,7 @@ export function Explorer() {
           model={load.model}
           depth={depth}
           debug={debug}
+          cameraCommand={debug ? cameraCommand : null}
           reducedMotion={reducedMotion}
           onPlayerState={setPlayer}
           onFeatureClicked={onFeatureClicked}
@@ -153,6 +158,7 @@ export function Explorer() {
       </p>
       {model && <Attribution lines={attributionLines(visibleSources, model.sources)} />}
       {debug && <DebugState depth={depth} player={player} />}
+      {debug && <DebugCamera onPose={sendPose} />}
     </main>
   );
 }

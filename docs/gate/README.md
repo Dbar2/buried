@@ -35,6 +35,21 @@ positions, so it proves the camera and projection are consistent across eras. Th
 themselves sit correctly under those markers was checked by eye in the two close-ups, and by the
 alignment measurements above.
 
+### The drape placement check (`web/e2e/drape.spec.ts`)
+
+A second test looks at the drape's own pixels. For control points of each plate it points the camera
+straight down at the ground position the tile's corners give that pixel (about 0.25 m per canvas
+pixel), builds from the tile's own JPEG the patch it predicts the canvas shows, and correlates that
+patch with a screenshot (normalised cross-correlation, offsets within 8 px). It proves that the tile
+is drawn where the camera's own matrix puts the ground position its corners assign each pixel, to
+within about one screen pixel: no flip, mirror, half-texel shift, UV or corner-order error, on both
+plates, and that nothing outside the plate's map area is drawn. Together with the alignment
+records, which say how far the corners put each drawn intersection from the City's, it means a plate
+on screen sits within its stated alignment error of today's map. It does not prove that the corners
+or the transform are right (`align-check` does that), anything about extruded features, or placement
+far from the control points (all six points of plate 229 lie in its northern two-thirds). Results
+of the last run are in `docs/kiro-sessions/015-notes.md`.
+
 ## Numbers
 
 - WebGL build: 7.9 MB compressed (budget 15 MB).

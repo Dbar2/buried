@@ -4,7 +4,8 @@ import type { Bridge } from '../bridge/bridge';
 import { fetchBuildFiles, startUnity } from '../bridge/unityLoader';
 import type { UnityInstance } from '../bridge/unityLoader';
 import type { GateModel } from './gateModel';
-import { buildLoadEra, buildMarkers, buildSceneInit, buildSetDepth } from './gateScene';
+import type { CameraPose } from './cameraPose';
+import { buildLoadEra, buildMarkers, buildSceneInit, buildSetCamera, buildSetDepth } from './gateScene';
 import { INITIAL_PLAYER_STATE } from './playerState';
 import type { PlayerState } from './playerState';
 
@@ -29,6 +30,8 @@ export type UnityViewProps = {
   /** The depth (era index) to show. */
   depth: number;
   debug: boolean;
+  /** A debug-only camera pose to send as debug/setCamera; `seq` changes with every new command. */
+  cameraCommand: { seq: number; pose: CameraPose } | null;
   reducedMotion: boolean;
   onPlayerState: (state: PlayerState) => void;
   onFeatureClicked: (featureId: string, eraId: string) => void;
@@ -131,7 +134,9 @@ export default function UnityView(props: UnityViewProps) {
           await done.promise;
           if (disposed) return;
         }
-        if (debug && model.markers.length > 0) {
+        // ?markers=0 leaves the markers out, so the drape placement test sees only the scene.
+        const markersWanted = new URLSearchParams(window.location.search).get('markers') !== '0';
+        if (debug && markersWanted && model.markers.length > 0) {
           bridge.send(buildMarkers(model.markers));
           update((s) => ({ ...s, markersSent: model.markers }));
         }
@@ -157,6 +162,12 @@ export default function UnityView(props: UnityViewProps) {
     if (!running) return;
     bridgeRef.current?.send(buildSetDepth(depth));
   }, [running, depth]);
+
+  const { cameraCommand } = props;
+  useEffect(() => {
+    if (!running || !debug || !cameraCommand) return;
+    bridgeRef.current?.send(buildSetCamera(cameraCommand.pose));
+  }, [running, debug, cameraCommand]);
 
   return <canvas ref={canvasRef} id="unity-canvas" data-testid="unity-canvas" aria-label="3D view of the neighbourhood" />;
 }
