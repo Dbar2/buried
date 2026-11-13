@@ -35,7 +35,6 @@ export { definitionNames, isValid, validate } from './schema';
 export type { ContractOf, DefName, ValidationResult } from './schema';
 export { indexSources, sourceYearsText } from './sources';
 export {
-  checkedSentence,
   originPhrase,
   plainSourceName,
   plainSourceNumbers,

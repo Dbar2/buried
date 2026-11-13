@@ -6,15 +6,15 @@
  *
  * Sentences use plain names for sources ("the 1911 plan"); source ids stay in `sourceIds`, which the
  * view prints in the sources block and in `title` text. A sentence about an outline says whether it
- * was traced automatically and whether a person has checked it, from the feature's own provenance
- * and confidence (`provenanceFacts`), never by guesswork. Where nothing is reviewed and nothing is
- * drawn, the sentence says what the source is and states no finding.
+ * was traced automatically (from the feature's provenance, `provenanceFacts`). Who confirmed it is
+ * shown only as the record states it, "Confirmed by: <confirmed_by>, <date>.", never as a claim that
+ * a person checked it. Where nothing is reviewed and nothing is drawn, the sentence says what the
+ * source is and states no finding.
  *
  * The Today band counts present-day building outlines. Present layers are reference data with no
  * position error, so that band never says "on this lot".
  */
 import {
-  checkedSentence,
   featuresForEra,
   lotRelation,
   originPhrase,
@@ -25,6 +25,7 @@ import {
 import type { Era, EraFeature, Feature, FeatureCollection, LotRelation, PolygonalGeometry, PresentLayer, Source, SourceIndex, TileSidecar } from '../evidence';
 import { eraOrder } from '../explorer/eraOrder';
 import { aerialCoversLot, lotCoverage } from './coverage';
+import { confirmationKey, confirmationOf, confirmedSentences } from './confirmed';
 import type { LotCoverage } from './coverage';
 import { boundsOf, boxesOverlap, cropWindow, ringsOf, tileRef, windowBox } from './cropPlan';
 import type { Crop, CropWindow, Pt } from './cropPlan';
@@ -169,7 +170,7 @@ type Item = { entry: EraFeature; relation: LotRelation; feature: Feature | undef
 /** One sentence and its "checked" line for the items that share a kind, relation, source and provenance. */
 function outlineSentences(items: Item[], which: 'on' | 'near', sources: SourceIndex): Sentence[] {
   const first = items[0] as Item;
-  const facts = first.feature ? provenanceFacts(first.feature) : { tracedAutomatically: false, checkedByPerson: false };
+  const facts = first.feature ? provenanceFacts(first.feature) : { tracedAutomatically: false };
   const origin = first.feature ? sources.get(first.feature.properties.provenance.origin_source) : undefined;
   const water = first.entry.kind === 'water';
   const n = items.length;
@@ -187,7 +188,10 @@ function outlineSentences(items: Item[], which: 'on' | 'near', sources: SourceIn
       [String(widest)],
     );
   }
-  return [sentence`${subject} ${words(originPhrase(facts))} ${planSlot(origin)} ${verb} ${rel}.`, fixed(checkedSentence(facts))];
+  return [
+    sentence`${subject} ${words(originPhrase(facts))} ${planSlot(origin)} ${verb} ${rel}.`,
+    ...confirmedSentences(items.flatMap((i) => (i.feature ? [i.feature] : []))),
+  ];
 }
 
 function pastBand(input: CoreSampleInput, era: Era, plates: readonly Source[]): Band {
@@ -225,8 +229,9 @@ function pastBand(input: CoreSampleInput, era: Era, plates: readonly Source[]): 
   // Items that share kind, relation, source and provenance read as one sentence.
   const groups = new Map<string, Item[]>();
   for (const item of [...buildings, ...water]) {
-    const facts = item.feature ? provenanceFacts(item.feature) : { tracedAutomatically: false, checkedByPerson: false };
-    const key = [item.relation.kind === 'on' ? 0 : 1, item.entry.kind === 'water' ? 1 : 0, item.feature?.properties.provenance.origin_source ?? '', facts.tracedAutomatically, facts.checkedByPerson].join('|');
+    const facts = item.feature ? provenanceFacts(item.feature) : { tracedAutomatically: false };
+    const confirmation = item.feature ? confirmationKey(confirmationOf(item.feature)) : '';
+    const key = [item.relation.kind === 'on' ? 0 : 1, item.entry.kind === 'water' ? 1 : 0, item.feature?.properties.provenance.origin_source ?? '', facts.tracedAutomatically, confirmation].join('|');
     groups.set(key, [...(groups.get(key) ?? []), item]);
   }
   for (const key of [...groups.keys()].sort(byString)) {

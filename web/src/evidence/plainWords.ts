@@ -4,8 +4,7 @@
  * numbers stay in the sources block and in `title` text.
  *
  * Everything here is a pure function of facts in the record. Nothing is guessed: a feature is
- * "traced automatically" only when its provenance names an extraction parameter set, and "checked by
- * a person" only when its confidence is `documented`.
+ * "traced automatically" only when its provenance names an extraction parameter set.
  */
 import type { Feature, Source } from './types.generated';
 
@@ -35,23 +34,18 @@ export function plainSourceNumbers(source: Pick<Source, 'id' | 'year_from' | 'ye
 export type ProvenanceFacts = {
   /** The outline came from the extraction pipeline (its provenance names a parameter set). */
   tracedAutomatically: boolean;
-  /** A person has checked it: the feature's confidence is `documented`. */
-  checkedByPerson: boolean;
 };
 
+/**
+ * Whether a feature was traced automatically. Who confirmed it is never derived here: confidence says
+ * how the footprint and storeys were read, not who checked them. The page shows the record's own
+ * `confirmed_by` and `confirmed_at` (see `report/confirmed.ts`).
+ */
 export function provenanceFacts(feature: Pick<Feature, 'properties'>): ProvenanceFacts {
-  return {
-    tracedAutomatically: feature.properties.provenance.extraction_params_id !== undefined,
-    checkedByPerson: feature.properties.confidence === 'documented',
-  };
+  return { tracedAutomatically: feature.properties.provenance.extraction_params_id !== undefined };
 }
 
 /** "traced automatically from" or "read from", the verb phrase before a plain source name. */
 export function originPhrase(facts: ProvenanceFacts): string {
   return facts.tracedAutomatically ? 'traced automatically from' : 'read from';
-}
-
-/** "Checked by a person." or "Not yet checked by a person." */
-export function checkedSentence(facts: ProvenanceFacts): string {
-  return facts.checkedByPerson ? 'Checked by a person.' : 'Not yet checked by a person.';
 }

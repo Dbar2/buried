@@ -1,7 +1,7 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { findBannedWords } from './text';
-import { checkedSentence, originPhrase, plainSourceName, plainSourceNumbers, plainYears, provenanceFacts } from './plainWords';
+import { originPhrase, plainSourceName, plainSourceNumbers, plainYears, provenanceFacts } from './plainWords';
 import type { Feature } from './types.generated';
 
 const plan1911 = { id: 'fip_v3_1911_229', type: 'fire_insurance_plan', year_from: 1911, year_to: 1914 } as const;
@@ -43,16 +43,15 @@ const feature = (confidence: 'documented' | 'estimated' | 'unknown', extraction:
   ({ properties: { confidence, provenance: extraction ? { extraction_params_id: 'v1' } : {} } }) as unknown as Pick<Feature, 'properties'>;
 
 describe('how a feature came to be', () => {
-  it('reads both facts from the record and nothing else', () => {
-    expect(provenanceFacts(feature('estimated', true))).toEqual({ tracedAutomatically: true, checkedByPerson: false });
-    expect(provenanceFacts(feature('documented', false))).toEqual({ tracedAutomatically: false, checkedByPerson: true });
-    expect(provenanceFacts(feature('unknown', false))).toEqual({ tracedAutomatically: false, checkedByPerson: false });
+  it('reads the automatic fact from provenance and says nothing about who checked it', () => {
+    expect(provenanceFacts(feature('estimated', true))).toEqual({ tracedAutomatically: true });
+    // Confidence says how the footprint was read; it never changes the facts.
+    expect(provenanceFacts(feature('documented', false))).toEqual({ tracedAutomatically: false });
+    expect(provenanceFacts(feature('unknown', false))).toEqual({ tracedAutomatically: false });
   });
 
-  it('words them plainly', () => {
-    expect(originPhrase({ tracedAutomatically: true, checkedByPerson: false })).toBe('traced automatically from');
-    expect(originPhrase({ tracedAutomatically: false, checkedByPerson: true })).toBe('read from');
-    expect(checkedSentence({ tracedAutomatically: true, checkedByPerson: false })).toBe('Not yet checked by a person.');
-    expect(checkedSentence({ tracedAutomatically: false, checkedByPerson: true })).toBe('Checked by a person.');
+  it('words the origin plainly', () => {
+    expect(originPhrase({ tracedAutomatically: true })).toBe('traced automatically from');
+    expect(originPhrase({ tracedAutomatically: false })).toBe('read from');
   });
 });

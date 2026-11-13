@@ -35,6 +35,7 @@ import type {
 import { COVERAGE_WORDING, coverageVisibility, lotCoverage } from './coverage';
 import type { LotCoverage, PlateCoverage } from './coverage';
 import * as copy from './copy';
+import { confirmedSentences } from './confirmed';
 import { LAND_USE_RADIUS_M, RADIUS_M, STRUCTURE_RADIUS_M, WATER_RADIUS_M } from './radii';
 import type { GroupId } from './radii';
 import { datePhrase, dates, fixed, id, joined, onLot, position, quote, sentence, words, within } from './sentence';
@@ -184,13 +185,15 @@ function makeReportFinding(
   },
 ): ReportFinding {
   const featureIds = [...new Set(parts.members.map((m) => m.id))].sort(byString);
+  // The record's own words about who confirmed these features, after the sentences about them.
+  const sentences = [...parts.sentences, ...confirmedSentences(parts.members)];
   const finding = createFinding(
-    { status: parts.status, text: textOf(parts.sentences), sourceIds: parts.sourceIds, featureIds, relation: parts.relation },
+    { status: parts.status, text: textOf(sentences), sourceIds: parts.sourceIds, featureIds, relation: parts.relation },
     input.sources,
   );
   return {
     finding,
-    sentences: parts.sentences,
+    sentences,
     confidence: confidenceEntries(parts.members),
     featureIds,
     sortKey: {

@@ -38,22 +38,24 @@ describe('band sentences', () => {
     }
   });
 
-  it('never says a person checked an outline unless its confidence is documented', () => {
+  it('never turns confidence into a claim that a person checked the outline', () => {
     const collections = linkedBuildingOnLot();
     const features = collections.flatMap((c) => c.features);
     for (const f of features) {
       f.properties.confidence = 'estimated';
       f.properties.provenance.extraction_params_id = 'v1';
+      f.properties.provenance.confirmed_by = 'A. Reader';
+      f.properties.provenance.confirmed_at = '2026-11-12T10:00:00Z';
     }
     const texts = bands(collections).flatMap((b) => b.sentences.map((s) => s.text));
     expect(texts.some((t) => /traced automatically from the \d{4}(-\d{2})? plan sits on this lot\.$/.test(t))).toBe(true);
-    expect(texts).toContain('Not yet checked by a person.');
-    expect(texts).not.toContain('Checked by a person.');
+    expect(texts).toContain('Confirmed by: A. Reader, 2026-11-12.');
 
+    // Changing confidence changes nothing about who confirmed.
     for (const f of features) f.properties.confidence = 'documented';
     const after = bands(collections).flatMap((b) => b.sentences.map((s) => s.text));
-    expect(after).toContain('Checked by a person.');
-    expect(after).not.toContain('Not yet checked by a person.');
+    expect(after).toContain('Confirmed by: A. Reader, 2026-11-12.');
+    for (const t of [...texts, ...after]) expect(t).not.toMatch(/checked by a person|reviewed by/i);
   });
 });
 

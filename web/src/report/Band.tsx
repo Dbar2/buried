@@ -87,7 +87,7 @@ export function Band({ band, sources = [], href, onSelect }: BandProps) {
         {band.sentences.map((s, i) => (
           // The recorded uses and the checked line are printed in the findings (with the status badge
           // and its reason); the band's copy is for the screen.
-          <p key={i} className={/^Uses recorded|checked by a person\.$/i.test(s.text) ? 'print-extra' : undefined}>
+          <p key={i} className={/^Uses recorded|^Confirmed by/i.test(s.text) ? 'print-extra' : undefined}>
             <RichText text={s.text} />
           </p>
         ))}

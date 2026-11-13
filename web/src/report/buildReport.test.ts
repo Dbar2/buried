@@ -90,7 +90,7 @@ describe('a lot with a building drawn on it', () => {
     const y1911 = r.coreSample.find((b) => b.eraId === '1911')!;
     const texts = y1911.sentences.map((s) => s.text);
     expect(texts.some((t) => /^A building outline (read from|traced automatically from) the 1911 plan sits on this lot\.$/.test(t))).toBe(true);
-    expect(texts.some((t) => t === 'Checked by a person.' || t === 'Not yet checked by a person.')).toBe(true);
+    expect(texts.some((t) => /^Confirmed by: .+, \d{4}-\d{2}-\d{2}\.$/.test(t))).toBe(true);
     // Plain words in the body: no id and no plate number in the band's sentences.
     expect(texts.join(' ')).not.toMatch(/fip_|_229|plate/);
     expect(y1911.target).toEqual({ eraId: '1911', lotId: LOT_ID });
