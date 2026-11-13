@@ -168,7 +168,7 @@
 }
 
 .band-dialog::backdrop {
-  background: var(--night);
+  background: var(--soot);
   opacity: 0.8;
 }
 
