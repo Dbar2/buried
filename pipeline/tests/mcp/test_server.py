@@ -12,7 +12,10 @@ import pytest
 from buried_pipeline.mcp.server import SUPPORTED_PROTOCOLS, TOOLS, Server
 from buried_pipeline.mcp.store import EvidenceStore
 
-TOOL_NAMES = ["find_places", "features_near", "list_sources", "plate_alignment", "plate_work"]
+TOOL_NAMES = [
+    "find_places", "features_near", "plate_features", "list_sources", "plate_alignment",
+    "plate_work",
+]  # fmt: skip
 
 
 def rpc(method: str, params: dict[str, Any] | None = None, id: int | None = 1) -> dict[str, Any]:
