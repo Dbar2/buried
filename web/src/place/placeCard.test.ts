@@ -1,11 +1,12 @@
 /**
  * Session 029: the evidence card says what the record says and nothing more. On the committed data,
- * every card for every feature of every era has the record's own "Confirmed by" line, no derived
+ * every card for every feature of every era has the record's own status line ("Status: draft, not yet
+ * reviewed" or "reviewed by"), no derived
  * review claim, no banned word, and a crop only from the feature's own origin source.
  */
 import { beforeAll, describe, expect, it } from 'vitest';
 import { loadData } from '../data/loadData';
-import { findBannedWords, positionPhrase } from '../evidence';
+import { findBannedWords, positionPhrase, reviewStatusLine } from '../evidence';
 import { diskFetch, REPOSITORY_DATA } from '../explorer/testing/diskFetch';
 import { buildGateModel } from '../explorer/gateModel';
 import type { GateModel } from '../explorer/gateModel';
@@ -34,11 +35,12 @@ describe('the place card on the committed data', () => {
     expect(everyCard().length).toBeGreaterThan(0);
   });
 
-  it("repeats the record's own Confirmed by line, as the provenance states it", () => {
+  it("prints the record's review status, never its confirmed_by", () => {
     for (const { id, card } of everyCard()) {
       const p = model.features.get(id)!.properties.provenance;
-      const row = card.rows.find((r) => r.key === 'confirmed')!;
-      expect(row.value, id).toBe(`Confirmed by: ${p.confirmed_by}, ${p.confirmed_at.slice(0, 10)}.`);
+      const row = card.rows.find((r) => r.key === 'status')!;
+      expect(row.value, id).toBe(reviewStatusLine(p.review));
+      expect(row.value, id).not.toContain(p.confirmed_by);
     }
   });
 
@@ -46,9 +48,9 @@ describe('the place card on the committed data', () => {
     for (const { id, card } of everyCard()) {
       const text = [card.heading, card.cropLabel, ...card.rows.map((r) => r.value), card.source.name, card.source.attributionLine].join(' ');
       expect(text, id).not.toMatch(/checked by a person/i);
-      expect(text, id).not.toMatch(/\b(reviewed|verified|checked|confirmed) by\b(?!:)/i);
-      // Every "Confirmed by" in the card is the one row.
-      expect((text.match(/Confirmed by/g) ?? []).length, id).toBe(1);
+      expect(text, id).not.toMatch(/\bconfirmed\b/i);
+      // Every claim of review in the card is the one status row.
+      expect((text.match(/\b(reviewed|verified|checked) by\b/gi) ?? []).length, id).toBe(card.rows.find((r) => r.key === 'status')!.value.includes('reviewed by') ? 1 : 0);
     }
   });
 

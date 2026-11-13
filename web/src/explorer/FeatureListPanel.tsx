@@ -36,7 +36,7 @@ export function FeatureList({ rows, eraLabel, open, onToggle, onChoose, selected
                       {row.dates ? `. ${row.dates}` : ''}
                     </span>
                     <span className="feature-meta mono">{row.position}</span>
-                    {row.confirmedBy && <span className="feature-meta">{row.confirmedBy}</span>}
+                    {row.status && <span className="feature-meta">{row.status}</span>}
                   </button>
                 </li>
               ))}

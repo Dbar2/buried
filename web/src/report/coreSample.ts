@@ -6,8 +6,9 @@
  *
  * Sentences use plain names for sources ("the 1911 plan"); source ids stay in `sourceIds`, which the
  * view prints in the sources block and in `title` text. A sentence about an outline says whether it
- * was traced automatically (from the feature's provenance, `provenanceFacts`). Who confirmed it is
- * shown only as the record states it, "Confirmed by: <confirmed_by>, <date>.", never as a claim that
+ * was traced automatically (from the feature's provenance, `provenanceFacts`). Whether a person has
+ * reviewed it is shown only as the record states it, "Status: reviewed by <by>, <on>" or "Status:
+ * draft, not yet reviewed" (`reviewStatus.ts`), never as a claim that
  * a person checked it. Where nothing is reviewed and nothing is drawn, the sentence says what the
  * source is and states no finding.
  *
@@ -28,7 +29,7 @@ import {
 import type { Era, EraFeature, Feature, FeatureCollection, LotRelation, OutlineAttribution, PolygonalGeometry, PresentLayer, Source, SourceIndex, TileSidecar } from '../evidence';
 import { eraOrder } from '../explorer/eraOrder';
 import { aerialCoversLot, lotCoverage } from './coverage';
-import { confirmationKey, confirmationOf, confirmedSentences } from './confirmed';
+import { reviewOf, statusSentence, statusSentences } from './reviewStatus';
 import type { LotCoverage } from './coverage';
 import { boundsOf, boxesOverlap, cropWindow, ringsOf, tileRef, windowBox } from './cropPlan';
 import type { Crop, CropWindow, Pt } from './cropPlan';
@@ -205,7 +206,7 @@ function outlineSentences(items: Item[], which: 'on' | 'near'): Sentence[] {
             sentence`${words(FIRST_DRAWN_ON)} ${planSlot(attribution.first)}; drawn again on ${planSlot(attribution.again)}.`,
           ]
         : [];
-  return [...lead, ...confirmedSentences(items.flatMap((i) => (i.feature ? [i.feature] : [])))];
+  return [...lead, ...statusSentences(items.flatMap((i) => (i.feature ? [i.feature] : [])))];
 }
 
 function pastBand(input: CoreSampleInput, era: Era, plates: readonly Source[]): Band {
@@ -261,7 +262,7 @@ function pastBand(input: CoreSampleInput, era: Era, plates: readonly Source[]): 
   for (const item of [...buildings, ...water]) {
     if (item.attribution.kind === 'not_shown') continue;
     const facts = item.feature ? provenanceFacts(item.feature) : { tracedAutomatically: false };
-    const confirmation = item.feature ? confirmationKey(confirmationOf(item.feature)) : '';
+    const confirmation = item.feature ? statusSentence(reviewOf(item.feature)).text : '';
     const attributed = item.attribution.kind === 'drawn_again' ? `again:${item.attribution.first.id}:${item.attribution.again.id}` : 'here';
     const key = [item.relation.kind === 'on' ? 0 : 1, item.entry.kind === 'water' ? 1 : 0, item.feature?.properties.provenance.origin_source ?? '', attributed, facts.tracedAutomatically, confirmation].join('|');
     groups.set(key, [...(groups.get(key) ?? []), item]);

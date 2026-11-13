@@ -310,8 +310,8 @@ test('clicking the gate building shows its provenance in a DOM card', async ({ p
   await expect(page.getByTestId('card-feature')).toHaveText(feature.id);
   await expect(page.getByTestId('card-read-from')).toContainText(feature.properties.provenance.origin_source);
   await expect(page.getByTestId('card-position')).toHaveText(positionPhrase(feature.properties.position_error_m));
-  await expect(page.getByTestId('card-confirmed-by')).toHaveText(feature.properties.provenance.confirmed_by);
-  await expect(page.getByTestId('card-confirmed-at')).toHaveAttribute('title', feature.properties.provenance.confirmed_at);
+  await expect(page.getByTestId('card-status')).toHaveText(/^Status: (draft, not yet reviewed|reviewed by .+, \d{4}-\d{2}-\d{2})$/);
+  await expect(page.getByTestId('card-confirmed-by')).toHaveCount(0);
   await expect(page.getByTestId('card-attribution')).toHaveText((origin as { attribution_line: string }).attribution_line);
 
   await page.screenshot({ path: join(OUTPUT, 'gate-card.png') });

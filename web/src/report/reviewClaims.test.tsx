@@ -1,8 +1,8 @@
 /**
  * Session 027: the page never claims a person checked or reviewed something that the record does not
  * say in a structured way. On the committed evidence, every review claim in the rendered Report must
- * be a "Confirmed by: <confirmed_by>, <date>." line that repeats a `provenance` of a published feature,
- * and the old derived phrases must not appear.
+ * be a "Status: reviewed by <by>, <on>" line that repeats a `provenance.review` of a published feature (or
+ * "Status: draft, not yet reviewed"), `confirmed_by` is never printed, and the old derived phrases must not appear.
  */
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
@@ -21,7 +21,7 @@ const textOf = (markup: string): string =>
     .replace(/\s+/g, ' ');
 
 describe('review claims on the committed data', () => {
-  it('prints "Confirmed by" from the record and no derived review phrase', async () => {
+  it('prints the review status from the record and no derived review phrase', async () => {
     const data = await loadData(diskFetch(REPOSITORY_DATA));
     const features = data.evidence.flatMap((c) => c.features);
     const building = features.find((f) => f.id === 'bld_fip_v3_1911_229_0001')!;
@@ -50,15 +50,19 @@ describe('review claims on the committed data', () => {
 
     const page = textOf(renderToStaticMarkup(<ReportView model={model} />));
     expect(page).not.toMatch(/checked by a person/i);
-    expect(page).not.toMatch(/\b(reviewed|verified|checked|confirmed) by\b(?!:)/i);
+    expect(page).not.toMatch(/\bconfirmed\b/i);
+    expect(page).not.toMatch(/\b(verified|checked) by\b/i);
 
-    const recorded = new Set(features.map((f) => `${f.properties.provenance.confirmed_by}, ${f.properties.provenance.confirmed_at.slice(0, 10)}`));
-    const claims = [...page.matchAll(/Confirmed by: (.+?, \d{4}-\d{2}-\d{2})\./g)].map((m) => m[1]!);
-    expect(claims.length).toBeGreaterThan(0);
-    for (const claim of claims) expect(recorded.has(claim), claim).toBe(true);
+    // The publishing record (`confirmed_by`) is never printed, as a status or at all.
+    for (const f of features) expect(page).not.toContain(f.properties.provenance.confirmed_by);
 
-    // The record behind the lot says "unreviewed"; the page repeats those words and nothing stronger.
-    expect(building.properties.provenance.confirmed_by).toBe('Buried maintainers (gate draft, unreviewed)');
-    expect(page).toContain('Confirmed by: Buried maintainers (gate draft, unreviewed), 2026-11-12.');
+    // A "reviewed by" line repeats the `review` of a published feature.
+    const recorded = new Set(features.flatMap((f) => (f.properties.provenance.review.state === 'reviewed' ? [`${f.properties.provenance.review.by}, ${f.properties.provenance.review.on}`] : [])));
+    for (const m of page.matchAll(/Status: reviewed by (.+?, \d{4}-\d{2}-\d{2})/g)) expect(recorded.has(m[1]!), m[1]).toBe(true);
+
+    // The record behind the lot is a hand-traced draft; the page says so and nothing stronger.
+    expect(building.properties.provenance.review.state).toBe('draft_hand');
+    expect(page).toContain('Status: draft, not yet reviewed');
+    expect(page).not.toMatch(/Status: reviewed by/);
   });
 });

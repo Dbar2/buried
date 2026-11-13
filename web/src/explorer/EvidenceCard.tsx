@@ -6,7 +6,7 @@ export function isCloseKey(key: string): boolean {
   return key === 'Escape';
 }
 
-/** The id of a row's value element, for tests: "Confirmed by" is "card-confirmed-by". */
+/** The id of a row's value element, for tests: "Read from" is "card-read-from". */
 export function rowTestId(label: string): string {
   return `card-${label.toLowerCase().replace(/\s+/g, '-')}`;
 }

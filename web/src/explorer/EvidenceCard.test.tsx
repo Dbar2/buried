@@ -9,10 +9,9 @@ const card: GateCard = {
   rows: [
     { label: 'Feature', value: 'bld_fip_v3_1911_229_0001', mono: true },
     { label: 'Confidence', value: 'Documented. Read from the plate.', mono: false },
-    { label: 'Position', value: 'Positioned within about 4.5 m', mono: true },
+    { label: 'Position', value: 'Positioned within about 4.5 m', mono: true, title: 'Stored as 4.5 m' },
     { label: 'Read from', value: 'Goad plan (fip_v3_1911_229)', mono: false },
-    { label: 'Confirmed by', value: 'A reviewer', mono: false },
-    { label: 'Confirmed at', value: '13 Nov 2026, 12:00 UTC', mono: true, title: '2026-11-13T12:00:00Z' },
+    { label: 'Status', value: 'Status: draft, not yet reviewed', mono: false },
     { label: 'Attribution', value: 'Digitized and georeferenced by the University of Toronto Map & Data Library.', mono: false },
   ],
 };
@@ -32,8 +31,7 @@ describe('EvidenceCard', () => {
   it('puts ids, years and the position figure in the mono face and prose in the body face', () => {
     expect(html).toMatch(/class="mono" data-testid="card-feature"/);
     expect(html).toMatch(/class="mono" data-testid="card-position"/);
-    expect(html).toMatch(/class="mono" data-testid="card-confirmed-at"/);
-    expect(html).toContain('title="2026-11-13T12:00:00Z"');
+    expect(html).toContain('title="Stored as 4.5 m"');
     expect(html).not.toMatch(/class="mono" data-testid="card-confidence"/);
     expect(html).not.toMatch(/class="mono" data-testid="card-attribution"/);
   });

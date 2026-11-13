@@ -44,6 +44,7 @@ export {
   provenanceFacts,
 } from './plainWords';
 export type { ProvenanceFacts } from './plainWords';
+export { reviewStatusLine, isReviewed, DRAFT_STATUS } from './review';
 export { parseFindsFile } from './findsFile';
 export {
   findPositionLine,

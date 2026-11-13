@@ -79,7 +79,7 @@ describe('the 2D fallback', () => {
 });
 
 describe('the list view', () => {
-  it('has one row per feature of the era, with the label, position and the record\'s Confirmed by line', () => {
+  it('has one row per feature of the era, with the label, position and the record\'s status line', () => {
     for (const era of model.order) {
       const list = model.lists.get(era.id)!;
       const rows = featureRows(list, model.features);
@@ -89,9 +89,9 @@ describe('the list view', () => {
       for (const row of rows) {
         expect(['Documented', 'Estimated', 'Unknown']).toContain(row.confidenceLabel);
         expect(row.position).toMatch(/^Positioned within about \d+(\.\d)? m$/);
-        expect(row.confirmedBy).toMatch(/^Confirmed by: .+, \d{4}-\d{2}-\d{2}\.$/);
+        expect(row.status).toMatch(/^Status: (draft, not yet reviewed|reviewed by .+, \d{4}-\d{2}-\d{2})$/);
         expect(html).toContain(row.position);
-        expect(findBannedWords(`${row.name} ${row.confidenceLabel} ${row.dates} ${row.confirmedBy}`)).toEqual([]);
+        expect(findBannedWords(`${row.name} ${row.confidenceLabel} ${row.dates} ${row.status}`)).toEqual([]);
       }
     }
   });

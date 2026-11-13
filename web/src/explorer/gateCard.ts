@@ -1,12 +1,12 @@
 /**
  * The gate version of the evidence card (spec 03 requirement 24.3): the feature id, the origin
- * source, the position phrase, who confirmed it and when, and the origin source's attribution line,
+ * source, the position phrase, the review status and the origin source's attribution line,
  * plus the confidence label and reason. The full card (dates, sources checked, crop) is task 5.1.
  *
  * Wording comes from the Evidence Library: the position phrase is `positionPhrase`, never written here.
  */
 import type { EraFeature, Feature, SourceIndex } from '../evidence';
-import { plainReason, positionPhrase } from '../evidence';
+import { plainReason, positionPhrase, reviewStatusLine } from '../evidence';
 
 export type CardRow = {
   label: string;
@@ -56,17 +56,14 @@ export function buildGateCard(
   if (!source) throw new CardError(`Source ${provenance.origin_source} is not in the registry`);
 
   const kindName = entry.kind === 'building' ? 'Building' : entry.kind === 'water' ? 'Water' : 'Land use';
-  // A workspace feature says so, and says who confirmed it, in one row (spec 04 requirement 6.5).
+  // The review status is the one thing the card says about review. `confirmed_by` and `confirmed_at` are the
+  // publishing record and are not printed as a status (spec 06 requirement 9.2). A workspace feature says
+  // where it is from in its own row (spec 04 requirement 6.5).
+  const status: CardRow = { label: 'Status', value: reviewStatusLine(provenance.review), mono: false };
   const confirmation: CardRow[] =
     origin === 'workspace'
-      ? [
-          { label: 'Origin', value: `From your workspace, confirmed by ${provenance.confirmed_by}. Not part of Buried's reviewed record.`, mono: false },
-          { label: 'Confirmed at', value: formatUtc(provenance.confirmed_at), mono: true, title: provenance.confirmed_at },
-        ]
-      : [
-          { label: 'Confirmed by', value: provenance.confirmed_by, mono: false },
-          { label: 'Confirmed at', value: formatUtc(provenance.confirmed_at), mono: true, title: provenance.confirmed_at },
-        ];
+      ? [{ label: 'Origin', value: "From your workspace. Not part of Buried's reviewed record.", mono: false }, status]
+      : [status];
   return {
     heading: entry.attributes.use ?? kindName,
     rows: [

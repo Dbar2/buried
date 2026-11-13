@@ -38,7 +38,7 @@ describe('band sentences', () => {
     }
   });
 
-  it('never turns confidence into a claim that a person checked the outline', () => {
+  it('never turns confidence, or the publishing record, into a claim that a person checked the outline', () => {
     const collections = linkedBuildingOnLot();
     const features = collections.flatMap((c) => c.features);
     for (const f of features) {
@@ -46,16 +46,23 @@ describe('band sentences', () => {
       f.properties.provenance.extraction_params_id = 'v1';
       f.properties.provenance.confirmed_by = 'A. Reader';
       f.properties.provenance.confirmed_at = '2026-11-12T10:00:00Z';
+      f.properties.provenance.review = { state: 'draft_rule' };
     }
     const texts = bands(collections).flatMap((b) => b.sentences.map((s) => s.text));
     expect(texts.some((t) => /traced automatically from the \d{4}(-\d{2})? plan sits on this lot\.$/.test(t))).toBe(true);
-    expect(texts).toContain('Confirmed by: A. Reader, 2026-11-12.');
+    expect(texts).toContain('Status: draft, not yet reviewed');
 
-    // Changing confidence changes nothing about who confirmed.
+    // Changing confidence changes nothing about review, and `confirmed_by` is not printed.
     for (const f of features) f.properties.confidence = 'documented';
     const after = bands(collections).flatMap((b) => b.sentences.map((s) => s.text));
-    expect(after).toContain('Confirmed by: A. Reader, 2026-11-12.');
-    for (const t of [...texts, ...after]) expect(t).not.toMatch(/checked by a person|reviewed by/i);
+    expect(after).toContain('Status: draft, not yet reviewed');
+    for (const t of [...texts, ...after]) expect(t).not.toMatch(/checked by a person|reviewed by|confirmed|A\. Reader/i);
+
+    // A feature a person has reviewed says who and when, from `review`, not from `confirmed_by`.
+    for (const f of features) f.properties.provenance.review = { state: 'reviewed', by: 'B. Checker', on: '2026-11-14' };
+    const reviewed = bands(collections).flatMap((b) => b.sentences.map((s) => s.text));
+    expect(reviewed).toContain('Status: reviewed by B. Checker, 2026-11-14');
+    for (const t of reviewed) expect(t).not.toMatch(/confirmed|A\. Reader/i);
   });
 });
 
@@ -112,7 +119,7 @@ describe('on the committed data', () => {
     const b1911 = r.coreSample.find((b) => b.eraId === '1911')!;
     expect(b1911.crop.kind).toBe('tile');
     // A use is quoted once, in the land-use group, never in an era's band.
-    for (const band of r.coreSample) for (const s of band.sentences.filter((x) => !x.text.startsWith('Confirmed by'))) expect(s.text).not.toMatch(BODY_FORBIDDEN);
+    for (const band of r.coreSample) for (const s of band.sentences.filter((x) => !x.text.startsWith('Status:'))) expect(s.text).not.toMatch(BODY_FORBIDDEN);
     expect(r.coreSample.flatMap((b) => b.sentences.map((s) => s.text)).join(' ')).not.toContain('Bank of Nova Scotia');
     const outline = b1911.sentences.map((s) => s.text).find((t) => /building outline/.test(t));
     expect(outline).toMatch(/the 1911 plan (sits|sit) (on this lot|near this lot \(within \d+ m\))\.$/);

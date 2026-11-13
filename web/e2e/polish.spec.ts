@@ -36,7 +36,7 @@ test('the landing: wordmark, tagline, field, "Try" and the coverage line', async
   await page.waitForURL(/\/place\?lot=/);
 });
 
-test('the place page: the address as the heading, a summary, and the record\'s own Confirmed by line', async ({ page }) => {
+test('the place page: the address as the heading, a summary, and the record\'s own status line', async ({ page }) => {
   test.setTimeout(240_000);
   const lot = lotWithTheBuilding();
   await page.goto(`/place?lot=${encodeURIComponent(lot)}&era=1911`);
@@ -45,7 +45,8 @@ test('the place page: the address as the heading, a summary, and the record\'s o
   await expect(page.locator('.report h1')).not.toHaveText(/documented history/i);
   await expect(page.getByTestId('report-subtitle')).toHaveText('The documented history of this place.');
   await expect(page.getByTestId('report-summary')).toContainText('fire insurance plans cover this lot');
-  await expect(report).toContainText('Confirmed by: Buried maintainers (gate draft, unreviewed), 2026-11-12.');
+  await expect(report).toContainText('Status: draft, not yet reviewed');
+  await expect(report).not.toContainText(/\bconfirmed\b/i);
   await expect(report).not.toContainText(/checked by a person/i);
   await expect(report).not.toContainText('Address:');
   await expect(report).toContainText("lettered on the 1911 plan as 'Bank of Nova Scotia; offices on 2nd'");

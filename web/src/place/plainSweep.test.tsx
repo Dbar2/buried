@@ -176,7 +176,7 @@ describe('plain words on the rendered place page', () => {
     const card = buildPlaceCard(entry, model.features.get(AREA_ID)!, model.sources, model.tiles, 'workspace');
     const confidence = card.rows.find((r) => r.key === 'confidence')!.value;
     expect(confidence).toBe('Documented. Area and use traced from the 1911 plan');
-    expect(card.rows.find((r) => r.key === 'confirmed')!.value).toMatch(/^Confirmed by: Synthetic Reviewer, /);
+    expect(card.rows.find((r) => r.key === 'status')!.value).toBe('Status: draft, not yet reviewed');
     expect(`${confidence} ${card.cropLabel}`).not.toMatch(/by a person/i);
   });
 });

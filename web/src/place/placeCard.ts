@@ -4,20 +4,21 @@
  *
  * The card states nothing the record does not: the use as lettered, the storeys when the record has
  * them, the confidence label with its reason, the position phrase (the Evidence Library's wording),
- * the "Confirmed by" line copied from the feature's provenance, and the origin source's attribution.
+ * the status line from the feature's `provenance.review` ("Status: draft, not yet reviewed"), and the origin
+ * source's attribution. `confirmed_by` is the publishing record and is never printed as a status.
  * It never says a person checked or reviewed anything beyond that line. Text that carries a banned
  * word is not reproduced (product rule 1); the card names the record instead.
  */
 import { findBannedWords, plainReason, plainSourceName, positionPhrase } from '../evidence';
 import type { EraFeature, Feature, PolygonalGeometry, SourceIndex, TileSidecar } from '../evidence';
 import { CONFIDENCE_LABELS } from '../explorer/gateCard';
-import { confirmationOf, confirmedSentence } from '../report/confirmed';
+import { reviewOf, statusSentence } from '../report/reviewStatus';
 import { cropWindow, ringsOf, tileRef } from '../report/cropPlan';
 import type { Crop } from '../report/cropPlan';
 
 export type PlaceCardRow = {
   /** Stable key and the suffix of the row's test id. */
-  key: 'use' | 'storeys' | 'confidence' | 'position' | 'confirmed' | 'origin';
+  key: 'use' | 'storeys' | 'confidence' | 'position' | 'status' | 'origin';
   label: string;
   value: string;
   mono: boolean;
@@ -111,7 +112,7 @@ export function buildPlaceCard(
   rows.push(
     { key: 'confidence', label: 'Confidence', value: quoted(`${CONFIDENCE_LABELS[entry.confidence]}. ${plainReason(entry.confidenceReason, sources)}`, 'Confidence'), mono: false },
     { key: 'position', label: 'Position', value: positionPhrase(entry.positionErrorM), mono: true },
-    { key: 'confirmed', label: 'Record', value: confirmedSentence(confirmationOf(feature)).text, mono: false },
+    { key: 'status', label: 'Status', value: statusSentence(reviewOf(feature)).text, mono: false },
   );
   if (origin === 'workspace') {
     rows.push({ key: 'origin', label: 'Origin', value: "From your workspace. Not part of Buried's published records.", mono: false });

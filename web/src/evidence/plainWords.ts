@@ -56,7 +56,7 @@ const SOURCE_ID_TOKEN = /\b(?:fip|aerial|present|ws_upload)_[a-z0-9_]*[a-z0-9]/g
 /**
  * A recorded confidence reason in plain words. The record's own text can hold a source id ("Area and
  * use traced by a person from fip_v3_1911_229"). A body sentence names the source as "the 1911 plan"
- * and does not say who traced it: that comes only from the record's "Confirmed by" line. So a
+ * and does not say who traced it: that comes only from the record's "Status" line. So a
  * registered id becomes its plain name, an id nobody registered becomes "the source", and "traced by
  * a person" becomes "traced". Text with no id and no such phrase is returned unchanged.
  */
