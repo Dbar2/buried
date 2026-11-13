@@ -168,6 +168,22 @@ export const messageArbitraries: Readonly<Record<MessageType, Arb<BridgeMessage>
       .tuple(fc.constantFrom('lit', 'original'), fc.option(sourceIdArb, { nil: undefined }))
       .map(([mode, sourceId]) => (sourceId === undefined ? { mode } : { mode, sourceId })),
   ),
+  'scene/setLantern': message(
+    'scene/setLantern',
+    fc.record({
+      on: fc.boolean(),
+      center: fc.record({ x: milli(0, 1), y: milli(0, 1) }),
+      radius: milli(0.05, 0.5),
+      eraId: eraIdArb,
+    }),
+  ),
+  'scene/showEvidence': message(
+    'scene/showEvidence',
+    fc.oneof(
+      fc.record({ featureId: featureIdArb, on: fc.constant(true), drape: drapeArb }),
+      fc.record({ featureId: featureIdArb, on: fc.constant(false) }),
+    ),
+  ),
   'debug/markers': message(
     'debug/markers',
     fc.record({

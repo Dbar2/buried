@@ -11,8 +11,8 @@ namespace Buried.Scene
 {
     /// <summary>
     /// The pinned lot (design.md "The pinned lot"): its outline on the ground in `lantern`, drawn in every
-    /// era and over everything, and one small warm light beside it. That is the only `lantern` and the
-    /// only warm light in the scene. The Player draws the polygon it is given; which lot it is, and
+    /// era and over everything. The warm light pool at the lot is the lit map sheet's (SceneController moves
+    /// it); there is no lamp or other marker. That is the only `lantern` in the scene. The Player draws the polygon it is given; which lot it is, and
     /// whether anything stood on it, is decided outside (the Shell and the Evidence Library).
     /// </summary>
     public sealed class LotPin
@@ -26,42 +26,9 @@ namespace Buried.Scene
             get { return Bounds.center; }
         }
 
-        /// <summary>Where the lamp stands (world x and z); its post rises from y = 0.</summary>
-        public Vector2 Lamp { get; private set; }
-
         private readonly GameObject _root;
         private readonly List<Mesh> _meshes = new List<Mesh>();
         private readonly List<Material> _materials = new List<Material>();
-
-        /// <summary>
-        /// Where the lamp stands: <see cref="LookSettings.LampOffsetM"/> outside the lot's southernmost
-        /// corner, on the line from the middle of the corners through it (ties go to the westmost). Pure, so
-        /// it can be tested; "south" because the default view looks north-north-east, so the lamp is on the
-        /// near side of the lot and in front of it.
-        /// </summary>
-        public static Vec2d LampPosition(IList<Vec2d> corners)
-        {
-            if (corners == null || corners.Count == 0) throw new ArgumentException("a lot has at least one corner");
-            Vec2d south = corners[0];
-            double sumX = 0.0;
-            double sumY = 0.0;
-            foreach (Vec2d p in corners)
-            {
-                sumX += p.X;
-                sumY += p.Y;
-                if (p.Y < south.Y || (p.Y == south.Y && p.X < south.X)) south = p;
-            }
-            double dx = south.X - sumX / corners.Count;
-            double dy = south.Y - sumY / corners.Count;
-            double length = Math.Sqrt(dx * dx + dy * dy);
-            if (length < 1e-9)
-            {
-                dx = 0.0;
-                dy = -1.0;
-                length = 1.0;
-            }
-            return new Vec2d(south.X + dx / length * LookSettings.LampOffsetM, south.Y + dy / length * LookSettings.LampOffsetM);
-        }
 
         public LotPin(Transform parent, GeometryDto lot, ProjectFrame frame, BuriedPalette palette, ShaderSet shaders, float pixelScale)
         {
@@ -86,8 +53,6 @@ namespace Buried.Scene
             if (outline == null || corners.Count == 0) throw new InvalidOperationException("the lot has no area after cleaning");
 
             Bounds = new Rect((float)minX, (float)minZ, (float)(maxX - minX), (float)(maxZ - minZ));
-            Vec2d lamp = LampPosition(corners);
-            Lamp = new Vector2((float)lamp.X, (float)lamp.Y);
 
             _root = new GameObject("Pinned lot");
             _root.transform.SetParent(parent, false);
@@ -102,20 +67,6 @@ namespace Buried.Scene
             line.SetFloat("_ZTest", (float)CompareFunction.Always);
             line.renderQueue = 3020;
             AddRenderer("Outline", outline.ToMesh("Pinned lot outline"), line);
-
-            // The lamp: a thin post and a lit head, in the same `lantern`. The head's emission is above 1 so it glows.
-            var base3 = new Vector3(Lamp.x, 0f, Lamp.y);
-            var top = new Vector3(Lamp.x, LookSettings.LampPostHeightM, Lamp.y);
-            var tip = new Vector3(Lamp.x, LookSettings.LampPostHeightM + LookSettings.LampHeadLengthM, Lamp.y);
-            Material post = EdgeMaterial(shaders.edge, palette, pixelScale, LookSettings.LampPostWidthCssPx, 1f);
-            post.SetFloat("_GlowAlpha", 0f);
-            post.renderQueue = 3021;
-            AddRenderer("Lamp post", EdgeMeshBuilder.BuildLine(base3, top).ToMesh("Lamp post"), post);
-            Material head = EdgeMaterial(shaders.edge, palette, pixelScale, LookSettings.LampHeadWidthCssPx, LookSettings.LampHeadEmission);
-            head.SetFloat("_GlowPx", 3f);
-            head.SetFloat("_GlowAlpha", 0.45f);
-            head.renderQueue = 3022;
-            AddRenderer("Lamp head", EdgeMeshBuilder.BuildLine(top, tip).ToMesh("Lamp head"), head);
         }
 
         private Material EdgeMaterial(Shader shader, BuriedPalette palette, float pixelScale, float widthPx, float emission)

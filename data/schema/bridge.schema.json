@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://buried.invalid/schema/bridge.schema.json",
   "title": "Buried bridge messages",
-  "description": "Every message between the web shell and the Unity Player, bridge version 0.5.0 (the gate subset plus the look pass additions, the drape clip and scene/addFeatures of .kiro/specs/03-explorer; 0.5.0 adds scene/focusLot, scene/clearLot, scene/setDrapeMode, the optional sceneFeature.storeys and the optional drape.kind of session 023). A message is { type, payload }. All positions are EPSG:26917 metres, easting first. No property is named like a year or a date: the Player draws what it is told and never dates anything. Rules JSON Schema cannot express are checked by both parsers (web/src/bridge/bridge.ts and unity/Assets/Buried/Runtime/Bridge/BridgeParser.cs) and covered by the same invalid fixtures: every polygon ring is closed (first position equals last); scene/init eras have unique ids and indexes that are exactly 0 to n-1; scene/init initialView has minE < maxE and minN < maxN and lies inside bounds; scene/init present building ids, scene/loadEra and scene/addFeatures feature ids, scene/loadEra drape source ids and debug/markers ids are each unique. Every change to this file changes the bridge version.",
+  "description": "Every message between the web shell and the Unity Player, bridge version 0.6.0 (the gate subset plus the look pass additions, the drape clip and scene/addFeatures of .kiro/specs/03-explorer; 0.5.0 adds scene/focusLot, scene/clearLot, scene/setDrapeMode, the optional sceneFeature.storeys and the optional drape.kind of session 023; 0.6.0 adds scene/setLantern and scene/showEvidence of session 028 and drops the lamp from the pinned lot). A message is { type, payload }. All positions are EPSG:26917 metres, easting first. No property is named like a year or a date: the Player draws what it is told and never dates anything. Rules JSON Schema cannot express are checked by both parsers (web/src/bridge/bridge.ts and unity/Assets/Buried/Runtime/Bridge/BridgeParser.cs) and covered by the same invalid fixtures: every polygon ring is closed (first position equals last); scene/init eras have unique ids and indexes that are exactly 0 to n-1; scene/init initialView has minE < maxE and minN < maxN and lies inside bounds; scene/init present building ids, scene/loadEra and scene/addFeatures feature ids, scene/loadEra drape source ids and debug/markers ids are each unique; scene/showEvidence carries a drape when on is true and none when it is false. Every change to this file changes the bridge version.",
   "$ref": "#/$defs/bridgeMessage",
   "$defs": {
     "bridgeMessage": {
@@ -15,6 +15,8 @@
         { "$ref": "#/$defs/sceneFocusLotMessage" },
         { "$ref": "#/$defs/sceneClearLotMessage" },
         { "$ref": "#/$defs/sceneSetDrapeModeMessage" },
+        { "$ref": "#/$defs/sceneSetLanternMessage" },
+        { "$ref": "#/$defs/sceneShowEvidenceMessage" },
         { "$ref": "#/$defs/debugMarkersMessage" },
         { "$ref": "#/$defs/debugSetCameraMessage" },
         { "$ref": "#/$defs/readyMessage" },
@@ -66,7 +68,7 @@
       }
     },
     "sceneFocusLotMessage": {
-      "description": "Shell to Player (0.5.0). Pins a lot: outlined on the ground in `lantern` in every era with one small warm light beside it, the lit map sheet's light pool moves to it, and the camera flies to frame it (eased, 900 ms; a cut under reduced motion). A second scene/focusLot replaces the first.",
+      "description": "Shell to Player (0.5.0; 0.6.0 drops the lamp). Pins a lot: outlined on the ground in `lantern` in every era, the lit map sheet's light pool moves to it, and the camera flies to frame it (eased, 900 ms; a cut under reduced motion). Nothing else marks the lot. A second scene/focusLot replaces the first.",
       "type": "object",
       "additionalProperties": false,
       "required": ["type", "payload"],
@@ -93,6 +95,26 @@
       "properties": {
         "type": { "const": "scene/setDrapeMode" },
         "payload": { "$ref": "#/$defs/sceneSetDrapeModePayload" }
+      }
+    },
+    "sceneSetLanternMessage": {
+      "description": "Shell to Player (0.6.0). The Lantern: while on, a circular lens at `center` (radius a fraction of the canvas height) shows the era named by eraId (its lit plate and ghosts) inside it and Today outside it, with a thin `ink` ring on its edge. Honoured at Today only; the Shell does not send it at another depth. Off removes the lens. Reduced motion: it appears and disappears without easing.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "scene/setLantern" },
+        "payload": { "$ref": "#/$defs/sceneSetLanternPayload" }
+      }
+    },
+    "sceneShowEvidenceMessage": {
+      "description": "Shell to Player (0.6.0). Show Evidence for one ghost: while on, that ghost is nearly transparent with its outline kept, and the given source's untouched scan (never the lit display) is drawn beneath its footprint and a few metres around it, at full opacity. Every other drape keeps its lit look. Off restores the lit sheet. The camera does not move.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "payload"],
+      "properties": {
+        "type": { "const": "scene/showEvidence" },
+        "payload": { "$ref": "#/$defs/sceneShowEvidencePayload" }
       }
     },
     "debugMarkersMessage": {
@@ -171,7 +193,7 @@
       "additionalProperties": false,
       "required": ["bridgeVersion", "origin", "bounds", "initialView", "eras", "present", "reducedMotion", "debug"],
       "properties": {
-        "bridgeVersion": { "const": "0.5.0" },
+        "bridgeVersion": { "const": "0.6.0" },
         "origin": { "$ref": "#/$defs/originPoint" },
         "bounds": { "$ref": "#/$defs/sceneBounds" },
         "initialView": {
@@ -255,6 +277,42 @@
         }
       }
     },
+    "sceneSetLanternPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["on", "center", "radius", "eraId"],
+      "properties": {
+        "on": { "type": "boolean" },
+        "center": {
+          "description": "The lens centre in normalised canvas coordinates: x from the left edge, y from the top edge, each 0 to 1.",
+          "$ref": "#/$defs/screenPoint"
+        },
+        "radius": {
+          "description": "The lens radius as a fraction of the canvas height.",
+          "type": "number",
+          "minimum": 0.05,
+          "maximum": 0.5
+        },
+        "eraId": {
+          "description": "The era shown inside the lens. It must be listed in scene/init (else era_not_initialised).",
+          "type": "string",
+          "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$"
+        }
+      }
+    },
+    "sceneShowEvidencePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["featureId", "on"],
+      "properties": {
+        "featureId": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/featureId" },
+        "on": { "type": "boolean" },
+        "drape": {
+          "description": "Optional in the schema, required when on is true and absent when it is false (checked by both parsers). The source raster to show: the drape of the feature's origin source, which may not be draped in the current era.",
+          "$ref": "#/$defs/drape"
+        }
+      }
+    },
     "debugMarkersPayload": {
       "type": "object",
       "additionalProperties": false,
@@ -279,7 +337,7 @@
       "additionalProperties": false,
       "required": ["bridgeVersion", "unityVersion"],
       "properties": {
-        "bridgeVersion": { "const": "0.5.0" },
+        "bridgeVersion": { "const": "0.6.0" },
         "unityVersion": { "type": "string", "minLength": 1, "maxLength": 64 }
       }
     },
@@ -464,6 +522,16 @@
       "properties": {
         "id": { "type": "string", "minLength": 1, "maxLength": 64 },
         "position": { "$ref": "https://buried.invalid/schema/evidence.schema.json#/$defs/position" }
+      }
+    },
+    "screenPoint": {
+      "description": "A point on the canvas in normalised coordinates: x from the left edge, y from the top edge, each 0 to 1.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "type": "number", "minimum": 0, "maximum": 1 },
+        "y": { "type": "number", "minimum": 0, "maximum": 1 }
       }
     },
     "cameraPoint": {

@@ -1,0 +1,19 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "bld_fip_v3_1911_229_0001",
+    "on": false,
+    "drape": {
+      "sourceId": "fip_v3_1911_229",
+      "url": "/data/tiles/fip_v3_1911_229.jpg",
+      "corners": {
+        "topLeft": [632273.9227376722, 4835125.009481436],
+        "topRight": [632592.4023848702, 4835225.600777758],
+        "bottomRight": [632714.8438886629, 4834837.70468001],
+        "bottomLeft": [632396.3642414649, 4834737.113383687]
+      },
+      "widthPx": 3428,
+      "heightPx": 4096
+    }
+  }
+}

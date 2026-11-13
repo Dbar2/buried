@@ -1,0 +1,7 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "bld_tz4_1916",
+    "on": false
+  }
+}

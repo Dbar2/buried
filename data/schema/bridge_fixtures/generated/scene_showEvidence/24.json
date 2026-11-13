@@ -1,0 +1,63 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "bld_98a_cthaz3_2367",
+    "on": true,
+    "drape": {
+      "sourceId": "phxeyz_231",
+      "url": "/data/tiles/m7vzh2_c7y1.jpg",
+      "corners": {
+        "topLeft": [
+          690073.304,
+          6223095.87
+        ],
+        "topRight": [
+          709910.052,
+          0.029
+        ],
+        "bottomRight": [
+          367665.778,
+          1448846.88
+        ],
+        "bottomLeft": [
+          166000.029,
+          3811490.238
+        ]
+      },
+      "widthPx": 3360,
+      "heightPx": 4,
+      "clip": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              567415.91,
+              2504100.08
+            ],
+            [
+              276718.889,
+              6339140.323
+            ],
+            [
+              676298.293,
+              2288624.069
+            ],
+            [
+              452486.896,
+              1873853.155
+            ],
+            [
+              345789.044,
+              6538857.617
+            ],
+            [
+              567415.91,
+              2504100.08
+            ]
+          ]
+        ]
+      },
+      "kind": "aerial"
+    }
+  }
+}

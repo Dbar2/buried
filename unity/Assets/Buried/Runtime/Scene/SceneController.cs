@@ -13,8 +13,8 @@ namespace Buried.Scene
     /// <summary>
     /// Handles the Shell's messages and builds the scene from them. It draws what it is told: it never
     /// computes dates, confidence or lot relations, and it never filters the features of an era.
-    /// Bridge 0.5.0: scene/init, scene/loadEra, scene/addFeatures, scene/setDepth, scene/focusLot, scene/clearLot,
-    /// scene/setDrapeMode, debug/markers and debug/setCamera.
+    /// Bridge 0.6.0: scene/init, scene/loadEra, scene/addFeatures, scene/setDepth, scene/focusLot, scene/clearLot,
+    /// scene/setDrapeMode, scene/setLantern, scene/showEvidence, debug/markers and debug/setCamera.
     /// The depth is a fraction while the Shell tweens between eras; each era is drawn at its weight
     /// (DepthBlend) and the present buildings drain to a faint outline.
     /// </summary>
@@ -65,6 +65,15 @@ namespace Buried.Scene
         private float _poolStart, _poolDuration;
         private LotPin _pin;
 
+        // The Lantern (session 028): the lens state, its rim, and whether the lens uniform is currently set.
+        private readonly LanternController _lantern = new LanternController();
+        private LanternRim _rim;
+        private bool _lensPushed;
+
+        // Show Evidence: the era whose ghost is drawn nearly transparent and the untouched scan patch beneath it.
+        private EraLayer _evidenceEra;
+        private DrapeLayer _evidencePatch;
+        private int _evidenceGeneration;
         public void Configure(Bridge bridge, BuriedPalette palette, ShaderSet shaders, CameraRig rig)
         {
             _bridge = bridge;
@@ -112,6 +121,12 @@ namespace Buried.Scene
                         break;
                     case BridgeMessageTypes.SceneSetDrapeMode:
                         HandleSetDrapeMode((SceneSetDrapeModePayload)message.payload);
+                        break;
+                    case BridgeMessageTypes.SceneSetLantern:
+                        HandleSetLantern((SceneSetLanternPayload)message.payload);
+                        break;
+                    case BridgeMessageTypes.SceneShowEvidence:
+                        HandleShowEvidence((SceneShowEvidencePayload)message.payload);
                         break;
                     case BridgeMessageTypes.SceneFocusLot:
                         HandleFocusLot((SceneFocusLotPayload)message.payload);
@@ -209,6 +224,14 @@ namespace Buried.Scene
             }
             _ground = null;
             DisposePin();
+            ClearEvidence();
+            _lantern.Reset();
+            if (_rim != null)
+            {
+                _rim.Dispose();
+                _rim = null;
+            }
+            PushLens();
             _poolTweening = false;
             _allLit = true;
             _litBySource.Clear();
@@ -274,6 +297,7 @@ namespace Buried.Scene
             _ghostMaterials = new GhostMaterials(_palette, _shaders, PixelScale());
 
             _markers = new DebugMarkers(transform, _shaders.marker);
+            _rim = new LanternRim(transform, _palette, _shaders.edge, PixelScale());
 
             // The camera may roam over the project bounds and starts framing the initial view.
             _rig.SetLimits((float)min.X, (float)min.Y, (float)max.X, (float)max.Y);
@@ -349,9 +373,14 @@ namespace Buried.Scene
             }
 
             EraLayer previous;
-            if (_layers.TryGetValue(payload.eraId, out previous)) previous.Dispose();
+            if (_layers.TryGetValue(payload.eraId, out previous))
+            {
+                if (previous == _evidenceEra) ClearEvidence();
+                previous.Dispose();
+            }
             _layers[payload.eraId] = layer;
-            layer.SetWeight(DepthBlend.EraWeight(_depth, layer.Index), _reducedMotion);
+            layer.SetLensMode(LensModeFor(layer));
+            layer.SetWeight(WeightFor(layer), _reducedMotion);
 
             _bridge.Send(BridgeMessageTypes.EraLoaded, new EraLoadedPayload
             {
@@ -418,8 +447,213 @@ namespace Buried.Scene
         {
             _depth = depth;
             _shownIndex = (int)Math.Floor(depth + 0.5);
+            if (depth > 0.0 && _lantern.Active)
+            {
+                _lantern.Reset(); // the Lantern works from Today only
+                PushLens();
+            }
             if (_present != null) _present.SetStage(DepthBlend.Present(depth, _reducedMotion));
-            foreach (EraLayer layer in _layers.Values) layer.SetWeight(DepthBlend.EraWeight(depth, layer.Index), _reducedMotion);
+            foreach (EraLayer layer in _layers.Values) layer.SetWeight(WeightFor(layer), _reducedMotion);
+            RefreshLensModes();
+            if (_evidencePatch != null && _evidenceEra != null) _evidencePatch.SetOpacity(_evidenceEra.Weight);
+        }
+
+        // ---- The Lantern (session 028) ----
+
+        /// <summary>The weight an era is drawn at: its depth weight, except the Lantern's era, which is whole while the lens is on.</summary>
+        private float WeightFor(EraLayer layer)
+        {
+            if (_lantern.Active && layer.EraId == _lantern.EraId) return 1f;
+            return DepthBlend.EraWeight(_depth, layer.Index);
+        }
+
+        /// <summary>How an era meets the lens: the Lantern's era only inside it, Today only outside it, the others as they are.</summary>
+        private int LensModeFor(EraLayer layer)
+        {
+            if (!_lantern.Active) return 0;
+            if (layer.EraId == _lantern.EraId) return 1;
+            return layer.Index == 0 ? 2 : 0;
+        }
+
+        private void RefreshLensModes()
+        {
+            foreach (EraLayer layer in _layers.Values) layer.SetLensMode(LensModeFor(layer));
+            if (_present != null) _present.SetLensMode(_lantern.Active ? 2 : 0);
+            if (_evidencePatch != null && _evidenceEra != null) _evidencePatch.SetLensMode(LensModeFor(_evidenceEra));
+        }
+
+        private void HandleSetLantern(SceneSetLanternPayload payload)
+        {
+            if (!_eraIndexById.ContainsKey(payload.eraId))
+            {
+                _bridge.SendError(
+                    BridgeErrorCodes.EraNotInitialised,
+                    "era \"" + payload.eraId + "\" was not listed in scene/init",
+                    BridgeMessageTypes.SceneSetLantern);
+                return;
+            }
+            if (payload.on && _depth > 0.0)
+            {
+                Debug.LogWarning("[player] scene/setLantern ignored: the Lantern works from Today");
+                return;
+            }
+
+            _lantern.Set(payload, _reducedMotion);
+            ApplyLantern();
+        }
+
+        /// <summary>Gives every layer its lens mode and weight for the current Lantern state.</summary>
+        private void ApplyLantern()
+        {
+            foreach (EraLayer layer in _layers.Values) layer.SetWeight(WeightFor(layer), _reducedMotion);
+            RefreshLensModes();
+            PushLens();
+        }
+
+        /// <summary>
+        /// Sets the lens uniform for this frame and draws the rim. While the Lantern is off the uniform is cleared once,
+        /// so no material clips anything.
+        /// </summary>
+        private void PushLens()
+        {
+            if (!_lantern.Active || _camera == null)
+            {
+                if (_lensPushed)
+                {
+                    Shader.SetGlobalVector("_BuriedLens", Vector4.zero);
+                    _lensPushed = false;
+                }
+                if (_rim != null) _rim.Hide();
+                return;
+            }
+
+            int w = _camera.pixelWidth;
+            int h = _camera.pixelHeight;
+            float radius = LanternMask.RadiusPx(_lantern.Radius, h) * _lantern.Open;
+            Vector2 fragment = LanternMask.FragmentCentre(_lantern.Centre, w, h, SystemInfo.graphicsUVStartsAtTop);
+            Shader.SetGlobalVector("_BuriedLens", new Vector4(fragment.x, fragment.y, radius, 1f));
+            _lensPushed = true;
+            if (_rim != null) _rim.Show(_camera, LanternMask.ScreenCentre(_lantern.Centre, w, h), radius);
+        }
+
+        /// <summary>The layer a pick at a screen point reads: the Lantern's era inside the lens, the era shown outside it.</summary>
+        private EraLayer LayerToPick(Vector2 screenPoint)
+        {
+            if (_lantern.Active && _lantern.Open > 0f
+                && LanternMask.Contains(screenPoint, _lantern.Centre, _lantern.Radius * _lantern.Open, _camera.pixelWidth, _camera.pixelHeight))
+            {
+                EraLayer inside;
+                if (_layers.TryGetValue(_lantern.EraId, out inside)) return inside;
+            }
+            return ShownLayer();
+        }
+
+        // ---- Show Evidence (session 028) ----
+
+        private EraLayer FindEraWithFeature(string featureId)
+        {
+            EraLayer shown = ShownLayer();
+            if (shown != null && shown.HasFeature(featureId)) return shown;
+            foreach (EraLayer layer in _layers.Values)
+            {
+                if (layer.HasFeature(featureId)) return layer;
+            }
+            return null;
+        }
+
+        private void ClearEvidence()
+        {
+            _evidenceGeneration++;
+            if (_evidencePatch != null)
+            {
+                _evidencePatch.Dispose();
+                _evidencePatch = null;
+            }
+            if (_evidenceEra != null)
+            {
+                _evidenceEra.ClearEvidence();
+                _evidenceEra = null;
+            }
+        }
+
+        private void HandleShowEvidence(SceneShowEvidencePayload payload)
+        {
+            ClearEvidence();
+            if (!payload.on) return;
+
+            EraLayer era = FindEraWithFeature(payload.featureId);
+            if (era == null)
+            {
+                _bridge.SendError(
+                    BridgeErrorCodes.InvalidMessage,
+                    "feature " + payload.featureId + " is not drawn in any loaded era",
+                    BridgeMessageTypes.SceneShowEvidence);
+                return;
+            }
+            if (!era.SetEvidence(payload.featureId, _frame))
+            {
+                _bridge.SendError(
+                    BridgeErrorCodes.MeshBuildFailed,
+                    "feature " + payload.featureId + " has no volume to make transparent",
+                    BridgeMessageTypes.SceneShowEvidence);
+                return;
+            }
+            _evidenceEra = era;
+            StartCoroutine(LoadEvidencePatch(payload, era, _evidenceGeneration));
+        }
+
+        /// <summary>
+        /// The untouched scan beneath the ghost: the source's tile, drawn with no tone curve and no light, inside the
+        /// footprint's box grown by <see cref="LookSettings.EvidenceMarginM"/> and nowhere else. The rest of the lit sheet is as it was.
+        /// </summary>
+        private IEnumerator LoadEvidencePatch(SceneShowEvidencePayload payload, EraLayer era, int generation)
+        {
+            int epoch = _sceneEpoch;
+            Texture2D texture = null;
+            string error = null;
+            yield return _textures.Load(payload.drape.url, (t, e) =>
+            {
+                texture = t;
+                error = e;
+            });
+            if (epoch != _sceneEpoch || generation != _evidenceGeneration) yield break;
+
+            if (texture == null)
+            {
+                _bridge.SendError(
+                    BridgeErrorCodes.TextureLoadFailed,
+                    "the image for " + payload.drape.sourceId + " could not be loaded (" + error + ")",
+                    BridgeMessageTypes.SceneShowEvidence);
+                yield break;
+            }
+
+            double minE, minN, maxE, maxN;
+            if (!era.TryGetFeatureBox(payload.featureId, out minE, out minN, out maxE, out maxN)) yield break;
+            double m = LookSettings.EvidenceMarginM;
+            var ring = new List<double[]>
+            {
+                new[] { minE - m, minN - m }, new[] { maxE + m, minN - m }, new[] { maxE + m, maxN + m },
+                new[] { minE - m, maxN + m }, new[] { minE - m, minN - m },
+            };
+            DrapeDto given = payload.drape;
+            var patch = new DrapeDto
+            {
+                sourceId = given.sourceId,
+                url = given.url,
+                corners = given.corners,
+                widthPx = given.widthPx,
+                heightPx = given.heightPx,
+                kind = given.kind,
+                clip = new GeometryDto
+                {
+                    type = GeometryDto.Polygon,
+                    polygons = new List<List<List<double[]>>> { new List<List<double[]>> { ring } },
+                },
+            };
+            _evidencePatch = DrapeLayer.Create(era.Parent, _frame, patch, texture, _shaders.drape, DrapeLayer.EvidenceOrder, _palette);
+            _evidencePatch.SetPatch();
+            _evidencePatch.SetLensMode(LensModeFor(era));
+            _evidencePatch.SetOpacity(era.Weight);
         }
 
         /// <summary>
@@ -564,6 +798,12 @@ namespace Buried.Scene
             if (!_initialised) return;
 
             TickLightPool();
+            if (_lantern.Active)
+            {
+                _lantern.Tick(Time.unscaledDeltaTime, _reducedMotion);
+                if (!_lantern.Active) ApplyLantern(); // the lens has closed: every layer goes back to its depth weight and no mode
+                else PushLens();
+            }
             foreach (EraLayer layer in _layers.Values)
             {
                 if (layer.IsRising) layer.Tick(Time.unscaledTime);
@@ -575,7 +815,7 @@ namespace Buried.Scene
                 Vector2 up = Input.mousePosition;
                 if ((up - _pointerDown).magnitude <= Picker.ClickSlopPx)
                 {
-                    EraLayer shown = ShownLayer();
+                    EraLayer shown = LayerToPick(up);
                     string featureId;
                     if (shown != null && _picker.TryPick(_camera, up, shown, out featureId))
                     {

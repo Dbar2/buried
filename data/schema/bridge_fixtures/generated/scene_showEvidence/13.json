@@ -1,0 +1,32 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "use_801y_1p_0006",
+    "on": true,
+    "drape": {
+      "sourceId": "839s_sc83f_5lr_1zbkv",
+      "url": "/data/tiles/d2_36.jpg",
+      "corners": {
+        "topLeft": [
+          683236.236,
+          0.031
+        ],
+        "topRight": [
+          480679.753,
+          2885148.493
+        ],
+        "bottomRight": [
+          678949.181,
+          0.011
+        ],
+        "bottomLeft": [
+          833999.983,
+          7019356.343
+        ]
+      },
+      "widthPx": 3122,
+      "heightPx": 14,
+      "kind": "plate"
+    }
+  }
+}

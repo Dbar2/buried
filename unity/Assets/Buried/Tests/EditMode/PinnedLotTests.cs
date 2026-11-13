@@ -14,7 +14,7 @@ using UnityEngine;
 namespace Buried.Tests
 {
     /// <summary>
-    /// Session 023, item 4: the pinned lot. The outline in `lantern`, the one lamp beside it, the light
+    /// Session 023, item 4: the pinned lot. The outline in `lantern`, the light
     /// pool that follows it and the camera flight that frames it (eased, 900 ms; a cut under reduced
     /// motion), driven through the bridge as the Shell drives them.
     /// </summary>
@@ -145,7 +145,7 @@ namespace Buried.Tests
         }
 
         [Test]
-        public void ThePinIsDrawnAsAnOutlineAPostAndAHeadAndIsLantern()
+        public void ThePinIsDrawnAsAnOutlineOnlyAndIsLantern()
         {
             var shaders = new ShaderSet { edge = Load("Edge.shader") };
             var frame = new ProjectFrame(632500.0, 4835000.0);
@@ -163,7 +163,7 @@ namespace Buried.Tests
             LotPin pin = new LotPin(holder.transform, lot, frame, _palette, shaders, 1f);
             try
             {
-                Assert.AreEqual(new[] { "Outline", "Lamp post", "Lamp head" }, pin.PartNames.ToArray());
+                Assert.AreEqual(new[] { "Outline" }, pin.PartNames.ToArray(), "no lamp or other marker");
                 Assert.AreEqual(90f, pin.Bounds.xMin, 1e-3f);
                 Assert.AreEqual(102f, pin.Bounds.xMax, 1e-3f);
                 Assert.AreEqual(60f, pin.Bounds.yMin, 1e-3f);
@@ -189,26 +189,6 @@ namespace Buried.Tests
         }
 
         // ---- Pure parts ----
-
-        [Test]
-        public void TheLampStandsBesideTheSouthernmostCornerAndOutsideTheLot()
-        {
-            var corners = new List<Vec2d> { new Vec2d(90, 60), new Vec2d(102, 60), new Vec2d(102, 80), new Vec2d(90, 80) };
-            Vec2d lamp = LotPin.LampPosition(corners);
-            // Ties between the two southern corners go to the west one; the lamp is pushed away from the middle of the corners.
-            Vec2d south = new Vec2d(90, 60);
-            Vec2d middle = new Vec2d(96, 70);
-            double outward = Distance(lamp, middle) - Distance(south, middle);
-            Assert.AreEqual(LookSettings.LampOffsetM, outward, 1e-6);
-            Assert.AreEqual(LookSettings.LampOffsetM, Distance(lamp, south), 1e-6);
-            Assert.Less(lamp.X, 90.0);
-            Assert.Less(lamp.Y, 60.0);
-        }
-
-        private static double Distance(Vec2d a, Vec2d b)
-        {
-            return System.Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Y - b.Y) * (a.Y - b.Y));
-        }
 
         [Test]
         public void TheEaseIsFlatAtBothEndsAndMonotonic()

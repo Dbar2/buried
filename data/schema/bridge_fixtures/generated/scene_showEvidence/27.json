@@ -1,0 +1,7 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "bld_b134_6_4_5_9718",
+    "on": false
+  }
+}

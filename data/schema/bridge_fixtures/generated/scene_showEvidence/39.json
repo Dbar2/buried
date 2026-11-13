@@ -1,0 +1,55 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "bld_d_204_ex76_37_3193",
+    "on": true,
+    "drape": {
+      "sourceId": "4_79n_hhgc",
+      "url": "/data/tiles/5d89_l97a_0422.jpg",
+      "corners": {
+        "topLeft": [
+          791664.295,
+          0.01
+        ],
+        "topRight": [
+          401313.969,
+          3868223.449
+        ],
+        "bottomRight": [
+          166000.015,
+          237183.514
+        ],
+        "bottomLeft": [
+          587309.436,
+          870112.676
+        ]
+      },
+      "widthPx": 10,
+      "heightPx": 15122,
+      "clip": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              214330.926,
+              3131526.929
+            ],
+            [
+              326646.639,
+              6393509.597
+            ],
+            [
+              473536.234,
+              106823.172
+            ],
+            [
+              214330.926,
+              3131526.929
+            ]
+          ]
+        ]
+      },
+      "kind": "aerial"
+    }
+  }
+}

@@ -54,6 +54,35 @@ namespace Buried.Meshing
             return _data.ToMesh(name);
         }
 
+        /// <summary>True when this chunk holds the feature.</summary>
+        public bool Contains(string featureId)
+        {
+            foreach (Range r in _ranges)
+            {
+                if (r.FeatureId == featureId) return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// A mesh of this chunk without one feature's triangles (Show Evidence draws that feature separately,
+        /// nearly transparent). The vertices are shared, only the triangle list is shorter.
+        /// </summary>
+        public Mesh BuildMeshWithout(string name, string featureId)
+        {
+            var copy = new MeshData();
+            copy.vertices.AddRange(_data.vertices);
+            copy.normals.AddRange(_data.normals);
+            copy.uvs.AddRange(_data.uvs);
+            copy.tangents.AddRange(_data.tangents);
+            foreach (Range r in _ranges)
+            {
+                if (r.FeatureId == featureId) continue;
+                for (int i = 3 * r.FirstTriangle; i < 3 * (r.FirstTriangle + r.TriangleCount); i++) copy.triangles.Add(_data.triangles[i]);
+            }
+            return copy.ToMesh(name);
+        }
+
         /// <summary>The id of the feature that owns triangle <paramref name="triangle"/>, or null.</summary>
         public string FeatureOfTriangle(int triangle)
         {

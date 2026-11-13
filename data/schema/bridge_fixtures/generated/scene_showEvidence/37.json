@@ -1,0 +1,31 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "bld_re_9991",
+    "on": true,
+    "drape": {
+      "sourceId": "epl_xdlo8n_71ic9",
+      "url": "/data/tiles/m3_e0opy5.jpg",
+      "corners": {
+        "topLeft": [
+          166000.007,
+          7289285.266
+        ],
+        "topRight": [
+          166000.01,
+          439294.86
+        ],
+        "bottomRight": [
+          235981.27,
+          3345533.247
+        ],
+        "bottomLeft": [
+          523862.714,
+          8823265.743
+        ]
+      },
+      "widthPx": 16382,
+      "heightPx": 5787
+    }
+  }
+}

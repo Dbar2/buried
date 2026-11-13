@@ -3,6 +3,6 @@
   "payload": {
     "code": "bounds_too_far",
     "message": " \"0",
-    "messageType": "debug/setCamera"
+    "messageType": "scene/focusLot"
   }
 }

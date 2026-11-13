@@ -1,0 +1,55 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "wtr_er7_88y_370_2x_0006",
+    "on": true,
+    "drape": {
+      "sourceId": "4dd_9j_a3fw8_sil",
+      "url": "/data/tiles/u0uy_71i8.jpg",
+      "corners": {
+        "topLeft": [
+          166000,
+          6778058.925
+        ],
+        "topRight": [
+          379200.596,
+          6421658.236
+        ],
+        "bottomRight": [
+          576634.117,
+          7776110.345
+        ],
+        "bottomLeft": [
+          833999.988,
+          1908832.051
+        ]
+      },
+      "widthPx": 2,
+      "heightPx": 9,
+      "clip": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              783819.282,
+              4824415.363
+            ],
+            [
+              396395.27,
+              3638142.732
+            ],
+            [
+              225821.446,
+              5894550.015
+            ],
+            [
+              783819.282,
+              4824415.363
+            ]
+          ]
+        ]
+      },
+      "kind": "plate"
+    }
+  }
+}

@@ -1,0 +1,1 @@
+{ "type": "scene/setLantern", "payload": { "on": true, "center": { "x": 0.5, "y": 0.5 }, "radius": 0.18 } }

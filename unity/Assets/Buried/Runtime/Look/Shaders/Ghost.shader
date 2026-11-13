@@ -19,6 +19,7 @@ Shader "Buried/Ghost"
         _Soft ("Soft volume (0 or 1)", Range(0, 1)) = 0
         _SoftHeight ("Soft volume: height over which it thins (m)", Float) = 9
         _SoftRoofShare ("Soft volume: share of the alpha left at the top", Range(0, 1)) = 0.25
+        [HideInInspector] _LensMode ("Lantern lens: 0 everywhere, 1 inside, 2 outside", Float) = 0
         [HideInInspector] _SrcBlend ("Src blend", Float) = 5
         [HideInInspector] _DstBlend ("Dst blend", Float) = 10
         [HideInInspector] _ZWrite ("Z write", Float) = 0
@@ -50,6 +51,7 @@ Shader "Buried/Ghost"
                 half _Soft;
                 float _SoftHeight;
                 half _SoftRoofShare;
+                half _LensMode;
             CBUFFER_END
 
             struct Attributes
@@ -83,6 +85,7 @@ Shader "Buried/Ghost"
 
             half4 frag(Varyings input) : SV_Target
             {
+                BuriedLensClip(input.positionCS, _LensMode);
                 half3 n = normalize(input.normalWS);
                 half lit = saturate(dot(n, normalize(half3(0.6, 0.7, 0.35))));
                 half3 rgb = _Color.rgb * lerp(1.0, 0.6 + 0.4 * lit, _Shade) + _Color.rgb * _Emission;

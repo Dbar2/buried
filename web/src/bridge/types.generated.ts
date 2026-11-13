@@ -19,6 +19,8 @@ export type BridgeMessage =
   | SceneFocusLotMessage
   | SceneClearLotMessage
   | SceneSetDrapeModeMessage
+  | SceneSetLanternMessage
+  | SceneShowEvidenceMessage
   | DebugMarkersMessage
   | DebugSetCameraMessage
   | ReadyMessage
@@ -128,6 +130,11 @@ export interface BridgeSchemaTypes {
   sceneSetDepthPayload?: SceneSetDepthPayload;
   sceneSetDrapeModeMessage?: SceneSetDrapeModeMessage;
   sceneSetDrapeModePayload?: SceneSetDrapeModePayload;
+  sceneSetLanternMessage?: SceneSetLanternMessage;
+  sceneSetLanternPayload?: SceneSetLanternPayload;
+  sceneShowEvidenceMessage?: SceneShowEvidenceMessage;
+  sceneShowEvidencePayload?: SceneShowEvidencePayload;
+  screenPoint?: ScreenPoint1;
   sourceId?: SourceId;
 }
 /**
@@ -145,7 +152,7 @@ export interface SceneInitMessage {
  * via the `definition` "sceneInitPayload".
  */
 export interface SceneInitPayload {
-  bridgeVersion: '0.5.0';
+  bridgeVersion: '0.6.0';
   origin: OriginPoint;
   bounds: SceneBounds;
   initialView: Rect;
@@ -370,7 +377,7 @@ export interface SceneSetDepthPayload {
   depth: number;
 }
 /**
- * Shell to Player (0.5.0). Pins a lot: outlined on the ground in `lantern` in every era with one small warm light beside it, the lit map sheet's light pool moves to it, and the camera flies to frame it (eased, 900 ms; a cut under reduced motion). A second scene/focusLot replaces the first.
+ * Shell to Player (0.5.0; 0.6.0 drops the lamp). Pins a lot: outlined on the ground in `lantern` in every era, the lit map sheet's light pool moves to it, and the camera flies to frame it (eased, 900 ms; a cut under reduced motion). Nothing else marks the lot. A second scene/focusLot replaces the first.
  *
  * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
  * via the `definition` "sceneFocusLotMessage".
@@ -424,6 +431,73 @@ export interface SceneSetDrapeModePayload {
    * A source id, built as in structure.md: lowercase snake_case.
    */
   sourceId?: string;
+}
+/**
+ * Shell to Player (0.6.0). The Lantern: while on, a circular lens at `center` (radius a fraction of the canvas height) shows the era named by eraId (its lit plate and ghosts) inside it and Today outside it, with a thin `ink` ring on its edge. Honoured at Today only; the Shell does not send it at another depth. Off removes the lens. Reduced motion: it appears and disappears without easing.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneSetLanternMessage".
+ */
+export interface SceneSetLanternMessage {
+  type: 'scene/setLantern';
+  payload: SceneSetLanternPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneSetLanternPayload".
+ */
+export interface SceneSetLanternPayload {
+  on: boolean;
+  center: ScreenPoint;
+  /**
+   * The lens radius as a fraction of the canvas height.
+   */
+  radius: number;
+  /**
+   * The era shown inside the lens. It must be listed in scene/init (else era_not_initialised).
+   */
+  eraId: string;
+}
+/**
+ * The lens centre in normalised canvas coordinates: x from the left edge, y from the top edge, each 0 to 1.
+ */
+export interface ScreenPoint {
+  x: number;
+  y: number;
+}
+/**
+ * Shell to Player (0.6.0). Show Evidence for one ghost: while on, that ghost is nearly transparent with its outline kept, and the given source's untouched scan (never the lit display) is drawn beneath its footprint and a few metres around it, at full opacity. Every other drape keeps its lit look. Off restores the lit sheet. The camera does not move.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneShowEvidenceMessage".
+ */
+export interface SceneShowEvidenceMessage {
+  type: 'scene/showEvidence';
+  payload: SceneShowEvidencePayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "sceneShowEvidencePayload".
+ */
+export interface SceneShowEvidencePayload {
+  featureId: FeatureId;
+  on: boolean;
+  drape?: Drape1;
+}
+/**
+ * A tile from data/tiles/ placed on the ground by its four corners.
+ */
+export interface Drape1 {
+  sourceId: SourceId;
+  url: string;
+  corners: DrapeCorners;
+  widthPx: number;
+  heightPx: number;
+  clip?: PolygonGeometry1;
+  /**
+   * Optional (bridge 0.5.0). plate: the lit display tones the greyscale scan toward `ink` paper. aerial: lit but not recoloured. Absent: plate.
+   */
+  kind?: 'plate' | 'aerial';
 }
 /**
  * Shell to Player. Only honoured when scene/init had debug: true.
@@ -622,7 +696,7 @@ export interface ReadyMessage {
  * via the `definition` "readyPayload".
  */
 export interface ReadyPayload {
-  bridgeVersion: '0.5.0';
+  bridgeVersion: '0.6.0';
   unityVersion: string;
 }
 /**
@@ -765,4 +839,14 @@ export interface Rect1 {
   minN: number;
   maxE: number;
   maxN: number;
+}
+/**
+ * A point on the canvas in normalised coordinates: x from the left edge, y from the top edge, each 0 to 1.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "screenPoint".
+ */
+export interface ScreenPoint1 {
+  x: number;
+  y: number;
 }

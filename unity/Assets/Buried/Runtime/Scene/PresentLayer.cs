@@ -156,6 +156,14 @@ namespace Buried.Scene
             return renderer;
         }
 
+        /// <summary>0 draws everywhere, 1 only inside the Lantern's lens, 2 only outside it (the Lantern keeps Today to the outside).</summary>
+        public void SetLensMode(int mode)
+        {
+            _fill.SetFloat("_LensMode", mode);
+            _edge.SetFloat("_LensMode", mode);
+            _roofEdge.SetFloat("_LensMode", mode);
+        }
+
         public void SetStage(Stage stage)
         {
             bool opaque = stage.FillAlpha >= 0.999f;

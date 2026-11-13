@@ -3,6 +3,6 @@
   "payload": {
     "code": "debug_disabled",
     "message": "E_:QYtsP ",
-    "messageType": "ready"
+    "messageType": "featureClicked"
   }
 }

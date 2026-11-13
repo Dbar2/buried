@@ -158,17 +158,6 @@ namespace Buried.Look
         public const float LotOutlineWidthCssPx = 3f;
         public const float LotOutlineCasingCssPx = 1.5f;
 
-        /// <summary>
-        /// The one small warm light beside the lot: a lamp this far outside the lot's nearest-to-the-south
-        /// corner, a post this tall, and a lit head of this length. Emission above 1 lets the head glow
-        /// (bloom is limited to `ink` and `lantern`).
-        /// </summary>
-        public const float LampOffsetM = 2.5f;
-        public const float LampPostHeightM = 3.4f;
-        public const float LampHeadLengthM = 0.6f;
-        public const float LampPostWidthCssPx = 2f;
-        public const float LampHeadWidthCssPx = 8f;
-        public const float LampHeadEmission = 2.4f;
 
         // ---- The lit map sheet (design.md "Draped rasters: the map sheet is lit"; session 023) ----
         // A draped plate reads as warm paper lit from above by one lantern: the greyscale scan is
@@ -186,5 +175,24 @@ namespace Buried.Look
         /// <summary>Radius (m) at which the pool has fallen to 1 / e: with no lot pinned, and around a pinned lot.</summary>
         public const float LightPoolRadiusM = 260f;
         public const float LightPoolRadiusPinnedM = 150f;
+
+        // ---- The Lantern and Show Evidence (session 028) ----
+
+        /// <summary>The lens opens and closes over this long. Reduced motion: it does neither, it is there or it is not.</summary>
+        public const float LensOpenS = 0.12f;
+
+        /// <summary>The lens edge: a thin `ink` ring with a `night` casing so it reads on a pale plate and on the dark ground.</summary>
+        public const float LensRimWidthCssPx = 1.5f;
+        public const float LensRimAlpha = 0.7f;
+
+        /// <summary>How far in front of the camera the rim's polyline is placed (metres). It is drawn over everything, so only the screen position matters.</summary>
+        public const float LensRimDistanceM = 2f;
+
+        /// <summary>Segments in the rim's ring.</summary>
+        public const int LensRimSegments = 96;
+
+        /// <summary>Show Evidence: the untouched scan is shown this far (m) around the ghost's footprint box, and the ghost's own fill is left at this alpha.</summary>
+        public const float EvidenceMarginM = 4f;
+        public const float EvidenceFillAlpha = 0.05f;
     }
 }
