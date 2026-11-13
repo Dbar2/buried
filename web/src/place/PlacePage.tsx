@@ -1,4 +1,8 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { findForFeature, loadFinds } from '../block/finds';
+import type { ResolvedFind } from '../block/finds';
+import { browserFetchText } from '../data/loadData';
+import { letteredLines } from '../evidence';
 import { Explorer } from '../explorer/Explorer';
 import type { PlaceBinding, Selection, StageKind } from '../explorer/Explorer';
 import type { GateModel } from '../explorer/gateModel';
@@ -37,6 +41,21 @@ export function PlacePage() {
   const [model, setModel] = useState<GateModel | null>(null);
   const [stage, setStage] = useState<StageKind>('pending');
   const reportModel = useReportModel(loaded, initial.lotId, initial.eraId, initial.version);
+  // The finds, so a card for a find's feature is headed by the find's own lettered lines.
+  const [finds, setFinds] = useState<ResolvedFind[]>([]);
+  const readyData = loaded.status === 'ready' ? loaded.data : null;
+  useEffect(() => {
+    if (!readyData) return;
+    let cancelled = false;
+    loadFinds(browserFetchText, readyData)
+      .then((found) => {
+        if (!cancelled) setFinds(found.finds);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [readyData]);
 
   const address = reportModel?.kind === 'report' ? (reportModel.place.addresses[0] ?? null) : null;
 
@@ -79,12 +98,20 @@ export function PlacePage() {
   const card = useMemo(() => {
     if (!model || !selection || !entry || !feature) return null;
     try {
-      return buildPlaceCard(entry, feature, model.sources, model.tiles, model.workspaceFeatureIds.has(selection.featureId) ? 'workspace' : 'canon');
+      const find = findForFeature(finds, selection.featureId);
+      return buildPlaceCard(
+        entry,
+        feature,
+        model.sources,
+        model.tiles,
+        model.workspaceFeatureIds.has(selection.featureId) ? 'workspace' : 'canon',
+        find ? letteredLines(find.primary.reading.lettered) : undefined,
+      );
     } catch (error) {
       console.warn(`[place] no card for ${selection.featureId}: ${error instanceof Error ? error.message : String(error)}`);
       return null;
     }
-  }, [model, selection, entry, feature]);
+  }, [model, selection, entry, feature, finds]);
   const canViewOriginal = card !== null && stage === 'player' && model !== null && selection !== null && (model.drapes.get(selection.eraId)?.length ?? 0) > 0;
   // Show Evidence needs the building's era on screen (a selection ends when the era changes) and a scan of its source.
   const canShowEvidence =

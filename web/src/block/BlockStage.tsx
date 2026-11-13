@@ -336,7 +336,7 @@ export function BlockStage(props: BlockStageProps) {
 
   // ---- the list -------------------------------------------------------------------------------------------------
   const [listOpen, setListOpen] = useState(false);
-  const rows = useMemo(() => (model ? featureRows(model.lists.get(eraId), model.features) : []), [model, eraId]);
+  const rows = useMemo(() => (model ? featureRows(model.lists.get(eraId), model.features, model.workspaceFeatureIds) : []), [model, eraId]);
   const eraLabel = model?.order.find((e) => e.id === eraId)?.label ?? 'this date';
 
   // ---- page title for a share link -----------------------------------------------------------------------------

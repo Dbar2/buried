@@ -392,7 +392,7 @@ export function Explorer({
   const lanternOffered = !backdrop && model !== null && settled === 0 && lensEra !== null;
   const showLanternHelp = variant === 'place' && lanternOffered && !fallbackActive && !lanternSeen.seen && lensHelp !== null;
   const showList = !backdrop && model !== null && (variant === 'place' || fallbackActive);
-  const rows = useMemo(() => featureRows(currentEra ? model?.lists.get(currentEra.id) : undefined, model?.features ?? new Map()), [model, currentEra]);
+  const rows = useMemo(() => featureRows(currentEra ? model?.lists.get(currentEra.id) : undefined, model?.features ?? new Map(), model?.workspaceFeatureIds), [model, currentEra]);
   const showStack = !backdrop && !card && sceneReady;
 
   const Wrapper = (backdrop ? 'div' : 'main') as 'main';

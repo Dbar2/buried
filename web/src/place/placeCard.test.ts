@@ -11,7 +11,7 @@ import { diskFetch, REPOSITORY_DATA } from '../explorer/testing/diskFetch';
 import { buildGateModel } from '../explorer/gateModel';
 import type { GateModel } from '../explorer/gateModel';
 import { boundsOf } from '../report/cropPlan';
-import { buildPlaceCard } from './placeCard';
+import { buildPlaceCard, cardHeading } from './placeCard';
 
 let model: GateModel;
 
@@ -106,5 +106,39 @@ describe('the place card on the committed data', () => {
     const card = buildPlaceCard({ ...first, attributes: { ...first.attributes, use: 'Clean room' } }, feature, model.sources, model.tiles);
     const text = [card.heading, ...card.rows.map((r) => r.value)].join(' ');
     expect(findBannedWords(text)).toEqual([]);
+  });
+});
+
+describe('cardHeading', () => {
+  it('splits a recorded use at the semicolon and leaves the bracketed note out of the heading', () => {
+    expect(cardHeading('Coal & Wood Yard; J. W. Corson & Co. (as lettered on the plate)', 'Land use')).toEqual({
+      heading: 'Coal & Wood Yard',
+      subtitle: ['J. W. Corson & Co.'],
+    });
+    expect(cardHeading('Bank of Nova Scotia; offices on 2nd', 'Building')).toEqual({ heading: 'Bank of Nova Scotia', subtitle: ['offices on 2nd'] });
+  });
+
+  it('keeps a use with no semicolon whole, minus the note', () => {
+    expect(cardHeading('COAL & WOOD YARD', 'Land use')).toEqual({ heading: 'COAL & WOOD YARD', subtitle: [] });
+    expect(cardHeading('Coal Yard (as lettered on the plate)', 'Land use')).toEqual({ heading: 'Coal Yard', subtitle: [] });
+  });
+
+  it('uses the kind when there is no use or it holds a banned word', () => {
+    expect(cardHeading(undefined, 'Building')).toEqual({ heading: 'Building', subtitle: [] });
+    expect(cardHeading('Clean room', 'Building')).toEqual({ heading: 'Building', subtitle: [] });
+  });
+
+  it("takes a find's lettered lines when the feature belongs to a find", () => {
+    expect(cardHeading('Bank of Nova Scotia; offices on 2nd', 'Building', ['Bank of Nova Scotia', 'Off. 2nd'])).toEqual({
+      heading: 'Bank of Nova Scotia',
+      subtitle: ['Off. 2nd'],
+    });
+  });
+
+  it('puts the heading of every committed card through the same rule, with no bracketed note in it', () => {
+    for (const { id, card } of everyCard()) {
+      expect(card.heading, id).not.toMatch(/as lettered on the plate/i);
+      expect(card.heading, id).not.toContain(';');
+    }
   });
 });

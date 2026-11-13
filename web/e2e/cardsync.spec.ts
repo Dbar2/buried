@@ -104,7 +104,9 @@ test('the card opens in the report column, with the scan, the record and "View o
   await expect(page.getByTestId('card-heading')).toBeFocused();
   await expect(hint).toHaveCount(0);
 
-  await expect(page.getByTestId('card-heading')).toHaveText(/^Bank of Nova Scotia; offices on 2nd/);
+  await expect(page.getByTestId('card-heading')).toHaveText('Bank of Nova Scotia');
+  // The bank is a find: the heading is its first lettered line and the second is the subtitle; the use row keeps the record whole.
+  await expect(page.getByTestId('card-subtitle')).toHaveText('Off. 2nd');
   await expect(page.getByTestId('card-use')).toHaveText(/^Bank of Nova Scotia; offices on 2nd/);
   await expect(page.getByTestId('card-confidence')).toContainText(/^(Documented|Estimated|Unknown)\. /);
   await expect(page.getByTestId('card-position')).toHaveText(/^Positioned within about \d+(\.\d)? m$/);
@@ -182,14 +184,27 @@ test('the gauge and the core sample follow each other, in both directions', asyn
     await expect.poll(() => activeBand(page)).toBe(era);
     await expect(page.getByTestId(`band-now-${era}`)).toHaveText('Showing');
     await expect(page.getByTestId('header-era')).toHaveText(label);
-    // The marked band is inside the visible part of the report column.
-    const inView = await page.getByTestId(`band-${era}`).evaluate((band) => {
-      const column = band.closest('.report-scroll') as HTMLElement;
-      const b = band.getBoundingClientRect();
-      const c = column.getBoundingClientRect();
-      return b.top >= c.top - 1 && b.bottom <= c.bottom + 1;
-    });
-    expect(inView, `the ${era} band is in view`).toBe(true);
+    // The marked band is inside the visible part of the report column. The column scrolls smoothly to it (unless the
+    // visitor asked for reduced motion), and under load the Player takes frames from that animation, so the band is
+    // read until it is in view and the column has stopped moving: it must end there, and stay.
+    const bandBox = () =>
+      page.getByTestId(`band-${era}`).evaluate((band) => {
+        const column = band.closest('.report-scroll') as HTMLElement;
+        const b = band.getBoundingClientRect();
+        const c = column.getBoundingClientRect();
+        return { inView: b.top >= c.top - 1 && b.bottom <= c.bottom + 1, scrollTop: column.scrollTop };
+      });
+    await expect
+      .poll(
+        async () => {
+          const first = await bandBox();
+          await page.waitForTimeout(150);
+          const second = await bandBox();
+          return first.inView && second.inView && first.scrollTop === second.scrollTop;
+        },
+        { message: `the ${era} band is in view and the column has stopped scrolling`, timeout: 10_000 },
+      )
+      .toBe(true);
   };
 
   await settled('1911', '1911 (revised to 1914)');
@@ -304,7 +319,7 @@ test('without WebGL the 2D map stands in for the scene, with the same records as
   // A building chosen from the list opens its card, with no "View original scan" (the map shows the scan as it is).
   await page.getByTestId('feature-list-toggle').click();
   await page.getByTestId(`feature-row-${BANK}`).click();
-  await expect(page.getByTestId('card-heading')).toHaveText(/^Bank of Nova Scotia; offices on 2nd/);
+  await expect(page.getByTestId('card-heading')).toHaveText('Bank of Nova Scotia');
   await expect(page.getByTestId('view-original')).toHaveCount(0);
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('evidence-card')).toHaveCount(0);

@@ -348,6 +348,13 @@
   margin: var(--space-2) 0 var(--space-3);
 }
 
+.place-card-subtitle {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-heading);
+  font-style: italic;
+  color: var(--report-ink-soft);
+}
+
 .place-card h2:focus-visible {
   outline: 2px solid var(--report-ink);
   outline-offset: 2px;
