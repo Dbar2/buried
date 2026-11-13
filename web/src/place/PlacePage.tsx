@@ -7,6 +7,7 @@ import { ReportView } from '../report/ReportView';
 import { useReportData, useReportModel } from '../report/useReportData';
 import { Header } from '../shell/Header';
 import { Loading } from '../shell/Mark';
+import { SetPageTitle } from '../shell/SetPageTitle';
 import { buildPlaceCard } from './placeCard';
 import { PlaceCard } from './PlaceCardPanel';
 import { placeLink } from './placeLink';
@@ -89,6 +90,7 @@ export function PlacePage() {
 
   return (
     <div className="page">
+      <SetPageTitle page="place" address={address} />
       <Header current="place" address={address} era={shown?.label ?? null} />
       <div className="place" data-testid="place">
         <section className="place-scene" aria-label="The dig">

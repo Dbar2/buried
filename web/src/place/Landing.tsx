@@ -8,11 +8,12 @@ import { coverageLine } from '../report/placeText';
 import { lotForPoint, searchAddresses } from '../report/search';
 import { useReportData } from '../report/useReportData';
 import { Mark } from '../shell/Mark';
+import { SetPageTitle } from '../shell/SetPageTitle';
+import { TAGLINE } from '../shell/tagline';
 import { placeLink } from './placeLink';
 import './place.css';
 
-/** The tagline from design.md "Identity". */
-export const TAGLINE = 'Forgotten maps, rebuilt with proof.';
+export { TAGLINE };
 
 /**
  * The landing (`/`): the wordmark, one field, "What was here?", and three real example addresses
@@ -75,6 +76,7 @@ export function Landing() {
 
   return (
     <div className="landing" data-testid="landing" data-scene={scene === 'loading' && !startScene ? 'waiting' : scene}>
+      <SetPageTitle page="landing" />
       <div className={scene === 'ready' ? 'landing-scene landing-scene--shown' : 'landing-scene'} aria-hidden="true" data-testid="landing-scene">
         {startScene && <Explorer variant="backdrop" onScene={setScene} />}
       </div>

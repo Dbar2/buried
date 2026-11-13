@@ -331,6 +331,18 @@ invent commands; when one is added, record it here.
     `npx wrangler pages deploy web/dist --project-name buried --branch main`. This is the command
     that worked for the live site, `https://buried.pages.dev` (session 031). The Studio service is
     not deployed.
+  - Sharing and first load (session 031), from `web/`: `index.html` carries the title, the description and
+    the Open Graph tags a crawler reads without running the script; each route sets its own title and
+    description in the browser (`src/shell/pageTitle.ts`, "541 and 543 Queen St E · Buried"), so a link
+    preview of a deep link shows the generic card text, not the address. The card image is
+    `public/social-card.png`, rendered once from `social/card.css` and the palette tokens by
+    `npm run gen:social-card` and committed. `npx playwright test e2e/firstload.spec.ts` measures the
+    landing (field, examples and scene times, with and without 4x CPU throttling, to
+    `e2e/output/firstload.json`); `npx playwright test e2e/phone.spec.ts` is the 390 px touch pass
+    (`phone-landing.png`, `phone-place.png`, `phone-card.png`, `phone-fallback.png`). Checkouts that
+    run beside each other share port 4173 and `reuseExistingServer` then serves another checkout's
+    build; `npx playwright test -c playwright.isolated.config.ts <spec>` uses port 4183 and never
+    reuses a server (not for `brand.spec.ts` or `art.spec.ts`, which hold 4173 in a constant).
   - Check: `npm run build`, then `npx playwright test -c playwright.hosting.config.ts`. It starts its
     own `vite preview` on port 4174 (never reusing a server on 4173), loads `/place?lot=...`,
     `/report`, `/sources` and `/studio` as first requests, and writes

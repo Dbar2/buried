@@ -3,6 +3,7 @@ import { Explorer } from './explorer/Explorer';
 import { routeFor } from './place/placeLink';
 import { Header } from './shell/Header';
 import { Loading } from './shell/Mark';
+import { SetPageTitle } from './shell/SetPageTitle';
 
 // The landing and the place page load the Explorer's scene; the Sources page does not.
 const Landing = lazy(() => import('./place/Landing').then((m) => ({ default: m.Landing })));
@@ -49,6 +50,7 @@ export function App() {
     case 'studio':
       return (
         <div className="page">
+          <SetPageTitle page="studio" />
           <Header current="studio" />
           <Suspense fallback={<Loading text="Loading the Studio." />}>
             <StudioPage />
@@ -58,6 +60,7 @@ export function App() {
     case 'sources':
       return (
         <div className="page">
+          <SetPageTitle page="sources" />
           <Header current="sources" />
           <div className="page-scroll sources-scroll">
             <Suspense fallback={<Loading text="Loading the Sources page." />}>
@@ -69,6 +72,7 @@ export function App() {
     default:
       return (
         <div className="page">
+          <SetPageTitle page="explorer" />
           <Header current="explorer" />
           <Explorer />
         </div>
