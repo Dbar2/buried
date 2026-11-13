@@ -34,7 +34,7 @@ import type { ShareOutcome } from './share';
 import { flatShouldRaise, initialRaiseState, PLAYER_TIMEOUT_MS, raiseReducer, sendsRaise } from './raiseState';
 import type { RaiseState } from './raiseState';
 import { anchorsInViewport, STILL_SIZES, stillKindFor } from './stillAnchors';
-import { estimateTagSize, layoutTags, leaderLine, selectedKeepOut } from './tagLayout';
+import { estimateTagSize, layoutMarkers, layoutTags, leaderLine, selectedKeepOut } from './tagLayout';
 import type { Size, TagAnchor } from './tagLayout';
 import type { BlockDataState, StillAnchors } from './useBlockData';
 import { useBlockLens } from './useBlockLens';
@@ -251,6 +251,10 @@ export function BlockStage(props: BlockStageProps) {
   // Once a find is selected no pinned tag may cover it or the start of its leader line.
   const keepOut = [...tagKeepOut(rects, raised), ...(raised ? selectedKeepOut(selectedAnchor, leader) : [])];
   const tagLayoutResult = layoutTags({ anchors: tagAnchors, sizes: tagSizes, viewport: stage, keepOut, selectedId: raised ? selectedSlug : null });
+  // After the raise the top row names every find, so a find that is not selected is a small marker on the scene.
+  const markerLayout = raised
+    ? layoutMarkers({ anchors: tagAnchors, sizes: tagSizes, viewport: stage, keepOut: tagKeepOut(rects, raised), leader, selectedId: selectedSlug })
+    : [];
 
   // ---- the card -------------------------------------------------------------------------------------------------
   const cardContext: CardContext | null = model
@@ -460,8 +464,11 @@ export function BlockStage(props: BlockStageProps) {
         {!flat ? <StillPicture sources={STILL_SOURCES} kind={stillKind} faded={stillFaded} /> : null}
       </div>
 
-      <FindTags mode="pinned" items={items} layout={tagLayoutResult} selectedId={raised ? selectedSlug : null} onSelect={(slug) => select({ kind: 'find', slug })} />
-
+      {raised ? (
+        <FindTags mode="markers" items={items} layout={markerLayout} selectedId={selectedSlug} onSelect={(slug) => select({ kind: 'find', slug })} />
+      ) : (
+        <FindTags mode="pinned" items={items} layout={tagLayoutResult} selectedId={null} onSelect={(slug) => select({ kind: 'find', slug })} />
+      )}
       {introVisible ? <div className="block-scrim" aria-hidden="true" data-testid="block-scrim" /> : null}
       {introVisible ? (
         <div className="block-intro" data-testid="block-intro">

@@ -12,7 +12,7 @@ import { LeaderLine } from './LeaderLine';
 import { RaiseButton } from './RaiseButton';
 import { sampleCardView, sampleFootprints, sampleRulerStops, sampleTags, sampleTile } from './sample';
 import { StillPicture } from './StillPicture';
-import { layoutTags } from './tagLayout';
+import { layoutMarkers, layoutTags } from './tagLayout';
 
 const noop = () => undefined;
 
@@ -79,6 +79,17 @@ describe('FindTags and LeaderLine', () => {
     const html = renderToStaticMarkup(<FindTags mode="pinned" items={sampleTags} layout={selectedLayout} selectedId="bank" onSelect={noop} />);
     expect(html).not.toContain('>Bank<');
     expect(html).toContain('>Overall factory</button>');
+  });
+
+  it('draws a find that is not selected as a marker button with its text beside the dot, and none for the selected or a hidden one', () => {
+    const markers = layoutMarkers({ anchors, sizes, viewport: { w: 1440, h: 800 }, keepOut: [], leader: null, selectedId: 'bank' });
+    const html = renderToStaticMarkup(<FindTags mode="markers" items={sampleTags} layout={markers} selectedId="bank" onSelect={noop} />);
+    expect(html).toMatch(/<button [^>]*aria-label="Overall factory"[^>]*data-testid="marker-overall-factory"/);
+    expect(html).toContain('class="find-marker-dot"');
+    expect(html).toMatch(/data-testid="marker-label-overall-factory"[^>]*>Overall factory<\/span>/);
+    expect(html).not.toContain('marker-bank');
+    expect(html).not.toContain('marker-coal-yard');
+    expect(html).not.toContain('<line ');
   });
 
   it('shows every find in the top row, with the selected one pressed', () => {

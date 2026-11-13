@@ -147,3 +147,101 @@ export function leaderLine(input: {
   const y2 = Math.min(card.y + card.h, Math.max(card.y, input.titleY));
   return { x1: anchor.x, y1: anchor.y, x2: card.x, y2 };
 }
+
+// ---- markers (session 045) ----------------------------------------------------------------------------------------
+// After the raise the top row names every find, so a find that is not selected is pinned on the scene as a small dot
+// only. Its tag text shows beside the dot on hover and on keyboard focus. Nothing may cross the selected find's leader line:
+// not the dot's hit area and not the label where it would appear.
+
+/** The drawn dot's side in px. */
+export const MARKER_DOT = 10;
+/** Half the side of the marker button's hit area, around the anchor: 44 px, the touch-target size. */
+export const MARKER_HIT_HALF = 22;
+/** The gap between the anchor and the label's near edge. */
+export const MARKER_LABEL_GAP = 12;
+
+export type MarkerSide = 'right' | 'left' | 'above';
+
+export type MarkerPlacement = {
+  /** The button's hit area, centred on the anchor. */
+  readonly hit: Rect;
+  readonly side: MarkerSide;
+  /** Where the label shows. */
+  readonly label: Rect;
+};
+
+export type MarkerResult = { readonly id: string; readonly placement: MarkerPlacement | 'hidden' };
+
+/** True when the segment passes through the rectangle (touching an edge counts). Liang-Barsky clipping. */
+export function segmentHitsRect(line: LeaderLine, rect: Rect): boolean {
+  let t0 = 0;
+  let t1 = 1;
+  const dx = line.x2 - line.x1;
+  const dy = line.y2 - line.y1;
+  const edges: Array<[number, number]> = [
+    [-dx, line.x1 - rect.x],
+    [dx, rect.x + rect.w - line.x1],
+    [-dy, line.y1 - rect.y],
+    [dy, rect.y + rect.h - line.y1],
+  ];
+  for (const [p, q] of edges) {
+    if (p === 0) {
+      if (q < 0) return false;
+    } else {
+      const r = q / p;
+      if (p < 0) {
+        if (r > t1) return false;
+        if (r > t0) t0 = r;
+      } else {
+        if (r < t0) return false;
+        if (r < t1) t1 = r;
+      }
+    }
+  }
+  return t0 <= t1;
+}
+
+function labelCandidate(anchor: TagAnchor, size: Size, side: MarkerSide): Rect {
+  switch (side) {
+    case 'right':
+      return { x: anchor.x + MARKER_LABEL_GAP, y: anchor.y - size.h / 2, w: size.w, h: size.h };
+    case 'left':
+      return { x: anchor.x - MARKER_LABEL_GAP - size.w, y: anchor.y - size.h / 2, w: size.w, h: size.h };
+    case 'above':
+      return { x: anchor.x - size.w / 2, y: anchor.y - MARKER_LABEL_GAP - size.h, w: size.w, h: size.h };
+  }
+}
+
+export type MarkerLayoutInput = {
+  readonly anchors: readonly TagAnchor[];
+  readonly sizes: ReadonlyMap<string, Size>;
+  readonly viewport: Size;
+  /** The header, the card, the ruler, the Lantern control and the top tag row. A marker under one is hidden. */
+  readonly keepOut: readonly Rect[];
+  readonly leader: LeaderLine | null;
+  readonly selectedId: string | null;
+};
+
+/**
+ * One placement or `hidden` per find. A marker is hidden when its anchor is off screen, when it is the selected find,
+ * when its hit area leaves the viewport, meets a keep-out or meets the leader line, or when its label has no side
+ * (right, left, above) that stays in the viewport and clear of the leader line. A hidden marker's find is still in
+ * the top row and the list.
+ */
+export function layoutMarkers(input: MarkerLayoutInput): MarkerResult[] {
+  return input.anchors.map((anchor): MarkerResult => {
+    const size = input.sizes.get(anchor.id);
+    if (!anchor.onScreen || !size || anchor.id === input.selectedId) return { id: anchor.id, placement: 'hidden' };
+    const hit: Rect = { x: anchor.x - MARKER_HIT_HALF, y: anchor.y - MARKER_HIT_HALF, w: 2 * MARKER_HIT_HALF, h: 2 * MARKER_HIT_HALF };
+    if (!insideViewport(hit, input.viewport)) return { id: anchor.id, placement: 'hidden' };
+    if (input.keepOut.some((k) => rectsOverlap(hit, k))) return { id: anchor.id, placement: 'hidden' };
+    if (input.leader && segmentHitsRect(input.leader, hit)) return { id: anchor.id, placement: 'hidden' };
+    for (const side of ['right', 'left', 'above'] as const) {
+      const label = labelCandidate(anchor, size, side);
+      if (!insideViewport(label, input.viewport)) continue;
+      if (input.leader && segmentHitsRect(input.leader, label)) continue;
+      return { id: anchor.id, placement: { hit, side, label } };
+    }
+    return { id: anchor.id, placement: 'hidden' };
+  });
+}

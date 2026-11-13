@@ -96,6 +96,37 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
     expect(await page.evaluate(() => (window as unknown as { __stillFadedSeen: boolean }).__stillFadedSeen)).toBe(true);
   });
 
+  test('after the raise an unselected find is a small marker: its text shows on hover and on focus, and it selects the find', async ({ page }) => {
+    test.setTimeout(PLAYER_TIMEOUT + 60_000);
+    await page.goto('/');
+    await page.getByTestId('raise-button').click();
+    await raised(page);
+    await expect(page.getByTestId('tag-layer')).toHaveCount(0);
+    const markers = page.locator('[data-testid^="marker-"]:not([data-testid^="marker-label-"]):not([data-testid="marker-layer"])');
+    await expect.poll(() => markers.count(), { message: 'at least one unselected find is marked on the scene' }).toBeGreaterThan(0);
+    await expect(page.getByTestId('marker-overall-factory'), 'the selected find has no marker').toHaveCount(0);
+    const marker = markers.first();
+    const id = ((await marker.getAttribute('data-testid')) as string).replace('marker-', '');
+    const label = page.getByTestId(`marker-label-${id}`);
+    const dot = marker.locator('.find-marker-dot');
+    const box = (await dot.boundingBox())!;
+    expect(Math.round(box.width)).toBe(10);
+    expect(Math.round(box.height)).toBe(10);
+    await expect(label).toHaveCSS('opacity', '0');
+    await marker.hover();
+    await expect(label).toHaveCSS('opacity', '1');
+    await expect(label).toHaveText(/\S/);
+    await page.mouse.move(5, 500);
+    await expect(label).toHaveCSS('opacity', '0');
+    await marker.focus();
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Shift+Tab');
+    await expect(label).toHaveCSS('opacity', '1');
+    await page.screenshot({ path: join(OUTPUT, 'block-markers-1440.png') });
+    await marker.click();
+    await expect(page.getByTestId(`tag-${id}`)).toHaveAttribute('aria-pressed', 'true');
+  });
+
   test('the ruler moves the era, and 1935 adds the one line about the 1931-35 plan', async ({ page }) => {
     test.setTimeout(PLAYER_TIMEOUT + 60_000);
     await page.goto('/');

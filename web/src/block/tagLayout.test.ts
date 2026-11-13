@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { insideViewport, layoutTags, leaderLine, rectsOverlap, selectedKeepOut, STRING_OFFSETS } from './tagLayout';
+import { insideViewport, layoutMarkers, layoutTags, leaderLine, MARKER_LABEL_GAP, rectsOverlap, segmentHitsRect, selectedKeepOut, STRING_OFFSETS } from './tagLayout';
 import type { Rect, Size, TagAnchor, TagResult } from './tagLayout';
 
 const rect = fc.record({
@@ -181,5 +181,86 @@ describe('leaderLine', () => {
         }
       }),
     );
+  });
+});
+
+describe('markers', () => {
+  const viewport: Size = { w: 1440, h: 800 };
+  const card: Rect = { x: 1056, y: 72, w: 360, h: 740 };
+
+  it('segmentHitsRect agrees with a brute-force walk along the segment', () => {
+    fc.assert(
+      fc.property(
+        fc.record({ x1: fc.integer({ min: 0, max: 400 }), y1: fc.integer({ min: 0, max: 400 }), x2: fc.integer({ min: 0, max: 400 }), y2: fc.integer({ min: 0, max: 400 }) }),
+        rect,
+        (line, r) => {
+          let walked = false;
+          for (let i = 0; i <= 4000 && !walked; i++) {
+            const t = i / 4000;
+            const x = line.x1 + (line.x2 - line.x1) * t;
+            const y = line.y1 + (line.y2 - line.y1) * t;
+            walked = x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
+          }
+          // The walk can miss a graze between two samples, never find a hit that is not there.
+          if (walked) expect(segmentHitsRect(line, r)).toBe(true);
+        },
+      ),
+    );
+  });
+
+  it('property: no marker, and no label where it would show, meets the selected find\'s leader line', () => {
+    fc.assert(
+      fc.property(
+        anchorsArb,
+        fc.record({ x: fc.integer({ min: 40, max: 1000 }), y: fc.integer({ min: 100, max: 760 }) }),
+        (tags, at) => {
+          const selected = { ...at, onScreen: true };
+          const leader = leaderLine({ anchor: selected, card, titleY: 172, phone: false });
+          const anchors: TagAnchor[] = tags.map((t, i) => ({ id: `t${i}`, x: t.x, y: t.y, onScreen: t.onScreen }));
+          const sizes = new Map(tags.map((t, i) => [`t${i}`, t.size] as const));
+          const results = layoutMarkers({ anchors, sizes, viewport, keepOut: [card], leader, selectedId: null });
+          expect(results.length).toBe(anchors.length);
+          for (const r of results) {
+            if (r.placement === 'hidden') continue;
+            expect(insideViewport(r.placement.hit, viewport)).toBe(true);
+            expect(insideViewport(r.placement.label, viewport)).toBe(true);
+            expect(rectsOverlap(r.placement.hit, card)).toBe(false);
+            if (leader) {
+              expect(segmentHitsRect(leader, r.placement.hit)).toBe(false);
+              expect(segmentHitsRect(leader, r.placement.label)).toBe(false);
+            }
+          }
+        },
+      ),
+    );
+  });
+
+  it('hides the selected find and an anchor that is off screen, and keeps a clear one with the label beside it', () => {
+    const anchors: TagAnchor[] = [
+      { id: 'selected', x: 500, y: 400, onScreen: true },
+      { id: 'away', x: 300, y: 300, onScreen: false },
+      { id: 'clear', x: 300, y: 600, onScreen: true },
+    ];
+    const sizes = new Map(anchors.map((a) => [a.id, { w: 100, h: 44 }] as const));
+    const [selected, away, clear] = layoutMarkers({ anchors, sizes, viewport, keepOut: [], leader: null, selectedId: 'selected' });
+    expect(selected!.placement).toBe('hidden');
+    expect(away!.placement).toBe('hidden');
+    expect(clear!.placement).not.toBe('hidden');
+    if (clear!.placement !== 'hidden') {
+      expect(clear!.placement.side).toBe('right');
+      expect(clear!.placement.label.x).toBe(300 + MARKER_LABEL_GAP);
+    }
+  });
+
+  it('hides a marker the leader line runs through, and puts a label on the side the line does not cross', () => {
+    const leader = { x1: 100, y1: 100, x2: 1000, y2: 100 };
+    const on = layoutMarkers({ anchors: [{ id: 'on', x: 500, y: 110, onScreen: true }], sizes: new Map([['on', { w: 100, h: 44 }]]), viewport, keepOut: [], leader, selectedId: null });
+    expect(on[0]!.placement).toBe('hidden');
+    // 150 px below the line: a label to the right is clear of it.
+    const below = layoutMarkers({ anchors: [{ id: 'b', x: 500, y: 250, onScreen: true }], sizes: new Map([['b', { w: 100, h: 44 }]]), viewport, keepOut: [], leader, selectedId: null });
+    expect(below[0]!.placement).not.toBe('hidden');
+    // 50 px below: the right-hand label (22 px above and below its centre) is clear, but a label above would cross.
+    const near = layoutMarkers({ anchors: [{ id: 'n', x: 500, y: 140, onScreen: true }], sizes: new Map([['n', { w: 100, h: 44 }]]), viewport, keepOut: [], leader, selectedId: null });
+    if (near[0]!.placement !== 'hidden') expect(segmentHitsRect(leader, near[0]!.placement.label)).toBe(false);
   });
 });
