@@ -110,3 +110,8 @@ class Paths:
     @property
     def match_review(self) -> Path:
         return self.work / "match" / "review.json"
+
+    @property
+    def match_pairwise(self) -> Path:
+        """The pairwise alignment figures the last `match` run used (design.md "Pairwise error")."""
+        return self.work / "match" / "pairwise.json"

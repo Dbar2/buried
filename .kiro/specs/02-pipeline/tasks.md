@@ -526,3 +526,23 @@ task 16), 7, 8, 16, 11, 9.
     `pipeline/buried_pipeline/hooks/held_out_write.py`, `pipeline/tests/hooks/test_held_out_write.py`,
     `.kiro/steering/tech.md`.
     Requirements: 9.2, 9.3.
+
+- [ ] 18. Pairwise alignment error for `match` (session 025)
+  - [x] 18.1 `align/pairwise.py` (pure rule and loader), the use in `match/rules.py`, `compute.py` and
+    `run.py` (`own_term_m`, `pair_error`, `absence_error`; `data/work/match/pairwise.json`),
+    requirement 13.15 and design "Pairwise error". Properties: the figure is symmetric, order
+    independent, never defined with fewer than four shared references, conservative and rounded up;
+    `pairwise_figures` refuses a stale control file.
+    Files: `pipeline/buried_pipeline/align/pairwise.py`, `pipeline/buried_pipeline/match/*.py`,
+    `pipeline/buried_pipeline/paths.py`, `pipeline/tests/align/test_pairwise.py`,
+    `pipeline/tests/match/test_pairwise_use.py`.
+    Requirements: 13.2, 13.4, 13.15.
+  - [ ] 18.2 Property: matching with a larger error never produces more matches or absences than
+    with a smaller one. **Not done.** It is false for the rules of 13.2 and 13.4 as written:
+    `r` is measured on the core shrunk by `e`, so a larger `e` can turn a partial overlap into a
+    match, and a larger `e_abs` shrinks F's core until a building overlapping F's edge no longer
+    touches it, which turns a review into a clear absence. The test is in
+    `tests/match/test_pairwise_use.py` as a strict `xfail` with the counterexample. It needs a
+    decision on the rule (for example, absence also requires that no building touches F itself, or
+    that `e` only widens the search), not a change to the test.
+    Requirements: 13.2, 13.4.

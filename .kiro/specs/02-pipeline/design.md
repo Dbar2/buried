@@ -690,6 +690,38 @@ All geometry is shapely in EPSG:26917. `shrink(g, d)` is `g.buffer(-d)` and `gro
 of the polygonal arcs make the shrunk shape very slightly larger than the exact one, which errs
 toward "something touches the core" and so away from a false absence.
 
+### Pairwise error (requirement 13.15)
+
+Two plates are measured against the same City intersections, so how far one plate's footprint may
+sit from another's is smaller than the sum of their absolute errors. `align/pairwise.py` (pure)
+holds the rule; `match/run.py` reads the committed control files and alignment records and calls it.
+
+- Shared references: control points of two plates with the same `(reference_source,
+  reference_feature_id, reference_vertex)`. Fewer than four: no figure.
+- A plate's out-of-sample residual `r` at a point: the supplied residual from its alignment record
+  when it chose `supplied`; the leave-one-out residual, recomputed from the control file, when it
+  chose `refined` (the in-sample residuals of a refined fit are optimistic).
+- Where plate A puts a reference minus where plate B puts it is `r_A − r_B`, because both
+  transforms predict the same City position `q` and `T(p) = q + r`. `B_pair` is the RMS of those
+  differences (`math.fsum`, so order does not matter). `pairwise_error_m = ceil_0.1(max(1.0, 2 ×
+  B_pair))`. The 1.0 m floor is half the alignment error's 2.0 m: the City reference's own error
+  cancels in a difference, but the control points were read by eye, the transforms are measured at
+  a handful of points inside a hull and extrapolated outside it, and a few points can have a small
+  RMS by luck.
+- A plate's control file must hash to its alignment record's `control_sha256`; otherwise the plate
+  takes no part and `match` says so.
+- `e` for F against G on the other plate is `ceil_0.1(sqrt(pairwise² + own(F)² + own(G)²))`, with
+  `own(X) = sqrt(position_error_m² − provenance.alignment_error_m²)`. For an absence, `own(G)` is
+  replaced by the other plate's smallest digitising term, `max(1.0, 2 × pixel size)`.
+- Everything is recomputable from `data/control/<id>.json` and `data/alignment/<id>.json`. Each
+  `match` run writes the figures it used, with shared references and differences, to
+  `data/work/match/pairwise.json`. Nothing under `data/` changes.
+
+On plate 229 both editions chose their supplied georeferencing, so the figure is built from the
+supplied residuals (RMS of the differences 1.66 m, pairwise error 3.4 m), not from the refined
+fits, whose residuals agree to about 0.2 m but are not the transforms the published footprints
+were drawn under.
+
 ### Thresholds
 
 Defined once in `match/rules.py`:
