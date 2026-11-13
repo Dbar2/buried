@@ -1,0 +1,6 @@
+{
+  "type": "scene/setDrapeMode",
+  "payload": {
+    "mode": "lit"
+  }
+}

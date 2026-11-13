@@ -1,0 +1,7 @@
+{
+  "type": "scene/setDrapeMode",
+  "payload": {
+    "mode": "original",
+    "sourceId": "9h9b1_0b1_4b7"
+  }
+}

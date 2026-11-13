@@ -1,0 +1,7 @@
+{
+  "type": "scene/setDrapeMode",
+  "payload": {
+    "mode": "lit",
+    "sourceId": "rpzy_df_y895u"
+  }
+}
