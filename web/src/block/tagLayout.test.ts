@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { insideViewport, layoutTags, leaderLine, rectsOverlap, STRING_OFFSETS } from './tagLayout';
+import { insideViewport, layoutTags, leaderLine, rectsOverlap, selectedKeepOut, STRING_OFFSETS } from './tagLayout';
 import type { Rect, Size, TagAnchor, TagResult } from './tagLayout';
 
 const rect = fc.record({
@@ -22,6 +22,58 @@ const anchorsArb = fc.array(
 
 describe('tagLayout', () => {
   const viewport: Size = { w: 1440, h: 800 };
+
+  it('keeps pinned tags off the selected find and the start of its leader line', () => {
+    const selected = { x: 700, y: 400, onScreen: true };
+    const card: Rect = { x: 1056, y: 72, w: 360, h: 740 };
+    const leader = leaderLine({ anchor: selected, card, titleY: 172, phone: false });
+    expect(leader).not.toBeNull();
+    // A neighbour whose first free spot, with nothing protected, is right on the selected find's volume.
+    const anchors: TagAnchor[] = [{ id: 'near', x: 700, y: 480, onScreen: true }];
+    const sizes = new Map([['near', { w: 120, h: 44 }]]);
+    const before = layoutTags({ anchors, sizes, viewport, keepOut: [] })[0]!;
+    expect(before.placement).not.toBe('hidden');
+    if (before.placement !== 'hidden') expect(rectsOverlap(before.placement.rect, { x: 664, y: 364, w: 72, h: 72 })).toBe(true);
+    const after = layoutTags({ anchors, sizes, viewport, keepOut: selectedKeepOut(selected, leader) })[0]!;
+    if (after.placement !== 'hidden') {
+      for (const k of selectedKeepOut(selected, leader)) expect(rectsOverlap(after.placement.rect, k)).toBe(false);
+    }
+  });
+
+  it('property: no pinned tag meets the selected anchor or the first 120 px of the leader line', () => {
+    fc.assert(
+      fc.property(
+        anchorsArb,
+        fc.record({ x: fc.integer({ min: 40, max: 1000 }), y: fc.integer({ min: 100, max: 760 }) }),
+        (tags, at) => {
+          const selected = { ...at, onScreen: true };
+          const card: Rect = { x: 1056, y: 72, w: 360, h: 740 };
+          const leader = leaderLine({ anchor: selected, card, titleY: 172, phone: false });
+          const keepOut = selectedKeepOut(selected, leader);
+          const anchors: TagAnchor[] = tags.map((t, i) => ({ id: `t${i}`, x: t.x, y: t.y, onScreen: t.onScreen }));
+          const sizes = new Map(tags.map((t, i) => [`t${i}`, t.size]));
+          const placed = layoutTags({ anchors, sizes, viewport, keepOut });
+          for (const r of placed) {
+            if (r.placement === 'hidden') continue;
+            expect(rectsOverlap(r.placement.rect, { x: selected.x - 36, y: selected.y - 36, w: 72, h: 72 })).toBe(false);
+            if (!leader) continue;
+            const length = Math.hypot(leader.x2 - leader.x1, leader.y2 - leader.y1);
+            for (let d = 0; d <= Math.min(120, length); d += 1) {
+              const px = leader.x1 + ((leader.x2 - leader.x1) * d) / length;
+              const py = leader.y1 + ((leader.y2 - leader.y1) * d) / length;
+              const hit = px > r.placement.rect.x && px < r.placement.rect.x + r.placement.rect.w && py > r.placement.rect.y && py < r.placement.rect.y + r.placement.rect.h;
+              expect(hit, `tag ${r.id} covers the leader line ${d} px from its start`).toBe(false);
+            }
+          }
+        },
+      ),
+    );
+  });
+
+  it('protects nothing when no find is selected or its anchor is off screen', () => {
+    expect(selectedKeepOut(null, null)).toEqual([]);
+    expect(selectedKeepOut({ x: 10, y: 10, onScreen: false }, null)).toEqual([]);
+  });
 
   it('puts a tag above its anchor on a 40 px string when the spot is free', () => {
     const [result] = layoutTags({

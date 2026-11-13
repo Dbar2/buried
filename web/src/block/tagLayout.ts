@@ -95,6 +95,39 @@ export function layoutTags(input: TagLayoutInput): TagResult[] {
 
 export type LeaderLine = { readonly x1: number; readonly y1: number; readonly x2: number; readonly y2: number };
 
+/** Half the side of the square kept clear around the selected find's anchor: its volume and the dot on it. */
+export const SELECTED_CLEAR_HALF = 36;
+/** How much of the leader line, from its start, no tag may cover. */
+export const LEADER_CLEAR_PX = 120;
+const LEADER_CLEAR_STEP = 16;
+const LEADER_CLEAR_HALF = 12;
+
+/**
+ * Rectangles no pinned tag may cover once a find is selected: a square around the selected find's anchor, and
+ * the first `LEADER_CLEAR_PX` of the leader line from that anchor (as a run of small squares along it, so a tag
+ * cannot sit across the line's start). Add these to the keep-outs. Empty when nothing is selected or the anchor
+ * is off screen.
+ */
+export function selectedKeepOut(anchor: { x: number; y: number; onScreen: boolean } | null, leader: LeaderLine | null): Rect[] {
+  if (!anchor || !anchor.onScreen) return [];
+  const rects: Rect[] = [{ x: anchor.x - SELECTED_CLEAR_HALF, y: anchor.y - SELECTED_CLEAR_HALF, w: 2 * SELECTED_CLEAR_HALF, h: 2 * SELECTED_CLEAR_HALF }];
+  if (leader) {
+    const dx = leader.x2 - leader.x1;
+    const dy = leader.y2 - leader.y1;
+    const length = Math.hypot(dx, dy);
+    if (length > 0) {
+      const clear = Math.min(LEADER_CLEAR_PX, length);
+      for (let d = LEADER_CLEAR_STEP; d <= clear + LEADER_CLEAR_STEP - 1e-9; d += LEADER_CLEAR_STEP) {
+        const t = Math.min(d, clear) / length;
+        const px = leader.x1 + dx * t;
+        const py = leader.y1 + dy * t;
+        rects.push({ x: px - LEADER_CLEAR_HALF, y: py - LEADER_CLEAR_HALF, w: 2 * LEADER_CLEAR_HALF, h: 2 * LEADER_CLEAR_HALF });
+      }
+    }
+  }
+  return rects;
+}
+
 /**
  * The leader line from the selected find's anchor to the card's left edge at the title row. Null (hidden)
  * when there is no card, on a phone, when the anchor is off screen, or when it is under the card or past

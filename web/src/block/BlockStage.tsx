@@ -34,7 +34,7 @@ import type { ShareOutcome } from './share';
 import { flatShouldRaise, initialRaiseState, PLAYER_TIMEOUT_MS, raiseReducer, sendsRaise } from './raiseState';
 import type { RaiseState } from './raiseState';
 import { anchorsInViewport, STILL_SIZES, stillKindFor } from './stillAnchors';
-import { estimateTagSize, layoutTags, leaderLine } from './tagLayout';
+import { estimateTagSize, layoutTags, leaderLine, selectedKeepOut } from './tagLayout';
 import type { Size, TagAnchor } from './tagLayout';
 import type { BlockDataState, StillAnchors } from './useBlockData';
 import { useBlockLens } from './useBlockLens';
@@ -245,10 +245,12 @@ export function BlockStage(props: BlockStageProps) {
 
   const selectedSlug = selectedFind?.find.slug ?? null;
   const tagSizes = useMemo(() => new Map<string, Size>(finds.map((f) => [f.find.slug, estimateTagSize(f.find.tag)])), [finds]);
-  const tagLayoutResult = layoutTags({ anchors: tagAnchors, sizes: tagSizes, viewport: stage, keepOut: tagKeepOut(rects, raised), selectedId: raised ? selectedSlug : null });
   const items = useMemo(() => tagItems(finds), [finds]);
   const selectedAnchor = tagAnchors.find((a) => a.id === selectedSlug) ?? null;
   const leader = leaderLine({ anchor: selectedAnchor, card: rects.card, titleY: (rects.card?.y ?? 0) + 100, phone: rects.phone });
+  // Once a find is selected no pinned tag may cover it or the start of its leader line.
+  const keepOut = [...tagKeepOut(rects, raised), ...(raised ? selectedKeepOut(selectedAnchor, leader) : [])];
+  const tagLayoutResult = layoutTags({ anchors: tagAnchors, sizes: tagSizes, viewport: stage, keepOut, selectedId: raised ? selectedSlug : null });
 
   // ---- the card -------------------------------------------------------------------------------------------------
   const cardContext: CardContext | null = model
