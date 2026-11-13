@@ -5,7 +5,7 @@ import { BottomSheet, settleSheet } from './BottomSheet';
 import { EraRuler, stopIndexForKey } from './EraRuler';
 import { cropStyles, FindCard } from './FindCard';
 import { FindTags } from './FindTags';
-import { FlatSheet } from './FlatSheet';
+import { FLAT_DRAW_S, flatStagger, FlatSheet } from './FlatSheet';
 import { LanternLens } from './LanternLens';
 import { LeaderLine } from './LeaderLine';
 import { RaiseButton } from './RaiseButton';
@@ -272,6 +272,14 @@ describe('FlatSheet', () => {
     expect(html.match(/class="flat-fp-edge"/g)).toHaveLength(3);
     expect(html).not.toContain('is-drawing');
     expect(html).not.toContain('<mask');
+  });
+
+  it('staggers so the last outline has finished drawing by 2.2 s, however many there are', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 0, max: 2000 }), (count) => {
+        expect(Math.max(0, count - 1) * flatStagger(count) + FLAT_DRAW_S).toBeLessThanOrEqual(2.2 + 1e-9);
+      }),
+    );
   });
 
   it('marks the selected footprint', () => {

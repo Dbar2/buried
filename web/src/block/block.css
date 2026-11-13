@@ -1,6 +1,8 @@
 /*
- * The Block page placeholder (spec 06 W2). Colours from tokens.css only. Square corners, a hairline
- * border, no fill gradients and no shadow. Part two replaces the insides.
+ * The Block page (spec 06 W2 placeholder, session 041 parts). Colours from tokens.css only. Square
+ * corners (2 px at most), hairline borders, no fill gradients, no pills, nothing heavier than a
+ * paper edge for a shadow. `--lantern` appears on the one primary button, the selected find and
+ * focus rings on dark. The placeholder rules come first; the parts follow under "Parts".
  */
 .block-page {
   background: var(--soot);
@@ -56,4 +58,627 @@
 
 .block-caption a {
   color: var(--parchment);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Parts
+ * ---------------------------------------------------------------------------------------------- */
+
+/* The headline: Libre Baskerville over the dark left third of the scene. */
+.block-headline {
+  font-family: var(--font-heading);
+  font-weight: 400;
+}
+
+/* The stage the parts sit on: the scene (or the Still) fills it, everything else is placed over it. */
+.block-stage {
+  --sheet-peek: 168px;
+  background: var(--soot);
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.block-stage .block-intro {
+  left: 5vw;
+  max-width: min(30rem, 32vw);
+  position: absolute;
+  top: 18%;
+  z-index: 2;
+}
+
+.block-stage .block-intro .block-headline {
+  font-size: clamp(2rem, 3.4vw, 3.25rem);
+}
+
+/* The Still ---------------------------------------------------------------------------------- */
+.still-picture {
+  inset: 0;
+  opacity: 1;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 300ms linear;
+}
+
+.still-picture.is-faded {
+  opacity: 0;
+}
+
+.still-image {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+  width: 100%;
+}
+
+/* The one primary action ---------------------------------------------------------------------- */
+.raise-button {
+  align-self: flex-start;
+  background: var(--lantern);
+  border: 1px solid var(--lantern);
+  border-radius: 2px;
+  color: var(--ink);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  font-weight: 600;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+}
+
+.raise-button[aria-disabled='true'] {
+  cursor: progress;
+}
+
+/* Tags ---------------------------------------------------------------------------------------- */
+.tag-layer,
+.tag-strings,
+.leader-line {
+  height: 100%;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+}
+
+.tag-layer {
+  z-index: 2;
+}
+
+.tag-strings line {
+  stroke: var(--parchment-dim);
+  stroke-width: 1;
+}
+
+.tag-strings circle {
+  fill: var(--parchment);
+}
+
+.find-tag {
+  background: var(--parchment);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  box-shadow: 0 1px 0 var(--rule);
+  color: var(--ink);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  white-space: nowrap;
+}
+
+.find-tag-pinned {
+  pointer-events: auto;
+  position: absolute;
+}
+
+/* Selected: a thicker edge in `--lantern` as well as aria-pressed, so it is never colour alone. */
+.find-tag[aria-pressed='true'] {
+  border-color: var(--lantern);
+  box-shadow: inset 0 0 0 2px var(--lantern);
+  font-weight: 600;
+}
+
+.tag-row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* The leader line ----------------------------------------------------------------------------- */
+.leader-line {
+  z-index: 1;
+}
+
+.leader-line line {
+  stroke: var(--lantern);
+  stroke-width: 1.5;
+}
+
+.leader-line circle {
+  fill: var(--lantern);
+}
+
+/* The catalogue card -------------------------------------------------------------------------- */
+.find-card {
+  background: var(--parchment);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  position: relative;
+  width: 100%;
+}
+
+.find-card :focus-visible {
+  outline: 2px solid var(--ink);
+}
+
+.reg-cross {
+  fill: none;
+  height: 12px;
+  position: absolute;
+  stroke: var(--rule);
+  stroke-width: 1;
+  width: 12px;
+}
+
+.reg-cross-tl {
+  left: 6px;
+  top: 6px;
+}
+
+.reg-cross-tr {
+  right: 6px;
+  top: 6px;
+}
+
+.reg-cross-bl {
+  bottom: 6px;
+  left: 6px;
+}
+
+.reg-cross-br {
+  bottom: 6px;
+  right: 6px;
+}
+
+.card-kicker {
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-soft);
+  font-size: 0.8125rem;
+  letter-spacing: 0.16em;
+  margin: 0 0 var(--space-3);
+  padding-bottom: var(--space-2);
+  text-transform: uppercase;
+}
+
+.card-title {
+  color: var(--ink);
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.card-subtitle {
+  color: var(--ink-soft);
+  font-family: var(--font-heading);
+  font-size: 1.0625rem;
+  font-style: italic;
+  line-height: 1.3;
+  margin: var(--space-1) 0 0;
+}
+
+/* The crop: the untouched tile, shown through a hairline frame. */
+.card-crop {
+  border: 1px solid var(--ink);
+  margin: var(--space-3) 0;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.card-crop img {
+  display: block;
+  max-width: none;
+  position: absolute;
+}
+
+.card-row {
+  border-top: 1px solid var(--rule);
+  margin: 0;
+  padding: var(--space-2) 0;
+}
+
+.card-row:last-of-type {
+  border-bottom: 1px solid var(--rule);
+}
+
+.card-row-label {
+  font-weight: 600;
+}
+
+.card-ruler-line {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+/* On a wide screen the actions are plain text links, as in the catalogue; on a phone they are outlined and wide. */
+.card-action {
+  align-items: center;
+  background: none;
+  border: 0;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  min-height: 44px;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.card-share-note {
+  color: var(--ink-soft);
+  margin: var(--space-1) 0 0;
+}
+
+.card-share-field {
+  display: block;
+  margin-top: var(--space-2);
+}
+
+.card-share-field input {
+  background: var(--parchment);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  color: var(--ink);
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  margin-top: var(--space-1);
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  width: 100%;
+}
+
+/* The phone's bottom sheet -------------------------------------------------------------------- */
+.bottom-sheet {
+  background: var(--parchment);
+  border-top: 1px solid var(--rule);
+  bottom: 0;
+  color: var(--ink);
+  left: 0;
+  max-height: 88%;
+  overflow-y: auto;
+  position: absolute;
+  right: 0;
+  z-index: 4;
+}
+
+.bottom-sheet :focus-visible {
+  outline: 2px solid var(--ink);
+}
+
+.sheet-handle {
+  align-items: center;
+  background: none;
+  border: 0;
+  cursor: grab;
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0;
+  touch-action: none;
+  width: 100%;
+}
+
+.sheet-grip {
+  background: var(--rule);
+  display: block;
+  height: 4px;
+  width: 40px;
+}
+
+.sheet-peek {
+  padding: 0 var(--space-3) var(--space-3);
+}
+
+.sheet-peek .card-kicker {
+  margin-bottom: var(--space-2);
+}
+
+.sheet-peek-title {
+  font-family: var(--font-heading);
+  font-size: 1.375rem;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.sheet-peek-status {
+  color: var(--ink-soft);
+  margin: var(--space-1) 0 0;
+}
+
+.bottom-sheet .find-card {
+  border: 0;
+}
+
+.bottom-sheet .card-action {
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* The era ruler: a surveyor's scale bar with three stops ------------------------------------- */
+.era-ruler {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  position: relative;
+  width: 100%;
+}
+
+.ruler-scale {
+  height: 10px;
+  left: 16.6667%;
+  overflow: visible;
+  pointer-events: none;
+  position: absolute;
+  right: 16.6667%;
+  top: 10px;
+  width: 66.6667%;
+}
+
+.ruler-ticks {
+  fill: none;
+  stroke: var(--parchment-dim);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.ruler-base {
+  fill: none;
+  stroke: var(--parchment-dim);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.ruler-stop {
+  align-items: center;
+  background: none;
+  border: 0;
+  color: var(--parchment-dim);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-style: italic;
+  min-height: 44px;
+  padding: var(--space-1) 0 0;
+  position: relative;
+}
+
+.ruler-mark {
+  background: var(--soot);
+  border: 2px solid var(--parchment-dim);
+  border-radius: 50%;
+  display: block;
+  height: 16px;
+  width: 16px;
+}
+
+.ruler-label {
+  margin-top: var(--space-1);
+}
+
+/* The chosen stop: a filled, larger mark and an underlined label, not colour alone. */
+.ruler-stop[aria-checked='true'] {
+  color: var(--parchment);
+}
+
+.ruler-stop[aria-checked='true'] .ruler-mark {
+  background: var(--parchment);
+  border-color: var(--parchment);
+  height: 20px;
+  margin: -2px 0;
+  width: 20px;
+}
+
+.ruler-stop[aria-checked='true'] .ruler-label {
+  font-style: normal;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* The Lantern ---------------------------------------------------------------------------------- */
+.lens-control {
+  background: var(--haze);
+  border: 1px solid var(--parchment-dim);
+  border-radius: 2px;
+  bottom: var(--space-3);
+  color: var(--parchment);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  left: var(--space-3);
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  position: absolute;
+  z-index: 3;
+}
+
+.lens-control[aria-pressed='true'] {
+  background: var(--parchment);
+  color: var(--ink);
+}
+
+.lens-ring {
+  border: 2px solid var(--parchment);
+  border-radius: 50%;
+  cursor: grab;
+  position: absolute;
+  touch-action: none;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.lens-ring::after {
+  border: 1px solid var(--copper);
+  border-radius: 50%;
+  content: '';
+  inset: 6px;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* The Flat sheet ------------------------------------------------------------------------------- */
+.flat-sheet {
+  background: var(--soot);
+  height: 100%;
+  position: relative;
+  width: 100%;
+}
+
+.flat-sheet-svg {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.flat-sheet.is-dimmed .flat-sheet-tile {
+  filter: brightness(0.45);
+}
+
+.flat-present path {
+  fill: var(--block);
+  stroke: var(--parchment-dim);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.flat-fp {
+  cursor: pointer;
+}
+
+.flat-fp-fill {
+  fill: var(--parchment);
+  stroke: none;
+}
+
+.flat-fp-documented .flat-fp-fill {
+  fill-opacity: 0.55;
+}
+
+.flat-fp-estimated .flat-fp-fill {
+  fill-opacity: 0.25;
+}
+
+.flat-fp-unknown .flat-fp-fill {
+  fill-opacity: 0;
+}
+
+/* Confidence by line pattern, never by colour alone: solid, dashed, dotted. */
+.flat-fp-edge {
+  fill: none;
+  stroke: var(--ink);
+  stroke-linejoin: round;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.flat-fp-estimated .flat-fp-edge {
+  stroke-dasharray: 8 5;
+}
+
+.flat-fp-unknown .flat-fp-edge {
+  stroke-dasharray: 2 4;
+}
+
+.flat-fp.is-selected .flat-fp-edge {
+  stroke: var(--lantern);
+  stroke-width: 4;
+}
+
+/* Raise: each outline is revealed along its length through a mask (so its dash pattern stays), then its fill comes up. */
+.flat-reveal {
+  fill: none;
+  stroke: white;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  stroke-linejoin: round;
+  stroke-width: 80;
+  animation: flat-draw 700ms ease-out forwards;
+  animation-delay: var(--flat-delay, 0s);
+}
+
+.flat-fp.is-drawing .flat-fp-fill {
+  animation: flat-fill-in 300ms linear forwards;
+  animation-delay: calc(var(--flat-delay, 0s) + 400ms);
+  opacity: 0;
+}
+
+@keyframes flat-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes flat-fill-in {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Phone (under 720 px): the tags scroll in one row, the ruler sits on the scene's lower edge, the card is a sheet. */
+@media (max-width: 719px) {
+  .block-stage .block-intro {
+    left: var(--space-3);
+    max-width: calc(100% - 2 * var(--space-3));
+    top: 12%;
+  }
+
+  .tag-row {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .find-tag {
+    flex: none;
+  }
+
+  .bottom-sheet .card-action {
+    width: 100%;
+  }
+
+  .bottom-sheet .card-actions {
+    gap: var(--space-2);
+  }
+}
+
+/* Reduced motion cuts every transition and every animation to its end state. */
+@media (prefers-reduced-motion: reduce) {
+  .still-picture {
+    transition: none;
+  }
+
+  .flat-reveal {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .flat-fp.is-drawing .flat-fp-fill {
+    animation: none;
+    opacity: 1;
+  }
 }

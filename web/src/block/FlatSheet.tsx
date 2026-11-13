@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { makeSheetTransform, ringsToPath } from './sheetTransform';
 import type { Pt, TileCorners } from './sheetTransform';
 
@@ -36,9 +37,15 @@ export type FlatSheetProps = {
   onSelect: (id: string) => void;
 };
 
-/** Line seconds per footprint step, so the outlines draw on one after another. Settled well inside 2.2 s. */
+/** The last footprint starts by 1.5 s and the draw takes 0.7 s, so everything settles by 2.2 s (design.md "Motion"). */
+export const FLAT_STAGGER_TOTAL_S = 1.5;
 export const FLAT_STAGGER_S = 0.02;
 export const FLAT_DRAW_S = 0.7;
+
+/** Seconds between one footprint's start and the next: 0.02 s, less when there are many. Pure. */
+export function flatStagger(count: number): number {
+  return count > 1 ? Math.min(FLAT_STAGGER_S, FLAT_STAGGER_TOTAL_S / (count - 1)) : 0;
+}
 
 /**
  * The Flat sheet (spec 06 requirement 11.3): the no-WebGL view. One SVG holds the untouched tile and a layer of
@@ -51,6 +58,7 @@ export const FLAT_DRAW_S = 0.7;
 export function FlatSheet({ tile, footprints, present = [], dimmed = false, raised, reducedMotion, selectedId, onSelect }: FlatSheetProps) {
   const transform = makeSheetTransform(tile.corners, tile.widthPx, tile.heightPx);
   const animate = raised && !reducedMotion;
+  const step = flatStagger(footprints.length);
   return (
     <div className={`flat-sheet${dimmed ? ' is-dimmed' : ''}`} data-testid="flat-sheet" data-raised={raised}>
       <svg
@@ -71,20 +79,20 @@ export function FlatSheet({ tile, footprints, present = [], dimmed = false, rais
             {footprints.map((footprint, i) => {
               const d = ringsToPath(transform, footprint.rings);
               const selected = footprint.id === selectedId;
-              const delay = animate ? `${(i * FLAT_STAGGER_S).toFixed(2)}s` : undefined;
+              const delay = animate ? `${(i * step).toFixed(2)}s` : undefined;
               const maskId = `flat-reveal-${i}`;
               return (
                 <g
                   key={footprint.id}
                   className={`flat-fp flat-fp-${footprint.confidence}${selected ? ' is-selected' : ''}${animate ? ' is-drawing' : ''}`}
                   data-feature-id={footprint.id}
-                  style={delay ? { animationDelay: delay } : undefined}
+                  style={delay ? ({ '--flat-delay': delay } as CSSProperties) : undefined}
                   onClick={() => onSelect(footprint.id)}
                 >
                   <title>{footprint.name}</title>
                   {animate ? (
                     <mask id={maskId} maskUnits="userSpaceOnUse" x={0} y={0} width={tile.widthPx} height={tile.heightPx}>
-                      <path className="flat-reveal" d={d} pathLength={1} style={{ animationDelay: delay }} />
+                      <path className="flat-reveal" d={d} pathLength={1} />
                     </mask>
                   ) : null}
                   <path className="flat-fp-fill" d={d} fillRule="evenodd" />
