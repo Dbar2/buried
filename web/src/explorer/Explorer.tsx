@@ -23,7 +23,7 @@ import type { GateModel } from './gateModel';
 import { INITIAL_PLAYER_STATE } from './playerState';
 import type { PlayerState } from './playerState';
 import { lotPolygon } from './pinnedLot';
-import { lanternEra } from './lantern';
+import { lanternEra, lanternLabel } from './lantern';
 import { LanternToggle } from './LanternToggle';
 import { evidenceCommand } from './showEvidence';
 import { useLantern } from './useLantern';
@@ -223,8 +223,13 @@ export function Explorer({
   // the era inside the lens (default: the era at depth 1). Show Evidence: `?showEvidence=<feature id>` until the
   // evidence card has its own button.
   const lensEra = useMemo(
-    () => lanternEra(model?.order ?? [], new URLSearchParams(window.location.search).get('lanternEra')),
+    () =>
+      lanternEra(model?.order ?? [], new URLSearchParams(window.location.search).get('lanternEra'), (id) => (model?.drapes.get(id)?.length ?? 0) > 0),
     [model],
+  );
+  const lensLabel = useMemo(
+    () => (model && lensEra !== null ? lanternLabel(model.sources, model.drapes.get(lensEra) ?? []) : 'Lantern'),
+    [model, lensEra],
   );
   const lantern = useLantern({ viewRef, enabled: settled === 0 && player.running, eraId: lensEra });
   const evidenceId = useMemo(() => new URLSearchParams(window.location.search).get('showEvidence'), []);
@@ -390,7 +395,7 @@ export function Explorer({
       {stage}
 
       {!backdrop && model && <DepthGauge eras={model.order} index={dig.state.target} depth={depth} onChange={chooseEra} onDrag={dragDepth} onRelease={release} />}
-      {!backdrop && model && settled === 0 && lensEra !== null && <LanternToggle pressed={lantern.toggled} onToggle={lantern.toggle} />}
+      {!backdrop && model && settled === 0 && lensEra !== null && <LanternToggle pressed={lantern.toggled} onToggle={lantern.toggle} label={lensLabel} />}
 
       {card && <EvidenceCard card={card} onClose={closeCard} />}
 

@@ -241,7 +241,33 @@ test('art: Today, with no lot pinned, has no lantern anywhere', async ({ browser
     await page.waitForTimeout(1500);
     await shoot(page, 'art-today');
     const png = await canvasPng(page);
-    expect(lanternPixels(png).length, 'lantern pixels in Today with no lot pinned').toBe(0);
+    // Shell chrome over the canvas may use `lantern` for its focus ring (design.md, "Controls"): the landing
+    // field takes focus on load. That ring is excluded by geometry: only the band just outside a focusable Shell
+    // control's border box is allowed. The control's own box and everything else on the canvas must have none, so a
+    // `lantern` pixel from the scene, or one inside a control, still fails. Nothing is hidden with CSS.
+    const canvasBox = (await page.getByTestId('unity-canvas').boundingBox()) as { x: number; y: number };
+    const controls = await page.evaluate(() =>
+      [...document.querySelectorAll('a[href], button, input, select, textarea, [tabindex]')]
+        .map((el) => el.getBoundingClientRect())
+        .filter((r) => r.width > 0 && r.height > 0)
+        .map((r) => ({ left: r.left, top: r.top, right: r.right, bottom: r.bottom })),
+    );
+    const RING_BAND_PX = 6; // 2 px outline + 2 px offset, with room for rounding
+    const inRingBand = (p: Pixel): boolean =>
+      controls.some((r) => {
+        const x = p.x + canvasBox.x;
+        const y = p.y + canvasBox.y;
+        const inOuter = x >= r.left - RING_BAND_PX && x < r.right + RING_BAND_PX && y >= r.top - RING_BAND_PX && y < r.bottom + RING_BAND_PX;
+        const inBox = x >= r.left && x < r.right && y >= r.top && y < r.bottom;
+        return inOuter && !inBox;
+      });
+    const lantern = lanternPixels(png);
+    const outsideChrome = lantern.filter((p) => !inRingBand(p));
+    writeFileSync(
+      join(OUTPUT, 'art-today-lantern.json'),
+      JSON.stringify({ lanternPixels: lantern.length, inShellFocusRing: lantern.length - outsideChrome.length, onCanvas: outsideChrome.length, controls }, null, 2),
+    );
+    expect(outsideChrome.length, 'lantern pixels on the canvas at Today with no lot pinned, outside Shell focus rings').toBe(0);
   } finally {
     await close();
   }

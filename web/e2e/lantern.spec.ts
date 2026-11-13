@@ -199,6 +199,41 @@ test('the Lantern is not offered or drawn away from Today', async ({ browser }) 
 
 // ---------------------------------------------------------------------------------------------
 
+test('the lens defaults to the nearest era below Today that has a drape, and the control says which', async ({ browser }) => {
+  test.setTimeout(300_000);
+  const { page, close } = await freshPage(browser);
+  try {
+    await openScene(page, 'debug=1&markers=0');
+    await page.waitForTimeout(3500);
+    // 1947 has no plate yet, so the lens does not default to it: the control names the 1931-35 plan.
+    await expect(page.getByTestId('lantern-toggle')).toHaveText('Lantern: 1931-35 plan');
+    await page.mouse.move(640, 400);
+    const without = await canvasPng(page);
+    await page.keyboard.down('Space');
+    await page.waitForTimeout(1500);
+    const within = await canvasPng(page);
+    await page.keyboard.up('Space');
+    const inside = mismatch(asRgba(within), asRgba(without), (x, y) => whereIs(x, y, 640, 400, LENS_RADIUS * 800, BAND) === 'inside', DIFF);
+    expect(inside.share, 'the default lens shows the 1931-35 plan inside it').toBeGreaterThan(0.05);
+  } finally {
+    await close();
+  }
+});
+
+test('?lanternEra= overrides the default and the control names that era', async ({ browser }) => {
+  test.setTimeout(300_000);
+  const { page, close } = await freshPage(browser);
+  try {
+    await openScene(page, 'lanternEra=1911&debug=1&markers=0');
+    await page.waitForTimeout(3500);
+    await expect(page.getByTestId('lantern-toggle')).toHaveText('Lantern: 1911 plan');
+  } finally {
+    await close();
+  }
+});
+
+// ---------------------------------------------------------------------------------------------
+
 type FrameStats = { frames: number; meanFps: number; p50Ms: number; p95Ms: number; worstMs: number };
 
 async function lensFrameTimes(browser: Browser, label: string): Promise<Record<string, FrameStats>> {

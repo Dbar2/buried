@@ -9,9 +9,11 @@ import {
   buildSetLantern,
   buildShowEvidence,
   lanternEra,
+  lanternLabel,
   moveByKey,
   toScreenPoint,
 } from './lantern';
+import type { SourceIndex } from '../evidence';
 
 const order = [
   { id: 'today', index: 0 },
@@ -65,18 +67,53 @@ describe('the lens position', () => {
 });
 
 describe('the era shown inside the lens', () => {
-  it('is the era at depth 1 unless a past era is asked for', () => {
+  const drapedEras = new Set(['1935', '1911']);
+  const hasDrape = (id: string): boolean => drapedEras.has(id);
+
+  it('is the era at depth 1 unless a past era is asked for, when no drape is known', () => {
     expect(lanternEra(order, null)).toBe('1947');
     expect(lanternEra(order, '1911')).toBe('1911');
+  });
+
+  it('is the nearest era below Today that has a drape, unless a past era is asked for', () => {
+    expect(lanternEra(order, null, hasDrape)).toBe('1935');
+    expect(lanternEra(order, '1911', hasDrape)).toBe('1911');
+    expect(lanternEra(order, '1947', hasDrape)).toBe('1947');
+    expect(lanternEra([...order].reverse(), null, hasDrape)).toBe('1935');
+    expect(lanternEra(order, null, (id) => id === '1947' || id === '1911')).toBe('1947');
+  });
+
+  it('falls back to depth 1 when no past era has a drape', () => {
+    expect(lanternEra(order, null, () => false)).toBe('1947');
   });
 
   it('is never Today, and an unknown era falls back to the default', () => {
     expect(lanternEra(order, 'today')).toBe('1947');
     expect(lanternEra(order, '1850')).toBe('1947');
+    expect(lanternEra(order, 'today', hasDrape)).toBe('1935');
+    expect(lanternEra(order, '1850', hasDrape)).toBe('1935');
   });
 
   it('is nothing when there is no past era', () => {
     expect(lanternEra([{ id: 'today', index: 0 }], null)).toBeNull();
+    expect(lanternEra([{ id: 'today', index: 0 }], null, hasDrape)).toBeNull();
+  });
+});
+
+describe('the Lantern control label', () => {
+  const sources = new Map([
+    ['fip_v3_1935_229', { id: 'fip_v3_1935_229', type: 'fire_insurance_plan', year_from: 1931, year_to: 1935 }],
+    ['aerial_1947_x', { id: 'aerial_1947_x', type: 'aerial_photograph', year_from: 1947, year_to: 1947 }],
+  ]) as unknown as SourceIndex;
+
+  it('names what is inside the lens in plain words, with no ids', () => {
+    expect(lanternLabel(sources, [{ sourceId: 'fip_v3_1935_229' }])).toBe('Lantern: 1931-35 plan');
+    expect(lanternLabel(sources, [{ sourceId: 'aerial_1947_x' }])).toBe('Lantern: 1947 photograph');
+  });
+
+  it('is just "Lantern" when the lens era has no drape or the source is unknown', () => {
+    expect(lanternLabel(sources, [])).toBe('Lantern');
+    expect(lanternLabel(sources, [{ sourceId: 'nope' }])).toBe('Lantern');
   });
 });
 

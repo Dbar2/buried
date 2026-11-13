@@ -3,6 +3,8 @@
  * the lens is on and where it is; the Player draws it. Nothing here touches the DOM or the bridge.
  */
 import type { MessageOf, PayloadOf } from '../bridge/bridge';
+import { plainSourceName } from '../evidence';
+import type { SourceIndex } from '../evidence';
 import type { Drape } from './drapes';
 import type { EraInfo } from './eraOrder';
 
@@ -50,13 +52,28 @@ export function moveByKey(point: ScreenPoint, key: string): ScreenPoint {
 }
 
 /**
- * The era shown inside the lens: `requested` when it names a past era, else the era at depth 1
- * (requirement 13.4). Null when the project has no past era.
+ * The era shown inside the lens: `requested` when it names a past era, else the nearest era below Today that has a
+ * drape to show (`hasDrape`), else the era at depth 1 (requirement 13.4). With no `hasDrape` every era counts as
+ * having one. Null when the project has no past era.
  */
-export function lanternEra(order: readonly Pick<EraInfo, 'id' | 'index'>[], requested: string | null): string | null {
-  const past = order.filter((era) => era.index > 0);
+export function lanternEra(
+  order: readonly Pick<EraInfo, 'id' | 'index'>[],
+  requested: string | null,
+  hasDrape: (eraId: string) => boolean = () => true,
+): string | null {
+  const past = order.filter((era) => era.index > 0).sort((a, b) => a.index - b.index);
   const named = requested === null ? undefined : past.find((era) => era.id === requested);
-  return (named ?? past.find((era) => era.index === 1) ?? past[0])?.id ?? null;
+  return (named ?? past.find((era) => hasDrape(era.id)) ?? past.find((era) => era.index === 1) ?? past[0])?.id ?? null;
+}
+
+/**
+ * The Lantern control's label: "Lantern: 1931-35 plan", naming what is inside the lens in plain words (the first
+ * drape's source, "the 1931-35 plan" without the article). Just "Lantern" when the lens era has no drape to name.
+ */
+export function lanternLabel(sources: SourceIndex, drapesInLens: readonly Pick<Drape, 'sourceId'>[]): string {
+  const first = drapesInLens[0];
+  const source = first ? sources.get(first.sourceId) : undefined;
+  return source ? `Lantern: ${plainSourceName(source).replace(/^the /, '')}` : 'Lantern';
 }
 
 export function buildSetLantern(command: LensCommand): MessageOf<'scene/setLantern'> {
