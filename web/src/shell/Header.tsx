@@ -1,25 +1,32 @@
-/**
- * The Shell's header (design.md "Layout"): the wordmark "Buried" in Fraunces at the left, links to
- * the Explorer and to Sources in Inter at the right, on `night`. No router library: a link is a
- * full page load, which is enough for two routes.
- */
-export type HeaderPage = 'explorer' | 'studio' | 'report' | 'sources';
+import { Mark } from './Mark';
 
-export function Header({ current }: { current: HeaderPage }) {
+/**
+ * The Shell's header (design.md "Identity", "Place page layout"): the core-sample mark and the
+ * wordmark "Buried" in Fraunces at the left, then the address of the place on screen when there is
+ * one, then the nav (Explorer, Studio, Sources) with a `lantern` underline on the active item. No
+ * router library: a link is a full page load. The Report and the place page are not nav items; they
+ * are what a search opens.
+ */
+export type HeaderPage = 'explorer' | 'studio' | 'report' | 'place' | 'sources';
+
+export function Header({ current, address }: { current: HeaderPage; address?: string | null }) {
   return (
     <header className="site-header">
-      <a className="wordmark" href="/" data-testid="wordmark">
-        Buried
+      <a className="wordmark" href="/" data-testid="wordmark" aria-label="Buried, home">
+        <Mark size={26} />
+        <span>Buried</span>
       </a>
+      {address ? (
+        <p className="header-address" data-testid="header-address">
+          {address}
+        </p>
+      ) : null}
       <nav className="site-nav" aria-label="Pages">
-        <a href="/" aria-current={current === 'explorer' ? 'page' : undefined} data-testid="nav-explorer">
+        <a href="/explorer" aria-current={current === 'explorer' ? 'page' : undefined} data-testid="nav-explorer">
           Explorer
         </a>
         <a href="/studio" aria-current={current === 'studio' ? 'page' : undefined} data-testid="nav-studio">
           Studio
-        </a>
-        <a href="/report" aria-current={current === 'report' ? 'page' : undefined} data-testid="nav-report">
-          Report
         </a>
         <a href="/sources" aria-current={current === 'sources' ? 'page' : undefined} data-testid="nav-sources">
           Sources
