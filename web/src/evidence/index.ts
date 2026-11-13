@@ -25,6 +25,8 @@ export {
 } from './findings';
 export type { CheckedInput, CheckedRecord, Finding, FindingInput, FindingStatus } from './findings';
 export { BANNED_WORDS, HonestyError, findBannedWords } from './text';
+export { EMPTY_PACK, checkSentence } from './sentences';
+export type { SentenceCheck, SentencePack } from './sentences';
 export type { BannedWord } from './text';
 export { EvidenceLoadError, checkContract, parseContract } from './load';
 export { parseEvidenceFile, parseProject, parseSourceRegistry } from './load';
