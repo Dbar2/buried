@@ -1071,6 +1071,7 @@
         "confidence": "estimated",
         "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
         "kind": "building",
+        "merged_into": "bld_fip_v3_1935_229_0065",
         "observations": [
           {
             "method": "origin",
@@ -1096,7 +1097,8 @@
           "proposal_id": "fip_v3_1935_229_p_1acc5fdb6a36",
           "tone_class": "mid"
         },
-        "status": "published"
+        "status": "merged",
+        "status_reason": "A fragment of a larger building that was later traced by hand as one outline."
       },
       "type": "Feature"
     },
@@ -1754,6 +1756,7 @@
         "confidence": "estimated",
         "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
         "kind": "building",
+        "merged_into": "bld_fip_v3_1935_229_0067",
         "observations": [
           {
             "method": "origin",
@@ -1779,7 +1782,8 @@
           "proposal_id": "fip_v3_1935_229_p_3308a61c5032",
           "tone_class": "mid"
         },
-        "status": "published"
+        "status": "merged",
+        "status_reason": "A fragment of a larger building that was later traced by hand as one outline."
       },
       "type": "Feature"
     },
@@ -3437,6 +3441,7 @@
         "confidence": "estimated",
         "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
         "kind": "building",
+        "merged_into": "bld_fip_v3_1935_229_0068",
         "observations": [
           {
             "method": "origin",
@@ -3462,7 +3467,8 @@
           "proposal_id": "fip_v3_1935_229_p_75f9e11f35a8",
           "tone_class": "mid"
         },
-        "status": "published"
+        "status": "merged",
+        "status_reason": "A fragment of a larger building that was later traced by hand as one outline."
       },
       "type": "Feature"
     },
@@ -5675,6 +5681,7 @@
         "confidence": "estimated",
         "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
         "kind": "building",
+        "merged_into": "bld_fip_v3_1935_229_0067",
         "observations": [
           {
             "method": "origin",
@@ -5700,7 +5707,8 @@
           "proposal_id": "fip_v3_1935_229_p_b75994472b08",
           "tone_class": "mid"
         },
-        "status": "published"
+        "status": "merged",
+        "status_reason": "A fragment of a larger building that was later traced by hand as one outline."
       },
       "type": "Feature"
     },
@@ -6728,6 +6736,620 @@
             "method": "match_auto"
           }
         ],
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632486.986,
+              4835102.242
+            ],
+            [
+              632513.671,
+              4835071.666
+            ],
+            [
+              632525.188,
+              4835081.501
+            ],
+            [
+              632498.697,
+              4835112.135
+            ],
+            [
+              632486.986,
+              4835102.242
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0064",
+      "properties": {
+        "attributes": {
+          "storeys": 2,
+          "use": "Glove & Overall Fac.; Carhartt Hamilton (as lettered on the plate)"
+        },
+        "confidence": "documented",
+        "confidence_reason": "Footprint traced by hand from the plate outline; use and storeys (2 & basement) read from the plate lettering.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0101",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "attribute_reads": [
+            {
+              "attribute": "use",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 360,
+                "width": 270,
+                "x": 1947,
+                "y": 805
+              },
+              "read_by": "person"
+            },
+            {
+              "attribute": "storeys",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 360,
+                "width": 270,
+                "x": 1947,
+                "y": 805
+              },
+              "read_by": "person"
+            }
+          ],
+          "confirmed_at": "2026-11-13T18:40:27Z",
+          "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+          "crop_px": {
+            "height": 390,
+            "width": 300,
+            "x": 1932,
+            "y": 790
+          },
+          "digitising_error_m": 1.0,
+          "origin_source": "fip_v3_1935_229"
+        },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0101",
+            "method": "match_auto"
+          }
+        ],
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632487.704,
+              4835079.625
+            ],
+            [
+              632472.583,
+              4835066.578
+            ],
+            [
+              632493.672,
+              4835040.707
+            ],
+            [
+              632509.319,
+              4835054.973
+            ],
+            [
+              632487.704,
+              4835079.625
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0065",
+      "properties": {
+        "attributes": {
+          "storeys": 2,
+          "use": "Machine Shop; Wm. R. Perrin & Co. Limited (as lettered on the plate)"
+        },
+        "confidence": "documented",
+        "confidence_reason": "Footprint traced by hand from the plate outline as one block; use read from the plate lettering. The front part is lettered 2 storeys (stock room on the 2nd, part vacant); the height of the shop behind it is not read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0102",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "attribute_reads": [
+            {
+              "attribute": "use",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 325,
+                "width": 275,
+                "x": 1752,
+                "y": 1030
+              },
+              "read_by": "person"
+            },
+            {
+              "attribute": "storeys",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 325,
+                "width": 275,
+                "x": 1752,
+                "y": 1030
+              },
+              "read_by": "person"
+            }
+          ],
+          "confirmed_at": "2026-11-13T18:40:27Z",
+          "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+          "crop_px": {
+            "height": 355,
+            "width": 305,
+            "x": 1737,
+            "y": 1015
+          },
+          "digitising_error_m": 1.0,
+          "origin_source": "fip_v3_1935_229"
+        },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0102",
+            "method": "match_auto"
+          }
+        ],
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632405.118,
+              4834909.533
+            ],
+            [
+              632409.184,
+              4834896.355
+            ],
+            [
+              632437.388,
+              4834904.788
+            ],
+            [
+              632437.021,
+              4834906.084
+            ],
+            [
+              632427.281,
+              4834916.595
+            ],
+            [
+              632405.118,
+              4834909.533
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0066",
+      "properties": {
+        "attributes": {
+          "storeys": 1,
+          "use": "Coal Shed (as lettered on the plate)"
+        },
+        "confidence": "documented",
+        "confidence_reason": "Footprint traced by hand from the plate outline; use and storeys (1) read from the plate lettering. The north side is drawn dashed on the plate.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0103",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "attribute_reads": [
+            {
+              "attribute": "use",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 125,
+                "width": 255,
+                "x": 852,
+                "y": 2165
+              },
+              "read_by": "person"
+            },
+            {
+              "attribute": "storeys",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 125,
+                "width": 255,
+                "x": 852,
+                "y": 2165
+              },
+              "read_by": "person"
+            }
+          ],
+          "confirmed_at": "2026-11-13T18:40:27Z",
+          "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+          "crop_px": {
+            "height": 155,
+            "width": 285,
+            "x": 837,
+            "y": 2150
+          },
+          "digitising_error_m": 1.0,
+          "origin_source": "fip_v3_1935_229"
+        },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0103",
+            "method": "match_auto"
+          }
+        ],
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632341.351,
+              4835063.645
+            ],
+            [
+              632348.28,
+              4835039.166
+            ],
+            [
+              632372.161,
+              4835046.306
+            ],
+            [
+              632372.315,
+              4835045.764
+            ],
+            [
+              632383.596,
+              4835049.137
+            ],
+            [
+              632376.091,
+              4835074.16
+            ],
+            [
+              632341.351,
+              4835063.645
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0067",
+      "properties": {
+        "attributes": {
+          "storeys": 3,
+          "use": "Cork Fac.; Freyseng Cork Co. Ltd. (as lettered on the plate)"
+        },
+        "confidence": "documented",
+        "confidence_reason": "Footprint traced by hand from the plate outline as one block; use and storeys (3 & basement at the north end, 4 & basement at the south-west) read from the plate lettering. Storeys recorded as the lower figure.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0104",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "attribute_reads": [
+            {
+              "attribute": "use",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 225,
+                "width": 320,
+                "x": 687,
+                "y": 810
+              },
+              "read_by": "person"
+            },
+            {
+              "attribute": "storeys",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 225,
+                "width": 320,
+                "x": 687,
+                "y": 810
+              },
+              "read_by": "person"
+            }
+          ],
+          "confirmed_at": "2026-11-13T18:40:27Z",
+          "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+          "crop_px": {
+            "height": 255,
+            "width": 350,
+            "x": 672,
+            "y": 795
+          },
+          "digitising_error_m": 1.0,
+          "origin_source": "fip_v3_1935_229"
+        },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0104",
+            "method": "match_auto"
+          }
+        ],
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632559.651,
+              4834859.145
+            ],
+            [
+              632565.813,
+              4834840.317
+            ],
+            [
+              632575.249,
+              4834843.138
+            ],
+            [
+              632568.884,
+              4834862.111
+            ],
+            [
+              632559.651,
+              4834859.145
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0068",
+      "properties": {
+        "attributes": {
+          "storeys": 1,
+          "use": "Baptist Mission Hall (as lettered on the plate)"
+        },
+        "confidence": "documented",
+        "confidence_reason": "Footprint traced by hand from the plate outline; use and storeys (1 & basement) read from the plate lettering.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          },
+          {
+            "matched_feature": "bld_fip_v3_1911_229_0105",
+            "method": "match_auto",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "attribute_reads": [
+            {
+              "attribute": "use",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 175,
+                "width": 100,
+                "x": 1977,
+                "y": 2920
+              },
+              "read_by": "person"
+            },
+            {
+              "attribute": "storeys",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 175,
+                "width": 100,
+                "x": 1977,
+                "y": 2920
+              },
+              "read_by": "person"
+            }
+          ],
+          "confirmed_at": "2026-11-13T18:40:27Z",
+          "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+          "crop_px": {
+            "height": 205,
+            "width": 130,
+            "x": 1962,
+            "y": 2905
+          },
+          "digitising_error_m": 1.0,
+          "origin_source": "fip_v3_1935_229"
+        },
+        "same_as": [
+          {
+            "feature": "bld_fip_v3_1911_229_0105",
+            "method": "match_auto"
+          }
+        ],
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632385.951,
+              4834922.773
+            ],
+            [
+              632390.588,
+              4834906.391
+            ],
+            [
+              632404.805,
+              4834910.641
+            ],
+            [
+              632409.184,
+              4834896.355
+            ],
+            [
+              632437.388,
+              4834904.788
+            ],
+            [
+              632437.021,
+              4834906.084
+            ],
+            [
+              632407.822,
+              4834939.961
+            ],
+            [
+              632404.687,
+              4834938.602
+            ],
+            [
+              632385.951,
+              4834922.773
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "use_fip_v3_1935_229_0001",
+      "properties": {
+        "attributes": {
+          "use": "Coal & Wood Yard; Northern Fuels Co. (as lettered on the plate)"
+        },
+        "confidence": "documented",
+        "confidence_reason": "Area traced by hand along the yard boundary drawn on the plate, including the coal shed; use read from the plate lettering.",
+        "kind": "land_use",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "attribute_reads": [
+            {
+              "attribute": "use",
+              "confirmed_at": "2026-11-13T18:40:27Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 60,
+                "width": 250,
+                "x": 732,
+                "y": 2050
+              },
+              "read_by": "person"
+            }
+          ],
+          "confirmed_at": "2026-11-13T18:40:27Z",
+          "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+          "crop_px": {
+            "height": 375,
+            "width": 403,
+            "x": 716,
+            "y": 1926
+          },
+          "digitising_error_m": 1.0,
+          "origin_source": "fip_v3_1935_229"
+        },
         "status": "published"
       },
       "type": "Feature"
