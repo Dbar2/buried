@@ -4,7 +4,8 @@ file text or the errors. Nothing is written, dry run or not (requirement 1.7): t
 what it is given.
 
 Not built yet, and refused by name rather than ignored: workspace sources, files and evidence
-(the overlay, spec 04 task 8.1), and merge, split and trace decisions (task 2.1).
+(the overlay, spec 04 task 8.1), and merge and split decisions and building and water traces
+(task 2.1). Land-use traces (requirement 24) are built.
 """
 
 from __future__ import annotations

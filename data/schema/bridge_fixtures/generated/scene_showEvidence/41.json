@@ -1,0 +1,7 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "wtr_9h9b1_0b1_4b7_0000",
+    "on": false
+  }
+}

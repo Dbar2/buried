@@ -24,6 +24,7 @@ namespace Buried.Tests
             { "drape", new[] { "clip", "kind" } },
             { "sceneFeature", new[] { "storeys" } },
             { "sceneSetDrapeModePayload", new[] { "sourceId" } },
+            { "sceneShowEvidencePayload", new[] { "drape" } },
         };
 
         [SetUp]

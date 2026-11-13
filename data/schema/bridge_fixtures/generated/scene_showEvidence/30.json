@@ -1,0 +1,55 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "bld_gzcz10_xtm_o1x2_a0_0006",
+    "on": true,
+    "drape": {
+      "sourceId": "4h_5v4m56_884wo_fqzc",
+      "url": "/data/tiles/8n_154h_8.jpg",
+      "corners": {
+        "topLeft": [
+          549166.321,
+          2130797.041
+        ],
+        "topRight": [
+          166000.004,
+          9399999.992
+        ],
+        "bottomRight": [
+          481128.195,
+          197895.409
+        ],
+        "bottomLeft": [
+          765408.535,
+          1538327.486
+        ]
+      },
+      "widthPx": 8452,
+      "heightPx": 11698,
+      "clip": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              797757.908,
+              5553751.883
+            ],
+            [
+              785743.396,
+              1342290.747
+            ],
+            [
+              200921.909,
+              9238194.799
+            ],
+            [
+              797757.908,
+              5553751.883
+            ]
+          ]
+        ]
+      },
+      "kind": "plate"
+    }
+  }
+}

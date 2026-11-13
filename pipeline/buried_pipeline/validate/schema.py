@@ -23,7 +23,14 @@ DEF_BY_DIRECTORY = {
     "tiles": "tileSidecar",
     "present": "presentLayer",
 }
-DEF_BY_FILE_NAME = {"sources.json": "sourceRegistry", "project.json": "project"}
+DEF_BY_FILE_NAME = {
+    "sources.json": "sourceRegistry",
+    "project.json": "project",
+    "plate_manifest.json": "plateManifest",
+}
+# A name that is not a `$defs` entry of the evidence Schema: its shape is checked in code by
+# validate/plate_manifest.py, and `SchemaSet.issues` answers for it.
+CODE_CHECKED_DEFS = frozenset({"plateManifest"})
 
 
 @dataclass(frozen=True)
@@ -100,11 +107,17 @@ class SchemaSet:
         return self._validators[def_name]
 
     def issues(self, def_name: str, document: Any) -> list[SchemaIssue]:
+        if def_name in CODE_CHECKED_DEFS:
+            from buried_pipeline.validate.plate_manifest import shape_issues
+
+            return shape_issues(document)
         errors: list[JsonSchemaError] = list(self.validator(def_name).iter_errors(document))
         issues = [SchemaIssue(json_pointer(e.absolute_path), _message(e)) for e in errors]
         return sorted(issues, key=lambda i: (i.pointer, i.message))
 
     def is_valid(self, def_name: str, document: Any) -> bool:
+        if def_name in CODE_CHECKED_DEFS:
+            return not self.issues(def_name, document)
         return self.validator(def_name).is_valid(document)
 
 

@@ -111,7 +111,7 @@ export type LinearRing = [Position, Position, Position, Position, ...Position[]]
  */
 export type PolygonalGeometry = PolygonGeometry2 | MultiPolygonGeometry;
 /**
- * One decision of the v2 file. The Service builds accept and reject; merge, split and trace are in the contract and are refused by name until spec 04 task 2.1 is done.
+ * One decision of the v2 file. The Service builds accept, reject and land-use trace; merge, split and the other traces are in the contract and are refused by name until spec 04 task 2.1 is done.
  *
  * This interface was referenced by `StudioApi`'s JSON-Schema
  * via the `definition` "decisionV2".
@@ -683,9 +683,9 @@ export interface SplitPartV2 {
  */
 export interface TraceDecisionV2 {
   type: 'trace';
-  kind: 'building' | 'water';
+  kind: 'building' | 'water' | 'land_use';
   /**
-   * A Polygon (a building, or water) or a LineString (water only) in integer full-resolution pixels.
+   * A Polygon (a building, water or a land-use area) or a LineString (water only) in integer full-resolution pixels.
    */
   pixel_geometry: {
     type: 'Polygon' | 'LineString';

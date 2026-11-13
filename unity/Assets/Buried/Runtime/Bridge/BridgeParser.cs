@@ -44,6 +44,8 @@ namespace Buried.Interop
                 case BridgeMessageTypes.SceneFocusLot: return new ParsedMessage(type, ParseSceneFocusLot(payload));
                 case BridgeMessageTypes.SceneClearLot: return new ParsedMessage(type, ParseSceneClearLot(payload));
                 case BridgeMessageTypes.SceneSetDrapeMode: return new ParsedMessage(type, ParseSceneSetDrapeMode(payload));
+                case BridgeMessageTypes.SceneSetLantern: return new ParsedMessage(type, ParseSceneSetLantern(payload));
+                case BridgeMessageTypes.SceneShowEvidence: return new ParsedMessage(type, ParseSceneShowEvidence(payload));
                 case BridgeMessageTypes.DebugMarkers: return new ParsedMessage(type, ParseDebugMarkers(payload));
                 case BridgeMessageTypes.DebugSetCamera: return new ParsedMessage(type, ParseDebugSetCamera(payload));
                 case BridgeMessageTypes.Ready: return new ParsedMessage(type, ParseReady(payload));
@@ -304,6 +306,42 @@ namespace Buried.Interop
             {
                 mode = JsonFields.OneOf(o, "mode", p, SceneSetDrapeModePayload.Lit, SceneSetDrapeModePayload.Original),
                 sourceId = o["sourceId"] == null ? null : JsonFields.Matching(o, "sourceId", p, JsonFields.SourceIdPattern),
+            };
+        }
+
+        private static SceneSetLanternPayload ParseSceneSetLantern(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.Exactly(o, p, "on", "center", "radius", "eraId");
+            JObject center = JsonFields.ObjectAt(o, "center", p);
+            string cp = p + ".center";
+            JsonFields.Exactly(center, cp, "x", "y");
+            return new SceneSetLanternPayload
+            {
+                on = JsonFields.Boolean(o, "on", p),
+                center = new ScreenPointDto
+                {
+                    x = JsonFields.NumberIn(center, "x", cp, 0.0, 1.0),
+                    y = JsonFields.NumberIn(center, "y", cp, 0.0, 1.0),
+                },
+                radius = JsonFields.NumberIn(o, "radius", p, 0.05, 0.5),
+                eraId = JsonFields.Matching(o, "eraId", p, JsonFields.EraIdPattern),
+            };
+        }
+
+        private static SceneShowEvidencePayload ParseSceneShowEvidence(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.ExactlyWithOptional(o, p, new[] { "featureId", "on" }, new[] { "drape" });
+            bool on = JsonFields.Boolean(o, "on", p);
+            DrapeDto drape = o["drape"] == null ? null : ParseDrape(o["drape"], p + ".drape");
+            if (on && drape == null) throw JsonFields.Fail(p + ".drape", "is required when on is true");
+            if (!on && drape != null) throw JsonFields.Fail(p + ".drape", "must be absent when on is false");
+            return new SceneShowEvidencePayload
+            {
+                featureId = JsonFields.Matching(o, "featureId", p, JsonFields.FeatureIdPattern),
+                on = on,
+                drape = drape,
             };
         }
 

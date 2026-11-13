@@ -1,0 +1,32 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "wtr_zuh_0792",
+    "on": true,
+    "drape": {
+      "sourceId": "22a215_23_nn_a",
+      "url": "/data/tiles/zc2ta9_35qcm_0jo_ref.jpg",
+      "corners": {
+        "topLeft": [
+          299332.202,
+          2582156.535
+        ],
+        "topRight": [
+          363152.966,
+          850469.635
+        ],
+        "bottomRight": [
+          321085.824,
+          0
+        ],
+        "bottomLeft": [
+          740019.168,
+          6341871.792
+        ]
+      },
+      "widthPx": 11225,
+      "heightPx": 10980,
+      "kind": "aerial"
+    }
+  }
+}

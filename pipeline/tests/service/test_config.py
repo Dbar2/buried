@@ -50,3 +50,25 @@ def test_test_mode_shows_in_health(tmp_path: Path) -> None:
     app = create_app(config=config, snapshot=sw.snapshot, env={})
     assert TestClient(app).get("/v1/health").json()["test_mode"] is True
     assert "test_mode" not in client_for(sw).get("/v1/health").json()
+
+
+def test_the_committed_plate_manifest_is_the_default_manifest(tmp_path: Path) -> None:
+    committed = tmp_path / "data" / "plate_manifest.json"
+    committed.parent.mkdir(parents=True)
+    committed.write_text("{}", encoding="utf-8")
+    c = Config.from_env({"BURIED_REPO_ROOT": str(tmp_path)})
+    assert c.plate_manifest == committed
+
+
+def test_the_environment_manifest_wins_over_the_committed_one(tmp_path: Path) -> None:
+    committed = tmp_path / "data" / "plate_manifest.json"
+    committed.parent.mkdir(parents=True)
+    committed.write_text("{}", encoding="utf-8")
+    other = tmp_path / "other.json"
+    other.write_text("{}", encoding="utf-8")
+    env = {"BURIED_REPO_ROOT": str(tmp_path), "BURIED_PLATE_MANIFEST": str(other)}
+    assert Config.from_env(env).plate_manifest == other.resolve()
+
+
+def test_there_is_no_manifest_when_none_is_committed_or_named(tmp_path: Path) -> None:
+    assert Config.from_env({"BURIED_REPO_ROOT": str(tmp_path)}).plate_manifest is None

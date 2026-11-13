@@ -1,0 +1,7 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "bld_f_u3b_1932",
+    "on": false
+  }
+}

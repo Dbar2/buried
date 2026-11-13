@@ -23,6 +23,7 @@ from buried_pipeline.validate.checks import (
 from buried_pipeline.validate.context import Context, Doc
 from buried_pipeline.validate.errors import ValidationError, err
 from buried_pipeline.validate.evidence_checks import check_evidence
+from buried_pipeline.validate.plate_manifest import check_plate_manifest
 from buried_pipeline.validate.schema import SchemaSet
 
 
@@ -109,5 +110,7 @@ def validate_files(files: Sequence[LoadedFile], schema: SchemaSet, now: datetime
     for d in ok.get("tileSidecar", []):
         errors.extend(check_tile_sidecar(d.doc, d.path, d.name, ctx))
     errors.extend(check_evidence(ok.get("featureCollection", []), ctx))
+    for d in ok.get("plateManifest", []):
+        errors.extend(check_plate_manifest(d.doc, d.path, ctx))
 
     return Report(sorted(set(errors)), len(files), features)

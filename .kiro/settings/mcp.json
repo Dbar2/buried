@@ -2,8 +2,22 @@
   "mcpServers": {
     "buried-evidence": {
       "command": "uv",
-      "args": ["--directory", "pipeline", "run", "python", "-m", "buried_pipeline.mcp"],
-      "autoApprove": ["find_places", "features_near", "list_sources", "plate_alignment", "plate_work"]
+      "args": [
+        "--directory",
+        "pipeline",
+        "run",
+        "python",
+        "-m",
+        "buried_pipeline.mcp"
+      ],
+      "autoApprove": [
+        "find_places",
+        "features_near",
+        "list_sources",
+        "plate_alignment",
+        "plate_work",
+        "plate_features"
+      ]
     }
   }
 }

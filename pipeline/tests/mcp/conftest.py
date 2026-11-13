@@ -89,9 +89,11 @@ def repo(tmp_path: Path) -> Path:
     write(d / "work" / "proposals" / f"{PLATE}.geojson", {
         "type": "FeatureCollection", "map_area_sha256": "abc", "map_area_geometry": {"x": 1},
         "features": [
-            {"properties": {"quality": {"score": s}, "tone_class": t, "weaknesses": w}}
-            for s, t, w in [(0.2, "light", []), (0.8, "dark", ["touches_edge"]),
-                            (0.6, "light", ["touches_edge"])]
+            {"id": f"prop_{i}", "properties": {
+                "quality": {"score": s}, "tone_class": t, "weaknesses": w, "area_m2": 20.0 + i,
+                "crop_px": {"x": 10 * i, "y": 5, "width": 30, "height": 40}}}
+            for i, (s, t, w) in enumerate([(0.2, "light", []), (0.8, "dark", ["touches_edge"]),
+                                            (0.6, "light", ["touches_edge"])])
         ],
     })  # fmt: skip
     write(d / "work" / "review" / f"{PLATE}.json", {

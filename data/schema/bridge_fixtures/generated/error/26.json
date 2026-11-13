@@ -3,6 +3,6 @@
   "payload": {
     "code": "debug_disabled",
     "message": "( )",
-    "messageType": "scene/clearLot"
+    "messageType": "scene/loadEra"
   }
 }

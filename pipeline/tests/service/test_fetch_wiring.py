@@ -271,3 +271,21 @@ def test_the_image_starts_on_the_port_railway_gives_it() -> None:
     assert config["build"] == {"builder": "DOCKERFILE", "dockerfilePath": "pipeline/Dockerfile"}
     assert config["deploy"]["healthcheckPath"] == "/v1/health"
     assert "startCommand" not in config["deploy"]  # the image's CMD reads PORT
+
+
+def test_the_committed_plate_manifest_gives_every_plate_its_ref_on_an_empty_deployment(
+    tmp_path: Path,
+) -> None:
+    """With no raster anywhere and no BURIED_PLATE_MANIFEST, the default manifest is the committed
+    `data/plate_manifest.json`, and the listing shows all four plates with a `plate_ref`."""
+    config = Config.from_env({"BURIED_REPO_ROOT": str(ROOT)})
+    assert config.plate_manifest == ROOT / "data" / "plate_manifest.json"
+    snap = real_snapshot_over(tmp_path / "empty", manifest_path=config.plate_manifest)
+    r = TestClient(create_app(config=config, snapshot=snap, env={})).get("/v1/plates/registered")
+    assert r.status_code == 200, r.text
+    plates = r.json()["plates"]
+    assert len(plates) == 4
+    assert all(p["plate_ref"] and p["raster_available"] is False for p in plates)
+    committed = json.loads(config.plate_manifest.read_text(encoding="utf-8"))
+    refs = {e["source"]: manifest_raster_ref(e) for e in committed["entries"]}
+    assert {p["source"]["id"]: p["plate_ref"] for p in plates} == refs

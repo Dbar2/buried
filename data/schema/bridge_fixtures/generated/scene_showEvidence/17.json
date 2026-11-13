@@ -1,0 +1,55 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "bld_0s_tn16_6w0v3b_4823",
+    "on": true,
+    "drape": {
+      "sourceId": "1l_8z",
+      "url": "/data/tiles/wd4s_s127_tcv_aj8.jpg",
+      "corners": {
+        "topLeft": [
+          360204.059,
+          4590605.359
+        ],
+        "topRight": [
+          314726.586,
+          3082041.714
+        ],
+        "bottomRight": [
+          494118.874,
+          5056742.809
+        ],
+        "bottomLeft": [
+          630784.834,
+          3214132.258
+        ]
+      },
+      "widthPx": 13596,
+      "heightPx": 14,
+      "clip": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              166000.01,
+              7233660.014
+            ],
+            [
+              833999.996,
+              0.001
+            ],
+            [
+              833999.992,
+              1472087.67
+            ],
+            [
+              166000.01,
+              7233660.014
+            ]
+          ]
+        ]
+      },
+      "kind": "plate"
+    }
+  }
+}

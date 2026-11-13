@@ -1,0 +1,7 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "bld_3_9989",
+    "on": false
+  }
+}

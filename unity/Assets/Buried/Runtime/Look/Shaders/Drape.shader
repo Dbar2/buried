@@ -25,6 +25,7 @@ Shader "Buried/Drape"
         _ToneLine ("Scan luminance that is line colour", Float) = 0.02
         _TonePaper ("Scan luminance that is paper", Float) = 0.6
         _LightFloor ("Light far from the pool", Range(0, 1)) = 0.38
+        [HideInInspector] _LensMode ("Lantern lens: 0 everywhere, 1 inside, 2 outside", Float) = 0
     }
     SubShader
     {
@@ -60,6 +61,7 @@ Shader "Buried/Drape"
                 float _ToneLine;
                 float _TonePaper;
                 half _LightFloor;
+                half _LensMode;
             CBUFFER_END
 
             struct Attributes
@@ -86,6 +88,7 @@ Shader "Buried/Drape"
 
             half4 frag(Varyings input) : SV_Target
             {
+                BuriedLensClip(input.positionCS, _LensMode);
                 half4 c = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
                 half3 rgb = c.rgb;
                 if (_Lit > 0.5)

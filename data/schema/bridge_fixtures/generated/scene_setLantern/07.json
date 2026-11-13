@@ -1,0 +1,12 @@
+{
+  "type": "scene/setLantern",
+  "payload": {
+    "on": false,
+    "center": {
+      "x": 0.009,
+      "y": 0.02
+    },
+    "radius": 0.148,
+    "eraId": "t0_z"
+  }
+}

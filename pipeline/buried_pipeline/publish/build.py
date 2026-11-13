@@ -24,11 +24,13 @@ from buried_pipeline.align.residuals import ceil_tenth
 from buried_pipeline.extract.maparea import Mapping, bounding_box, vertices_outside_raster
 from buried_pipeline.extract.polygons import georeference
 from buried_pipeline.publish.decisions import (
+    AttributeRead,
     Decision,
     Decisions,
     Problem,
     PublishRefusal,
     ReviewedAreaDecision,
+    TraceDecision,
 )
 from buried_pipeline.schema_version import SCHEMA_VERSION
 
@@ -133,6 +135,22 @@ def _normalised_covers(covers: Sequence[str] | None) -> tuple[str, ...]:
 # --- checks that name the cause -------------------------------------------------------------------
 
 
+def _check_reads(
+    attributes: dict[str, Any], reads: Sequence[AttributeRead], item: str, out: list[Problem]
+) -> None:
+    """The rules for attribute reads that every feature kind shares (spec 01 requirement 25)."""
+    if "material" in attributes and not any(r.attribute == "material" for r in reads):
+        out.append(Problem("material was set without a read: a material comes only from the "
+                           "plate's lettering or legend, with the crop it was read from", item))
+    for r in reads:
+        if r.attribute not in attributes:
+            out.append(Problem(f"a read is recorded for {r.attribute}, but the decision sets no "
+                               f"{r.attribute}", item))
+    names = [r.attribute for r in reads]
+    if len(set(names)) != len(names):
+        out.append(Problem("more than one read for the same attribute", item))
+
+
 def _check_decision(
     d: Decision, i: BuildInputs, proposal: dict[str, Any], out: list[Problem]
 ) -> None:
@@ -142,20 +160,30 @@ def _check_decision(
         if outside:
             out.append(Problem(f"pixel_polygon has vertices outside the plate "
                                f"({i.raster_size[0]} x {i.raster_size[1]} px): {outside[:3]}", pid))
-    if "material" in d.attributes and not any(r.attribute == "material" for r in d.attribute_reads):
-        out.append(Problem("material was set without a read: a material comes only from the "
-                           "plate's lettering or legend, with the crop it was read from", pid))
-    attributes_set = set(d.attributes)
-    for r in d.attribute_reads:
-        if r.attribute not in attributes_set:
-            out.append(Problem(f"a read is recorded for {r.attribute}, but the decision sets no "
-                               f"{r.attribute}", pid))
-    names = [r.attribute for r in d.attribute_reads]
-    if len(set(names)) != len(names):
-        out.append(Problem("more than one read for the same attribute", pid))
+    _check_reads(d.attributes, d.attribute_reads, pid, out)
     if d.confidence == "documented" and "storeys" not in d.attributes:
         out.append(Problem("documented needs storeys read from the plate; give storeys or use "
                            "estimated", pid))
+
+
+def _check_trace(t: TraceDecision, i: BuildInputs, out: list[Problem]) -> None:
+    """A land-use area lies wholly inside the plate's map area (requirement 24, and the map area
+    rule: nothing outside it is published), and the crop its use was read from lies on the plate.
+    That it has a use and a read for it is checked where the file is read."""
+    item = t.review_item_id
+    width, height = i.raster_size
+    outside = vertices_outside_raster(t.pixel_polygon, width, height)
+    if outside:
+        out.append(Problem(f"the traced area has vertices outside the plate ({width} x "
+                           f"{height} px): {outside[:3]}", item))
+    elif not Polygon(i.proposals["map_area_px"]).covers(Polygon(t.pixel_polygon)):
+        out.append(Problem("the traced area is not wholly inside the plate's map area", item))
+    for r in t.attribute_reads:
+        c = r.crop_px
+        if c["x"] + c["width"] > width or c["y"] + c["height"] > height:
+            out.append(Problem(f"the crop the {r.attribute} was read from is outside the plate "
+                               f"({width} x {height} px)", item))
+    _check_reads(t.attributes, t.attribute_reads, item, out)
 
 
 def _check_area(a: ReviewedAreaDecision, index: int, i: BuildInputs, out: list[Problem]) -> None:
@@ -230,17 +258,8 @@ def _feature(
         "tone_class": props["tone_class"],
     }
     if d.attribute_reads:
-        provenance["attribute_reads"] = [
-            {
-                "attribute": r.attribute,
-                "crop_px": dict(r.crop_px),
-                "read_by": r.read_by,
-                **({"provider": r.provider, "model_id": r.model_id} if r.provider else {}),
-                "confirmed_by": d.confirmed_by,
-                "confirmed_at": d.confirmed_at,
-            }
-            for r in d.attribute_reads
-        ]
+        provenance["attribute_reads"] = _read_records(d.attribute_reads, d.confirmed_by,
+                                                      d.confirmed_at)
     return {
         "type": "Feature",
         "id": f"bld_{i.source_id}_{seq:04d}",
@@ -251,6 +270,65 @@ def _feature(
                 i.alignment_error_m, i.source_pixel_size_m, d.position_error_m
             ),
             "attributes": dict(d.attributes),
+            "observations": [
+                {"source": i.source_id, "present": True, "visibility": "clear",
+                 "method": "origin"}
+            ],
+            "confidence": confidence,
+            "confidence_reason": reason,
+            "provenance": provenance,
+            "status": "published",
+        },
+    }
+
+
+def _read_records(
+    reads: Sequence[AttributeRead], confirmed_by: str, confirmed_at: str
+) -> list[dict[str, Any]]:
+    return [
+        {
+            "attribute": r.attribute,
+            "crop_px": dict(r.crop_px),
+            "read_by": r.read_by,
+            **({"provider": r.provider, "model_id": r.model_id} if r.provider else {}),
+            "confirmed_by": confirmed_by,
+            "confirmed_at": confirmed_at,
+        }
+        for r in reads
+    ]
+
+
+def _land_use_feature(t: TraceDecision, seq: int, i: BuildInputs) -> dict[str, Any]:
+    """A land-use area from a person's trace: the traced pixel polygon through the chosen
+    transform, the use as lettered with the crop it was read from, and the same position error and
+    provenance rules as a building. It has no proposal, so no `extraction_params_id` and no
+    `tone_class`; `proposal_id` holds its review item id."""
+    ring, ground = georeference(t.pixel_polygon, i.mapping)
+    if t.confidence is not None:
+        confidence, reason = t.confidence, t.confidence_reason
+    else:
+        confidence = "documented"
+        reason = f"Area and use traced by a person from {i.source_id}"
+    provenance: dict[str, Any] = {
+        "origin_source": i.source_id,
+        "crop_px": bounding_box(ring),
+        "alignment_error_m": i.alignment_error_m,
+        "digitising_error_m": digitising_error_m(i.source_pixel_size_m),
+        "confirmed_by": t.confirmed_by,
+        "confirmed_at": t.confirmed_at,
+        "proposal_id": t.review_item_id,
+        "attribute_reads": _read_records(t.attribute_reads, t.confirmed_by, t.confirmed_at),
+    }
+    return {
+        "type": "Feature",
+        "id": f"use_{i.source_id}_{seq:04d}",
+        "geometry": {"type": "Polygon", "coordinates": [_closed(ground)]},
+        "properties": {
+            "kind": "land_use",
+            "position_error_m": feature_position_error_m(
+                i.alignment_error_m, i.source_pixel_size_m, t.position_error_m
+            ),
+            "attributes": dict(t.attributes),
             "observations": [
                 {"source": i.source_id, "present": True, "visibility": "clear",
                  "method": "origin"}
@@ -313,6 +391,10 @@ def build_evidence(i: BuildInputs) -> BuildResult:
         elif d.decision == "accept" and d.confirmed and d.proposal_id not in published:
             _check_decision(d, i, by_id[d.proposal_id], problems)
 
+    for t in i.decisions.traces:
+        if t.review_item_id not in published:
+            _check_trace(t, i, problems)
+
     decision_of = {d.proposal_id: d for d in i.decisions.decisions}
     decided = {
         pid for pid in by_id
@@ -353,6 +435,18 @@ def build_evidence(i: BuildInputs) -> BuildResult:
             review_item_by_feature[feature["id"]] = pid
             published_now += 1
             seq += 1
+    for t in i.decisions.traces:  # sorted by review item id: the same file gives the same ids
+        accepted += 1
+        if t.review_item_id in published:
+            already += 1
+            continue
+        if seq > MAX_SEQUENCE:
+            raise PublishRefusal([Problem(f"{i.source_id} has no feature numbers left")])
+        feature = _land_use_feature(t, seq, i)
+        new_features.append(feature)
+        review_item_by_feature[feature["id"]] = t.review_item_id
+        published_now += 1
+        seq += 1
 
     reviewed = copy.deepcopy((i.existing or {}).get("reviewed_areas", []))
     for a in i.decisions.reviewed_areas:

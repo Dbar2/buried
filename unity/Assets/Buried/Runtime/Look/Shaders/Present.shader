@@ -17,6 +17,7 @@ Shader "Buried/Present"
         _SunGain ("Sun gain (sunward walls)", Range(0, 8)) = 0.5
         _RoofGain ("Roof gain (sky light)", Range(0, 4)) = 3.2
         _Alpha ("Alpha", Range(0, 1)) = 1
+        [HideInInspector] _LensMode ("Lantern lens: 0 everywhere, 1 inside, 2 outside", Float) = 0
         [HideInInspector] _SrcBlend ("Src blend", Float) = 1
         [HideInInspector] _DstBlend ("Dst blend", Float) = 0
         [HideInInspector] _ZWrite ("Z write", Float) = 1
@@ -46,6 +47,7 @@ Shader "Buried/Present"
                 half _SunGain;
                 half _RoofGain;
                 half _Alpha;
+                half _LensMode;
             CBUFFER_END
 
             struct Attributes
@@ -73,6 +75,7 @@ Shader "Buried/Present"
 
             half4 frag(Varyings input) : SV_Target
             {
+                BuriedLensClip(input.positionCS, _LensMode);
                 half3 n = normalize(input.normalWS);
                 Light sun = GetMainLight();
                 half lit = saturate(dot(n, sun.direction));

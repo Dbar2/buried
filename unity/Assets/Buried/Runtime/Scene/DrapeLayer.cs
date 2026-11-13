@@ -17,6 +17,9 @@ namespace Buried.Scene
         /// <summary>Render queue of the first drape. Later drapes draw on top.</summary>
         private const int BaseQueue = 2900;
 
+        /// <summary>The queue order of the Show Evidence patch: above every era drape, below the ghosts (queue 3000).</summary>
+        public const int EvidenceOrder = 90;
+
         public string SourceId { get; private set; }
 
         private GameObject _root;
@@ -133,6 +136,22 @@ namespace Buried.Scene
         {
             IsLit = lit;
             _material.SetFloat("_Lit", lit ? 1f : 0f);
+        }
+
+        /// <summary>
+        /// Show Evidence's patch: the untouched scan, shown by the mask's hard coverage channel instead of its fade
+        /// and not thinned by the distance fog (the same switch the shader's _UseCoverage names).
+        /// </summary>
+        public void SetPatch()
+        {
+            SetLit(false);
+            _material.SetFloat("_UseCoverage", 1f);
+        }
+
+        /// <summary>0 draws everywhere, 1 only inside the Lantern's lens, 2 only outside it.</summary>
+        public void SetLensMode(int mode)
+        {
+            _material.SetFloat("_LensMode", mode);
         }
 
         public void Dispose()

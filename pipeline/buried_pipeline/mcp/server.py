@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import IO, Any
 
 from buried_pipeline import __version__
-from buried_pipeline.mcp.store import BadRequest, EvidenceStore, NotFound
+from buried_pipeline.mcp.store import MAX_RESULT_BYTES, BadRequest, EvidenceStore, NotFound
 from buried_pipeline.paths import find_repo_root
 
 SERVER_NAME = "buried-evidence"
@@ -55,29 +55,56 @@ def _tool(
 
 STR = {"type": "string"}
 NUM = {"type": "number"}
+LIMIT = {"type": "integer", "minimum": 1, "maximum": 200}
+CURSOR = {**STR, "description": "next_cursor from the previous page; omit for the first page"}
+PAGING_NOTE = (
+    " Results are paged and never pass 20 KB: the result states total, returned, more and "
+    "next_cursor."
+)
 
 TOOLS: list[Json] = [
     _tool(
         "find_places",
         "Find present-day addresses (City of Toronto address points) whose text contains every "
         "word of the query, with the property lots whose polygon contains each address point; "
-        "or a lot by its parcel id. Coordinates are EPSG:26917 metres.",
+        "or a lot by its parcel id. Coordinates are EPSG:26917 metres." + PAGING_NOTE,
         {"query": {**STR, "description": "Address words, e.g. '75 sumach', or a parcel id"},
-         "limit": {"type": "integer", "minimum": 1, "maximum": 200}},
+         "limit": LIMIT, "cursor": CURSOR},
         ["query"],
     ),
     _tool(
         "features_near",
         "List evidence features (buildings, water, land use) within distance_m metres of a lot, "
-        "an address point or a point, nearest first, with each feature's observations, "
-        "confidence and its reason, position error, provenance, same_as links and source ids. "
-        "Give exactly one of lot_id, address_id, or easting with northing. Distances are plain "
-        "geometry; this does not say a feature is 'on' a lot.",
+        "an address point or a point, nearest first. The full form gives each feature's "
+        "observations, confidence and its reason, position error, provenance, same_as links and "
+        "source ids. compact true gives one short row per feature under a shared columns list "
+        "(id, kind, confidence, area_m2, centroid, crop_px, has_storeys, confirmed_by, same_as) "
+        "so about 100 fit in one page: crop_px is [x, y, width, height] in source pixels, "
+        "centroid is [easting, northing] in EPSG:26917 metres, confirmed_by is an index into "
+        "the result's reviewers list, same_as is a count; rows are in key rows, not features. "
+        "source keeps one evidence file's features. Give exactly one of lot_id, address_id, or "
+        "easting with northing. Distances are plain geometry; this does not say a feature is "
+        "'on' a lot." + PAGING_NOTE,
         {"lot_id": STR, "address_id": STR, "easting": NUM, "northing": NUM,
          "distance_m": {"type": "number", "minimum": 0, "maximum": 5000},
          "status": {"type": "array", "items": STR,
                     "description": "Feature statuses to include; default ['published']"},
-         "limit": {"type": "integer", "minimum": 1, "maximum": 200}},
+         "source": {**STR, "description": "Only features of this origin source id"},
+         "compact": {"type": "boolean", "description": "Short rows; default false"},
+         "limit": LIMIT, "cursor": CURSOR},
+    ),
+    _tool(
+        "plate_features",
+        "Every feature published from one source (default status published), in the short form "
+        "of features_near compact (columns and rows), sorted by id, with a last column "
+        "inside_control_hull: whether the feature's centroid lies inside the convex hull of "
+        "the plate's control points, from the alignment record (null when the record has no "
+        "hull). Also the counts inside and outside." + PAGING_NOTE,
+        {"source_id": STR,
+         "status": {"type": "array", "items": STR,
+                    "description": "Feature statuses to include; default ['published']"},
+         "limit": LIMIT, "cursor": CURSOR},
+        ["source_id"],
     ),
     _tool(
         "list_sources",
@@ -97,20 +124,24 @@ TOOLS: list[Json] = [
     _tool(
         "plate_work",
         "Summarise work in progress for a plate under data/work/: its extraction proposals "
-        "(count, tone classes, weakness flags, score quartiles) and its reviewer decisions "
-        "(count by kind, reviewed areas, who confirmed). Says so when there is none.",
-        {"source_id": STR},
+        "(count, tone classes, weakness flags, score quartiles), the flagged proposals one by "
+        "one (id, flags, score, area, crop rectangle), and its reviewer decisions (count by "
+        "kind, reviewed areas, who confirmed). Says so when there is none." + PAGING_NOTE,
+        {"source_id": STR, "limit": LIMIT, "cursor": CURSOR},
         ["source_id"],
     ),
 ]
 
 
 HANDLERS: dict[str, Handler] = {
-    "find_places": lambda s, a: s.find_places(a.get("query"), a.get("limit")),
+    "find_places": lambda s, a: s.find_places(a.get("query"), a.get("limit"), a.get("cursor")),
     "features_near": lambda s, a: s.features_near(a),
+    "plate_features": lambda s, a: s.plate_features(
+        a.get("source_id"), a.get("limit"), a.get("cursor"), a.get("status")
+    ),
     "list_sources": lambda s, a: s.list_sources(a.get("source_id"), a.get("source_type")),
     "plate_alignment": lambda s, a: s.alignment(a.get("source_id")),
-    "plate_work": lambda s, a: s.plate_work(a.get("source_id")),
+    "plate_work": lambda s, a: s.plate_work(a.get("source_id"), a.get("limit"), a.get("cursor")),
 }
 
 
@@ -133,6 +164,7 @@ def _check_arguments(tool: Json, args: Any) -> str | None:
             "string": isinstance(value, str),
             "number": isinstance(value, int | float) and not isinstance(value, bool),
             "integer": isinstance(value, int) and not isinstance(value, bool),
+            "boolean": isinstance(value, bool),
             "array": isinstance(value, list),
         }.get(kind, True)
         if not ok:
@@ -159,7 +191,15 @@ class Server:
             return _result_text(str(exc), error=True)
         except (OSError, json.JSONDecodeError, KeyError) as exc:
             return _result_text(f"could not read the committed files: {exc!r}", error=True)
-        return _result_text(json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False))
+        text = json.dumps(payload, separators=(",", ":"), sort_keys=True, ensure_ascii=False)
+        size = len(text.encode("utf-8"))
+        if size > MAX_RESULT_BYTES:
+            return _result_text(
+                f"the result is {size} bytes, over the {MAX_RESULT_BYTES} byte limit, and this "
+                "tool has no paging. Ask for less (one source, one type).",
+                error=True,
+            )
+        return _result_text(text)
 
     def handle(self, message: Any) -> Json | None:
         """One JSON-RPC message in, the response out (None for a notification)."""

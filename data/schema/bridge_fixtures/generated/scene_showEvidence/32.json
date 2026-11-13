@@ -1,0 +1,7 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "wtr_6830_i5e_a_5118",
+    "on": false
+  }
+}

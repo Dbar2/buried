@@ -1,0 +1,7 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "use_z_wsi08_b88p_9986",
+    "on": false
+  }
+}

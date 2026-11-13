@@ -1,0 +1,143 @@
+{
+  "entries": [
+    {
+      "files": [
+        {
+          "bytes": 128,
+          "path": "fip_v3_1911_229/v3-1911-229.tfw",
+          "sha256": "43c1189b24a09970458623ea5742b7f29c82cf263604617ad68d7f5c65cbb9d8"
+        },
+        {
+          "bytes": 13741273,
+          "path": "fip_v3_1911_229/v3-1911-229.tif",
+          "sha256": "d3b498bc6cb189fbfa92470334791e1c0c5c9f0d8a9d9e7b8c66d38868196752"
+        },
+        {
+          "bytes": 923,
+          "path": "fip_v3_1911_229/v3-1911-229.tif.xml",
+          "sha256": "474d6327dd4aba2b1874b9c4046777bfe5610e6183ecddf064aafff202f691c7"
+        },
+        {
+          "bytes": 294,
+          "path": "fip_v3_1911_229/v3-1911-229.txt",
+          "sha256": "abac4d1bb742dd5e39870a0deebd863a78c222aba167053a01f4cc691bab9186"
+        }
+      ],
+      "retrieved_at": "2026-11-12T20:40:47Z",
+      "source": "fip_v3_1911_229",
+      "url": "https://maps.library.utoronto.ca/datapub/FIP/vol3_19111914/v3-1911-229.zip",
+      "zip": {
+        "bytes": 13503472,
+        "path": "fip_v3_1911_229/v3-1911-229.zip",
+        "sha256": "94d87fc5c16d4827e3d7fe717cf3e729597881acad6af151b06dc44c80d569ea"
+      }
+    },
+    {
+      "files": [
+        {
+          "bytes": 128,
+          "path": "fip_v3_1911_232/v3-1911-232.tfw",
+          "sha256": "7b3e34ddfd167fa07f6d241016d671115c42a2b191deac31ccdc3175880822bb"
+        },
+        {
+          "bytes": 18450423,
+          "path": "fip_v3_1911_232/v3-1911-232.tif",
+          "sha256": "a6eabe813cf8d5e6bd9a227d5eb99776d588e397621a26bf81ebd009482ba0f6"
+        },
+        {
+          "bytes": 923,
+          "path": "fip_v3_1911_232/v3-1911-232.tif.xml",
+          "sha256": "1209a2ceefcf057e385b209f3709359aa0d3c3a1f68fec899adbc603e58c5ef6"
+        },
+        {
+          "bytes": 196,
+          "path": "fip_v3_1911_232/v3-1911-232.txt",
+          "sha256": "e6c8b5841618791867f3257d9c016cd8fa36932abe8830f9cd42833d333b5a4a"
+        }
+      ],
+      "retrieved_at": "2026-11-12T20:40:47Z",
+      "source": "fip_v3_1911_232",
+      "url": "https://maps.library.utoronto.ca/datapub/FIP/vol3_19111914/v3-1911-232.zip",
+      "zip": {
+        "bytes": 18213397,
+        "path": "fip_v3_1911_232/v3-1911-232.zip",
+        "sha256": "7a838b261a2440096907c784365128ebc90dea600e06ebd473b8ce5b5b76f1b2"
+      }
+    },
+    {
+      "files": [
+        {
+          "bytes": 127,
+          "path": "fip_v3_1935_229/v3-1935-229.jgw",
+          "sha256": "224c1aff0c818a4da4eafde7bb0fc71fe1ce6d9ef697ed30e58a7a7dc644d4ea"
+        },
+        {
+          "bytes": 6498309,
+          "path": "fip_v3_1935_229/v3-1935-229.jpg",
+          "sha256": "0b7007296a83b1782d9335275aadb6cfa7d29775354754c1f019e10f455a28a1"
+        },
+        {
+          "bytes": 1014,
+          "path": "fip_v3_1935_229/v3-1935-229.jpg.aux.xml",
+          "sha256": "043d20e3bf807a37503b3bd47593de87cb020af9ac16c81f35ea97cc3726a9f0"
+        },
+        {
+          "bytes": 809069,
+          "path": "fip_v3_1935_229/v3-1935-229.jpg.ovr",
+          "sha256": "86467aa6cfd50e44dffafe92b18cf47510e8d9d2076f65bf607d9480eb5567c9"
+        },
+        {
+          "bytes": 217,
+          "path": "fip_v3_1935_229/v3-1935-229.txt",
+          "sha256": "13704a18a21515601c70a4d5b7ebb043b5a251863b9494daccb337a5e06277af"
+        }
+      ],
+      "retrieved_at": "2026-11-12T20:40:47Z",
+      "source": "fip_v3_1935_229",
+      "url": "https://maps.library.utoronto.ca/datapub/FIP/vol3_1935/Georeferenced/v3-1935-229.zip",
+      "zip": {
+        "bytes": 7309312,
+        "path": "fip_v3_1935_229/v3-1935-229.zip",
+        "sha256": "68688c98b38f0f3f27b5d349f00a00e75776ee408558caf054f03eeced8e5036"
+      }
+    },
+    {
+      "files": [
+        {
+          "bytes": 124,
+          "path": "fip_v3_1935_232/v3-1935-232.jgw",
+          "sha256": "4bf74bb5056885bcf97366eab09df4ed355c1afbfcdc8ff592b17d899382e96b"
+        },
+        {
+          "bytes": 2032600,
+          "path": "fip_v3_1935_232/v3-1935-232.jpg",
+          "sha256": "919b96d09b6dc64a5e4ea50cde86e7f04c96c627a5d550ae49d5c91c8e516961"
+        },
+        {
+          "bytes": 1014,
+          "path": "fip_v3_1935_232/v3-1935-232.jpg.aux.xml",
+          "sha256": "b012450cc1636344bf2bda9dd057511e1ccd529b541edc19ca3f6cd701ed4a66"
+        },
+        {
+          "bytes": 762611,
+          "path": "fip_v3_1935_232/v3-1935-232.jpg.ovr",
+          "sha256": "6091091163ea1981e4ba8b70473230c7dcde5285deadc492f0f0031cb8a08b43"
+        },
+        {
+          "bytes": 162,
+          "path": "fip_v3_1935_232/v3-1935-232.txt",
+          "sha256": "50b3c0876c979e7fea1d3c40484029f2dd51aa8c1050397802a79756c64dbfab"
+        }
+      ],
+      "retrieved_at": "2026-11-12T20:40:47Z",
+      "source": "fip_v3_1935_232",
+      "url": "https://maps.library.utoronto.ca/datapub/FIP/vol3_1935/Georeferenced/v3-1935-232.zip",
+      "zip": {
+        "bytes": 2797087,
+        "path": "fip_v3_1935_232/v3-1935-232.zip",
+        "sha256": "1d0d7ad19e1ffb3a87721f0bdb845419f8f1689b72a4fa556ea4d88507ef17aa"
+      }
+    }
+  ],
+  "version": 1
+}
