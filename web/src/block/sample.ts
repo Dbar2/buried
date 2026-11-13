@@ -1,7 +1,6 @@
 /**
- * A sample find, for the render tests and the `/block-preview` page. The readings are real, from the 1911 plan,
- * sheet 229 (spec 06 session 041). Part three replaces this with `data/finds.json` through the Evidence Library;
- * nothing outside tests and the preview imports it.
+ * A sample find, for the render tests. The readings are real, from the 1911 plan, sheet 229 (spec 06 session 041). The
+ * Block page reads `data/finds.json` through `finds.ts` and `blockModel.ts`; nothing outside tests imports this.
  */
 import type { CardViewModel } from './FindCard';
 import type { RulerStop } from './EraRuler';
