@@ -21,7 +21,8 @@ export type CardViewModel = {
   kicker: string;
   /** The lettered lines, quoted as lettered. The first is the title; the others are set in italic. */
   lines: readonly string[];
-  crop: CardCrop;
+  /** The untouched lettering crop, or null when the source has no tile loaded (the card then shows no picture). */
+  crop: CardCrop | null;
   /** "Seen on: 1911 plan, sheet 229". */
   seenOn: string;
   /** "Positioned within about 4.5 m". */
@@ -49,6 +50,10 @@ export type FindCardProps = {
   onShowOriginalSheet: () => void;
   onShare: () => void;
   onShowOnMap: () => void;
+  /** A close control is drawn when this is given (the sheet on a phone closes with its handle as well). */
+  onClose?: () => void;
+  /** "Show the original sheet" is on: the button is `aria-pressed`. */
+  originalShown?: boolean;
 };
 
 /** Absolute placement of the whole tile inside a frame that shows only `rect` of it. Pure; percentages only. */
@@ -95,15 +100,20 @@ function RegistrationCross({ corner }: { corner: 'tl' | 'tr' | 'bl' | 'br' }) {
  * untouched crop in a hairline frame, "Seen on", the position line, the status line, then the actions. Parchment,
  * ink text, hairline rules, a registration cross in each corner, no shadow.
  */
-export function FindCard({ view, shareOutcome, onShowOriginalSheet, onShare, onShowOnMap }: FindCardProps) {
+export function FindCard({ view, shareOutcome, onShowOriginalSheet, onShare, onShowOnMap, onClose, originalShown }: FindCardProps) {
   const [title, ...rest] = view.lines;
-  const { frame, image } = cropStyles(view.crop);
+  const crop = view.crop ? cropStyles(view.crop) : null;
   return (
     <article className="find-card" aria-labelledby="find-card-title" data-testid="find-card">
       <RegistrationCross corner="tl" />
       <RegistrationCross corner="tr" />
       <RegistrationCross corner="bl" />
       <RegistrationCross corner="br" />
+      {onClose ? (
+        <button type="button" className="card-close" onClick={onClose} data-testid="card-close">
+          Close
+        </button>
+      ) : null}
       <p className="card-kicker" data-testid="card-kicker">
         {view.kicker}
       </p>
@@ -115,9 +125,11 @@ export function FindCard({ view, shareOutcome, onShowOriginalSheet, onShare, onS
           {line}
         </p>
       ))}
-      <div className="card-crop" style={frame} data-testid="card-crop">
-        <img src={view.crop.src} alt={view.crop.alt} style={image} loading="lazy" decoding="async" />
-      </div>
+      {view.crop && crop ? (
+        <div className="card-crop" style={crop.frame} data-testid="card-crop">
+          <img src={view.crop.src} alt={view.crop.alt} style={crop.image} loading="lazy" decoding="async" />
+        </div>
+      ) : null}
       <Row text={view.seenOn} testId="card-seen-on" />
       <Row text={view.position} testId="card-position" />
       <Row text={view.status} testId="card-status" />
@@ -133,7 +145,13 @@ export function FindCard({ view, shareOutcome, onShowOriginalSheet, onShare, onS
           </button>
         ) : null}
         {view.actions.showOriginalSheet ? (
-          <button type="button" className="card-action" onClick={onShowOriginalSheet} data-testid="card-show-original">
+          <button
+            type="button"
+            className="card-action"
+            onClick={onShowOriginalSheet}
+            aria-pressed={originalShown === undefined ? undefined : originalShown}
+            data-testid="card-show-original"
+          >
             Show the original sheet
           </button>
         ) : null}

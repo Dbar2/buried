@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { descriptionFor, SITE_DESCRIPTION, titleFor } from './pageTitle';
+import { descriptionFor, findDescriptionFor, findTitleFor, SITE_DESCRIPTION, titleFor } from './pageTitle';
 import type { PageName } from './pageTitle';
 
 const BANNED = /\b(contaminated|unsafe|safe|safer|safest|clean|cleaner|cleanest)\b|will flood/i;
@@ -59,5 +59,17 @@ describe('index.html', () => {
   it('points og:image at the social card in public/, which exists, on the live site', () => {
     expect(html).toContain('content="https://buried.pages.dev/social-card.png"');
     expect(() => readFileSync(fileURLToPath(new URL('../../public/social-card.png', import.meta.url)))).not.toThrow();
+  });
+});
+
+describe('the title and description of a find (spec 06 requirement 7.2)', () => {
+  it('names the find as lettered and its plan, then the site', () => {
+    expect(findTitleFor('Glove & Overall Factory', '1911 plan')).toBe('Glove & Overall Factory, 1911 plan · Buried');
+  });
+
+  it('says what the plan lettered, at the block, with the map that proves it, and finds nothing', () => {
+    const text = findDescriptionFor('the 1911 plan');
+    expect(text).toBe('Lettered on the 1911 plan at Queen Street East and River Street, Toronto, with the map that proves it.');
+    expect(text).not.toMatch(BANNED);
   });
 });

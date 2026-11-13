@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import type { PointerEvent } from 'react';
+import type { CSSProperties, PointerEvent } from 'react';
 import { beginLensDrag, moveLensDrag } from './lensDrag';
 import type { LensGrab, LensPoint } from './lensDrag';
 
@@ -15,6 +15,8 @@ export type LanternLensProps = {
   label: string;
   onToggle: () => void;
   onMove: (center: LensPoint) => void;
+  /** Where the control sits, when the page places it (position, left and top in px). */
+  controlStyle?: CSSProperties;
 };
 
 /**
@@ -23,7 +25,7 @@ export type LanternLensProps = {
  * starts outside reaches the camera (requirement 6.1). The other layer shown inside the ring is the Player's (or the
  * Flat sheet's) to draw; this component draws only the ring.
  */
-export function LanternLens({ on, center, radius, area, label, onToggle, onMove }: LanternLensProps) {
+export function LanternLens({ on, center, radius, area, label, onToggle, onMove, controlStyle }: LanternLensProps) {
   const grab = useRef<LensGrab | null>(null);
   const ring = useRef<HTMLDivElement>(null);
 
@@ -64,7 +66,7 @@ export function LanternLens({ on, center, radius, area, label, onToggle, onMove 
           onPointerCancel={end}
         />
       ) : null}
-      <button type="button" className="lens-control" aria-pressed={on} onClick={onToggle} data-testid="lens-control">
+      <button type="button" className="lens-control" style={controlStyle} aria-pressed={on} onClick={onToggle} data-testid="lens-control">
         {label}
       </button>
     </>

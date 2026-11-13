@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { BottomSheet, settleSheet } from './BottomSheet';
 import { EraRuler, stopIndexForKey } from './EraRuler';
 import { cropStyles, FindCard } from './FindCard';
+import type { CardCrop } from './FindCard';
 import { FindTags } from './FindTags';
 import { FLAT_DRAW_S, flatStagger, FlatSheet } from './FlatSheet';
 import { LanternLens } from './LanternLens';
@@ -146,7 +147,7 @@ describe('FindCard', () => {
   });
 
   it('places the crop with percentages that show exactly the rectangle', () => {
-    const { frame, image } = cropStyles(sampleCardView.crop);
+    const { frame, image } = cropStyles(sampleCardView.crop as CardCrop);
     expect(frame.aspectRatio).toBe('390 / 300');
     expect(image.width).toBe(`${(3626 / 390) * 100}%`);
     expect(image.left).toBe(`${(-2090 / 390) * 100}%`);

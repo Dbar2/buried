@@ -8,6 +8,8 @@ export type FeatureListProps = {
   /** Choosing a row opens that feature's card. */
   onChoose: (featureId: string) => void;
   selectedId: string | null;
+  /** The toggle's label while the list is closed; the default counts the features. The Block page says "List". */
+  closedLabel?: string;
 };
 
 /**
@@ -15,11 +17,11 @@ export type FeatureListProps = {
  * each row is a button that opens the feature's card, the keyboard path to what a click on a ghost
  * does.
  */
-export function FeatureList({ rows, eraLabel, open, onToggle, onChoose, selectedId }: FeatureListProps) {
+export function FeatureList({ rows, eraLabel, open, onToggle, onChoose, selectedId, closedLabel }: FeatureListProps) {
   return (
     <div className="feature-list" data-testid="feature-list">
       <button type="button" className="feature-list-toggle" aria-expanded={open} aria-controls="feature-list-panel" onClick={onToggle} data-testid="feature-list-toggle">
-        {open ? 'Hide the list' : `List the features (${rows.length})`}
+        {open ? 'Hide the list' : (closedLabel ?? `List the features (${rows.length})`)}
       </button>
       {open && (
         <section id="feature-list-panel" className="feature-list-panel" aria-label={`Features shown in ${eraLabel}`} data-testid="feature-list-panel">

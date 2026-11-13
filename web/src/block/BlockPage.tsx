@@ -1,42 +1,46 @@
-import { SetPageTitle } from '../shell/SetPageTitle';
+import { useEffect, useMemo, useState } from 'react';
+import { findSlugFor } from '../place/placeLink';
+import { hasWebGL2 } from '../explorer/webgl';
+import { BlockStage } from './BlockStage';
+import type { LotFinder } from './blockModel';
+import { useBlockData, useStillMeta } from './useBlockData';
 import './block.css';
 
-/** The headline, the button label and the line under it (spec 06 requirement 1.1). */
-export const BLOCK_HEADLINE = 'Something used to stand here.';
-export const BLOCK_LINE = 'Every ghost comes with the map that proves it.';
-export const RAISE_LABEL = 'Raise the past';
-
-/** For now "Raise the past" opens the Explorer at the 1911 era. Part two (task W3) replaces it. */
-export const RAISE_PLACEHOLDER_HREF = '/?era=1911';
-
-/** The block the scene shows, as the margin caption names it (product.md "Showcase area"). */
-export const BLOCK_CAPTION = 'Eastern Avenue at the Don River, Toronto.';
+export { BLOCK_CAPTION, BLOCK_HEADLINE, BLOCK_LINE, NOT_FOUND_NOTICE } from './BlockStage';
+export { RAISE_LABEL } from './raiseState';
 
 /**
- * The Block page (`/` and `/find/<slug>`), a placeholder until spec 06 tasks W3 to W12 replace its
- * insides: the headline, the line, a button that is not yet the Raise button, and the margin
- * caption with the link to the address search. It shows no search field and none of the Report's
- * wording (requirement 1.3, 1.4).
+ * The Block page (`/` and `/find/<slug>`, spec 06): the Still at once, then the Player once the page has painted,
+ * with the headline and "Raise the past" over the scene. It reads the records and `data/finds.json`, and hands
+ * everything to `BlockStage`, which owns the load states, the tags, the card, the ruler and the Lantern. It shows no
+ * search field and none of the Report's wording before a card is open (requirements 1.3, 1.4).
  */
 export function BlockPage() {
+  const data = useBlockData();
+  const still = useStillMeta();
+  const [lotFor, setLotFor] = useState<LotFinder | null>(null);
+  useEffect(() => {
+    // "Full record" needs the geometry library, which comes after first paint.
+    let cancelled = false;
+    void import('../report/search').then((m) => {
+      if (!cancelled) setLotFor(() => m.lotForPoint);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  const routeSlug = useMemo(() => findSlugFor(window.location.pathname), []);
+  const webgl2 = useMemo(() => hasWebGL2(), []);
+  const reducedMotion = useMemo(() => typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
   return (
-    <main className="block-page" data-testid="block-page">
-      <SetPageTitle page="block" />
-      <div className="block-intro">
-        <h1 className="block-headline">{BLOCK_HEADLINE}</h1>
-        {/* An anchor, not a button: until Raise exists it can only go to the Explorer. It looks
-            unavailable (outlined, dim) and stays in the tab order. */}
-        <a className="block-raise" href={RAISE_PLACEHOLDER_HREF} data-testid="raise-button">
-          {RAISE_LABEL}
-        </a>
-        <p className="block-line">{BLOCK_LINE}</p>
-      </div>
-      <p className="block-caption" data-testid="block-caption">
-        <span>{BLOCK_CAPTION}</span>{' '}
-        <a href="/place" data-testid="look-up-address">
-          Look up an address
-        </a>
-      </p>
-    </main>
+    <BlockStage
+      data={data}
+      still={still}
+      routeSlug={routeSlug}
+      siteOrigin={window.location.origin}
+      webgl2={webgl2}
+      reducedMotion={reducedMotion}
+      lotFor={lotFor}
+    />
   );
 }
