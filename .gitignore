@@ -53,3 +53,6 @@ data/work/
 
 # Local assistant/editor settings, never part of the project
 .claude/
+
+# Parallel working copies for separate build lanes
+.worktrees/
