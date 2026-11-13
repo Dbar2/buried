@@ -88,7 +88,11 @@ describe('a lot with a building drawn on it', () => {
     expect(today.sentences[0]!.text).toBe('1 building outline at this lot today.');
     expect(today.sentences.map((s) => s.text).join(' ')).not.toContain('on this lot');
     const y1911 = r.coreSample.find((b) => b.eraId === '1911')!;
-    expect(y1911.sentences.map((s) => s.text)).toContain('1 building drawn on this lot.');
+    const texts = y1911.sentences.map((s) => s.text);
+    expect(texts.some((t) => /^A building outline (read from|traced automatically from) the 1911 plan sits on this lot\.$/.test(t))).toBe(true);
+    expect(texts.some((t) => t === 'Checked by a person.' || t === 'Not yet checked by a person.')).toBe(true);
+    // Plain words in the body: no id and no plate number in the band's sentences.
+    expect(texts.join(' ')).not.toMatch(/fip_|_229|plate/);
     expect(y1911.target).toEqual({ eraId: '1911', lotId: LOT_ID });
   });
 
@@ -254,7 +258,8 @@ describe('aerials', () => {
     const plain = report(buildReport(inputs(linkedBuildingOnLot())));
     const withAerial = report(buildReport(inputs(linkedBuildingOnLot(), { canon: { ...inputs([]).canon, collections: linkedBuildingOnLot(), sidecars: [aerialSidecar()] } })));
     expect(plain.coreSample.find((b) => b.eraId === '1947')!.sentences[0]!.text).toBe('Not covered by these records.');
-    expect(withAerial.coreSample.find((b) => b.eraId === '1947')!.sentences[0]!.text).toContain(AERIAL);
+    expect(withAerial.coreSample.find((b) => b.eraId === '1947')!.sentences[0]!.text).toBe('From the 1947 photograph. Not yet reviewed.');
+    expect(withAerial.coreSample.find((b) => b.eraId === '1947')!.sourceIds).toContain(AERIAL);
     expect(withAerial.cannotTell.map((s) => s.text).join(' ')).toContain('1947');
   });
 });

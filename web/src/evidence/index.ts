@@ -34,6 +34,15 @@ export { positionPhrase } from './position';
 export { definitionNames, isValid, validate } from './schema';
 export type { ContractOf, DefName, ValidationResult } from './schema';
 export { indexSources, sourceYearsText } from './sources';
+export {
+  checkedSentence,
+  originPhrase,
+  plainSourceName,
+  plainSourceNumbers,
+  plainYears,
+  provenanceFacts,
+} from './plainWords';
+export type { ProvenanceFacts } from './plainWords';
 export type { SourceIndex } from './sources';
 export { reviewedAreaCovers } from './coverage';
 export type { CoverageKind } from './coverage';

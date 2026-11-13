@@ -100,10 +100,22 @@
   }
 
   .band {
+    border: 0;
     border-left: 2px solid var(--report-rule);
     display: block;
     margin: 1pt 0 0;
-    padding-left: 4pt;
+    padding: 0 0 0 4pt;
+  }
+
+  /* The pictures stay on screen: a printed page holds the sentences, the findings and the sources. */
+  .band-picture,
+  .band-dialog {
+    display: none !important;
+  }
+
+  .band-head,
+  .band-text {
+    display: inline;
   }
 
   .band h3 a,

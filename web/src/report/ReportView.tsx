@@ -83,7 +83,7 @@ function FullReport({ report, onBandSelect }: { report: Report; onBandSelect: ((
         <h2 id="report-core">{copy.SECTION_HEADINGS.coreSample}</h2>
         <ol className="bands">
           {report.coreSample.map((band) => (
-            <Band key={band.eraId} band={band} onSelect={onBandSelect} href={onBandSelect ? undefined : liveLink('', lotId, band.eraId)} />
+            <Band key={band.eraId} band={band} sources={report.sources} onSelect={onBandSelect} href={onBandSelect ? undefined : liveLink('', lotId, band.eraId)} />
           ))}
         </ol>
       </section>
@@ -151,7 +151,7 @@ function FullReport({ report, onBandSelect }: { report: Report; onBandSelect: ((
           Share link: <a className="mono small" href={report.links.share} data-testid="share-link">{report.links.share}</a>
         </p>
         <div className="report-actions no-print">
-          <button type="button" onClick={() => window.print()} data-testid="print">
+          <button type="button" className="primary" onClick={() => window.print()} data-testid="print">
             Print or save as PDF
           </button>
           <button type="button" onClick={copyLink} data-testid="copy-link">

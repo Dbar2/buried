@@ -272,7 +272,7 @@ describe('the generator exercises the cases the properties are about', () => {
           if (f.finding.text.startsWith('Water is drawn on this lot')) seen.add('water-then-building');
         }
       }
-      if (r.coreSample.some((b) => b.sentences.some((s) => s.text.includes('drawn on this lot')))) seen.add('band-on');
+      if (r.coreSample.some((b) => b.sentences.some((s) => s.text.includes('sits on this lot') || s.text.includes('sit on this lot')))) seen.add('band-on');
     }
     for (const needed of ['report', 'not_reconstructed', 'water:documented', 'water:nothing_found', 'water:not_covered', 'structures:documented', 'structures:estimated', 'structures:nothing_found', 'structures:not_covered', 'land_use:documented', 'land_use:not_covered', 'conflict', 'near', 'on', 'unprintable', 'band-on']) {
       expect(seen.has(needed), `${needed} was never generated`).toBe(true);

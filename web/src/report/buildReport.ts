@@ -212,6 +212,7 @@ export function buildReport(inputs: ReportInputs): ReportModel {
         collections: canonCollections,
         sidecars: inputs.canon.sidecars,
         buildings: inputs.canon.buildings,
+        lots: inputs.canon.lots,
       },
       plateSources,
     );
