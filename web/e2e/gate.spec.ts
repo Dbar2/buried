@@ -84,11 +84,39 @@ async function waitFor(page: Page, what: string, predicate: (s: DebugState) => b
 
 async function openGate(page: Page): Promise<DebugState> {
   await page.goto('/?debug=1');
+  // The Shell's overlays (gauge, hint, attribution bar) sit over the canvas. They are hidden here so
+  // that a marker near an edge of the canvas is measured, not the panel in front of it.
+  await page.addStyleTag({ content: '.attribution, .view-hint { visibility: hidden; } .depth-gauge { opacity: 0; }' });
   return waitFor(
     page,
     'the Player to be ready with both gate eras loaded and the markers sent',
     (s) => s.ready && s.running && s.eraLoaded.includes('1911') && s.eraLoaded.includes('1935') && s.markersSent.length === 3,
   );
+}
+
+/**
+ * The default pose frames the block around the building (requirement 16.8), which is smaller than
+ * the area the three control points span. Zoom out with the mouse wheel (the interim mapping,
+ * requirement 16.6) until all of them are inside the canvas.
+ */
+async function zoomOutToShow(page: Page, positions: Array<[number, number]>): Promise<void> {
+  const box = await page.getByTestId('unity-canvas').boundingBox();
+  if (!box) throw new Error('no canvas');
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  for (let attempt = 0; attempt < 16; attempt++) {
+    const camera = (await debugState(page)).camera;
+    if (camera) {
+      const inside = positions.every(([e, n]) => {
+        const p = projectToPixels(camera, e, n, 0);
+        return p.x > 30 && p.x < camera.canvas.widthPx - 30 && p.y > 30 && p.y < camera.canvas.heightPx - 30;
+      });
+      if (inside) return;
+    }
+    const before = (await debugState(page)).cameraSeq;
+    await page.mouse.wheel(0, 120);
+    await expect.poll(async () => (await debugState(page)).cameraSeq, { timeout: 10_000 }).toBeGreaterThan(before);
+  }
+  throw new Error('could not zoom out far enough to show the three control points');
 }
 
 /** EPSG:26917 position and height to canvas pixels, from the view-projection the Player reported. */
@@ -152,6 +180,7 @@ test('three ground control points stay put between the 1911 and 1935 eras', asyn
   const expected = pickGateMarkers(first, second);
   expect(opened.markersSent).toEqual(expected);
   expect(expected).toHaveLength(3);
+  await zoomOutToShow(page, expected.map((m) => m.position));
 
   const shots: Record<string, { centroids: Array<Point | null>; projected: Point[] }> = {};
 

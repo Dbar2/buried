@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { indexSources } from '../evidence';
 import type { TileSidecar } from '../evidence';
-import { ERA_1911, ERA_1935, ERA_1947, ERA_TODAY, makeSource } from '../evidence/testing/fixtures';
+import { ERA_1911, ERA_1935_EDITION as ERA_1935, ERA_1947, ERA_TODAY, makeSource } from '../evidence/testing/fixtures';
 import { drapeForSource, drapesForEra, sourceCoversEra, toDrape } from './drapes';
 
 function tile(source: string, image = `${source}.jpg`): TileSidecar {
@@ -29,8 +29,8 @@ const sources = indexSources({
   schema_version: '1.0.0',
   sources: [
     makeSource('fip_v3_1911_229', 1911, 1914),
-    makeSource('fip_v3_1935_229', 1935, 1935),
-    makeSource('fip_v3_1935_232', 1935, 1935, { attribution_status: 'to_be_confirmed' }),
+    makeSource('fip_v3_1935_229', 1931, 1935),
+    makeSource('fip_v3_1935_232', 1931, 1935, { attribution_status: 'to_be_confirmed' }),
     makeSource('present_toronto_intersections_2026', 2026, 2026, { type: 'present_day_reference' }),
   ],
 });
@@ -62,7 +62,7 @@ describe('drapesForEra (requirement 8.2)', () => {
   it('sorts by source id, which is the draw order', () => {
     const both = indexSources({
       schema_version: '1.0.0',
-      sources: [makeSource('b_plate', 1935, 1935), makeSource('a_plate', 1935, 1935)],
+      sources: [makeSource('b_plate', 1931, 1935), makeSource('a_plate', 1931, 1935)],
     });
     expect(drapesForEra(ERA_1935, both, [tile('b_plate'), tile('a_plate')]).map((d) => d.sourceId)).toEqual(['a_plate', 'b_plate']);
   });

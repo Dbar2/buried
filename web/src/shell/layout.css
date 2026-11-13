@@ -1,0 +1,220 @@
+/*
+ * The Shell's first real layout (spec 03 design.md "Layout"). Dark theme. Colours come from
+ * tokens.css only; there is no `lantern` (nothing is pinned and this view has no primary action)
+ * and no `water`. No gradients, no shadows, no rounded-everything cards.
+ */
+.page {
+  display: grid;
+  grid-template-rows: var(--header-height) 1fr;
+  height: 100%;
+}
+
+.page-scroll {
+  min-height: 0;
+  overflow: auto;
+}
+
+/* Header: across the top, `night`. */
+.site-header {
+  align-items: center;
+  background: var(--night);
+  display: flex;
+  height: var(--header-height);
+  justify-content: space-between;
+  padding: 0 var(--space-4);
+}
+
+.wordmark {
+  color: var(--text);
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.site-nav {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.site-nav a {
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+.site-nav a:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.site-nav a[aria-current='page'] {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* The view fills the window under the header. */
+.view {
+  background: var(--night);
+  min-height: 0;
+  position: relative;
+}
+
+.view canvas {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.stage-message {
+  background: var(--fog);
+  height: 100%;
+  margin: 0;
+  padding: var(--space-4);
+}
+
+/* Depth gauge: over the right edge of the view, on `fog` at 90% opacity. */
+.depth-gauge {
+  background: color-mix(in srgb, var(--fog) 90%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-2);
+  position: absolute;
+  right: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.depth-stop {
+  align-items: center;
+  background: none;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  display: grid;
+  font: inherit;
+  gap: var(--space-2);
+  grid-template-columns: 0.75rem 6.5rem;
+  padding: var(--space-1) var(--space-2) var(--space-1) 0;
+  text-align: left;
+}
+
+/* The mark: a thin tick for the other eras, a filled bar for the current one (shape, not colour). */
+.depth-mark {
+  background: var(--muted);
+  height: 1px;
+  width: 0.5rem;
+}
+
+.depth-stop[aria-current='true'] {
+  color: var(--text);
+}
+
+.depth-stop[aria-current='true'] .depth-mark {
+  background: var(--text);
+  height: 0.5rem;
+  width: 0.75rem;
+}
+
+.depth-label {
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+
+.depth-year {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+}
+
+.depth-stop[aria-current='true'] .depth-label {
+  font-weight: 600;
+}
+
+/* Evidence card: at the left edge of the view, 360 px, on `fog`. It opens beside the building. */
+.card {
+  background: var(--fog);
+  bottom: auto;
+  left: 0;
+  max-height: calc(100% - 7rem);
+  overflow: auto;
+  padding: var(--space-3) var(--space-4);
+  position: absolute;
+  top: var(--space-3);
+  width: 360px;
+}
+
+.card h2 {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.card dl {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+}
+
+.card dt {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.card dd {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.card dd.mono {
+  font-family: var(--font-mono);
+}
+
+.card button {
+  background: none;
+  border: 1px solid var(--muted);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  padding: var(--space-1) var(--space-3);
+}
+
+.view-hint {
+  color: var(--muted);
+  font-size: 1rem;
+  left: var(--space-4);
+  margin: 0;
+  position: absolute;
+  top: var(--space-3);
+}
+
+.view-notes {
+  color: var(--muted);
+  font-size: 0.875rem;
+  left: var(--space-4);
+  margin: 0;
+  position: absolute;
+  top: calc(var(--space-3) + 2rem);
+}
+
+/* Attribution lines: along the bottom edge, Inter 14 px in `muted` on `night` at 80%. */
+.attribution {
+  background: color-mix(in srgb, var(--night) 80%, transparent);
+  bottom: 0;
+  color: var(--muted);
+  font-size: 14px;
+  left: 0;
+  padding: var(--space-1) var(--space-4);
+  position: absolute;
+  right: 0;
+}
+
+.attribution p {
+  margin: 0;
+}

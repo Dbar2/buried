@@ -133,6 +133,12 @@ invent commands; when one is added, record it here.
     `vite preview` with the real Unity build in `web/public/unity/`). One-time browser install:
     `npm exec -- playwright install chromium`. Screenshots and pixel deltas go to
     `web/e2e/output/` (gitignored).
+  - Look check (spec 03 task 16.7, requirement 26): `npx playwright test e2e/look.spec.ts` after
+    `npm run build`. Opens the page without `?debug=1` at 1280 × 800 and saves
+    `web/e2e/output/look-*.png` for the maintainer to judge against requirement 26. The web build
+    copies `web/public/unity/` into `dist/`, so run `npm run build` after every Unity build, and
+    only once `web/public/unity/Build/` has stopped changing (the Unity build was seen to finish
+    writing its data file after the command returned).
 - Pipeline (spec 02), all run from `pipeline/`:
   - Environment: `uv sync` (Python 3.12).
   - Tests: `uv run pytest`. Lint: `uv run ruff check .`.

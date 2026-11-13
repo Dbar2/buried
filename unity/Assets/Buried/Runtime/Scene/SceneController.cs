@@ -6,13 +6,14 @@ using Buried.Interop;
 using Buried.Look;
 using Buried.Meshing;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Buried.Scene
 {
     /// <summary>
     /// Handles the Shell's messages and builds the scene from them. It draws what it is told: it never
     /// computes dates, confidence or lot relations, and it never filters the features of an era.
-    /// Gate version (bridge 0.1.0): scene/init, scene/loadEra, scene/setDepth and debug/markers.
+    /// Bridge 0.2.0: scene/init, scene/loadEra, scene/setDepth, debug/markers and debug/setCamera.
     /// Integer depths are a hard switch; the transitions come in task group 3.
     /// </summary>
     public sealed class SceneController : MonoBehaviour
@@ -21,9 +22,7 @@ namespace Buried.Scene
 
         private Bridge _bridge;
         private BuriedPalette _palette;
-        private Shader _ghostShader;
-        private Shader _drapeShader;
-        private Shader _markerShader;
+        private ShaderSet _shaders;
         private CameraRig _rig;
         private Camera _camera;
 
@@ -35,6 +34,7 @@ namespace Buried.Scene
 
         private bool _initialised;
         private bool _debug;
+        private bool _reducedMotion;
         private int _sceneEpoch;
         private int _eraCount;
         private int _shownIndex;
@@ -43,21 +43,21 @@ namespace Buried.Scene
         private GameObject _ground;
         private Mesh _groundMesh;
         private Material _groundMaterial;
-        private Material _ghostMaterial;
+        private Material _skyMaterial;
+        private Material _ghostFill;
+        private Material _ghostEdge;
+        private PresentLayer _present;
         private DebugMarkers _markers;
 
         private bool _cameraDirty;
         private float _lastCameraSent = float.NegativeInfinity;
         private Vector2 _pointerDown;
 
-        public void Configure(
-            Bridge bridge, BuriedPalette palette, Shader ghost, Shader drape, Shader marker, CameraRig rig)
+        public void Configure(Bridge bridge, BuriedPalette palette, ShaderSet shaders, CameraRig rig)
         {
             _bridge = bridge;
             _palette = palette;
-            _ghostShader = ghost;
-            _drapeShader = drape;
-            _markerShader = marker;
+            _shaders = shaders;
             _rig = rig;
             _camera = rig.Camera;
             _bridge.MessageReceived += OnMessage;
@@ -98,6 +98,9 @@ namespace Buried.Scene
                     case BridgeMessageTypes.DebugMarkers:
                         HandleMarkers((DebugMarkersPayload)message.payload);
                         break;
+                    case BridgeMessageTypes.DebugSetCamera:
+                        HandleSetCamera((DebugSetCameraPayload)message.payload);
+                        break;
                     default:
                         _bridge.SendError(BridgeErrorCodes.UnknownType, "not handled by this Player: " + message.type, message.type);
                         break;
@@ -125,17 +128,32 @@ namespace Buried.Scene
             ClearScene();
             _frame = frame;
             _debug = init.debug;
+            _reducedMotion = init.reducedMotion;
             _eraCount = init.eras.Count;
             foreach (EraRef era in init.eras) _eraIndexById[era.id] = era.index;
-            if (init.present.Count > 0)
-            {
-                Debug.Log("[scene] " + init.present.Count + " present buildings received; they are drawn from task group 3 on.");
-            }
 
             BuildEnvironment(init);
+            _present = new PresentLayer(
+                transform,
+                init.present,
+                _frame,
+                _palette,
+                _shaders.present,
+                _shaders.edge,
+                PixelScale(),
+                (id, reason) => _bridge.SendError(
+                    BridgeErrorCodes.MeshBuildFailed, "present building " + id + ": " + reason, BridgeMessageTypes.SceneInit));
+            ApplyDepth(0.0);
+
             _initialised = true;
             _shownIndex = 0;
             RequestCameraReport();
+        }
+
+        /// <summary>Device pixels per CSS pixel, as far as the browser tells Unity (1 when it does not).</summary>
+        private static float PixelScale()
+        {
+            return Screen.dpi > 96f ? Mathf.Min(Screen.dpi / 96f, 3f) : 1f;
         }
 
         private void ClearScene()
@@ -151,10 +169,17 @@ namespace Buried.Scene
                 _markers.Dispose();
                 _markers = null;
             }
+            if (_present != null)
+            {
+                _present.Dispose();
+                _present = null;
+            }
             if (_ground != null) Destroy(_ground);
             if (_groundMesh != null) Destroy(_groundMesh);
             if (_groundMaterial != null) Destroy(_groundMaterial);
-            if (_ghostMaterial != null) Destroy(_ghostMaterial);
+            if (_skyMaterial != null) Destroy(_skyMaterial);
+            if (_ghostFill != null) Destroy(_ghostFill);
+            if (_ghostEdge != null) Destroy(_ghostEdge);
             _ground = null;
             _initialised = false;
         }
@@ -174,35 +199,36 @@ namespace Buried.Scene
                     radius = Math.Max(radius, Math.Sqrt((x - centre.X) * (x - centre.X) + (y - centre.Y) * (y - centre.Y)));
                 }
             }
-            float fogRadius = (float)radius + LookSettings.FogRadiusMarginM;
+            float fogRadius = LookSettings.FogRadius(radius);
 
             Color fog = _palette.fog;
             // A vector, not a colour: Unity does not convert vectors, so the fog colour is exactly the
-            // linear value of the palette colour that the ground material gets through its Color property.
+            // linear value of the palette colour that the materials get through their Color property.
             Color fogLinear = fog.linear;
             Shader.SetGlobalVector("_BuriedFogColor", new Vector4(fogLinear.r, fogLinear.g, fogLinear.b, 1f));
+            Color nightLinear = ((Color)_palette.night).linear;
+            Shader.SetGlobalVector("_BuriedNightColor", new Vector4(nightLinear.r, nightLinear.g, nightLinear.b, 1f));
+            Shader.SetGlobalVector("_BuriedFogRamp", new Vector4(LookSettings.FogHazeNightBelow, LookSettings.FogHazeFogAbove, 0f, 0f));
             Shader.SetGlobalFloat("_BuriedFogDensity", LookSettings.FogDensity(fogRadius));
 
-            // Ground: one big quad in the fog colour, so the edge of the coverage area dissolves.
-            float extent = LookSettings.GroundExtentRadii * fogRadius;
-            var ground = new MeshData();
-            float cx = (float)centre.X;
-            float cz = (float)centre.Y;
-            int a = ground.AddVertex(new Vector3(cx - extent, 0f, cz - extent), Vector3.up, Vector2.zero);
-            int bq = ground.AddVertex(new Vector3(cx - extent, 0f, cz + extent), Vector3.up, Vector2.zero);
-            int c = ground.AddVertex(new Vector3(cx + extent, 0f, cz + extent), Vector3.up, Vector2.zero);
-            int d = ground.AddVertex(new Vector3(cx + extent, 0f, cz - extent), Vector3.up, Vector2.zero);
-            ground.AddTriangle(a, bq, c);
-            ground.AddTriangle(a, c, d);
-            _groundMesh = ground.ToMesh("Ground");
+            // Sky: night at the zenith, a lighter grey-blue band a little above the horizon, fog at the horizon.
+            _skyMaterial = new Material(_shaders.sky) { name = "Sky" };
+            _skyMaterial.SetColor("_Zenith", _palette.night);
+            _skyMaterial.SetColor("_Band", Color.Lerp(_palette.night, _palette.muted, LookSettings.HorizonMix));
+            _skyMaterial.SetColor("_Haze", _palette.night);
+            _skyMaterial.SetFloat("_BandElevation", LookSettings.SkyBandElevation);
+            RenderSettings.skybox = _skyMaterial;
 
-            _groundMaterial = new Material(_ghostShader) { name = "Ground" };
+            // Ground: one big quad in the fog colour, so the edge of the coverage area dissolves.
+            _groundMesh = GroundBuilder.Build((float)centre.X, (float)centre.Y, LookSettings.GroundHalfExtent(fogRadius)).ToMesh("Ground");
+            _groundMaterial = new Material(_shaders.ghost) { name = "Ground" };
             _groundMaterial.SetColor("_Color", fog);
             _groundMaterial.SetFloat("_Shade", 0f);
-            _groundMaterial.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.One);
-            _groundMaterial.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.Zero);
+            _groundMaterial.SetFloat("_Emission", 0f);
+            _groundMaterial.SetFloat("_SrcBlend", (float)BlendMode.One);
+            _groundMaterial.SetFloat("_DstBlend", (float)BlendMode.Zero);
             _groundMaterial.SetFloat("_ZWrite", 0f);
-            _groundMaterial.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Off);
+            _groundMaterial.SetFloat("_Cull", (float)CullMode.Off);
             _groundMaterial.renderQueue = 1000;
 
             _ground = new GameObject("Ground");
@@ -210,23 +236,41 @@ namespace Buried.Scene
             _ground.AddComponent<MeshFilter>().sharedMesh = _groundMesh;
             MeshRenderer groundRenderer = _ground.AddComponent<MeshRenderer>();
             groundRenderer.sharedMaterial = _groundMaterial;
-            groundRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            groundRenderer.shadowCastingMode = ShadowCastingMode.Off;
             groundRenderer.receiveShadows = false;
 
-            // The plain ghost material of the gate: ink, translucent.
+            // The documented ghost: `ink` fill at alpha 0.35 with a little self-illumination, and
+            // thin `ink` edges with emission above 1.
             Color ink = _palette.ink;
-            ink.a = LookSettings.GhostFillAlpha;
-            _ghostMaterial = new Material(_ghostShader) { name = "Ghost" };
-            _ghostMaterial.SetColor("_Color", ink);
-            _ghostMaterial.SetFloat("_Shade", 0.45f);
-            _ghostMaterial.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            _ghostMaterial.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            _ghostMaterial.SetFloat("_ZWrite", 0f);
-            _ghostMaterial.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Back);
-            _ghostMaterial.renderQueue = 3000;
+            Color fill = ink;
+            fill.a = LookSettings.GhostFillAlpha;
+            _ghostFill = new Material(_shaders.ghost) { name = "Ghost fill" };
+            _ghostFill.SetColor("_Color", fill);
+            _ghostFill.SetFloat("_Shade", 0.35f);
+            _ghostFill.SetFloat("_Emission", LookSettings.GhostEmission);
+            _ghostFill.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+            _ghostFill.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+            _ghostFill.SetFloat("_ZWrite", 0f);
+            _ghostFill.SetFloat("_Cull", (float)CullMode.Back);
+            _ghostFill.renderQueue = 3000;
 
-            _markers = new DebugMarkers(transform, _markerShader);
-            _rig.SetDefaultPose((float)min.X, (float)min.Y, (float)max.X, (float)max.Y);
+            _ghostEdge = new Material(_shaders.edge) { name = "Ghost edge" };
+            _ghostEdge.SetColor("_Color", ink);
+            _ghostEdge.SetFloat("_Alpha", 1f);
+            _ghostEdge.SetFloat("_Emission", LookSettings.EdgeEmission);
+            _ghostEdge.SetFloat("_WidthPx", LookSettings.EdgeWidthCssPx);
+            _ghostEdge.SetFloat("_GlowPx", LookSettings.EdgeGlowPx);
+            _ghostEdge.SetFloat("_GlowAlpha", LookSettings.EdgeGlowAlpha);
+            _ghostEdge.SetFloat("_PixelScale", PixelScale());
+            _ghostEdge.renderQueue = 3010;
+
+            _markers = new DebugMarkers(transform, _shaders.marker);
+
+            // The camera may roam over the project bounds and starts framing the initial view.
+            _rig.SetLimits((float)min.X, (float)min.Y, (float)max.X, (float)max.Y);
+            Vec2d viewMin = _frame.ToLocal(init.initialView.minE, init.initialView.minN);
+            Vec2d viewMax = _frame.ToLocal(init.initialView.maxE, init.initialView.maxN);
+            _rig.SetDefaultPose((float)viewMin.X, (float)viewMin.Y, (float)viewMax.X, (float)viewMax.Y);
         }
 
         private IEnumerator LoadEra(SceneLoadEraPayload payload)
@@ -252,7 +296,8 @@ namespace Buried.Scene
             layer.AddFeatures(
                 payload.features,
                 _frame,
-                _ghostMaterial,
+                _ghostFill,
+                _ghostEdge,
                 (featureId, reason) => _bridge.SendError(
                     BridgeErrorCodes.MeshBuildFailed, "feature " + featureId + ": " + reason, BridgeMessageTypes.SceneLoadEra));
 
@@ -284,7 +329,7 @@ namespace Buried.Scene
                 }
                 else
                 {
-                    layer.AddDrape(DrapeLayer.Create(layer.Parent, _frame, drape, texture, _drapeShader, order));
+                    layer.AddDrape(DrapeLayer.Create(layer.Parent, _frame, drape, texture, _shaders.drape, order));
                 }
                 order++;
             }
@@ -314,13 +359,19 @@ namespace Buried.Scene
                 return;
             }
 
-            // Gate: a hard switch to the nearest era. Transitions come in task group 3.
+            // A hard switch to the nearest era. Transitions come in task group 3.
             _shownIndex = Mathf.RoundToInt((float)payload.depth);
             foreach (EraLayer layer in _layers.Values) layer.SetVisible(layer.Index == _shownIndex);
+            ApplyDepth(payload.depth);
 
-            // The camera does not move on a depth change. The Shell and the gate test still want a
+            // The camera does not move on a depth change. The Shell and the tests still want a
             // report that matches what is now on screen, so one is sent after every depth change.
             RequestCameraReport();
+        }
+
+        private void ApplyDepth(double depth)
+        {
+            if (_present != null) _present.SetStage(PresentLayer.StageAt(Math.Round(depth), _reducedMotion));
         }
 
         private void HandleMarkers(DebugMarkersPayload payload)
@@ -332,6 +383,19 @@ namespace Buried.Scene
                 return;
             }
             _markers.Show(payload.markers, _frame);
+        }
+
+        private void HandleSetCamera(DebugSetCameraPayload payload)
+        {
+            if (!_debug)
+            {
+                _bridge.SendError(
+                    BridgeErrorCodes.DebugDisabled, "debug/setCamera needs debug: true in scene/init", BridgeMessageTypes.DebugSetCamera);
+                return;
+            }
+            Vec2d target = _frame.ToLocal(payload.target[0], payload.target[1]);
+            _rig.SetPose((float)target.X, (float)target.Y, (float)payload.distanceM, (float)payload.pitchDeg, (float)payload.headingDeg);
+            RequestCameraReport();
         }
 
         // ---- Frame loop ----

@@ -44,7 +44,7 @@ describe('buildGateModel on the synthetic data', () => {
 describe('the gate messages', () => {
   it('scene/init carries the project origin and bounds, era ids and indexes, and no year', async () => {
     const m = await model();
-    const message = buildSceneInit(m.project, m.order, m.initialView, { reducedMotion: false, debug: true });
+    const message = buildSceneInit(m.project, m.order, m.initialView, m.present, { reducedMotion: false, debug: true });
     expect(checkMessage(message).ok).toBe(true);
     expect(message.payload.bridgeVersion).toBe(BRIDGE_VERSION);
     expect(message.payload.origin).toEqual({ easting: 632500, northing: 4835000 });
@@ -62,7 +62,7 @@ describe('the gate messages', () => {
   it('the origin sent is the one in the project file, not a constant (requirement 3.3)', async () => {
     const m = await model();
     const moved = { ...m.project, origin: { easting: 640000, northing: 4800000 } };
-    expect(buildSceneInit(moved, m.order, m.initialView, { reducedMotion: false, debug: false }).payload.origin).toEqual({
+    expect(buildSceneInit(moved, m.order, m.initialView, m.present, { reducedMotion: false, debug: false }).payload.origin).toEqual({
       easting: 640000,
       northing: 4800000,
     });

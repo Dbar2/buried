@@ -33,16 +33,22 @@ namespace Buried.Editor
             AssetDatabase.Refresh();
 
             BuriedPalette palette = WritePalette();
-            Shader ghost = LoadShader("Ghost.shader");
-            Shader drape = LoadShader("Drape.shader");
-            Shader marker = LoadShader("Marker.shader");
+            var shaders = new ShaderSet
+            {
+                ghost = LoadShader("Ghost.shader"),
+                drape = LoadShader("Drape.shader"),
+                marker = LoadShader("Marker.shader"),
+                sky = LoadShader("Sky.shader"),
+                present = LoadShader("Present.shader"),
+                edge = LoadShader("Edge.shader"),
+            };
 
             UniversalRenderPipelineAsset pipeline = EnsurePipeline();
             AssignPipeline(pipeline);
             EnsureGlobalSettings();
             ApplyPlayerSettings();
             UseOldInputManager();
-            WriteBootstrapScene(palette, ghost, drape, marker);
+            WriteBootstrapScene(palette, shaders);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -113,9 +119,10 @@ namespace Buried.Editor
                 AssetDatabase.CreateAsset(pipeline, PipelinePath);
             }
 
-            // Gate settings: no HDR, no MSAA (exact flat colours for the debug markers and the plate),
-            // no shadows (the dusk light is soft and the cost matters on WebGL).
-            pipeline.supportsHDR = false;
+            // HDR on so that edge emission above 1 can bloom (tone mapping stays None, so everything
+            // below 1, drapes included, is unchanged); no MSAA (exact flat colours); no shadows (the
+            // dusk light is soft and the cost matters on WebGL).
+            pipeline.supportsHDR = true;
             pipeline.msaaSampleCount = 1;
             pipeline.renderScale = 1f;
             var serialized = new SerializedObject(pipeline);
@@ -241,7 +248,7 @@ namespace Buried.Editor
 
         // ---- Scene ----
 
-        private static void WriteBootstrapScene(BuriedPalette palette, Shader ghost, Shader drape, Shader marker)
+        private static void WriteBootstrapScene(BuriedPalette palette, ShaderSet shaders)
         {
             EnsureFolder(Path.GetDirectoryName(ScenePath));
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
@@ -250,9 +257,7 @@ namespace Buried.Editor
             go.AddComponent<Interop.Bridge>();
             var bootstrap = go.AddComponent<SceneBootstrap>();
             bootstrap.palette = palette;
-            bootstrap.ghostShader = ghost;
-            bootstrap.drapeShader = drape;
-            bootstrap.markerShader = marker;
+            bootstrap.shaders = shaders;
 
             if (!EditorSceneManager.SaveScene(scene, ScenePath))
             {

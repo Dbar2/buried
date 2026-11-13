@@ -12,6 +12,12 @@ namespace Buried.Meshing
         public readonly List<Vector2> uvs = new List<Vector2>();
         public readonly List<int> triangles = new List<int>();
 
+        /// <summary>
+        /// Optional fourth vertex stream, used by edge meshes (the other end of the segment and the side).
+        /// Either every vertex has one or none does.
+        /// </summary>
+        public readonly List<Vector4> tangents = new List<Vector4>();
+
         public int VertexCount
         {
             get { return vertices.Count; }
@@ -30,6 +36,12 @@ namespace Buried.Meshing
             return vertices.Count - 1;
         }
 
+        public int AddVertex(Vector3 position, Vector3 normal, Vector2 uv, Vector4 tangent)
+        {
+            tangents.Add(tangent);
+            return AddVertex(position, normal, uv);
+        }
+
         public void AddTriangle(int a, int b, int c)
         {
             triangles.Add(a);
@@ -39,10 +51,15 @@ namespace Buried.Meshing
 
         public void Append(MeshData other)
         {
+            if (vertices.Count > 0 && (tangents.Count > 0) != (other.tangents.Count > 0))
+            {
+                throw new System.InvalidOperationException("Cannot combine a mesh with tangents and one without.");
+            }
             int offset = vertices.Count;
             vertices.AddRange(other.vertices);
             normals.AddRange(other.normals);
             uvs.AddRange(other.uvs);
+            tangents.AddRange(other.tangents);
             foreach (int index in other.triangles) triangles.Add(index + offset);
         }
 
@@ -75,6 +92,7 @@ namespace Buried.Meshing
             mesh.SetVertices(vertices);
             mesh.SetNormals(normals);
             mesh.SetUVs(0, uvs);
+            if (tangents.Count == vertices.Count && tangents.Count > 0) mesh.SetTangents(tangents);
             mesh.SetTriangles(triangles, 0);
             mesh.RecalculateBounds();
             return mesh;

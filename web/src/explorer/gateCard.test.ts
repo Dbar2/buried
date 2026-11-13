@@ -1,12 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { loadData } from '../data/loadData';
-import { featuresForEra } from '../evidence';
+import { featuresForEra, findBannedWords } from '../evidence';
 import { CardError, buildGateCard } from './gateCard';
 import { diskFetch } from './testing/diskFetch';
-
-// Spec 01 task 8 adds findBannedWords to the Evidence Library; until it lands this is the same
-// whole-word, case-insensitive rule from product.md honesty rule 1.
-const BANNED = /\b(contaminated|unsafe|safe|safer|safest|clean|cleaner|cleanest)\b|\bwill flood\b/i;
 
 async function setup() {
   const data = await loadData(diskFetch());
@@ -56,7 +52,7 @@ describe('buildGateCard (requirement 24.3)', () => {
     for (const entry of list.features) {
       const card = buildGateCard(entry, byId.get(entry.id) as NonNullable<ReturnType<typeof byId.get>>, data.sources);
       const text = [card.heading, ...card.rows.flatMap((r) => [r.label, r.value])].join('\n');
-      expect(BANNED.test(text), text).toBe(false);
+      expect(findBannedWords(text), text).toEqual([]);
     }
   });
 

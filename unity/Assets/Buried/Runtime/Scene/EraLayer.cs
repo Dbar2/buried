@@ -8,9 +8,9 @@ using UnityEngine;
 namespace Buried.Scene
 {
     /// <summary>
-    /// What one era draws: the extruded ghosts it was sent and its drapes. It draws exactly the
-    /// features it received; it never filters or adds any by a rule of its own.
-    /// Gate version: one plain material. The confidence treatments come in task group 4.
+    /// What one era draws: the extruded ghosts it was sent, their outlines and its drapes. It draws
+    /// exactly the features it received; it never filters or adds any by a rule of its own.
+    /// Every confidence class has the documented treatment until task 4.1 adds the other two.
     /// </summary>
     public sealed class EraLayer
     {
@@ -27,7 +27,7 @@ namespace Buried.Scene
 
         private readonly GameObject _root;
         private readonly List<MeshChunk> _chunks = new List<MeshChunk>();
-        private readonly List<GameObject> _chunkObjects = new List<GameObject>();
+        private readonly List<MeshData> _edgeChunks = new List<MeshData>();
         private readonly List<Mesh> _meshes = new List<Mesh>();
         private readonly List<DrapeLayer> _drapes = new List<DrapeLayer>();
 
@@ -45,82 +45,79 @@ namespace Buried.Scene
         }
 
         /// <summary>
-        /// Builds a mesh for each building feature. A feature that cannot be built is reported through
-        /// <paramref name="onFailure"/> and skipped; the others are still drawn. Water is not drawn yet.
+        /// Builds a volume and an outline for each building feature. A feature that cannot be built is
+        /// reported through <paramref name="onFailure"/> and skipped; the others are still drawn. Water
+        /// is not drawn yet.
         /// </summary>
         public void AddFeatures(
-            IEnumerable<SceneFeatureDto> features, ProjectFrame frame, Material material, Action<string, string> onFailure)
+            IEnumerable<SceneFeatureDto> features,
+            ProjectFrame frame,
+            Material fillMaterial,
+            Material edgeMaterial,
+            Action<string, string> onFailure)
         {
             MeshChunk chunk = null;
+            MeshData edgeChunk = null;
             foreach (SceneFeatureDto feature in features)
             {
                 if (feature.kind != SceneFeatureDto.KindBuilding) continue;
 
-                MeshData data;
+                FootprintBuilder.Result built;
                 try
                 {
-                    data = BuildBuilding(feature, frame);
+                    built = FootprintBuilder.Build(feature.geometry, (float)feature.heightM, frame);
                 }
                 catch (InvalidOperationException e)
                 {
                     onFailure(feature.id, e.Message);
                     continue;
                 }
-                if (data == null)
+                if (built == null)
                 {
                     onFailure(feature.id, "the footprint has no area after cleaning");
                     continue;
                 }
 
-                if (chunk == null || !chunk.CanTake(data))
+                if (chunk == null || !chunk.CanTake(built.Fill))
                 {
                     chunk = new MeshChunk();
                     _chunks.Add(chunk);
                 }
-                chunk.Add(feature.id, data);
+                chunk.Add(feature.id, built.Fill);
+
+                if (edgeChunk == null || edgeChunk.VertexCount + built.Edges.VertexCount > MeshChunk.MaxVertices)
+                {
+                    edgeChunk = new MeshData();
+                    _edgeChunks.Add(edgeChunk);
+                }
+                edgeChunk.Append(built.Edges);
                 FeatureCount++;
             }
 
             int n = 0;
             foreach (MeshChunk c in _chunks)
             {
-                Mesh mesh = c.BuildMesh("Ghosts " + EraId + " " + n);
-                var go = new GameObject("Ghosts " + n);
-                go.transform.SetParent(_root.transform, false);
-                go.AddComponent<MeshFilter>().sharedMesh = mesh;
-                MeshRenderer renderer = go.AddComponent<MeshRenderer>();
-                renderer.sharedMaterial = material;
-                renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-                renderer.receiveShadows = false;
-                _meshes.Add(mesh);
-                _chunkObjects.Add(go);
+                AddRenderer("Ghosts " + n, c.BuildMesh("Ghosts " + EraId + " " + n), fillMaterial);
+                n++;
+            }
+            n = 0;
+            foreach (MeshData e in _edgeChunks)
+            {
+                AddRenderer("Edges " + n, e.ToMesh("Edges " + EraId + " " + n), edgeMaterial);
                 n++;
             }
         }
 
-        private static MeshData BuildBuilding(SceneFeatureDto feature, ProjectFrame frame)
+        private void AddRenderer(string name, Mesh mesh, Material material)
         {
-            var combined = new MeshData();
-            bool any = false;
-            foreach (List<List<double[]>> polygon in feature.geometry.polygons)
-            {
-                List<Vec2d> exterior = ToLocal(polygon[0], frame);
-                var holes = new List<IList<Vec2d>>();
-                for (int i = 1; i < polygon.Count; i++) holes.Add(ToLocal(polygon[i], frame));
-
-                PreparedPolygon prepared = PolygonPrep.Prepare(exterior, holes);
-                if (prepared == null) continue;
-                combined.Append(Extruder.Extrude(prepared, (float)feature.heightM));
-                any = true;
-            }
-            return any ? combined : null;
-        }
-
-        private static List<Vec2d> ToLocal(List<double[]> ring, ProjectFrame frame)
-        {
-            var result = new List<Vec2d>(ring.Count);
-            foreach (double[] p in ring) result.Add(frame.ToLocal(p[0], p[1]));
-            return result;
+            var go = new GameObject(name);
+            go.transform.SetParent(_root.transform, false);
+            go.AddComponent<MeshFilter>().sharedMesh = mesh;
+            MeshRenderer renderer = go.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+            _meshes.Add(mesh);
         }
 
         public void AddDrape(DrapeLayer drape)

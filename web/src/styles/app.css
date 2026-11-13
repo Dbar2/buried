@@ -1,5 +1,6 @@
-/* Shell chrome for the gate. Colours come from tokens.css only; `lantern` is not used here
- * (it marks the pinned lot, requirement 11.7). */
+/* Base styles and the Sources page. Colours come from tokens.css only. `lantern` is not used here
+ * (it marks the pinned lot and primary actions, requirement 11.7); neither is `water`. The Shell's
+ * header, view and panels are in shell/layout.css. */
 * {
   box-sizing: border-box;
 }
@@ -35,106 +36,14 @@ code,
   font-family: var(--font-mono);
 }
 
+/* A visible focus ring on every interactive element (requirement 17.6). */
 :focus-visible {
   outline: 2px solid var(--text);
   outline-offset: 2px;
 }
 
-.shell {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  height: 100%;
-}
-
-.shell-header {
-  align-items: center;
-  background: var(--fog);
-  display: flex;
-  gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
-}
-
-.shell-header nav {
-  margin-left: auto;
-}
-
-.era-switch {
-  display: flex;
-  gap: var(--space-2);
-}
-
-.era-switch button {
-  background: var(--night);
-  border: 1px solid var(--muted);
-  border-radius: 4px;
-  color: var(--text);
-  cursor: pointer;
-  font: inherit;
-  padding: var(--space-1) var(--space-3);
-}
-
-.era-switch button[aria-pressed='true'] {
-  background: var(--present);
-  border-color: var(--text);
-}
-
-.shell-main {
-  display: grid;
-  grid-template-columns: 1fr minmax(18rem, 24rem);
-  min-height: 0;
-}
-
-.stage {
-  position: relative;
-  min-height: 0;
-}
-
-.stage canvas {
-  display: block;
-  height: 100%;
-  width: 100%;
-}
-
-.stage-message {
-  background: var(--fog);
-  height: 100%;
-  padding: var(--space-4);
-}
-
-.side {
-  background: var(--fog);
-  overflow: auto;
-  padding: var(--space-3);
-}
-
-.card dl {
-  display: grid;
-  gap: var(--space-1) var(--space-3);
-  grid-template-columns: max-content 1fr;
-  margin: var(--space-2) 0 0;
-}
-
-.card dt {
-  color: var(--muted);
-}
-
-.card dd {
-  margin: 0;
-}
-
 .muted {
   color: var(--muted);
-}
-
-.shell-footer {
-  background: var(--fog);
-  color: var(--muted);
-  font-size: 0.875rem;
-  padding: var(--space-2) var(--space-3);
-}
-
-.debug-state {
-  display: none;
 }
 
 .sources {
@@ -148,6 +57,21 @@ code,
   padding: var(--space-3) 0;
 }
 
+.sources dl {
+  display: grid;
+  gap: var(--space-1) var(--space-3);
+  grid-template-columns: max-content 1fr;
+  margin: var(--space-2) 0 0;
+}
+
+.sources dt {
+  color: var(--muted);
+}
+
+.sources dd {
+  margin: 0;
+}
+
 .visually-hidden {
   border: 0;
   clip: rect(0 0 0 0);
@@ -158,4 +82,8 @@ code,
   position: absolute;
   white-space: nowrap;
   width: 1px;
+}
+
+.debug-state {
+  display: none;
 }

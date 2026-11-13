@@ -17,6 +17,8 @@ import { pickGateMarkers } from './gateMarkers';
 import type { GateMarker } from './gateMarkers';
 import { initialView } from './initialView';
 import type { Rect } from './initialView';
+import { PRESENT_BUILDINGS_SOURCE, presentBuildings } from './presentBuildings';
+import type { PresentBuilding } from './presentBuildings';
 
 export const GATE_ERA_IDS: readonly string[] = ['1911', '1935'];
 export const GATE_SOURCE_IDS: ReadonlySet<string> = new Set(['fip_v3_1911_229', 'fip_v3_1935_229']);
@@ -36,6 +38,9 @@ export type GateModel = {
   markers: GateMarker[];
   /** The rectangle the default camera pose frames. */
   initialView: Rect;
+  /** Today's buildings for scene/init, and the number left out because the bridge cannot carry them. */
+  present: PresentBuilding[];
+  presentSkipped: number;
 };
 
 export function buildGateModel(data: LoadedData): GateModel {
@@ -75,5 +80,20 @@ export function buildGateModel(data: LoadedData): GateModel {
   const second: ControlPoints | undefined = data.controls.get('fip_v3_1935_229');
   const markers = first ? pickGateMarkers(first, second) : [];
 
-  return { project: data.project, sources: data.sources, order, gateEras, lists, drapes, features, tiles, markers, initialView: view };
+  const { buildings: present, skipped: presentSkipped } = presentBuildings(data.presentLayers.get(PRESENT_BUILDINGS_SOURCE));
+
+  return {
+    project: data.project,
+    sources: data.sources,
+    order,
+    gateEras,
+    lists,
+    drapes,
+    features,
+    tiles,
+    markers,
+    initialView: view,
+    present,
+    presentSkipped,
+  };
 }

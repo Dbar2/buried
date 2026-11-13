@@ -62,9 +62,13 @@ namespace Buried.Tests
             var scene = EditorSceneManager.OpenScene(Setup.ScenePath, OpenSceneMode.Single);
             var bootstrap = scene.GetRootGameObjects()[0].GetComponent<SceneBootstrap>();
             Assert.IsNotNull(bootstrap.palette, "palette" + Hint);
-            Assert.IsNotNull(bootstrap.ghostShader, "ghost shader");
-            Assert.IsNotNull(bootstrap.drapeShader, "drape shader");
-            Assert.IsNotNull(bootstrap.markerShader, "marker shader");
+            Assert.IsNotNull(bootstrap.shaders, "shader set");
+            Assert.IsNotNull(bootstrap.shaders.ghost, "ghost shader");
+            Assert.IsNotNull(bootstrap.shaders.drape, "drape shader");
+            Assert.IsNotNull(bootstrap.shaders.marker, "marker shader");
+            Assert.IsNotNull(bootstrap.shaders.sky, "sky shader");
+            Assert.IsNotNull(bootstrap.shaders.present, "present shader");
+            Assert.IsNotNull(bootstrap.shaders.edge, "edge shader");
         }
     }
 }

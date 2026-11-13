@@ -3,12 +3,14 @@ import type { ReactNode } from 'react';
 import { browserFetchText, loadData } from '../data/loadData';
 import { Attribution, attributionLines } from './Attribution';
 import { DebugState } from './DebugState';
+import { DepthGauge, announcementFor } from './DepthGauge';
 import { EvidenceCard } from './EvidenceCard';
 import { buildGateCard } from './gateCard';
 import { buildGateModel } from './gateModel';
 import type { GateModel } from './gateModel';
 import { INITIAL_PLAYER_STATE } from './playerState';
 import type { PlayerState } from './playerState';
+import { PRESENT_BUILDINGS_SOURCE } from './presentBuildings';
 import { NO_WEBGL2_MESSAGE, hasWebGL2 } from './webgl';
 
 // The Player is loaded on demand, so the Sources page and (later) the Report never pull it in.
@@ -22,8 +24,9 @@ type LoadState =
 type Selection = { featureId: string; eraId: string };
 
 /**
- * The gate Explorer (tasks.md 1.12): the Player on the left, a minimal era switch, and a DOM
- * evidence card. The depth gauge, list view, search and 2D map come in later task groups.
+ * The Explorer: the Player filling the view, the depth gauge on its right edge, the evidence card
+ * at its left edge and the attribution lines along its bottom edge (design.md "Layout"). The list
+ * view, search and 2D map come in later task groups.
  */
 export function Explorer() {
   const debug = useMemo(() => new URLSearchParams(window.location.search).get('debug') === '1', []);
@@ -34,7 +37,7 @@ export function Explorer() {
   const webgl2 = useMemo(() => hasWebGL2(), []);
 
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
-  const [depth, setDepth] = useState<number | null>(null);
+  const [depth, setDepth] = useState(0);
   const [player, setPlayer] = useState<PlayerState>(INITIAL_PLAYER_STATE);
   const [unavailable, setUnavailable] = useState<string | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
@@ -54,11 +57,7 @@ export function Explorer() {
   }, []);
 
   const model = load.status === 'ready' ? load.model : null;
-  // Gate eras in chronological order for the switch: the deepest era first. The page opens on the
-  // shallower one, so choosing the deeper era is a real depth change.
-  const switchEras = useMemo(() => (model ? [...model.gateEras].sort((a, b) => b.index - a.index) : []), [model]);
-  const currentIndex = depth ?? model?.gateEras[0]?.index ?? 0;
-  const currentEra = model?.order.find((era) => era.index === currentIndex) ?? null;
+  const currentEra = model?.order.find((era) => era.index === depth) ?? null;
 
   const chooseEra = useCallback((index: number) => {
     setDepth(index);
@@ -88,9 +87,13 @@ export function Explorer() {
 
   const closeCard = useCallback(() => setSelection(null), []);
 
+  // The sources whose pictures are on screen: the drapes of the era shown, and today's building
+  // outlines, which are drawn in every era (solid at Today, a faint outline in the others).
   const visibleSources = useMemo(() => {
     if (!model || !currentEra || !player.eraLoaded.includes(currentEra.id)) return [];
-    return (model.drapes.get(currentEra.id) ?? []).map((d) => d.sourceId);
+    const ids = (model.drapes.get(currentEra.id) ?? []).map((d) => d.sourceId);
+    if (model.present.length > 0) ids.push(PRESENT_BUILDINGS_SOURCE);
+    return ids;
   }, [model, currentEra, player.eraLoaded]);
 
   let stage: ReactNode;
@@ -107,7 +110,7 @@ export function Explorer() {
       <Suspense fallback={<p className="stage-message">Loading the 3D view.</p>}>
         <UnityView
           model={load.model}
-          depth={currentIndex}
+          depth={depth}
           debug={debug}
           reducedMotion={reducedMotion}
           onPlayerState={setPlayer}
@@ -119,57 +122,37 @@ export function Explorer() {
   }
 
   return (
-    <div className="shell">
-      <header className="shell-header">
-        <h1>Buried</h1>
-        <div className="era-switch" role="group" aria-label="Era">
-          {switchEras.map((era) => (
-            <button
-              key={era.id}
-              type="button"
-              data-testid={`era-${era.id}`}
-              aria-pressed={era.index === currentIndex}
-              onClick={() => chooseEra(era.index)}
-            >
-              {era.label}
-            </button>
+    <main
+      className="view"
+      aria-label="Explorer"
+      data-testid="view"
+      data-player-ready={player.ready ? 'true' : 'false'}
+      data-eras-loaded={player.eraLoaded.join(',')}
+      data-camera={player.camera ? JSON.stringify({ viewProjection: player.camera.viewProjection, canvas: player.camera.canvas }) : undefined}
+    >
+      {stage}
+
+      {model && <DepthGauge eras={model.order} index={depth} onChange={chooseEra} />}
+
+      {card ? (
+        <EvidenceCard card={card} onClose={closeCard} />
+      ) : (
+        model && <p className="view-hint">Click a building in the 3D view to see the evidence behind it.</p>
+      )}
+
+      {load.status === 'ready' && load.problems.length > 0 && (
+        <div role="status" className="view-notes" data-testid="data-problems">
+          {load.problems.map((problem) => (
+            <p key={problem}>{problem}</p>
           ))}
         </div>
-        <nav aria-label="Pages">
-          <a href="/sources">Sources</a>
-        </nav>
-      </header>
+      )}
 
-      <div className="shell-main">
-        <div className="stage">{stage}</div>
-        <aside className="side" aria-label="Details">
-          {card ? (
-            <EvidenceCard card={card} onClose={closeCard} />
-          ) : (
-            <p className="muted">Click a building in the 3D view to see the evidence behind it.</p>
-          )}
-          {load.status === 'ready' && load.problems.length > 0 && (
-            <div role="status" data-testid="data-problems">
-              {load.problems.map((problem) => (
-                <p key={problem} className="muted">
-                  {problem}
-                </p>
-              ))}
-            </div>
-          )}
-          {load.status === 'ready' && !player.ready && unavailable === null && webgl2 && (
-            <p className="muted">Starting the 3D view.</p>
-          )}
-        </aside>
-      </div>
-
-      <footer className="shell-footer">
-        <p role="status" aria-live="polite" className="visually-hidden">
-          {currentEra ? `Now showing ${currentEra.label}` : ''}
-        </p>
-        {model && <Attribution lines={attributionLines(visibleSources, model.sources)} />}
-        {debug && <DebugState depth={currentIndex} player={player} />}
-      </footer>
-    </div>
+      <p role="status" aria-live="polite" className="visually-hidden" data-testid="era-announcement">
+        {announcementFor(currentEra ?? undefined)}
+      </p>
+      {model && <Attribution lines={attributionLines(visibleSources, model.sources)} />}
+      {debug && <DebugState depth={depth} player={player} />}
+    </main>
   );
 }

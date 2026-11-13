@@ -2,29 +2,28 @@ using System.Collections;
 using Buried.Interop;
 using Buried.Look;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Buried.Scene
 {
     /// <summary>
     /// The only component besides Bridge in the Bootstrap scene. At startup it creates the camera, the
-    /// sun and the controller at runtime; the ground and everything else is built when scene/init
-    /// arrives. The shaders and the palette are references stored in the scene by Buried.Editor.Setup,
-    /// so the build includes them without Shader.Find.
+    /// sun and the controller at runtime; the ground, the sky colours, the fog and everything else are
+    /// built when scene/init arrives. The shaders and the palette are references stored in the scene by
+    /// Buried.Editor.Setup, so the build includes them without Shader.Find.
     /// </summary>
     [RequireComponent(typeof(Bridge))]
     public sealed class SceneBootstrap : MonoBehaviour
     {
         public BuriedPalette palette;
-        public Shader ghostShader;
-        public Shader drapeShader;
-        public Shader markerShader;
+        public ShaderSet shaders = new ShaderSet();
 
         private Bridge _bridge;
 
         private void Awake()
         {
             _bridge = GetComponent<Bridge>();
-            if (palette == null || ghostShader == null || drapeShader == null || markerShader == null)
+            if (palette == null || shaders == null || !shaders.Complete)
             {
                 Debug.LogError("[bootstrap] the palette or a shader reference is missing. Run Buried.Editor.Setup.Run.");
                 enabled = false;
@@ -41,30 +40,34 @@ namespace Buried.Scene
             var cameraObject = new GameObject("Camera") { tag = "MainCamera" };
             cameraObject.transform.SetParent(root.transform, false);
             Camera camera = cameraObject.AddComponent<Camera>();
-            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.clearFlags = CameraClearFlags.Skybox;
             camera.backgroundColor = palette.night;
             camera.fieldOfView = LookSettings.CameraFovDeg;
             camera.nearClipPlane = LookSettings.NearClipM;
             camera.farClipPlane = LookSettings.FarClipM;
-            camera.allowHDR = false;
+            camera.allowHDR = true;
             camera.allowMSAA = false;
+            PostProcessing.Install(root.transform, camera);
 
             CameraRig rig = cameraObject.AddComponent<CameraRig>();
             rig.Attach(camera);
 
-            // Dusk: a low sun from the west. The gate shaders are unlit; the light is here for the
-            // lit materials that arrive in later task groups.
+            // Dusk: a low sun from the west (azimuth 270), cold, no shadows. Flat, low ambient light.
             var sunObject = new GameObject("Sun");
             sunObject.transform.SetParent(root.transform, false);
-            sunObject.transform.rotation = Quaternion.Euler(8f, 90f, 0f);
+            sunObject.transform.rotation = Quaternion.Euler(LookSettings.SunElevationDeg, LookSettings.SunTravelHeadingDeg, 0f);
             Light sun = sunObject.AddComponent<Light>();
             sun.type = LightType.Directional;
             sun.color = palette.muted;
-            sun.intensity = 0.6f;
+            sun.intensity = LookSettings.SunIntensity;
             sun.shadows = LightShadows.None;
+            RenderSettings.sun = sun;
+            RenderSettings.ambientMode = AmbientMode.Flat;
+            RenderSettings.ambientLight = (Color)palette.fog * LookSettings.AmbientIntensity;
+            RenderSettings.fog = false; // the shaders do their own fog
 
             SceneController controller = root.AddComponent<SceneController>();
-            controller.Configure(_bridge, palette, ghostShader, drapeShader, markerShader, rig);
+            controller.Configure(_bridge, palette, shaders, rig);
         }
 
         // Start as a coroutine: wait for the end of the first rendered frame, then say ready.

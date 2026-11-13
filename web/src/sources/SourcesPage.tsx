@@ -40,9 +40,6 @@ export function SourcesPage() {
 
   return (
     <main className="sources">
-      <p>
-        <a href="/">Back to the Explorer</a>
-      </p>
       <h1>Sources</h1>
       {state.status === 'loading' && <p>Loading the source list.</p>}
       {state.status === 'error' && <p>The source list could not be loaded. {state.message}</p>}

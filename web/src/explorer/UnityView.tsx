@@ -117,12 +117,12 @@ export default function UnityView(props: UnityViewProps) {
         if (disposed) return;
 
         bridge.send(
-          buildSceneInit(model.project, model.order, model.initialView, {
+          buildSceneInit(model.project, model.order, model.initialView, model.present, {
             reducedMotion: latest.current.reducedMotion,
             debug,
           }),
         );
-        for (const era of model.gateEras) {
+        for (const era of model.order) {
           const done = deferred();
           loaded.set(era.id, done);
           const list = model.lists.get(era.id);

@@ -12,6 +12,7 @@ import { eraRefs } from './eraOrder';
 import type { GateMarker } from './gateMarkers';
 import { sceneFeaturesFor } from './sceneFeatures';
 import type { Rect } from './initialView';
+import type { PresentBuilding } from './presentBuildings';
 
 type InitPayload = MessageOf<'scene/init'>['payload'];
 
@@ -19,6 +20,7 @@ export function buildSceneInit(
   project: Project,
   order: readonly EraInfo[],
   view: Rect,
+  present: readonly PresentBuilding[],
   flags: { reducedMotion: boolean; debug: boolean },
 ): MessageOf<'scene/init'> {
   const { origin, bounds } = project;
@@ -31,8 +33,7 @@ export function buildSceneInit(
       initialView: { minE: view.minE, minN: view.minN, maxE: view.maxE, maxN: view.maxN },
       // The type says "at least one"; serialiseMessage enforces it (and the 64 limit) with the Schema.
       eras: eraRefs(order) as InitPayload['eras'],
-      // Today's buildings are drawn from task group 3 on.
-      present: [],
+      present: [...present],
       reducedMotion: flags.reducedMotion,
       debug: flags.debug,
     },

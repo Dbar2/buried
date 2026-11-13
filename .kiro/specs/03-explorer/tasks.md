@@ -188,7 +188,7 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
     `unity/Assets/Buried/Runtime/Look/Shaders/Ghost.shader`,
     `unity/Assets/Buried/Tests/EditMode/DepthBlendTests.cs`.
     Requirements: 10.4, 10.5, 10.6, 10.9, 18.2.
-  - [ ] 3.4 Send the present buildings in `scene/init` (`presentBuildings.ts`, fixed height) and
+  - [x] 3.4 Send the present buildings in `scene/init` (`presentBuildings.ts`, fixed height) and
     draw them in chunks. Show their attribution line while visible.
     Files: `web/src/explorer/presentBuildings.ts`, `web/src/explorer/presentBuildings.test.ts`,
     `unity/Assets/Buried/Runtime/Scene/PresentLayer.cs`, `web/src/explorer/Attribution.tsx`.
@@ -219,7 +219,7 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
     `unity/Assets/Buried/Runtime/Look/Textures/QuestionMark.png`,
     `unity/Assets/Buried/Tests/EditMode/TreatmentTests.cs`.
     Requirements: 8.6, 9.1 to 9.4, 11.4, 11.7, 20.4.
-  - [ ] 4.2 Done by task 16.2 (the look moved into the look pass). Tick this when 16.2 is ticked.
+  - [x] 4.2 Done by task 16.2 (the look moved into the look pass). Tick this when 16.2 is ticked.
     Original scope, for reference: sky gradient, sun, ambient, fog density rule, extended ground,
     tonemapping off, bloom limited to emission above 1, no other post effects; EditMode test that
     the palette asset equals `web/src/styles/tokens.css`.
@@ -389,7 +389,7 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
     `data/evidence/fip_v3_1911_229.geojson`, `.kiro/steering/tech.md`.
     Requirements: 24.5, 25.4.
 
-- [ ] 16. Look pass (session 012; run right after group 1, before any other group)
+- [x] 16. Look pass (session 012; run right after group 1, before any other group)
 
   The gate proved placement. This group makes the same scene read as Buried before more features
   are added: dusk, fog, an ink ghost, a drape that fades into the ground, a camera framed on the
@@ -409,7 +409,7 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
     `web/src/explorer/UnityView.tsx`, `unity/Assets/Buried/Runtime/Bridge/*.cs`,
     `unity/Assets/Buried/Tests/EditMode/BridgeTests.cs`.
     Requirements: 4.2, 16.1, 16.8.
-  - [ ] 16.2 The look (this is task 4.2's work): sky gradient shader, sun, flat ambient, fog
+  - [x] 16.2 The look (this is task 4.2's work): sky gradient shader, sun, flat ambient, fog
     density rule, the ground extended to 4 × R in `fog`, tonemapping None, bloom threshold 1.0 and
     intensity 0.3, no other post effect, all per design.md "Look". EditMode tests: the palette asset
     equals `web/src/styles/tokens.css`; the fog density for a known bounds equals `ln(50) / R`; the
@@ -418,7 +418,7 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
     `unity/Assets/Buried/Runtime/Scene/SceneBootstrap.cs`, `unity/Assets/Buried/Rendering/**`,
     `unity/Assets/Buried/Tests/EditMode/PaletteTests.cs`, `unity/Assets/Buried/Tests/EditMode/LookTests.cs`.
     Requirements: 20.1, 20.2, 20.5, 20.6, 26.2, 26.3.
-  - [ ] 16.3 The documented ghost treatment: `EdgeMeshBuilder` (top ring, base ring, vertical
+  - [x] 16.3 The documented ghost treatment: `EdgeMeshBuilder` (top ring, base ring, vertical
     corners, with the per-vertex distance along each edge that dashes will use later), the
     `Buried/Edge` shader (1.5 CSS px, `ink`, emission 1.2) and the `Buried/Ghost` fill (`ink`
     alpha 0.35, emission 0.15), per design.md "Materials and treatments". Every confidence class
@@ -429,7 +429,7 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
     `unity/Assets/Buried/Runtime/Look/Shaders/Edge.shader`, `unity/Assets/Buried/Runtime/Look/Shaders/Ghost.shader`,
     `unity/Assets/Buried/Runtime/Scene/EraLayer.cs`, `unity/Assets/Buried/Tests/EditMode/EdgeMeshTests.cs`.
     Requirements: 9.1, 20.4, 26.4.
-  - [ ] 16.4 The drape edge fade: `DrapeMaskBuilder` (pure) per design.md "Drape mask", built for
+  - [x] 16.4 The drape edge fade: `DrapeMaskBuilder` (pure) per design.md "Drape mask", built for
     now from the drape's four corners; the `Buried/Drape` shader multiplies its alpha by the mask
     sampled at the fragment's world position, and by nothing else that changes colour. EditMode
     example tests: mask is 0 outside the quad, 1 deeper than the feather inside it, and rises
@@ -438,10 +438,10 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
     `unity/Assets/Buried/Runtime/Scene/DrapeLayer.cs`, `unity/Assets/Buried/Runtime/Look/Shaders/Drape.shader`,
     `unity/Assets/Buried/Tests/EditMode/DrapeMaskTests.cs`.
     Requirements: 8.9, 20.5, 26.3.
-    - [ ] 16.4.1 **[PBT] E13** The drape mask hides what is outside and keeps what is inside.
+    - [x] 16.4.1 **[PBT] E13** The drape mask hides what is outside and keeps what is inside.
       Files: `unity/Assets/Buried/Tests/EditMode/DrapeMaskPropertyTests.cs`.
       Requirements: 8.8, 8.9.
-  - [ ] 16.5 Camera: default pose framed on `initialView`; zoom with the mouse wheel (interim, see
+  - [x] 16.5 Camera: default pose framed on `initialView`; zoom with the mouse wheel (interim, see
     requirement 16.6), Ctrl or Shift and the wheel, pinch, and `+`/`-`; drag pan with no inertia
     (the ground point under the pointer stays under it, and the camera stops when the pointer
     stops or is released); the limits in requirement 16.3; `debug/setCamera`. Keep the rig's pure
@@ -453,7 +453,7 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
     Files: `unity/Assets/Buried/Runtime/Scene/CameraRig.cs`, `unity/Assets/Buried/Runtime/Scene/CameraRigMath.cs`,
     `unity/Assets/Buried/Runtime/Scene/SceneController.cs`, `unity/Assets/Buried/Tests/EditMode/CameraTests.cs`.
     Requirements: 16.1 to 16.4, 16.6 to 16.8, 26.1.
-  - [ ] 16.6 The Shell's first real layout, per design.md "Layout": `Header` (wordmark "Buried" in
+  - [x] 16.6 The Shell's first real layout, per design.md "Layout": `Header` (wordmark "Buried" in
     Fraunces, links to the Explorer and Sources in Inter), the first `DepthGauge` (DOM slider on
     the right edge, every project era from `eraOrder` with Today at the top, Up/Down/Home/End,
     integer steps only, a hard switch; tween, drag and wheel come in task 3.1), the
@@ -470,7 +470,7 @@ dependencies; 17.1 to 17.4 wait for spec 01 tasks 16 and 19 and spec 02 task 14.
     `web/src/explorer/EvidenceCard.test.tsx`, `web/src/explorer/Attribution.tsx`,
     `web/src/styles/fonts.css`.
     Requirements: 7.1, 10.7, 17.1 (gauge), 17.2, 17.6, 26.5 to 26.9.
-  - [ ] 16.7 Look check. `web/e2e/look.spec.ts` against `vite preview` without `?debug=1`, canvas
+  - [x] 16.7 Look check. `web/e2e/look.spec.ts` against `vite preview` without `?debug=1`, canvas
     1280 × 800: wait for `eraLoaded` for every era; screenshot the page at the default pose at
     Today, 1935 and 1911 (Down on the gauge), and with the evidence card open at 1911. Automated
     checks: (a) every request the page makes is same-origin (fonts included); (b) no canvas pixel
