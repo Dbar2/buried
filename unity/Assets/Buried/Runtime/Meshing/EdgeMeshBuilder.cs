@@ -78,6 +78,14 @@ namespace Buried.Meshing
             return BuildRoof(polygon, y);
         }
 
+        /// <summary>One straight segment, as a single edge quad: the lamp's post and head.</summary>
+        public static MeshData BuildLine(Vector3 a, Vector3 b)
+        {
+            var mesh = new MeshData();
+            AddSegment(mesh, a, b, 0f, Vector3.Distance(a, b));
+            return mesh;
+        }
+
         private static void AddFlatRing(MeshData mesh, List<Vec2d> ring, float y)
         {
             float along = 0f;

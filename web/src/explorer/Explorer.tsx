@@ -19,6 +19,7 @@ import { buildGateModel } from './gateModel';
 import type { GateModel } from './gateModel';
 import { INITIAL_PLAYER_STATE } from './playerState';
 import type { PlayerState } from './playerState';
+import { lotPolygon } from './pinnedLot';
 import { PRESENT_BUILDINGS_SOURCE } from './presentBuildings';
 import { useDepth } from './useDepth';
 import { NO_WEBGL2_MESSAGE, hasWebGL2 } from './webgl';
@@ -91,6 +92,9 @@ export function Explorer() {
 
   // The deep link /?era=<id> opens the Explorer at that era (spec 04 requirement 15.3).
   const deepLinkEra = useMemo(() => new URLSearchParams(window.location.search).get('era'), []);
+  // /?lot=<id> pins that City property boundary: outlined, lit, and framed by the camera.
+  const deepLinkLot = useMemo(() => new URLSearchParams(window.location.search).get('lot'), []);
+  const pinnedLot = useMemo(() => lotPolygon(model?.lots, deepLinkLot), [model, deepLinkLot]);
 
   // Dig (requirement 10): the Shell owns the depth. `depth` is a fraction while a transition runs.
   const dig = useDepth(model?.order.length ?? 0);
@@ -205,6 +209,7 @@ export function Explorer() {
           debug={debug}
           cameraCommand={debug ? cameraCommand : null}
           reducedMotion={reducedMotion}
+          lot={pinnedLot}
           onPlayerState={setPlayer}
           onFeatureClicked={onFeatureClicked}
           onUnavailable={setUnavailable}

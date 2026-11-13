@@ -29,6 +29,7 @@ Shader "Buried/Edge"
         _DashPeriodPx ("Dash period, least (CSS px)", Float) = 11
         _DashOn ("Dash share of its period", Range(0.05, 0.95)) = 0.55
         [HideInInspector] _ZTest ("Z test", Float) = 4
+        _Fogged ("Distance fog applies (1) or not (0)", Range(0, 1)) = 1
     }
     SubShader
     {
@@ -63,6 +64,7 @@ Shader "Buried/Edge"
                 float _DashPeriod;
                 float _DashPeriodPx;
                 half _DashOn;
+                half _Fogged;
             CBUFFER_END
 
             struct Attributes
@@ -138,7 +140,7 @@ Shader "Buried/Edge"
                 // `ink` line readable over a pale draped plate. Nothing else sets it, so 0 is the old look.
                 float inGlow = step(core, a) * _GlowMix;
                 rgb = lerp(rgb, _GlowColor.rgb, inGlow);
-                rgb = BuriedApplyFog(rgb, input.transmission);
+                rgb = lerp(rgb, BuriedApplyFog(rgb, input.transmission), _Fogged);
                 return half4(rgb, alpha);
             }
             ENDHLSL

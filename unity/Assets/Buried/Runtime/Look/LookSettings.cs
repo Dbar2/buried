@@ -115,6 +115,14 @@ namespace Buried.Look
         /// <summary>Alpha of the present buildings' outline once the depth has left Today (DepthBlend).</summary>
         public const float PresentFaintEdgeAlpha = 0.2f;
 
+        /// <summary>
+        /// Today's buildings keep a thin lighter line along the roof, so a dark volume stays legible
+        /// (design.md "The present"). It is this strong while the fill is solid, and gives way to the
+        /// wireframe's own edge alpha as the fill drains.
+        /// </summary>
+        public const float PresentRoofEdgeAlpha = 0.75f;
+        public const float PresentRoofEdgeWidthCssPx = 1.25f;
+
         // ---- Confidence classes (design.md "Confidence encoding"; session 023) ----
         // The three classes differ by pattern, so they stay apart in a greyscale screenshot:
         // documented is a solid line and the fill above; estimated is a dashed line and a lighter
@@ -138,6 +146,29 @@ namespace Buried.Look
 
         /// <summary>The height over which an unknown volume thins from its foot to its roof, in metres.</summary>
         public const float UnknownFadeHeightM = 9f;
+
+        // ---- The pinned lot (design.md "The pinned lot"; session 023) ----
+
+        /// <summary>The camera flight to a pinned lot (design.md "Motion": eased, 900 ms), its pitch and the room kept around the lot.</summary>
+        public const float LotFlightS = 0.9f;
+        public const float LotPitchDeg = 40f;
+        public const float LotPaddingM = 40f;
+
+        /// <summary>The lot's outline on the ground: a `lantern` line this wide, with a `night` casing.</summary>
+        public const float LotOutlineWidthCssPx = 3f;
+        public const float LotOutlineCasingCssPx = 1.5f;
+
+        /// <summary>
+        /// The one small warm light beside the lot: a lamp this far outside the lot's nearest-to-the-south
+        /// corner, a post this tall, and a lit head of this length. Emission above 1 lets the head glow
+        /// (bloom is limited to `ink` and `lantern`).
+        /// </summary>
+        public const float LampOffsetM = 2.5f;
+        public const float LampPostHeightM = 3.4f;
+        public const float LampHeadLengthM = 0.6f;
+        public const float LampPostWidthCssPx = 2f;
+        public const float LampHeadWidthCssPx = 8f;
+        public const float LampHeadEmission = 2.4f;
 
         // ---- The lit map sheet (design.md "Draped rasters: the map sheet is lit"; session 023) ----
         // A draped plate reads as warm paper lit from above by one lantern: the greyscale scan is

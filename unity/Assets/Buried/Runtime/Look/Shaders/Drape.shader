@@ -106,6 +106,15 @@ Shader "Buried/Drape"
                 half2 m = SAMPLE_TEXTURE2D(_MaskTex, sampler_MaskTex, maskUv).rg;
                 half mask = lerp(m.r, m.g, _UseCoverage);
                 half fog = lerp(saturate(BuriedTransmission(input.positionWS)), 1.0, _UseCoverage);
+                if (_Lit > 0.5)
+                {
+                    // The lantern lights the sheet through the fog: under the pool the distance fog hardly
+                    // thins it, and away from the pool the sheet falls off into the fog.
+                    float2 fromLight = input.positionWS.xz - _BuriedLightPool.xy;
+                    float lightRadius = max(_BuriedLightPool.z, 1.0);
+                    half inPool = exp(-dot(fromLight, fromLight) / (lightRadius * lightRadius));
+                    fog = lerp(fog, 1.0, inPool * 0.85);
+                }
                 return half4(rgb, _Opacity * mask * fog);
             }
             ENDHLSL

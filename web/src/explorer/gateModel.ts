@@ -19,6 +19,8 @@ import { initialView } from './initialView';
 import type { Rect } from './initialView';
 import { PRESENT_BUILDINGS_SOURCE, presentBuildings } from './presentBuildings';
 import type { PresentBuilding } from './presentBuildings';
+import { LOTS_SOURCE } from './pinnedLot';
+import type { PresentLayer } from '../evidence';
 
 export const GATE_ERA_IDS: readonly string[] = ['1911', '1935'];
 export const GATE_SOURCE_IDS: ReadonlySet<string> = new Set(['fip_v3_1911_229', 'fip_v3_1935_229']);
@@ -41,6 +43,8 @@ export type GateModel = {
   /** Today's buildings for scene/init, and the number left out because the bridge cannot carry them. */
   present: PresentBuilding[];
   presentSkipped: number;
+  /** The City property boundaries (lots), for `?lot=<id>` (scene/focusLot). Undefined when the layer is not in the data. */
+  lots: PresentLayer | undefined;
   /** Ids of the features that come from the visitor's workspace (spec 04). Empty when there are none. */
   workspaceFeatureIds: ReadonlySet<string>;
 };
@@ -97,6 +101,7 @@ export function buildGateModel(data: LoadedData, workspaceFeatureIds: ReadonlySe
     initialView: view,
     present,
     presentSkipped,
+    lots: data.presentLayers.get(LOTS_SOURCE),
     workspaceFeatureIds,
   };
 }

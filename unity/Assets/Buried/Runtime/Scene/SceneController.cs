@@ -60,6 +60,10 @@ namespace Buried.Scene
         private readonly Dictionary<string, bool> _litBySource = new Dictionary<string, bool>();
         private float _poolX, _poolZ, _poolRadius;
         private Vector2 _defaultPoolCentre;
+        private bool _poolTweening;
+        private Vector3 _poolFrom, _poolTo;
+        private float _poolStart, _poolDuration;
+        private LotPin _pin;
 
         public void Configure(Bridge bridge, BuriedPalette palette, ShaderSet shaders, CameraRig rig)
         {
@@ -108,6 +112,12 @@ namespace Buried.Scene
                         break;
                     case BridgeMessageTypes.SceneSetDrapeMode:
                         HandleSetDrapeMode((SceneSetDrapeModePayload)message.payload);
+                        break;
+                    case BridgeMessageTypes.SceneFocusLot:
+                        HandleFocusLot((SceneFocusLotPayload)message.payload);
+                        break;
+                    case BridgeMessageTypes.SceneClearLot:
+                        HandleClearLot();
                         break;
                     case BridgeMessageTypes.DebugMarkers:
                         HandleMarkers((DebugMarkersPayload)message.payload);
@@ -198,6 +208,8 @@ namespace Buried.Scene
                 _ghostMaterials = null;
             }
             _ground = null;
+            DisposePin();
+            _poolTweening = false;
             _allLit = true;
             _litBySource.Clear();
             _initialised = false;
@@ -448,6 +460,79 @@ namespace Buried.Scene
             Shader.SetGlobalVector("_BuriedLightPool", new Vector4(x, z, radiusM, 0f));
         }
 
+        /// <summary>Moves the light pool to a new place over <paramref name="durationS"/> seconds, on the camera flight's ease. 0 is a cut.</summary>
+        private void MoveLightPool(float x, float z, float radiusM, float durationS)
+        {
+            if (durationS <= 0f)
+            {
+                _poolTweening = false;
+                SetLightPool(x, z, radiusM);
+                return;
+            }
+            _poolFrom = new Vector3(_poolX, _poolZ, _poolRadius);
+            _poolTo = new Vector3(x, z, radiusM);
+            _poolStart = Time.unscaledTime;
+            _poolDuration = durationS;
+            _poolTweening = true;
+        }
+
+        private void TickLightPool()
+        {
+            if (!_poolTweening) return;
+            float t = Mathf.Clamp01((Time.unscaledTime - _poolStart) / _poolDuration);
+            Vector3 p = Vector3.Lerp(_poolFrom, _poolTo, CameraRigMath.Ease(t));
+            SetLightPool(p.x, p.y, p.z);
+            if (t >= 1f) _poolTweening = false;
+        }
+
+        /// <summary>
+        /// scene/focusLot: draws the lot's outline and its lamp, moves the light pool to it and flies the camera
+        /// to frame it (eased, 900 ms; a cut under reduced motion). A second lot replaces the first.
+        /// </summary>
+        private void HandleFocusLot(SceneFocusLotPayload payload)
+        {
+            LotPin pin;
+            try
+            {
+                pin = new LotPin(transform, payload.lot, _frame, _palette, _shaders, PixelScale());
+            }
+            catch (InvalidOperationException e)
+            {
+                _bridge.SendError(BridgeErrorCodes.MeshBuildFailed, "lot: " + e.Message, BridgeMessageTypes.SceneFocusLot);
+                return;
+            }
+
+            DisposePin();
+            _pin = pin;
+            Rect b = pin.Bounds;
+            float aspect = _camera.aspect > 0f ? _camera.aspect : 1f;
+            CameraRigMath.Pose target = CameraRigMath.FramePose(
+                b.xMin, b.yMin, b.xMax, b.yMax, LookSettings.LotPaddingM, LookSettings.LotPitchDeg, LookSettings.DefaultHeadingDeg,
+                LookSettings.CameraFovDeg, aspect);
+            float duration = _reducedMotion ? 0f : LookSettings.LotFlightS;
+            _rig.FlyTo(target, duration);
+            MoveLightPool(pin.Centre.x, pin.Centre.y, LookSettings.LightPoolRadiusPinnedM, duration);
+            RequestCameraReport();
+        }
+
+        /// <summary>scene/clearLot: removes the outline and the lamp and restores the default view and the default light.</summary>
+        private void HandleClearLot()
+        {
+            if (_pin == null) return;
+            DisposePin();
+            float duration = _reducedMotion ? 0f : LookSettings.LotFlightS;
+            _rig.FlyTo(_rig.DefaultPose, duration);
+            MoveLightPool(_defaultPoolCentre.x, _defaultPoolCentre.y, LookSettings.LightPoolRadiusM, duration);
+            RequestCameraReport();
+        }
+
+        private void DisposePin()
+        {
+            if (_pin == null) return;
+            _pin.Dispose();
+            _pin = null;
+        }
+
         private void HandleMarkers(DebugMarkersPayload payload)
         {
             if (!_debug)
@@ -478,6 +563,7 @@ namespace Buried.Scene
         {
             if (!_initialised) return;
 
+            TickLightPool();
             foreach (EraLayer layer in _layers.Values)
             {
                 if (layer.IsRising) layer.Tick(Time.unscaledTime);

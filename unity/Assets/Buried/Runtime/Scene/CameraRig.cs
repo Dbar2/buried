@@ -21,6 +21,13 @@ namespace Buried.Scene
         private Vector3 _anchor;
         private float _lastPinch;
 
+        private CameraRigMath.Pose _defaultPose;
+        private bool _flying;
+        private CameraRigMath.Pose _flightFrom;
+        private CameraRigMath.Pose _flightTo;
+        private float _flightT;
+        private float _flightDuration = 1f;
+
         /// <summary>The ground point the camera looks at, in Unity world coordinates.</summary>
         public Vector3 Target
         {
@@ -65,13 +72,52 @@ namespace Buried.Scene
             _pose = CameraRigMath.MakePose(
                 (minX + maxX) * 0.5f, (minZ + maxZ) * 0.5f, distance, LookSettings.DefaultPitchDeg, LookSettings.DefaultHeadingDeg);
             _ready = true;
-            Apply(CameraRigMath.ClampPose(_pose, _minX, _minZ, _maxX, _maxZ));
+            _flying = false;
+            _defaultPose = CameraRigMath.ClampPose(_pose, _minX, _minZ, _maxX, _maxZ);
+            Apply(_defaultPose);
+        }
+
+        /// <summary>The pose scene/init set, which clearing a pinned lot flies back to.</summary>
+        public CameraRigMath.Pose DefaultPose
+        {
+            get { return _defaultPose; }
+        }
+
+        /// <summary>True while an eased flight is under way.</summary>
+        public bool IsFlying
+        {
+            get { return _flying; }
+        }
+
+        /// <summary>
+        /// Flies the camera to <paramref name="target"/> over <paramref name="durationS"/> seconds with an
+        /// ease in and out. A duration of 0 (or less) is a cut: reduced motion, and a test. The flight
+        /// ends the moment the user moves the view (a drag, the wheel, a pinch, + or -), so the camera
+        /// never moves against a hand on it. It is the only automatic camera movement (design.md "Motion").
+        /// </summary>
+        public void FlyTo(CameraRigMath.Pose target, float durationS)
+        {
+            target = CameraRigMath.ClampPose(target, _minX, _minZ, _maxX, _maxZ);
+            _ready = true;
+            _dragging = false;
+            if (durationS <= 0f)
+            {
+                _flying = false;
+                Apply(target);
+                return;
+            }
+            _flightFrom = _pose;
+            _flightTo = target;
+            _flightDuration = durationS;
+            _flightT = 0f;
+            _flying = true;
         }
 
         /// <summary>debug/setCamera: the pose exactly, inside the limits of requirement 16.3.</summary>
         public void SetPose(float targetX, float targetZ, float distance, float pitchDeg, float headingDeg)
         {
             _ready = true;
+            _flying = false;
             Apply(CameraRigMath.ClampPose(
                 CameraRigMath.MakePose(targetX, targetZ, distance, pitchDeg, headingDeg), _minX, _minZ, _maxX, _maxZ));
         }
@@ -166,7 +212,17 @@ namespace Buried.Scene
                 changed |= ZoomAbout(ref pose, keys * 2f * Time.unscaledDeltaTime, new Vector2(w * 0.5f, h * 0.5f), w, h, fov);
             }
 
-            if (changed) Apply(CameraRigMath.ClampPose(pose, _minX, _minZ, _maxX, _maxZ));
+            if (changed)
+            {
+                _flying = false; // the user moved the view: the flight stops where it is
+                Apply(CameraRigMath.ClampPose(pose, _minX, _minZ, _maxX, _maxZ));
+            }
+            else if (_flying)
+            {
+                _flightT = Mathf.Min(1f, _flightT + Time.unscaledDeltaTime / _flightDuration);
+                Apply(CameraRigMath.Lerp(_flightFrom, _flightTo, CameraRigMath.Ease(_flightT)));
+                if (_flightT >= 1f) _flying = false;
+            }
         }
 
         private static bool ZoomAbout(ref CameraRigMath.Pose pose, float notches, Vector2 pixel, float w, float h, float fov)

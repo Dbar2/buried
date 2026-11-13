@@ -177,6 +177,41 @@ namespace Buried.Scene
         {
             return Mathf.Pow(0.85f, notches);
         }
+
+        /// <summary>The ease in and out of a flight: smootherstep of t, 0 at 0 and 1 at 1, flat at both ends.</summary>
+        public static float Ease(float t)
+        {
+            t = Mathf.Clamp01(t);
+            return t * t * t * (t * (t * 6f - 15f) + 10f);
+        }
+
+        /// <summary>
+        /// The pose a fraction t of the way from a to b: the target in a straight line, the distance by
+        /// its logarithm (so a zoom feels even), the pitch linearly and the heading the short way round.
+        /// </summary>
+        public static Pose Lerp(Pose a, Pose b, float t)
+        {
+            t = Mathf.Clamp01(t);
+            return new Pose
+            {
+                Target = Vector3.Lerp(a.Target, b.Target, t),
+                Distance = Mathf.Exp(Mathf.Lerp(Mathf.Log(a.Distance), Mathf.Log(b.Distance), t)),
+                PitchDeg = Mathf.Lerp(a.PitchDeg, b.PitchDeg, t),
+                HeadingDeg = Mathf.Repeat(a.HeadingDeg + Mathf.DeltaAngle(a.HeadingDeg, b.HeadingDeg) * t, 360f),
+            };
+        }
+
+        /// <summary>
+        /// The pose that frames a ground rectangle (a pinned lot) with <paramref name="paddingM"/> around it: the
+        /// target at its centre, the given pitch and heading, and the smallest distance that has the padded
+        /// rectangle wholly in view.
+        /// </summary>
+        public static Pose FramePose(
+            float minX, float minZ, float maxX, float maxZ, float paddingM, float pitchDeg, float headingDeg, float fovDeg, float aspect)
+        {
+            float distance = FitDistance(minX - paddingM, minZ - paddingM, maxX + paddingM, maxZ + paddingM, pitchDeg, headingDeg, fovDeg, aspect);
+            return MakePose((minX + maxX) * 0.5f, (minZ + maxZ) * 0.5f, distance, pitchDeg, headingDeg);
+        }
     }
 
     /// <summary>

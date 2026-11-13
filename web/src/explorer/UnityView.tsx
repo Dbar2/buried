@@ -6,6 +6,8 @@ import type { UnityInstance } from '../bridge/unityLoader';
 import type { GateModel } from './gateModel';
 import type { CameraPose } from './cameraPose';
 import { buildAddFeatures, buildLoadEra, buildMarkers, buildSceneInit, buildSetCamera, buildSetDepth } from './gateScene';
+import { buildClearLot, buildFocusLot } from './pinnedLot';
+import type { LotPolygon } from './pinnedLot';
 import { INITIAL_PLAYER_STATE } from './playerState';
 import type { PlayerState } from './playerState';
 
@@ -33,6 +35,8 @@ export type UnityViewProps = {
   /** A debug-only camera pose to send as debug/setCamera; `seq` changes with every new command. */
   cameraCommand: { seq: number; pose: CameraPose } | null;
   reducedMotion: boolean;
+  /** The lot to pin (`/?lot=<id>`), or null for none. The Player outlines it, lights it and flies to it. */
+  lot: LotPolygon | null;
   onPlayerState: (state: PlayerState) => void;
   onFeatureClicked: (featureId: string, eraId: string) => void;
   /** The Player cannot be used; the reason is fit to show. */
@@ -184,7 +188,19 @@ export default function UnityView(props: UnityViewProps) {
     bridgeRef.current?.send(buildSetDepth(depth));
   }, [running, depth]);
 
-  const { cameraCommand } = props;
+  const { cameraCommand, lot } = props;
+  // The pinned lot (bridge 0.5.0): sent once the Player is running, and cleared again if the page drops it.
+  const pinned = useRef(false);
+  useEffect(() => {
+    if (!running) return;
+    if (lot) {
+      bridgeRef.current?.send(buildFocusLot(lot));
+      pinned.current = true;
+    } else if (pinned.current) {
+      bridgeRef.current?.send(buildClearLot());
+      pinned.current = false;
+    }
+  }, [running, lot]);
   useEffect(() => {
     if (!running || !debug || !cameraCommand) return;
     bridgeRef.current?.send(buildSetCamera(cameraCommand.pose));
