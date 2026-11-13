@@ -89,14 +89,17 @@ describe('tagLayout', () => {
   it('steps up the string, then left, then right, around a keep-out', () => {
     const sizes = new Map([['a', { w: 120, h: 44 }]]);
     const anchors: TagAnchor[] = [{ id: 'a', x: 700, y: 400, onScreen: true }];
-    // A keep-out over everything above the anchor out to 100 px pushes the tag to a longer string.
-    const above = layoutTags({ anchors, sizes, viewport, keepOut: [{ x: 0, y: 250, w: 1440, h: 150 }] });
-    expect(above[0]?.placement).toMatchObject({ side: 'above', offset: 160 });
+    // A keep-out above the anchor: a tag above it would need a string through the block, so the tag goes to the side.
+    const above = layoutTags({ anchors, sizes, viewport, keepOut: [{ x: 600, y: 250, w: 200, h: 100 }] });
+    expect(above[0]?.placement).toMatchObject({ side: 'left', offset: 40 });
+    // A string may be longer when the way up is clear: the block is beside the string, not on it.
+    const longer = layoutTags({ anchors, sizes, viewport, keepOut: [{ x: 600, y: 300, w: 80, h: 100 }] });
+    expect(longer[0]?.placement).toMatchObject({ side: 'above' });
     // A band across the whole width forces left.
     const left = layoutTags({ anchors, sizes, viewport, keepOut: [{ x: 0, y: 0, w: 1440, h: 370 }] });
     expect(left[0]?.placement).toMatchObject({ side: 'left', offset: 40 });
     // And a block that also covers the left side forces right.
-    const right = layoutTags({ anchors, sizes, viewport, keepOut: [{ x: 0, y: 0, w: 1440, h: 370 }, { x: 0, y: 370, w: 700, h: 60 }] });
+    const right = layoutTags({ anchors, sizes, viewport, keepOut: [{ x: 0, y: 0, w: 1440, h: 370 }, { x: 0, y: 370, w: 690, h: 60 }] });
     expect(right[0]?.placement).toMatchObject({ side: 'right', offset: 40 });
   });
 
@@ -181,6 +184,31 @@ describe('leaderLine', () => {
         }
       }),
     );
+  });
+});
+
+describe('pinned tag strings', () => {
+  const viewport: Size = { w: 1440, h: 800 };
+  it('property: no placed tag has a string that runs through a keep-out rectangle', () => {
+    fc.assert(
+      fc.property(anchorsArb, fc.array(rect, { maxLength: 4 }), (tags, keepOut) => {
+        const anchors: TagAnchor[] = tags.map((t, i) => ({ id: `t${i}`, x: t.x, y: t.y, onScreen: t.onScreen }));
+        const sizes = new Map(tags.map((t, i) => [`t${i}`, t.size] as const));
+        for (const r of layoutTags({ anchors, sizes, viewport, keepOut })) {
+          if (r.placement === 'hidden') continue;
+          for (const k of keepOut) expect(segmentHitsRect(r.placement.string, k)).toBe(false);
+        }
+      }),
+    );
+  });
+
+  it('hides a tag whose only way out runs the string through the intro (the phone landing)', () => {
+    const intro: Rect = { x: 0, y: 70, w: 390, h: 330 };
+    // The anchor is below the intro and its first free spot is above it: the string would cross the headline.
+    const anchors: TagAnchor[] = [{ id: 'bank', x: 228, y: 430, onScreen: true }];
+    const sizes = new Map([['bank', { w: 80, h: 44 }]]);
+    const [result] = layoutTags({ anchors, sizes, viewport: { w: 390, h: 800 }, keepOut: [intro] });
+    if (result!.placement !== 'hidden') expect(segmentHitsRect(result!.placement.string, intro)).toBe(false);
   });
 });
 

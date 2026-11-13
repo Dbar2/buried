@@ -67,6 +67,18 @@
   color: var(--parchment);
 }
 
+/* The scene's first-use hint, in the caption bar. It fades in, and appears at once under reduced motion. */
+.block-hint {
+  animation: block-hint-in 300ms ease-out;
+  color: var(--parchment);
+}
+
+@keyframes block-hint-in {
+  from {
+    opacity: 0;
+  }
+}
+
 /* ------------------------------------------------------------------------------------------------
  * Parts
  * ---------------------------------------------------------------------------------------------- */
@@ -541,28 +553,52 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
 }
 
-/* On a wide screen the actions are plain text links, as in the catalogue; on a phone they are outlined and wide. */
-.card-action {
+/* "Show the original sheet" is the one outlined button on the card; the rest are text links on one line under it. */
+.card-button {
   align-items: center;
-  background: none;
-  border: 0;
+  background: transparent;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
   color: var(--ink);
   cursor: pointer;
   display: flex;
   font-family: var(--font-body);
   font-size: 1rem;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  width: 100%;
+}
+
+/* On: a double rule, not colour alone. */
+.card-button[aria-pressed='true'] {
+  box-shadow: inset 0 0 0 1px var(--ink);
+  font-weight: 600;
+}
+
+.card-links {
+  align-items: center;
+  column-gap: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.card-link {
+  align-items: center;
+  background: none;
+  border: 0;
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
   min-height: 44px;
   padding: 0;
   text-decoration: underline;
   text-underline-offset: 3px;
-}
-
-.card-share-note {
-  color: var(--ink-soft);
-  margin: var(--space-1) 0 0;
 }
 
 .card-share-field {
@@ -646,13 +682,6 @@
   border: 0;
 }
 
-.bottom-sheet .card-action {
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  justify-content: center;
-  text-decoration: none;
-}
-
 /* The era ruler: a surveyor's scale bar with three stops ------------------------------------- */
 .era-ruler {
   display: grid;
@@ -690,13 +719,14 @@
   align-items: center;
   background: none;
   border: 0;
-  color: var(--parchment-dim);
+  color: var(--parchment);
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  font-family: var(--font-heading);
+  font-family: var(--font-body);
   font-size: 1rem;
-  font-style: italic;
+  font-style: normal;
+  font-weight: 600;
   min-height: 44px;
   padding: var(--space-1) 0 0;
   position: relative;
@@ -711,13 +741,18 @@
   width: 16px;
 }
 
+/* A tight `--soot` chip behind the label, so it reads over the bright plan. */
 .ruler-label {
+  background: var(--soot);
+  border-radius: 2px;
+  line-height: 1.35;
   margin-top: var(--space-1);
+  padding: 0 6px;
 }
 
-/* The chosen stop: a filled, larger mark and an underlined label, not colour alone. */
+/* The chosen stop: `--lantern` text, a filled, larger mark and an underline, not colour alone. */
 .ruler-stop[aria-checked='true'] {
-  color: var(--parchment);
+  color: var(--lantern);
 }
 
 .ruler-stop[aria-checked='true'] .ruler-mark {
@@ -729,7 +764,6 @@
 }
 
 .ruler-stop[aria-checked='true'] .ruler-label {
-  font-style: normal;
   text-decoration: underline;
   text-underline-offset: 4px;
 }
@@ -757,6 +791,27 @@
   box-shadow: inset 0 0 0 1px var(--parchment);
   text-decoration: underline;
   text-underline-offset: 4px;
+}
+
+/* The first-use hint, directly under the Lantern button. */
+.lens-hint {
+  color: var(--parchment);
+  font-size: 0.875rem;
+  line-height: 1.3;
+  margin: 0;
+  padding-top: 3px;
+  pointer-events: none;
+  position: absolute;
+  white-space: nowrap;
+  z-index: 3;
+}
+
+@media (max-width: 719px) {
+  .lens-hint {
+    font-size: 0.8125rem;
+    line-height: 1.1;
+    padding-top: 1px;
+  }
 }
 
 .lens-area {
@@ -936,10 +991,6 @@
     flex: none;
   }
 
-  .bottom-sheet .card-action {
-    width: 100%;
-  }
-
   .bottom-sheet .card-actions {
     gap: var(--space-2);
   }
@@ -947,6 +998,10 @@
 
 /* Reduced motion cuts every transition and every animation to its end state. */
 @media (prefers-reduced-motion: reduce) {
+  .block-hint {
+    animation: none;
+  }
+
   .still-picture {
     transition: none;
   }

@@ -19,6 +19,9 @@ export const RULER_WIDTH = 560;
 export const CONTROL_HEIGHT = 44;
 export const LENS_CONTROL_WIDTH = 200;
 export const LIST_CONTROL_WIDTH = 72;
+/** The strip under the Lantern button for its hint, kept free beside the ruler. On a phone the controls already sit 16 px above the line's foot. */
+export const LENS_HINT_HEIGHT = 24;
+export const PHONE_LENS_HINT_HEIGHT = 16;
 /** On a phone the Lantern, List and the ruler share one line, so the two controls are narrower. */
 export const PHONE_LENS_CONTROL_WIDTH = 92;
 export const PHONE_LIST_CONTROL_WIDTH = 56;
@@ -58,6 +61,8 @@ export type BlockRects = {
   readonly sheet: Rect | null;
   readonly ruler: Rect;
   readonly lensControl: Rect;
+  /** The strip under the Lantern button where its first-use hint shows. */
+  readonly lensHint: Rect;
   readonly listControl: Rect;
   readonly caption: Rect;
   /** The headline, the button and the line, before the raise. */
@@ -117,10 +122,12 @@ export function blockLayout(input: LayoutInput): BlockRects {
       const rulerW = Math.max(0, Math.min(RULER_WIDTH, rightBound - 2 * MARGIN));
       ruler = { x: Math.round((rightBound - rulerW) / 2), y: rulerY, w: rulerW, h: RULER_HEIGHT };
     }
-    const controlY = sameRow ? captionY - GAP - CONTROL_HEIGHT : ruler.y - GAP - CONTROL_HEIGHT;
+    const controlY = sameRow ? captionY - GAP - LENS_HINT_HEIGHT - CONTROL_HEIGHT : ruler.y - GAP - LENS_HINT_HEIGHT - CONTROL_HEIGHT;
     lensControl = { x: MARGIN, y: controlY, w: LENS_CONTROL_WIDTH, h: CONTROL_HEIGHT };
     listControl = { x: lensControl.x + lensControl.w + GAP, y: lensControl.y, w: LIST_CONTROL_WIDTH, h: CONTROL_HEIGHT };
   }
+  // The Lantern's first-use hint sits directly under its button, in the strip the controls leave free.
+  const lensHint: Rect = { x: lensControl.x, y: lensControl.y + lensControl.h, w: phone ? PHONE_LENS_CONTROL_WIDTH + GAP + PHONE_LIST_CONTROL_WIDTH : LENS_CONTROL_WIDTH, h: phone ? PHONE_LENS_HINT_HEIGHT : LENS_HINT_HEIGHT };
 
   // The scene's box. On a phone after the raise it stands where the sheet's peek would leave it, whether or not a card
   // is open (so choosing or closing a find never resizes the Player), and reaches up so the sheet's far edge meets the
@@ -137,11 +144,11 @@ export function blockLayout(input: LayoutInput): BlockRects {
     ? { x: 0, y: Math.round(h * 0.08), w, h: 330 }
     : { x: 0, y: Math.round(h * 0.1), w: Math.min(480, Math.round(w * 0.32)) + Math.round(w * 0.05) + MARGIN, h: 300 };
 
-  return { phone, scene, topRow, card, sheet, ruler, lensControl, listControl, caption, intro };
+  return { phone, scene, topRow, card, sheet, ruler, lensControl, lensHint, listControl, caption, intro };
 }
 
 /** The rectangles the pinned tags keep out of: before the raise the intro, after it every control on the stage. */
 export function tagKeepOut(rects: BlockRects, raised: boolean): Rect[] {
   if (!raised) return [rects.intro, rects.caption];
-  return [rects.topRow, rects.ruler, rects.lensControl, rects.listControl, rects.caption, ...(rects.card ? [rects.card] : []), ...(rects.sheet ? [rects.sheet] : [])];
+  return [rects.topRow, rects.ruler, rects.lensControl, rects.lensHint, rects.listControl, rects.caption, ...(rects.card ? [rects.card] : []), ...(rects.sheet ? [rects.sheet] : [])];
 }

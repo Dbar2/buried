@@ -147,9 +147,23 @@ describe('FindCard', () => {
     expect(html).not.toContain('card-ruler-line');
   });
 
+  it('has one outlined button, "Show the original sheet", and the other actions as links on one line under it', () => {
+    const html = renderToStaticMarkup(<FindCard view={sampleCardView} shareOutcome={null} onShowOriginalSheet={noop} onShare={noop} onShowOnMap={noop} />);
+    expect(html.match(/class="card-button"/g)).toHaveLength(1);
+    expect(html).toMatch(/class="card-button"[^>]*data-testid="card-show-original">Show the original sheet<\/button><div class="card-links">/);
+    const links = /<div class="card-links">(.*?)<\/div>/.exec(html)![1]!;
+    expect(links).toContain('Share this find');
+    expect(links).toContain('Full record');
+    expect(links).not.toContain('Show the original sheet');
+    expect(html).not.toContain('card-share-copied');
+  });
+
   it('announces "Link copied." and, when the clipboard is refused, shows the link in a field', () => {
     const copied = renderToStaticMarkup(<FindCard view={sampleCardView} shareOutcome="copied" onShowOriginalSheet={noop} onShare={noop} onShowOnMap={noop} />);
     expect(copied).toMatch(/aria-live="polite"[^>]*>Link copied\.<\/p>/);
+    // The link itself reads "Link copied" while the outcome stands, and "Share this find" otherwise.
+    expect(copied).toMatch(/data-testid="card-share">Link copied<\/button>/);
+    expect(copied).not.toContain('Share this find');
     expect(copied).not.toContain('card-share-link');
     const refused = renderToStaticMarkup(<FindCard view={sampleCardView} shareOutcome="refused" onShowOriginalSheet={noop} onShare={noop} onShowOnMap={noop} />);
     expect(refused).toContain('value="https://buried.pages.dev/find/overall-factory"');

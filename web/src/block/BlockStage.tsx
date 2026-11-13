@@ -11,6 +11,7 @@ import { evidenceCommand } from '../explorer/showEvidence';
 import { LENS_RADIUS, lanternLabel } from '../explorer/lantern';
 import type { LensCommand } from '../explorer/lantern';
 import { useDepth } from '../explorer/useDepth';
+import { useSeenOnce } from '../explorer/useSeenOnce';
 import { NO_WEBGL2_MESSAGE } from '../explorer/webgl';
 import { useFindDocumentTitle, findDescriptionFor, findTitleFor } from '../shell/pageTitle';
 import { SetPageTitle } from '../shell/SetPageTitle';
@@ -29,7 +30,7 @@ import type { CardContext, LotFinder } from './blockModel';
 import { findBySlug, findForFeature } from './finds';
 import type { ResolvedFind } from './finds';
 import { flatFootprints, flatPresent, flatTileFor, flatViewportPoint } from './flatModel';
-import { copyLink, findLink } from './share';
+import { copyLink, findLink, LINK_COPIED_MS } from './share';
 import type { ShareOutcome } from './share';
 import { flatShouldRaise, initialRaiseState, PLAYER_TIMEOUT_MS, raiseReducer, sendsRaise } from './raiseState';
 import type { RaiseState } from './raiseState';
@@ -50,6 +51,10 @@ export const BLOCK_LINE = 'Every ghost comes with the map that proves it.';
 export const BLOCK_CAPTION = 'Queen Street East at River Street, Toronto. Two fire-insurance plans, 1911 and 1931-35.';
 export const NOT_FOUND_NOTICE = 'No find by that name.';
 export const PLAYER_FAILED_LINE = 'The 3D view did not start, so the sheet is shown flat.';
+export const LENS_HINT = 'Drag the lens to compare.';
+export const SCENE_HINT = 'Click any ghost for its record.';
+export const SCENE_HINT_MS = 5000;
+const SCENE_HINT_ENDERS = ['pointerdown', 'keydown', 'wheel', 'touchstart'] as const;
 
 /** On the Flat sheet the raise takes as long as the Player's: the last outline has settled by 2.2 s. */
 export const FLAT_SETTLE_MS = 2200;
@@ -165,6 +170,7 @@ export function BlockStage(props: BlockStageProps) {
   const [selection, setSelection] = useState<Selection | null>(null);
   const [originalShown, setOriginalShown] = useState(false);
   const [shareOutcome, setShareOutcome] = useState<ShareOutcome | null>(null);
+  const shareTimer = useRef<number | undefined>(undefined);
   const [sheetExpanded, setSheetExpanded] = useState(false);
   const [frameCmd, setFrameCmd] = useState<{ n: number; featureId: string } | null>(null);
   const select = useCallback((next: Selection | null) => {
@@ -185,6 +191,31 @@ export function BlockStage(props: BlockStageProps) {
     const target = routeFind ?? firstFind;
     if (target) select({ kind: 'find', slug: target.find.slug });
   }, [raised]);
+
+  // ---- the first-use hint for the scene --------------------------------------------------------------------------
+  // Once, when the first raise has ended: "Click any ghost for its record." in the caption bar, for five seconds or until
+  // any input. It is not shown again in this browser session.
+  const sceneHint = useSeenOnce('buried.block.scene-hint', 'session');
+  const [sceneHintOn, setSceneHintOn] = useState(false);
+  const sceneHintStarted = useRef(false);
+  useEffect(() => {
+    if (!raised || sceneHintStarted.current || sceneHint.seen) return;
+    sceneHintStarted.current = true;
+    setSceneHintOn(true);
+  }, [raised, sceneHint.seen]);
+  useEffect(() => {
+    if (!sceneHintOn) return;
+    const end = () => {
+      setSceneHintOn(false);
+      sceneHint.markSeen();
+    };
+    const timer = window.setTimeout(end, SCENE_HINT_MS);
+    for (const type of SCENE_HINT_ENDERS) window.addEventListener(type, end, { passive: true });
+    return () => {
+      window.clearTimeout(timer);
+      for (const type of SCENE_HINT_ENDERS) window.removeEventListener(type, end);
+    };
+  }, [sceneHintOn, sceneHint.markSeen]);
 
   const onRaisedFromPlayer = useCallback(() => dispatchRaise('raised'), []);
   const onFeatureClicked = useCallback(
@@ -275,8 +306,15 @@ export function BlockStage(props: BlockStageProps) {
 
   const onShare = useCallback(async () => {
     if (!selectedFind) return;
-    setShareOutcome(await copyLink(findLink(siteOrigin, selectedFind.find.slug), typeof navigator === 'undefined' ? null : navigator.clipboard));
+    const outcome = await copyLink(findLink(siteOrigin, selectedFind.find.slug), typeof navigator === 'undefined' ? null : navigator.clipboard);
+    setShareOutcome(outcome);
+    if (outcome === 'copied') {
+      // The link reads "Link copied" for two seconds, then "Share this find" again.
+      window.clearTimeout(shareTimer.current);
+      shareTimer.current = window.setTimeout(() => setShareOutcome((current) => (current === 'copied' ? null : current)), LINK_COPIED_MS);
+    }
   }, [selectedFind, siteOrigin]);
+  useEffect(() => () => window.clearTimeout(shareTimer.current), []);
   const onShowOnMap = useCallback(() => {
     if (selectedSceneId) setFrameCmd((previous) => ({ n: (previous?.n ?? 0) + 1, featureId: selectedSceneId }));
   }, [selectedSceneId]);
@@ -337,6 +375,19 @@ export function BlockStage(props: BlockStageProps) {
     [lens.on, lensSendable, lens.center, lensEverOn, lensEraId],
   );
   const lensLabel = model ? (lensEraId === 'today' ? 'Lantern: today' : lanternLabel(model.sources, model.drapes.get(lensEraId) ?? [])) : 'Lantern';
+  // The button reads "Lantern" or "Lantern on"; what is inside the lens is in its accessible name, and the lens itself shows it.
+  const lensButtonLabel = lens.on ? 'Lantern on' : 'Lantern';
+  const lensButtonName = lens.on ? `Lantern on. Inside the lens: ${lensLabel.replace(/^Lantern: /, '')}` : undefined;
+  // A hint on first use only: it shows while the lens is on, until the visitor moves the lens or turns it off.
+  const lensHintSeen = useSeenOnce('buried.block.lens-hint');
+  const lensStart = useRef(lens.center);
+  useEffect(() => {
+    if (lens.on && lens.center !== lensStart.current) lensHintSeen.markSeen();
+  }, [lens.on, lens.center]);
+  useEffect(() => {
+    if (!lens.on && lensEverOn) lensHintSeen.markSeen();
+  }, [lens.on, lensEverOn]);
+  const lensHintVisible = lens.on && !lensHintSeen.seen;
 
   // ---- the list -------------------------------------------------------------------------------------------------
   const [listOpen, setListOpen] = useState(false);
@@ -516,12 +567,17 @@ export function BlockStage(props: BlockStageProps) {
             radius={LENS_RADIUS}
             area={{ width: scene.w, height: scene.h }}
             origin={{ x: scene.x, y: scene.y }}
-            label={rects.phone ? 'Lantern' : lensLabel}
-            accessibleName={rects.phone ? lensLabel : undefined}
+            label={lensButtonLabel}
+            accessibleName={lensButtonName}
             onToggle={lens.toggle}
             onMove={lens.setCenter}
             controlStyle={rectStyle(rects.lensControl)}
           />
+          {lensHintVisible ? (
+            <p className="lens-hint" style={rectStyle(rects.lensHint)} data-testid="lens-hint">
+              {LENS_HINT}
+            </p>
+          ) : null}
           <div className="list-dock" style={{ left: rects.listControl.x, top: rects.listControl.y, minWidth: rects.listControl.w }}>
             <FeatureList rows={rows} eraLabel={eraLabel} open={listOpen} onToggle={() => setListOpen((open) => !open)} onChoose={(id) => onFeatureClicked(id, eraId)} selectedId={selectedSceneId} closedLabel="List" />
           </div>
@@ -532,6 +588,10 @@ export function BlockStage(props: BlockStageProps) {
         {failedLine ? (
           <span className="block-failed" role="status" data-testid="block-failed">
             {failedLine}
+          </span>
+        ) : sceneHintOn ? (
+          <span className="block-hint" role="status" data-testid="block-hint">
+            {SCENE_HINT}
           </span>
         ) : (
           <span className="block-caption-name">{BLOCK_CAPTION}</span>

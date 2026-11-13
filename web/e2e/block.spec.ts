@@ -151,7 +151,48 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
     await expect(page.getByTestId('card-show-original')).toHaveAttribute('aria-pressed', 'true');
     await page.getByTestId('card-share').click();
     await expect(page.getByTestId('card-share-status')).toHaveText('Link copied.');
+    await expect(page.getByTestId('card-share')).toHaveText('Link copied');
     expect(await page.evaluate(() => navigator.clipboard.readText())).toMatch(/\/find\/coal-yard$/);
+    await expect(page.getByTestId('card-share'), 'back to its own words after two seconds').toHaveText('Share this find', { timeout: 4000 });
+    await page.screenshot({ path: join(OUTPUT, 'block-card-actions-1440.png') });
+  });
+
+  test('the scene hint shows once after the first raise, for five seconds or until any input, and not again in this session', async ({ page }) => {
+    test.setTimeout(PLAYER_TIMEOUT + 60_000);
+    await page.goto('/');
+    await page.getByTestId('raise-button').click();
+    await raised(page);
+    const hint = page.getByTestId('block-hint');
+    await expect(hint).toHaveText('Click any ghost for its record.');
+    await expect(hint).toBeVisible();
+    await page.keyboard.press('Shift');
+    await expect(hint).toHaveCount(0);
+    await page.reload();
+    await page.getByTestId('raise-button').click();
+    await raised(page);
+    await expect(page.getByTestId('block-hint'), 'not shown again in the same session').toHaveCount(0);
+  });
+
+  test('the scene hint ends by itself after five seconds', async ({ page }) => {
+    test.setTimeout(PLAYER_TIMEOUT + 60_000);
+    await page.goto('/');
+    await page.getByTestId('raise-button').click();
+    await raised(page);
+    const hint = page.getByTestId('block-hint');
+    await expect(hint).toBeVisible();
+    await expect(hint).toHaveCount(0, { timeout: 8000 });
+    await expect(page.locator('.block-caption-name')).toBeVisible();
+  });
+
+  test('with reduced motion the scene hint has no fade', async ({ page }) => {
+    test.setTimeout(PLAYER_TIMEOUT + 60_000);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    await page.getByTestId('raise-button').click();
+    await raised(page);
+    const hint = page.getByTestId('block-hint');
+    await expect(hint).toBeVisible();
+    await expect(hint).toHaveCSS('animation-name', 'none');
   });
 
   test('the Lantern: the L key and the control toggle the ring, Escape turns it off', async ({ page }) => {
@@ -164,19 +205,30 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
     page.on('console', (message) => {
       if (message.text().includes('setLantern ignored')) ignored.push(message.text());
     });
+    await expect(page.getByTestId('lens-control')).toHaveText('Lantern');
     await page.keyboard.press('l');
     await expect(page.getByTestId('lens-ring')).toBeVisible();
     // The Player draws the lens only at Today: the ruler goes there and the 1911 plan shows inside the lens.
     await expect(page.getByTestId('block-page')).toHaveAttribute('data-era', 'today');
-    await expect(page.getByTestId('lens-control')).toHaveText(/1911/);
+    await expect(page.getByTestId('lens-control')).toHaveText('Lantern on');
+    await expect(page.getByTestId('lens-control')).toHaveAttribute('aria-label', /Inside the lens: 1911 plan/);
+    // First use: the hint is under the button until the lens is moved or turned off, then it is gone for good.
+    const hint = page.getByTestId('lens-hint');
+    await expect(hint).toHaveText('Drag the lens to compare.');
+    const controlBox = (await page.getByTestId('lens-control').boundingBox())!;
+    const hintBox = (await hint.boundingBox())!;
+    expect(hintBox.y, 'the hint is under the button').toBeGreaterThanOrEqual(controlBox.y + controlBox.height - 1);
     await page.keyboard.press('ArrowRight');
+    await expect(hint).toHaveCount(0);
     await page.waitForTimeout(1500);
     await page.screenshot({ path: join(OUTPUT, 'block-lantern-1440.png') });
     await page.keyboard.press('Escape');
     await expect(page.getByTestId('lens-ring')).toHaveCount(0);
     await expect(page.getByTestId('block-page')).toHaveAttribute('data-era', '1911');
+    await expect(page.getByTestId('lens-control')).toHaveText('Lantern');
     await page.getByTestId('lens-control').click();
     await expect(page.getByTestId('lens-ring')).toBeVisible();
+    await expect(hint, 'not shown a second time').toHaveCount(0);
     await page.waitForTimeout(1500);
     expect(ignored, 'the Player took every lens message').toEqual([]);
   });

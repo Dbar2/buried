@@ -5,8 +5,9 @@
  *
  * A tag tries above its anchor on a 40 px string, then 60 to 160 px in 20 px steps, then the same
  * offsets to the left and then to the right. The first spot inside the viewport that overlaps no
- * keep-out and no earlier visible tag wins; otherwise the tag is hidden (it stays in the top row and
- * the list). An anchor that is not on screen hides its tag. The selected find has no pinned tag.
+ * keep-out and no earlier visible tag, and whose string runs through no keep-out, wins; otherwise the
+ * tag is hidden (it stays in the top row and the list). An anchor that is not on screen hides its tag.
+ * The selected find has no pinned tag.
  */
 
 export type Rect = { readonly x: number; readonly y: number; readonly w: number; readonly h: number };
@@ -84,6 +85,8 @@ export function layoutTags(input: TagLayoutInput): TagResult[] {
         const { rect } = placement;
         if (!insideViewport(rect, input.viewport)) continue;
         if (input.keepOut.some((k) => rectsOverlap(rect, k))) continue;
+        // Nor may the string run through one: it would cross the words or the control behind it.
+        if (input.keepOut.some((k) => segmentHitsRect(placement.string, k))) continue;
         if (placed.some((p) => rectsOverlap(rect, p))) continue;
         placed.push(rect);
         return { id: anchor.id, placement };

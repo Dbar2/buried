@@ -117,3 +117,18 @@ describe('blockLayout', () => {
     );
   });
 });
+
+describe('the Lantern hint strip', () => {
+  it('lies directly under the Lantern button, on the stage, clear of the caption, and the tags keep out of it', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 320, max: 1920 }), fc.integer({ min: 560, max: 1200 }), fc.boolean(), fc.boolean(), (w, h, cardOpen, raised) => {
+        const r = blockLayout({ w, h, cardOpen, sheetExpanded: false, raised });
+        expect(r.lensHint.x).toBe(r.lensControl.x);
+        expect(r.lensHint.y).toBe(r.lensControl.y + r.lensControl.h);
+        expect(inside(r.lensHint, w, h)).toBe(true);
+        expect(rectsOverlap(r.lensHint, r.caption)).toBe(false);
+        expect(tagKeepOut(r, true)).toContainEqual(r.lensHint);
+      }),
+    );
+  });
+});
