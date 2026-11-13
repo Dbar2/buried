@@ -66,6 +66,9 @@ export type PlaceBinding = {
  */
 export type ExplorerVariant = 'full' | 'place' | 'backdrop';
 
+/** What the landing is told about the scene behind it. */
+export type SceneState = 'ready' | 'unavailable';
+
 /**
  * The Explorer: the Player filling the view, the depth gauge on its right edge, the evidence card
  * at its left edge and the attribution lines along its bottom edge (design.md "Layout"). The list
@@ -75,10 +78,17 @@ export function Explorer({
   variant = 'full',
   era: requestedEra = null,
   place,
+  onScene,
 }: {
   variant?: ExplorerVariant;
   era?: string | null;
   place?: PlaceBinding;
+  /**
+   * The landing's hook (session 031): `ready` once the Player has drawn a first frame with an era
+   * built, `unavailable` when there will be no Player (no WebGL 2, the build failed, or the records
+   * did not load). Each state is reported once.
+   */
+  onScene?: (state: SceneState) => void;
 }) {
   const debug = useMemo(() => new URLSearchParams(window.location.search).get('debug') === '1', []);
   const reducedMotion = useMemo(
@@ -278,6 +288,17 @@ export function Explorer({
   useEffect(() => {
     placeStage?.(stageKind);
   }, [placeStage, stageKind]);
+
+  // The landing waits for one of these two to decide whether to fade the scene in.
+  const sceneDrawn = player.ready && player.eraLoaded.length > 0;
+  const sceneGone = load.status === 'error' || (load.status === 'ready' && (!webgl2 || unavailable !== null));
+  const reportedScene = useRef<SceneState | null>(null);
+  useEffect(() => {
+    const state: SceneState | null = sceneDrawn ? 'ready' : sceneGone ? 'unavailable' : null;
+    if (state === null || reportedScene.current === state) return;
+    reportedScene.current = state;
+    onScene?.(state);
+  }, [sceneDrawn, sceneGone, onScene]);
 
   let stage: ReactNode;
   if (backdrop && (load.status !== 'ready' || !webgl2 || unavailable !== null)) {
