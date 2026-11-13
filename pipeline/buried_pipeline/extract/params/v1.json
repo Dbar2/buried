@@ -1,24 +1,24 @@
 {
   "id": "v1",
-  "note": "Placeholder values. Real values are set during tuning (spec 02 task 7.10).",
+  "note": "Provisional values, round 0. Set by eye from previews of the two plate 229 editions, not from tuning fixtures. Task 7.10 replaces them with fixture-based values.",
   "tuned_on": ["fip_v3_1911_229", "fip_v3_1935_229"],
-  "working_pixel_size_m": 0.0,
-  "normalise": { "window_m": 0.0, "clip_limit": 0.0 },
-  "outline": { "max_grey": 0.0, "closing_kernel_m": 0.0 },
+  "working_pixel_size_m": 0.12,
+  "normalise": { "window_m": 30.0, "clip_limit": 2.0 },
+  "outline": { "max_grey": 0.3, "closing_kernel_m": 0.25 },
   "tone": {
-    "light_min": 0.0,
-    "dark_max": 0.0,
-    "hatch_min": 0.0,
-    "hatch_min_density": 0.0,
-    "mixed_spread": 0.0
+    "light_min": 0.78,
+    "dark_max": 0.45,
+    "hatch_min": 0.5,
+    "hatch_min_density": 0.003,
+    "mixed_spread": 0.35
   },
-  "text": { "max_mark_area_m2": 0.0 },
+  "text": { "max_mark_area_m2": 3.0 },
   "regions": {
-    "min_area_m2": 0.0,
-    "max_area_m2": 0.0,
-    "hole_fill_m2": 0.0,
-    "min_outline_closure": 0.0
+    "min_area_m2": 8.0,
+    "max_area_m2": 6000.0,
+    "hole_fill_m2": 3.0,
+    "min_outline_closure": 0.6
   },
-  "simplify_tolerance_m": 0.0,
+  "simplify_tolerance_m": 0.3,
   "fixture_baseline": {}
 }

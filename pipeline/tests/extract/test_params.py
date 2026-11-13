@@ -122,6 +122,9 @@ def test_inverted_tone_thresholds_are_refused() -> None:
         parse_params(doc, "x")
 
 
-def test_the_committed_v1_names_only_tuning_plates() -> None:
+def test_the_committed_v1_loads_and_names_only_tuning_plates() -> None:
+    params = load_params("v1")
+    assert params.id == "v1"
+    assert set(params.tuned_on) <= set(TUNING_SOURCES)
     doc = json.loads((PARAMS_DIR / "v1.json").read_text(encoding="utf-8"))
     assert set(doc["tuned_on"]) <= set(TUNING_SOURCES)

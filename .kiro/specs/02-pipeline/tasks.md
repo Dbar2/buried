@@ -231,7 +231,7 @@ task 16), 7, 8, 16, 11, 9.
     `pipeline/buried_pipeline/extract/params/v1.json`, `pipeline/tests/extract/test_fixtures.py`,
     `pipeline/scripts/tuning_report.py`.
     Requirements: 8.4, 9.1, 9.2.
-  - [ ] 7.11 Record `uv run buried extract <SOURCE_ID>` in `.kiro/steering/tech.md`.
+  - [x] 7.11 Record `uv run buried extract <SOURCE_ID>` in `.kiro/steering/tech.md`.
     Files: `.kiro/steering/tech.md`.
     Requirements: 1.8.
 

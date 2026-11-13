@@ -163,7 +163,14 @@ invent commands; when one is added, record it here.
     file `data/control/map_area/<id>.json` (written by a person; no command writes it); plates
     only until aerials are registered. With no ids it tiles every plate that has both and names
     the ones it skipped.
-  - `extract`, `publish` and `match` are registered and exit 2 with "not
+  - Propose building footprints from a plate's map area, deterministic image processing only:
+    `uv run buried extract <SOURCE_ID> [--preview]`. Needs the plate's alignment record and map
+    area file. Writes `data/work/proposals/<id>.geojson` (gitignored) and prints counts, score
+    quartiles, tone classes, weakness flags and run time. `--preview` also writes
+    `data/work/extract/<id>_preview.jpg`: the map area with every proposal outlined, coloured by
+    quality band (a debugging aid, spec 02 requirement 21). Thresholds are in
+    `pipeline/buried_pipeline/extract/params/v1.json`.
+  - `publish` and `match` are registered and exit 2 with "not
     implemented yet" until their tasks land.
 - Unity (spec 03), run from the repository root with `tools/unity.sh` (headless Unity 6000.3.26f1;
   set `UNITY_BIN` to override the editor path; logs in `unity/Logs/`):
