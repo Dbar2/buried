@@ -230,8 +230,7 @@ invent commands; when one is added, record it here.
     absence needs F wholly inside one reviewed area and no footprint covering 10 per cent of it
     under any shift (spec 02 13.2 to 13.4). Each run writes the figures it used to
     `data/work/match/pairwise.json`.
-  - Held-out write hook (spec 02 task 17), run by `.kiro/hooks/held-out.json` (still `"enabled":
-    false`; the maintainer enables it): `uv --directory pipeline run python -m
+  - Held-out write hook (spec 02 task 17), run by `.kiro/hooks/held-out.json` (`"enabled": true`, since session 025's script landed): `uv --directory pipeline run python -m
     buried_pipeline.hooks.held_out_write`. Reads the hook event as JSON on standard input; exits 2
     with a message when a write under `pipeline/buried_pipeline/extract/params/`,
     `pipeline/tests/fixtures/extract/` or `data/control/map_area/` names plate 232 (1935), else 0.

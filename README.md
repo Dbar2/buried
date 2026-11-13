@@ -135,7 +135,7 @@ All stored coordinates are EPSG:26917 (metres). Longitude and latitude do not ap
 - `.kiro/agents/`: six agent configurations. `architect` writes specs, `builder` and `coder`
   implement tasks, `mechanic` makes small edits, and `archivist` and `plate-qa` read the evidence
   files through the MCP server and write notes, never evidence.
-- `docs/kiro-sessions/`: the task brief given to Kiro for each session, numbered 001 to 031,
+- `docs/kiro-sessions/`: the task brief given to Kiro for each session, numbered 001 to 036,
   including the one that produced this README.
 
 The rules in `.kiro/steering/` require property-based tests (Hypothesis in Python, fast-check in

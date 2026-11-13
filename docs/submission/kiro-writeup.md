@@ -19,7 +19,7 @@ Six agents live in `.kiro/agents/`. None can write that folder, so we edit the f
 | archivist | claude-sonnet-5.5 | Read, fetch web pages, use MCP; write `docs/sources/` | Write `data/` or `.kiro/`; infer a licence |
 | plate-qa | claude-sonnet-5.5 | Use MCP; write `docs/qa/` | Write `data/` or `.kiro/`; accept, reject or publish |
 
-None can write `.env*` or `.git`. The coder wrote the Explorer's first draft unable to run anything (session 010), and a builder compiled, tested and fixed it. No brief records a mechanic or archivist run, and `docs/sources/` does not exist (to confirm).
+None can write `.env*` or `.git`. The coder wrote the Explorer's first draft unable to run anything (session 009), and a builder compiled, tested and fixed it (session 010). The mechanic's first run was session 036, which made corrections to this document. The archivist has not been run yet, so `docs/sources/` does not exist.
 
 **plate-qa.** Its first real run failed: `features_near` returned 163 features as 199 KB with no paging, the client truncated it, and `plate_work` gave counts without ids or crops (session 030). We added paging, a compact mode, flagged-proposal lists and `plate_features`. Its reports in `docs/qa/` then flagged, for the 1911 plate, 70 of 100 features outside the control hull, footprint pairs whose crops overlap (0039 and 0009 by 87 per cent) and possible merged lots.
 
@@ -35,9 +35,9 @@ Seven files in `.kiro/hooks/`, explained in its `README.md`:
 - `bridge.json`: regenerates bridge types and runs both sides' parse tests, Unity headless.
 - `spec-tasks.json`: after a spec task, runs the suites and unticks the task on failure.
 
-The held-out guard runs before an agent write and exits 2 when the write targets extraction parameters, extraction fixtures or `data/control/map_area/` and names plate 232 (1935). A pytest guard covers files written by shell commands, which the hook cannot see. We have no record of the hook blocking a real write (to confirm).
+The held-out guard runs before an agent write and exits 2 when the write targets extraction parameters, extraction fixtures or `data/control/map_area/` and names plate 232 (1935). A pytest guard covers files written by shell commands, which the hook cannot see. We tested the guard script by hand with a write event that names plate 232 in the extraction parameters: it exited 2 with its refusal message, and exited 0 for an ordinary write. No agent has tripped it in a real session.
 
-Kiro refused agent writes under `.kiro/hooks/` (to confirm), so an architect session drafted the files (session 012) and we moved them into place by hand. A permission rule also refused the builder's write to `.kiro/settings/mcp.json` (session 025), and we pasted the JSON in.
+Kiro refused the architect's writes under `.kiro/hooks/` in session 012, although its permission rules allowed that folder, so an architect session drafted the files (session 012) and we moved them into place by hand. A permission rule also refused the builder's write to `.kiro/settings/mcp.json` (session 025), and we pasted the JSON in.
 
 ## 4. Spec-driven development
 
@@ -47,7 +47,7 @@ Two catches before code. Session 001's first run found that a plate "revised to"
 
 Two misses. Spec 02's matching rule shrank footprints by the plates' combined errors (4.3 m and 3.1 m), which erased a typical 20 m² footprint, so the first real `buried match` sent every pair to review. A maintainer review found the place page saying "Checked by a person" for a record marked "gate draft, unreviewed" (session 027).
 
-Against vibe coding: specs gave builders a stopping rule and gave us one place to settle questions. We did not build both ways, so we cannot say which was faster. The specs reached about 10,000 lines (to confirm), and sessions that read them whole wasted credits. From session 015 each brief names the sections to read.
+Against vibe coding: specs gave builders a stopping rule and gave us one place to settle questions. We did not build both ways, so we cannot say which was faster. The specs reached about 10,000 lines (10,039 at the time of writing), and sessions that read them whole wasted credits. From session 015 each brief names the sections to read.
 
 ## 5. Steering docs
 
@@ -69,7 +69,7 @@ On day two the pieces worked but did not answer an ordinary person's question fa
 - **Hole bridging** (E4). The triangulator attached a bridge at the wrong copy of a repeated vertex and the ring crossed itself.
 - **The 13 mm fold-back** (E15, session 015). City outline 306711 has a jog at vertices 39, 40 and 0, leaving a wall with no solid behind it. Vertices under 2 cm apart are now merged.
 - **The inward wall** (E15, session 028). On 39-vertex `bld_fip_v3_1935_229_0009` the ear clipper emitted a cap triangle 13 m long and 3e-7 m high. In float32 its normal was zero and the test read it as an inward wall. We fixed the collinearity threshold. Afterward: 3264 polygons, 0 failures.
-- **False monotonicity in matching** (sessions 025, 026). "A larger error never gives more matches" was a wrong property, and the rule under it could not match real footprints. We replaced both with a best-overlap rule (at least 0.5, runner-up under 0.3). The counterexample is not in the notes (to confirm).
+- **False monotonicity in matching** (sessions 025, 026). "A larger error never gives more matches" was a wrong property, and the rule under it could not match real footprints. We replaced both with a best-overlap rule (at least 0.5, runner-up under 0.3). The counterexample: footprints F = (0,0) to (7,7) and G = (0,4) to (7,11) went to review at a pairwise error of 1.0 m and became a clear absence at 2.5 m under the retired shrink rule, because the larger shrink pulled F's core off G. The pair is kept as a regression test of the new rule.
 
 Three were code bugs, one was a rigid tolerance plus numerics, one was a wrong property.
 

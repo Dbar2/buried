@@ -19,11 +19,11 @@ Each JSON file guards one concern. Every command is one listed under "Commands" 
 - **One glob per hook.** Each `matcher` holds a single glob. Where a concern covers several folders
   or both save and create, there is one hook per glob and trigger, so no hook depends on brace
   expansion or list matchers.
-- **`held-out.json` needs its script.** It calls
-  `uv --directory pipeline run python -m buried_pipeline.hooks.held_out_write`, which spec 02 task
-  17 adds. Until that task lands the module does not exist, uv exits 1 (not 2), and Kiro reports a
-  failing hook without blocking the write. Keep the hook disabled (`"enabled": false`) until then if
-  the noise gets in the way.
+- **`held-out.json` and its script.** It calls
+  `uv --directory pipeline run python -m buried_pipeline.hooks.held_out_write`, added by spec 02
+  task 17 in session 025. The hook is enabled. Fed a write event that names plate 232 in the
+  extraction parameters, the script exits 2 with its refusal message; for an ordinary write it
+  exits 0.
 - **`held-out.json` matcher.** `write` is the tool name in this project's agent configurations
   (`.kiro/agents/*.json`). If Kiro reports the tool under another name in the hook event, change the
   matcher to that name. The script reads the target path and text from the tool input itself, so it
