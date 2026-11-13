@@ -239,6 +239,11 @@ invent commands; when one is added, record it here.
     `POST /v1/publish`. Plate rasters are read from `data/raw/<id>/` on the machine the Service
     runs on; the image has none, so extract and publish need the plate fetch (spec 04 task 4).
     The Service writes nothing under `data/`.
+    Plate fetch for a Service with an empty `data/raw/` (session 025, spec 04 task 4.1 fetch part):
+    `buried_pipeline.service.plates.PlateFetcher.ensure(source_id, live=False)` downloads one
+    registered plate into a cache directory laid out like `data/raw/`, checks size and SHA-256
+    against a manifest when one has an entry, and refuses any other host. The held-out plate needs
+    `live=True`. No endpoint or cache setting calls it yet.
   - Tests: `uv run pytest tests/service`. Docker image (spec 04 task 3.4), from the repository
     root: `docker build -f pipeline/Dockerfile .`. Its context is set by
     `pipeline/Dockerfile.dockerignore` (BuildKit reads it next to the Dockerfile; a
