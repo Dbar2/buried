@@ -5,80 +5,98 @@ fileMatchPattern: ["web/**", "unity/**"]
 
 # Design
 
-Mood: a city at dusk, lit by a lantern. The spookiness comes from atmosphere and the depth-is-time
-metaphor. No cartoon ghosts, faces, skulls, bats or jump scares.
+Brand: **an archival atlas examined by lamplight.** A real plan sheet on a dark table, one warm
+lamp from the upper left, buildings rising off the paper as ink-edged apparitions. The Halloween
+comes from the lamp, the fog, digging and buildings that come back. No invented deaths, hauntings
+or dialogue; no skulls, pumpkins, bats, faces, cartoon ghosts or jump scares.
+
+## What the brand is not
+
+Not a dark dashboard: no card grids, no pill buttons, no gradient fills, no sidebar, no glass or
+blur panels, no drop shadows, no icon rows, no stat tiles.
 
 ## Identity
 
-- Wordmark "Buried" in Fraunces. Tagline: "Forgotten maps, rebuilt with proof."
-- Mark: the core-sample lens, a circle holding three or four strata lines, drawn in thin `ink`
-  lines. Used as favicon, loading mark and report header.
-- No other logos or illustrations.
+- Wordmark "Buried" in Libre Baskerville. Tagline: "Forgotten maps, rebuilt with proof." Mark: the
+  core-sample lens, a thin circle holding three or four strata lines (favicon, loading mark).
+- Motifs: survey marks, registration crosses in corners, plate borders, sheet numbers, light ink
+  hatching, catalogue cards, paper tags on string. Real scans are the main imagery. No other
+  logos or illustrations; the concept pictures in `docs/brand/` are direction, not assets.
 
 ## Palette tokens
 
-Dark theme (Explorer, Studio, shell chrome). Starting values; run a WCAG contrast check before
-locking them, and record the results here.
+Defined once in `web/src/styles/tokens.css`; `Buried.Editor.Setup` writes the Unity palette asset
+from it and an EditMode test compares the two. No raw hex values in components or materials.
 
 | Token | Hex | Use |
 |---|---|---|
-| `night` | `#0E1116` | Background, sky |
-| `fog` | `#1B2129` | Panels, ground haze |
-| `present` | `#2E3742` | Today's buildings |
-| `ink` | `#E8DFC8` | Ghosts, archival lines, primary button fill |
-| `lantern` | `#F2A541` | Pinned lot, focus rings, active step and nav underline |
-| `water` | `#5FB3B3` | Documented water, shorelines |
-| `text` | `#EDEAE3` | Body text |
-| `muted` | `#9AA3AD` | Secondary text |
+| `--soot` | `#121715` | The table, sky, page background on the dark theme |
+| `--haze` | `#1F2622` | Ground fog, the header band, the phone sheet's backing |
+| `--block` | `#2B312D` | Today's buildings and their plinths (matte, cold) |
+| `--parchment` | `#E8DCC1` | The sheet, the catalogue card, tags, text on soot, ghost fill |
+| `--parchment-dim` | `#A99F8A` | Secondary text on soot or haze |
+| `--ink` | `#23221F` | Text and lines on parchment, ghost edges, storey lines |
+| `--ink-soft` | `#57524A` | Secondary text on parchment |
+| `--rule` | `#7A7364` | Hairlines and control outlines on parchment |
+| `--copper` | `#6D8376` | Ghost shade tint, survey marks and crosses on soot, hairlines on soot |
+| `--lantern` | `#DCA34B` | The one primary action, the selected find, focus rings on soot |
+| `--water` | `#5FB3B3` | Documented water only. Never text, links or accents |
 
-- The present is cold, the past is warm. Do not mix them: no warm tint on today's buildings, no
-  blue tint on ghosts.
-- `lantern` marks the pinned lot, focus rings, and the underline on the active Studio step and nav
-  item. Never decoration, never selection, never a button fill. A selected feature or review item
-  has a brighter, thicker `ink` outline plus its DOM label. The Studio has no pinned lot, so
-  `lantern` appears in its chrome (underline, focus) and never on its maps.
-- `water` is only for documented water features. Never for links, info or generic accents.
-- Body text is `text` on `night` or `fog`. Text must meet 4.5:1; large text and UI outlines 3:1.
-- Define tokens once (CSS custom properties in `web/`, one C# palette asset in `unity/`). No raw
-  hex values in components or materials.
+Old tokens. `--ink` changes meaning from light to dark, so first replace every `var(--ink)` with
+`var(--parchment)`, then the rest, then define the new `--ink`: `--ink` (old, `#E8DFC8`) and
+`--text` → `--parchment`; `--night` → `--soot`; `--fog` → `--haze`; `--present` → `--block`;
+`--muted` → `--parchment-dim`; `--lantern` keeps its name, new value; `--water` is unchanged.
 
-Report theme (light paper) uses its own tokens, defined next to the Report
-(`web/src/report/report.tokens.css`, spec 05). It is near-monochrome: dark ink on off-white, with
-hairline grey rules. It does not use `lantern`, `water` or `fog`. Focus rings on paper use
-`--report-ink`, because `lantern` on paper is about 1.9:1, below the 3:1 a UI outline needs.
-Starting values:
+Contrast pairs (WCAG 2 ratios; spec 06 task W1 measures them in a test that fails below the floor):
 
-| Token | Hex | Use |
-|---|---|---|
-| `--report-paper` | `#FAF8F3` | Background |
-| `--report-ink` | `#1A1A18` | Text, solid badges |
-| `--report-ink-soft` | `#4D4C48` | Secondary text |
-| `--report-rule` | `#8E8D88` | Rules, outlines |
+| Pair | Ratio | Floor | Use |
+|---|---|---|---|
+| `--parchment` on `--soot` | 13.3 | 4.5 | Body text on the dark theme |
+| `--parchment` on `--haze` | 11.4 | 4.5 | Header and phone backing |
+| `--parchment-dim` on `--soot` | 6.9 | 4.5 | Secondary text |
+| `--ink` on `--parchment` | 11.7 | 4.5 | Card and tag text |
+| `--ink-soft` on `--parchment` | 5.7 | 4.5 | Card secondary text |
+| `--ink` on `--lantern` | 7.1 | 4.5 | The primary button's label |
+| `--lantern` on `--soot` | 8.1 | 3 | Focus rings and selected tag outline on soot |
+| `--rule` on `--parchment` | 3.5 | 3 | Control outlines on the card |
+| `--copper` on `--soot` | 4.4 | 3 | Hairlines and marks only, never body text |
 
-Contrast results: not measured yet. Spec 05 task 5.4 measures them and records them here; a token
-that fails is changed only with the maintainer.
+Pairs that fail and must not be used: `--lantern` on `--parchment` (1.6; focus rings on paper use
+`--ink`), `--copper` on `--parchment` (3.0; decoration only, never a needed outline).
+
+- `--lantern` stays rare: the one primary action on a screen, the selected find (its edges, its
+  tag outline, its leader line) and focus rings on soot. The pinned lot on the place page is the
+  same "this one" meaning. Never decoration, never a second button.
+- Selection is never colour alone: the selected find also has a thicker edge, its card and its
+  tag marked `aria-pressed`.
+
+Report theme (light paper) keeps its near-monochrome tokens in `tokens.css`: `--report-paper`
+`#FBFAF7`, `--report-ink` `#1A1A18`, `--report-ink-soft` `#4D4C48`, `--report-rule` `#8E8D88`. No
+`--lantern`, `--water`, `--copper` or `--haze`; focus rings on paper use `--report-ink`.
 
 ## Type
 
-- Headings: Fraunces.
-- UI and body: Inter.
-- Dates, plate numbers, source ids, coordinates, error margins: IBM Plex Mono.
-- Self-host the font files with the shell; do not load them from a CDN at runtime.
-- Body size at least 16 px on screen. The printed Report uses the smaller point sizes in spec 05
-  "Print" (body 9.5 pt) so that it fits one page; this is the only exception.
-  Numbers with units always carry the unit: `about 4.0 m`, `1947`.
-- Position error is always worded "Positioned within about X m", never `±` or any wording that
-  reads as an absolute bound. The text comes from the Evidence Library, not from components.
+- Headings, the wordmark and a find's name: Libre Baskerville (regular and italic). Fraunces is
+  dropped: at display size its soft, wonky forms read as 1970s, not as a surveyor's plate.
+- Controls and body: Source Sans 3 (Inter is dropped). Self-host every font; no off-origin request.
+- IBM Plex Mono only for measurements, sheet numbers, source ids and coordinates. Card kickers
+  ("LETTERED ON THE 1911 PLAN") are small capitals with wide tracking.
+- Body size at least 16 px on screen. The printed Report uses the point sizes in spec 05 "Print"
+  (body 9.5 pt); this is the only exception. Numbers with units carry the unit: `about 4 m`.
+- Position error on the card is "Placed within about X m", elsewhere "Positioned within about X
+  m"; never `±` or wording that reads as a bound. The text comes from the Evidence Library.
 
 ## Motion
 
-- Era change: 600 to 900 ms. The present drains to wireframe, then to a faint outline, so the
-  viewer keeps their place. Ghosts condense up from the ground.
-- Camera: eased flights only. Never spin, orbit or move the camera unless the user asked.
+- Raise: today's blocks sink to plinths (600 ms), the sheet brightens, then ghosts rise
+  staggered, nearest the first find first. Each ghost's ink edges draw on, then its fill comes
+  up. Everything has settled by 2.2 s.
+- Era change: 600 to 900 ms crossfade of sheet and ghosts.
+- Camera: still during Raise, era change and selection. It moves only when the visitor drags or
+  asks ("Show on the map"), and then with an eased flight. Never spins or orbits on its own.
 - Studio: extracted footprints draw on in sequence; published buildings rise into the scene.
-- Respect `prefers-reduced-motion` in the shell and pass it to Unity over the bridge. With reduced
-  motion: crossfades only, no camera flights (cut to the target), no rising or condensing.
-- Nothing loops or pulses while the user is reading.
+- `prefers-reduced-motion` is passed to Unity over the bridge. With it: Raise, era change and
+  flights cut to the end state. Nothing loops or pulses while the visitor is reading.
 
 ## Confidence encoding
 
@@ -96,15 +114,16 @@ and labels appear in the scene, the evidence card, the list view and the Report.
 
 ## Accessibility
 
-- Keyboard paths for: search, depth gauge (Up/Down change era), Lantern (Space to hold),
-  selecting ghosts (Tab through a list), Show Evidence, and every Studio review action
+- Keyboard paths for: Raise the past, the find tags, the era ruler (Left/Right; Up/Down on the
+  place page's depth gauge), search on `/place`, Lantern (Space to hold, `L` to toggle, arrows to
+  move), selecting ghosts (Tab through a list), Show Evidence, and every Studio review action
   (accept, edit vertex, merge, split, reject).
 - Every ghost has a text equivalent in a list view: name or use, date window, confidence label,
-  position error, sources.
+  position error, sources. The list is reached from a small "List" control.
 - Visible focus ring on every interactive element.
-- The Unity canvas is never the only way to reach information. A 2D map fallback and the Report
-  work when WebGL fails or is turned off.
-- Era changes are announced to screen readers ("Now showing 1947").
+- The Unity canvas is never the only way to reach information. The flat sheet fallback, the 2D
+  map and the Report work when WebGL fails or is turned off.
+- Era changes are announced to screen readers ("Now showing the 1911 plan").
 
 ## The Report takes the costume off
 
@@ -113,53 +132,64 @@ and labels appear in the scene, the evidence card, the list view and the Report.
 - Prints to one page (Letter and A4) without clipping. Sources and licence lines are printed.
 - Findings show their status label in text. Dates in Plex Mono. No icons without text.
 
-## Place page layout
+## The raised scene and the card
 
-- Left about 58 per cent: the scene, with a slim vertical depth gauge on its left edge (Today at
-  the top). Right about 42 per cent: the report on the paper theme (dark ink text, hairline rules),
-  sober and printable.
-- On narrow screens the report sits below the scene.
-- The header carries the wordmark, the address and the nav.
+- **Block page** (`/` and `/find/<slug>`). The scene fills the window. A thin `--haze` header:
+  wordmark left, "Sources" right, a hairline rule with a registration cross at each end. Before
+  Raise: the headline, the button and its line over the upper left of the sheet; paper tags on
+  strings pinned at the finds. After Raise: find tags in a row along the top, the catalogue card
+  docked at the right edge (about 360 px), the era ruler along the bottom (Today, 1935, 1911), the
+  Lantern control at the bottom left, "List" beside it. A margin caption under the sheet names the
+  block and holds "Look up an address".
+- **The catalogue card.** Parchment, `--ink` text, hairline `--rule` lines between rows, a
+  registration cross in each corner, no shadow. Kicker, name as lettered (Baskerville; the second
+  lettered line in italic), the untouched lettering crop in a hairline frame, then rows "Seen on",
+  "Placed within", "Status", then "Show the original sheet", "Share this find", "Full record". A
+  thin `--lantern` leader line runs from the selected find's anchor to the card's left edge.
+- **Phone** (under 720 px wide). Scene above, about 55 per cent of the height; the ruler on the
+  scene's lower edge; the find tags in one scrolling row at the top. The card is a bottom sheet
+  that peeks at kicker, name and status and drags up to full. No leader line on a phone.
+- **Place page** (`/place?lot=`) keeps its layout: scene left about 58 per cent with the depth
+  gauge, the paper report right about 42 per cent, the report below the scene on narrow screens.
 
 ## Studio look
 
-- The scan is dimmed toward mid-grey so traced outlines read. Outlines in `ink`; rejected ones
-  faint and dashed; the current one thicker with a small mono tag.
-- The active step and nav item carry a `lantern` underline. One primary button per panel, filled
-  `ink` with dark text. Dense, calm, no decoration.
+- The scan is dimmed toward mid-grey so traced outlines read. Outlines in `--parchment`; rejected
+  ones faint and dashed; the current one thicker with a small mono tag.
+- The active step and nav item carry a `--lantern` underline. One primary button per panel,
+  filled `--parchment` with `--ink` text. Dense, calm, no decoration.
 
 ## Controls
 
-- Rectangular with a 2 px radius, hairline borders, no drop shadows, no gradients, no pills.
-  Buttons are text. Focus rings are `lantern` on the dark theme and `--report-ink` on paper.
+- Rectangular, 2 px radius at most, hairline borders, no shadows, no gradients, no pills; buttons
+  are text. The one primary action is filled `--lantern` with `--ink` text; others are outlined
+  (`--rule` on parchment, `--parchment-dim` on soot) or plain text links.
+- Tags are paper: `--parchment` fill, `--ink` text, a hairline string to their anchor. The
+  selected tag gets a `--lantern` outline on soot or a double `--ink` rule on paper.
+- Focus rings: `--lantern` on soot and haze, `--ink` on parchment, `--report-ink` on the Report.
 
 ## How the Unity scene looks
 
-- **Light.** Dusk: low sun from the west, sky graded from `night` at the zenith to a dim grey-blue
-  near the horizon. Low ambient light. No day cycle.
-- **Fog.** Exponential distance fog in the `fog` colour, dense enough that the edge of the
-  coverage area dissolves. There is no visible edge of the world.
-- **The present.** Today's buildings are matte `present` volumes, no texture, no windows, unlit by
-  any warm source. Near the camera they are darker than the fog and dissolve into it with distance;
-  a thin lighter roof edge keeps them legible. Quiet enough that ghosts read over them.
-- **The past.** Ghosts are ink drawings: thin `ink` edges, a translucent pale fill, slight
-  self-illumination, and one horizontal `ink` line per documented storey. No invented detail: no
-  windows, cornices or roofs that no source shows. They glow faintly; they do not bloom or flicker.
-- **The pinned lot.** Outlined in `lantern` on the ground in every era, with one small warm light
-  beside it. That is the only warm light and the only `lantern` in the scene. A selected ghost
-  uses the brighter, thicker `ink` outline, not `lantern`.
-- **Water.** Documented water renders as faint `water` light on the ground under today's streets.
-  Never as animated waves.
-- **Draped rasters: the map sheet is lit.** In the Explorer scene a draped plate reads as warm
-  paper lit from above by one lantern: display-toned toward `ink` (a tone curve on the greyscale
-  scan; the lines stay dark), brightest near the pinned lot, falling off to the fog. Aerials get
-  the same lighting without recolouring. No sharpening, no stylising beyond the tone curve and
-  the light falloff. A plate drape shows its map area only. "View original scan" is one action
-  away and shows the untouched raster. This toning applies to the Explorer scene only. The
-  Studio, the evidence card crop, the core-sample crops and the Sources page show the untouched
-  scan (the full photograph with archive labels is on the Sources page).
-- **Show Evidence.** The selected ghost goes transparent and the source raster appears beneath it.
+- **Light.** One warm key light from the upper left, off frame, as if from a desk lamp: brightest
+  on the sheet near the upper left, falling off toward the lower right and onto the `--soot`
+  table beyond the sheet. Low cool ambient. The lamp is light only; no lamp model is shown.
+- **The sheet.** The plate's map-area tile draped flat, toned toward `--parchment` with its lines
+  toward `--ink` (a tone curve on the greyscale scan and the lamp falloff, nothing else), in a thin
+  ink plate border. Raise brightens it. The card crop, "Show the original sheet", the Studio, the
+  core sample and the Sources page always show the untouched scan.
+- **Fog.** A thin ground fog in `--haze`, low over the table, and distance fog that dissolves the
+  table's edge. No visible edge of the world. No fog particles.
+- **The present.** Today's buildings are matte `--block` volumes on the sheet, no texture or
+  windows. After Raise they sink to plinths 1 m high so the ghosts read over them.
+- **The past.** Ghosts are plain volumes: a translucent `--parchment` fill, faces away from the
+  lamp tinted toward `--copper`, crisp `--ink` edges and one horizontal `--ink` line per
+  documented storey. No windows, chimneys, cornices or roofs: no source gives them. No bloom, no
+  flicker.
+- **The selected find.** Its edges turn `--lantern` and thicken, with a faint `--lantern`
+  emission. The pinned lot on the place page is outlined in `--lantern` on the ground. These and
+  the lamp are the only warm accents in the scene.
+- **Water.** Documented water renders as faint `--water` light on the sheet. Never animated waves.
+- **Show Evidence.** The selected ghost goes transparent over the untouched source raster.
 - **Restraint.** No particles, lens flares, chromatic aberration, film grain or camera shake.
-  Post-processing is limited to tone mapping and subtle bloom on `ink` and `lantern` only.
-- Blender hero props (such as the lantern) use the same palette. They never stand in for
-  buildings.
+  Post-processing is limited to tone mapping and subtle bloom on `--lantern` emission only.
+  Blender props use the same palette and never stand in for buildings.
