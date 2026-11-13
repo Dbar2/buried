@@ -26,6 +26,8 @@ export const SHELL_TO_PLAYER = [
   'scene/focusLot',
   'scene/clearLot',
   'scene/setDrapeMode',
+  'scene/setLantern',
+  'scene/showEvidence',
   'debug/markers',
   'debug/setCamera',
 ] as const;
@@ -130,6 +132,13 @@ export function semanticProblem(message: BridgeMessage): string | null {
     }
     case 'scene/focusLot':
       return firstOpenRing(message.payload.lot) ? 'payload.lot has a ring that is not closed' : null;
+    case 'scene/showEvidence': {
+      const p = message.payload;
+      if (p.on && p.drape === undefined) return 'payload.drape is required when on is true';
+      if (!p.on && p.drape !== undefined) return 'payload.drape must be absent when on is false';
+      if (p.drape?.clip !== undefined && firstOpenRing(p.drape.clip)) return 'payload.drape has a clip ring that is not closed';
+      return null;
+    }
     case 'debug/markers': {
       const dup = firstDuplicate(message.payload.markers.map((m) => m.id));
       return dup === null ? null : `payload.markers has the marker id "${dup}" more than once`;

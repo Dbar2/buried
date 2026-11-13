@@ -34,6 +34,8 @@ namespace Buried.Interop
                 case BridgeMessageTypes.SceneFocusLot: payload = Write((SceneFocusLotPayload)message.payload); break;
                 case BridgeMessageTypes.SceneClearLot: payload = new JObject(); break;
                 case BridgeMessageTypes.SceneSetDrapeMode: payload = Write((SceneSetDrapeModePayload)message.payload); break;
+                case BridgeMessageTypes.SceneSetLantern: payload = Write((SceneSetLanternPayload)message.payload); break;
+                case BridgeMessageTypes.SceneShowEvidence: payload = Write((SceneShowEvidencePayload)message.payload); break;
                 case BridgeMessageTypes.DebugMarkers: payload = Write((DebugMarkersPayload)message.payload); break;
                 case BridgeMessageTypes.DebugSetCamera: payload = Write((DebugSetCameraPayload)message.payload); break;
                 case BridgeMessageTypes.Ready: payload = Write((ReadyPayload)message.payload); break;
@@ -166,6 +168,45 @@ namespace Buried.Interop
             return o;
         }
 
+        private static JObject Write(SceneSetLanternPayload p)
+        {
+            return new JObject
+            {
+                ["on"] = p.on,
+                ["center"] = new JObject { ["x"] = Num(p.center.x), ["y"] = Num(p.center.y) },
+                ["radius"] = Num(p.radius),
+                ["eraId"] = p.eraId,
+            };
+        }
+
+        private static JObject Write(SceneShowEvidencePayload p)
+        {
+            var o = new JObject { ["featureId"] = p.featureId, ["on"] = p.on };
+            if (p.drape != null) o["drape"] = WriteDrape(p.drape);
+            return o;
+        }
+
+        private static JObject WriteDrape(DrapeDto d)
+        {
+            var drape = new JObject
+            {
+                ["sourceId"] = d.sourceId,
+                ["url"] = d.url,
+                ["corners"] = new JObject
+                {
+                    ["topLeft"] = Position(d.corners.topLeft),
+                    ["topRight"] = Position(d.corners.topRight),
+                    ["bottomRight"] = Position(d.corners.bottomRight),
+                    ["bottomLeft"] = Position(d.corners.bottomLeft),
+                },
+                ["widthPx"] = d.widthPx,
+                ["heightPx"] = d.heightPx,
+            };
+            if (d.clip != null) drape["clip"] = Write(d.clip);
+            if (d.kind != null) drape["kind"] = d.kind;
+            return drape;
+        }
+
         private static JObject Write(SceneAddFeaturesPayload p)
         {
             return new JObject { ["eraId"] = p.eraId, ["features"] = WriteFeatures(p.features) };
@@ -175,26 +216,7 @@ namespace Buried.Interop
         {
             JArray features = WriteFeatures(p.features);
             var drapes = new JArray();
-            foreach (DrapeDto d in p.drapes)
-            {
-                var drape = new JObject
-                {
-                    ["sourceId"] = d.sourceId,
-                    ["url"] = d.url,
-                    ["corners"] = new JObject
-                    {
-                        ["topLeft"] = Position(d.corners.topLeft),
-                        ["topRight"] = Position(d.corners.topRight),
-                        ["bottomRight"] = Position(d.corners.bottomRight),
-                        ["bottomLeft"] = Position(d.corners.bottomLeft),
-                    },
-                    ["widthPx"] = d.widthPx,
-                    ["heightPx"] = d.heightPx,
-                };
-                if (d.clip != null) drape["clip"] = Write(d.clip);
-                if (d.kind != null) drape["kind"] = d.kind;
-                drapes.Add(drape);
-            }
+            foreach (DrapeDto d in p.drapes) drapes.Add(WriteDrape(d));
             return new JObject { ["eraId"] = p.eraId, ["features"] = features, ["drapes"] = drapes };
         }
 

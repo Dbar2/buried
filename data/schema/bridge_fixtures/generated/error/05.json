@@ -3,6 +3,6 @@
   "payload": {
     "code": "debug_disabled",
     "message": "1k",
-    "messageType": "debug/setCamera"
+    "messageType": "eraLoaded"
   }
 }

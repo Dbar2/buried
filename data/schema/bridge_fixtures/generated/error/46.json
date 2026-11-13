@@ -3,6 +3,6 @@
   "payload": {
     "code": "invalid_message",
     "message": "kE8]6KxV",
-    "messageType": "debug/markers"
+    "messageType": "scene/clearLot"
   }
 }

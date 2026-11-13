@@ -28,6 +28,7 @@ Shader "Buried/Edge"
         _DashPeriod ("Dash period, least (m); 0 is a solid line", Float) = 0
         _DashPeriodPx ("Dash period, least (CSS px)", Float) = 11
         _DashOn ("Dash share of its period", Range(0.05, 0.95)) = 0.55
+        [HideInInspector] _LensMode ("Lantern lens: 0 everywhere, 1 inside, 2 outside", Float) = 0
         [HideInInspector] _ZTest ("Z test", Float) = 4
         _Fogged ("Distance fog applies (1) or not (0)", Range(0, 1)) = 1
     }
@@ -65,6 +66,7 @@ Shader "Buried/Edge"
                 float _DashPeriodPx;
                 half _DashOn;
                 half _Fogged;
+                half _LensMode;
             CBUFFER_END
 
             struct Attributes
@@ -124,6 +126,7 @@ Shader "Buried/Edge"
 
             half4 frag(Varyings input) : SV_Target
             {
+                BuriedLensClip(input.positionCS, _LensMode);
                 if (_DashPeriod > 0.0 && frac(input.dashPhase) > _DashOn) discard;
 
                 float core = 0.5 * _WidthPx * _PixelScale;

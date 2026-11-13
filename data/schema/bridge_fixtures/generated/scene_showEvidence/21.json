@@ -1,0 +1,59 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "use_rpzy_df_y895u_7378",
+    "on": true,
+    "drape": {
+      "sourceId": "z",
+      "url": "/data/tiles/h4xbgf_q_by90.jpg",
+      "corners": {
+        "topLeft": [
+          219601.306,
+          1562272.894
+        ],
+        "topRight": [
+          695991.026,
+          0.023
+        ],
+        "bottomRight": [
+          562704.461,
+          1520558.208
+        ],
+        "bottomLeft": [
+          833999.988,
+          8683336.649
+        ]
+      },
+      "widthPx": 8,
+      "heightPx": 5099,
+      "clip": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              352839.205,
+              3616925.7
+            ],
+            [
+              658398.476,
+              3301689.979
+            ],
+            [
+              485457.363,
+              1996827.535
+            ],
+            [
+              631338.255,
+              8939309.815
+            ],
+            [
+              352839.205,
+              3616925.7
+            ]
+          ]
+        ]
+      },
+      "kind": "plate"
+    }
+  }
+}

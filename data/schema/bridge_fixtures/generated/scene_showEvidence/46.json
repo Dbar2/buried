@@ -1,0 +1,32 @@
+{
+  "type": "scene/showEvidence",
+  "payload": {
+    "featureId": "bld_dxfj81_2678",
+    "on": true,
+    "drape": {
+      "sourceId": "qy_2jm7",
+      "url": "/data/tiles/9727j1_y7ub2_lbxjt.jpg",
+      "corners": {
+        "topLeft": [
+          393392.489,
+          6553071.138
+        ],
+        "topRight": [
+          169281.731,
+          0.023
+        ],
+        "bottomRight": [
+          397418.701,
+          2813950.17
+        ],
+        "bottomLeft": [
+          642649.786,
+          5246148.045
+        ]
+      },
+      "widthPx": 3763,
+      "heightPx": 12,
+      "kind": "plate"
+    }
+  }
+}

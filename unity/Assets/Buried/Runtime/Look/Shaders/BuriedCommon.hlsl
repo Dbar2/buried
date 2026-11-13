@@ -8,6 +8,19 @@ float _BuriedFogDensity;
 // The lit map sheet's one light pool: x and z of its centre in world space, its radius in metres.
 float4 _BuriedLightPool;
 
+// The Lantern's lens (session 028). x, y: its centre in fragment pixels (the units of SV_POSITION), z: its
+// radius in pixels, w: 1 while the Lantern is on. A material's _LensMode says how it meets the lens:
+// 0 draws everywhere, 1 only inside the lens, 2 only outside it.
+float4 _BuriedLens;
+
+void BuriedLensClip(float4 positionCS, half mode)
+{
+    if (_BuriedLens.w < 0.5 || mode < 0.5) return;
+    float2 d = positionCS.xy - _BuriedLens.xy;
+    bool inside = dot(d, d) < _BuriedLens.z * _BuriedLens.z;
+    if (mode < 1.5 ? !inside : inside) discard;
+}
+
 // Exponential distance fog: the share of the surface colour that survives at this point.
 float BuriedTransmission(float3 positionWS)
 {
