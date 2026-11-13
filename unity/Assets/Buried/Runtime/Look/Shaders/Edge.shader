@@ -1,10 +1,16 @@
-// Thin lines on screen: the outline of a building (top ring, base ring, vertical corners).
-// EdgeMeshBuilder emits one quad per segment. Each vertex carries its own end of the segment in
-// the position, the other end in TANGENT.xyz, the side (+1 or -1) in TANGENT.w, the distance along
-// the ring in uv0.x (for the dashes of task group 4) and which end it is in uv0.y (-1 start, +1 end).
+// Thin lines on screen: the outline of a building (top ring, base ring, vertical corners, and one
+// ring per recorded storey). EdgeMeshBuilder emits one quad per segment. Each vertex carries its own
+// end of the segment in the position, the other end in TANGENT.xyz, the side (+1 or -1) in
+// TANGENT.w, the distance along the ring in uv0.x (for the dashes) and which end it is in uv0.y
+// (-1 start, +1 end).
 // The quad is expanded in clip space to the line width plus a narrow glow on each side, so the
 // width is in screen pixels whatever the distance (requirements 20.4 and 26.4). The glow is at most
 // _GlowPx pixels wide. Nothing here reads the time.
+//
+// Dashes (the estimated class): with _DashPeriod above 0 the line is drawn in dashes. The dash
+// coordinate is the distance along the ring plus the height of the vertex, so a vertical corner
+// dashes too. The period is the larger of _DashPeriod metres and _DashPeriodPx pixels at the
+// vertex's distance, so the pattern reads at any zoom. Each dash is _DashOn of its period.
 Shader "Buried/Edge"
 {
     Properties
@@ -19,6 +25,10 @@ Shader "Buried/Edge"
         _GlowMix ("Glow takes its own colour (0 or 1)", Range(0, 1)) = 0
         _PixelScale ("Device px per CSS px", Float) = 1
         _Rise ("Vertical scale about y = 0", Range(0, 1)) = 1
+        _DashPeriod ("Dash period, least (m); 0 is a solid line", Float) = 0
+        _DashPeriodPx ("Dash period, least (CSS px)", Float) = 11
+        _DashOn ("Dash share of its period", Range(0.05, 0.95)) = 0.55
+        [HideInInspector] _ZTest ("Z test", Float) = 4
     }
     SubShader
     {
@@ -29,7 +39,7 @@ Shader "Buried/Edge"
             Name "BuriedEdge"
             Blend SrcAlpha OneMinusSrcAlpha
             ZWrite Off
-            ZTest LEqual
+            ZTest [_ZTest]
             Cull Off
             Offset -1, -1
 
@@ -50,6 +60,9 @@ Shader "Buried/Edge"
                 half _GlowMix;
                 float _PixelScale;
                 float _Rise;
+                float _DashPeriod;
+                float _DashPeriodPx;
+                half _DashOn;
             CBUFFER_END
 
             struct Attributes
@@ -64,6 +77,7 @@ Shader "Buried/Edge"
                 float4 positionCS : SV_POSITION;
                 float across : TEXCOORD0;
                 float transmission : TEXCOORD1;
+                float dashPhase : TEXCOORD2;
             };
 
             Varyings vert(Attributes input)
@@ -71,6 +85,7 @@ Shader "Buried/Edge"
                 Varyings output;
                 float3 hereOS = input.positionOS.xyz;
                 float3 thereOS = input.other.xyz;
+                float dashCoordinate = input.uv.x + hereOS.y; // before the rise: a corner dashes as it grows
                 hereOS.y *= _Rise; // ghosts rise from the ground (requirement 10.5); 1 for everything else
                 thereOS.y *= _Rise;
                 float3 here = TransformObjectToWorld(hereOS);
@@ -96,11 +111,19 @@ Shader "Buried/Edge"
                 output.positionCS = clipHere;
                 output.across = side * halfWidth;
                 output.transmission = BuriedTransmission(here);
+
+                // Metres per device pixel at this vertex, from the projection's vertical scale.
+                float tanHalfFov = 1.0 / max(abs(UNITY_MATRIX_P._m11), 1e-4);
+                float metresPerPixel = distance(_WorldSpaceCameraPos, here) * 2.0 * tanHalfFov / _ScreenParams.y;
+                float period = max(_DashPeriod, _DashPeriodPx * _PixelScale * metresPerPixel);
+                output.dashPhase = dashCoordinate / max(period, 1e-3);
                 return output;
             }
 
             half4 frag(Varyings input) : SV_Target
             {
+                if (_DashPeriod > 0.0 && frac(input.dashPhase) > _DashOn) discard;
+
                 float core = 0.5 * _WidthPx * _PixelScale;
                 float a = abs(input.across);
                 float coreAlpha = saturate(core - a + 0.5);

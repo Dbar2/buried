@@ -46,8 +46,7 @@ namespace Buried.Scene
         private Mesh _groundMesh;
         private Material _groundMaterial;
         private Material _skyMaterial;
-        private Material _ghostFill;
-        private Material _ghostEdge;
+        private GhostMaterials _ghostMaterials;
         private PresentLayer _present;
         private DebugMarkers _markers;
 
@@ -183,8 +182,11 @@ namespace Buried.Scene
             if (_groundMesh != null) Destroy(_groundMesh);
             if (_groundMaterial != null) Destroy(_groundMaterial);
             if (_skyMaterial != null) Destroy(_skyMaterial);
-            if (_ghostFill != null) Destroy(_ghostFill);
-            if (_ghostEdge != null) Destroy(_ghostEdge);
+            if (_ghostMaterials != null)
+            {
+                _ghostMaterials.Dispose();
+                _ghostMaterials = null;
+            }
             _ground = null;
             _initialised = false;
         }
@@ -244,33 +246,8 @@ namespace Buried.Scene
             groundRenderer.shadowCastingMode = ShadowCastingMode.Off;
             groundRenderer.receiveShadows = false;
 
-            // The documented ghost: `ink` fill at alpha 0.35 with a little self-illumination, and
-            // thin `ink` edges with emission above 1.
-            Color ink = _palette.ink;
-            Color fill = ink;
-            fill.a = LookSettings.GhostFillAlpha;
-            _ghostFill = new Material(_shaders.ghost) { name = "Ghost fill" };
-            _ghostFill.SetColor("_Color", fill);
-            _ghostFill.SetFloat("_Shade", 0.35f);
-            _ghostFill.SetFloat("_Emission", LookSettings.GhostEmission);
-            _ghostFill.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
-            _ghostFill.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
-            _ghostFill.SetFloat("_ZWrite", 0f);
-            _ghostFill.SetFloat("_Cull", (float)CullMode.Back);
-            _ghostFill.renderQueue = 3000;
-
-            _ghostEdge = new Material(_shaders.edge) { name = "Ghost edge" };
-            _ghostEdge.SetColor("_Color", ink);
-            _ghostEdge.SetFloat("_Alpha", 1f);
-            _ghostEdge.SetFloat("_Emission", LookSettings.EdgeEmission);
-            _ghostEdge.SetFloat("_WidthPx", LookSettings.EdgeWidthCssPx);
-            _ghostEdge.SetFloat("_GlowPx", LookSettings.GhostEdgeCasingPx);
-            _ghostEdge.SetFloat("_GlowAlpha", LookSettings.GhostEdgeCasingAlpha);
-            // A `night` casing inside the glow width keeps the `ink` line readable over a pale plate.
-            _ghostEdge.SetColor("_GlowColor", _palette.night);
-            _ghostEdge.SetFloat("_GlowMix", 1f);
-            _ghostEdge.SetFloat("_PixelScale", PixelScale());
-            _ghostEdge.renderQueue = 3010;
+            // The three confidence classes: documented, estimated (dashed, lighter) and unknown (soft).
+            _ghostMaterials = new GhostMaterials(_palette, _shaders, PixelScale());
 
             _markers = new DebugMarkers(transform, _shaders.marker);
 
@@ -304,8 +281,7 @@ namespace Buried.Scene
             layer.AddFeatures(
                 payload.features,
                 _frame,
-                _ghostFill,
-                _ghostEdge,
+                _ghostMaterials,
                 (featureId, reason) => _bridge.SendError(
                     BridgeErrorCodes.MeshBuildFailed, "feature " + featureId + ": " + reason, BridgeMessageTypes.SceneLoadEra));
 

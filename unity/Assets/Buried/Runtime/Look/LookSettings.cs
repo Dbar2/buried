@@ -114,5 +114,29 @@ namespace Buried.Look
 
         /// <summary>Alpha of the present buildings' outline once the depth has left Today (DepthBlend).</summary>
         public const float PresentFaintEdgeAlpha = 0.2f;
+
+        // ---- Confidence classes (design.md "Confidence encoding"; session 023) ----
+        // The three classes differ by pattern, so they stay apart in a greyscale screenshot:
+        // documented is a solid line and the fill above; estimated is a dashed line and a lighter
+        // fill; unknown has no line at all and a soft volume that thins toward the roof.
+
+        /// <summary>Estimated fill alpha: about half of the documented fill.</summary>
+        public const float EstimatedFillAlpha = 0.22f;
+
+        /// <summary>
+        /// A dash's share of its period, the shortest period in metres, and the shortest period on screen
+        /// in CSS pixels. The period is the larger of the two, so a dashed line still reads as dashes
+        /// from the default view and is not finer than the pixel grid.
+        /// </summary>
+        public const float DashOnFraction = 0.55f;
+        public const float DashPeriodM = 2.5f;
+        public const float DashPeriodCssPx = 11f;
+
+        /// <summary>Unknown: fill alpha at the foot of the volume, and how much of it is left at the roof.</summary>
+        public const float UnknownFillAlpha = 0.34f;
+        public const float UnknownRoofShare = 0.25f;
+
+        /// <summary>The height over which an unknown volume thins from its foot to its roof, in metres.</summary>
+        public const float UnknownFadeHeightM = 9f;
     }
 }

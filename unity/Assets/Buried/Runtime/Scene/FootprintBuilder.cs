@@ -15,13 +15,37 @@ namespace Buried.Scene
         {
             public MeshData Fill;
             public MeshData Edges;
+            /// <summary>The top ring only (see <see cref="EdgeMeshBuilder.BuildRoof"/>); empty unless asked for.</summary>
+            public MeshData Roof;
+        }
+
+        /// <summary>What to build besides the volume.</summary>
+        public struct Options
+        {
+            /// <summary>Recorded storeys, or 0 for none: floor lines are drawn only when it is above 1.</summary>
+            public int Storeys;
+            /// <summary>False for a volume with no outline (unknown confidence): <see cref="Result.Edges"/> is then empty.</summary>
+            public bool Outline;
+            /// <summary>True to also build the roof line, for today's buildings.</summary>
+            public bool RoofLine;
+
+            public static Options Default
+            {
+                get { return new Options { Storeys = 0, Outline = true, RoofLine = false }; }
+            }
         }
 
         /// <summary>The meshes for a footprint, or null when no ring survives cleaning.</summary>
         public static Result Build(GeometryDto geometry, float heightM, ProjectFrame frame)
         {
+            return Build(geometry, heightM, frame, Options.Default);
+        }
+
+        public static Result Build(GeometryDto geometry, float heightM, ProjectFrame frame, Options options)
+        {
             var fill = new MeshData();
             var edges = new MeshData();
+            var roof = new MeshData();
             bool any = false;
             foreach (List<List<double[]>> polygon in geometry.polygons)
             {
@@ -32,10 +56,31 @@ namespace Buried.Scene
                 PreparedPolygon prepared = PolygonPrep.Prepare(exterior, holes);
                 if (prepared == null) continue;
                 fill.Append(Extruder.Extrude(prepared, heightM));
-                edges.Append(EdgeMeshBuilder.Build(prepared, heightM));
+                if (options.Outline) edges.Append(EdgeMeshBuilder.Build(prepared, heightM, options.Storeys));
+                if (options.RoofLine) roof.Append(EdgeMeshBuilder.BuildRoof(prepared, heightM));
                 any = true;
             }
-            return any ? new Result { Fill = fill, Edges = edges } : null;
+            return any ? new Result { Fill = fill, Edges = edges, Roof = roof } : null;
+        }
+
+        /// <summary>
+        /// The ground outline of a polygon or MultiPolygon at height <paramref name="y"/>: one flat ring
+        /// per ring of the geometry. Null when no ring survives cleaning.
+        /// </summary>
+        public static MeshData BuildFlatOutline(GeometryDto geometry, float y, ProjectFrame frame)
+        {
+            var outline = new MeshData();
+            bool any = false;
+            foreach (List<List<double[]>> polygon in geometry.polygons)
+            {
+                var holes = new List<IList<Vec2d>>();
+                for (int i = 1; i < polygon.Count; i++) holes.Add(ToLocal(polygon[i], frame));
+                PreparedPolygon prepared = PolygonPrep.Prepare(ToLocal(polygon[0], frame), holes);
+                if (prepared == null) continue;
+                outline.Append(EdgeMeshBuilder.BuildFlat(prepared, y));
+                any = true;
+            }
+            return any ? outline : null;
         }
 
         private static List<Vec2d> ToLocal(List<double[]> ring, ProjectFrame frame)
