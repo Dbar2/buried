@@ -63,7 +63,7 @@ def alignment_record_for(
 
 
 def extract_region(snap: Snapshot, body: dict[str, Any]) -> dict[str, Any]:
-    source_id = snap.source_of_ref(body["plate_ref"])
+    source_id = snap.resolve_plate(body["plate_ref"], body["source"]["id"])
     if source_id is None:
         raise ServiceError("not_found", "no plate with this plate_ref is available to the Service")
     if body["source"] != snap.source_record(source_id):

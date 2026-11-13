@@ -343,9 +343,10 @@ task 16), 7, 8, 16, 11, 9.
 - [x] 11. Match published buildings across sources (needs task 8 and spec 01 task 12)
     (Session 020. The real run compared nothing: only `fip_v3_1911_229` has an evidence file and
     no aerial is tiled. The command is proven on synthetic fixtures.)
-  - [x] 11.1 Implement `match/rules.py` (pure): `MATCH_MIN = 0.5`, `COMPETE_MIN = 0.1`, `shrink`,
-    `grow`, the overlap score, and the per-pair outcome for plates (match candidate, absence, not
-    covered, review with reason) and for aerials (not covered or pending).
+  - [x] 11.1 Implement `match/rules.py` (pure): `MATCH_MIN`, `COMPETE_MIN`, the overlap score, and
+    the per-pair outcome for plates (match candidate, absence, not
+    covered, review with reason) and for aerials (not covered or pending). (Session 026 replaced
+    the shrink-to-core score with the largest IoU under a bounded shift; see task 18.2.)
     Files: `pipeline/buried_pipeline/match/__init__.py`, `pipeline/buried_pipeline/match/rules.py`,
     `pipeline/tests/match/test_rules.py`, `pipeline/tests/helpers/synthetic_evidence.py`.
     Requirements: 13.2 to 13.7, 13.13.
@@ -528,25 +529,32 @@ task 16), 7, 8, 16, 11, 9.
     `.kiro/steering/tech.md`.
     Requirements: 9.2, 9.3.
 
-- [ ] 18. Pairwise alignment error for `match` (session 025)
+- [x] 18. Pairwise registration and the overlap-under-shift rule for `match` (sessions 025, 026)
   - [x] 18.1 `align/pairwise.py` (pure rule and loader), the use in `match/rules.py`, `compute.py` and
-    `run.py` (`own_term_m`, `pair_error`, `absence_error`; `data/work/match/pairwise.json`),
-    requirement 13.15 and design "Pairwise error". Properties: the figure is symmetric, order
-    independent, never defined with fewer than four shared references, conservative and rounded up;
-    `pairwise_figures` refuses a stale control file.
+    `run.py` (`own_term_m`, `pair_error`; `data/work/match/pairwise.json`), requirement 13.15 and
+    design "Pairwise registration". Session 025 built a pairwise error from the difference of the
+    two plates' residuals; session 026 (18.2) replaced it with a fitted registration.
     Files: `pipeline/buried_pipeline/align/pairwise.py`, `pipeline/buried_pipeline/match/*.py`,
     `pipeline/buried_pipeline/paths.py`, `pipeline/tests/align/test_pairwise.py`,
     `pipeline/tests/match/test_pairwise_use.py`.
     Requirements: 13.2, 13.4, 13.15.
-  - [ ] 18.2 Property: matching with a larger error never produces more matches or absences than
-    with a smaller one. **Not done.** It is false for the rules of 13.2 and 13.4 as written:
-    `r` is measured on the core shrunk by `e`, so a larger `e` can turn a partial overlap into a
-    match, and a larger `e_abs` shrinks F's core until a building overlapping F's edge no longer
-    touches it, which turns a review into a clear absence. The test is in
-    `tests/match/test_pairwise_use.py` as a strict `xfail` with the counterexample. It needs a
-    decision on the rule (for example, absence also requires that no building touches F itself, or
-    that `e` only widens the search), not a change to the test.
-    Requirements: 13.2, 13.4.
+  - [x] 18.2 Session 026 decision: the shrink-to-core rule could not match a typical footprint and
+    "a larger error never gives more matches or absences" was false for it (session 025's strict
+    `xfail`). Replaced by: a pairwise registration `T_BA` (similarity for four or five shared
+    references, affine for six or more, error `ceil_0.1(max(0.5, 2 × leave-one-out RMS))`), the
+    overlap score as the largest IoU over lattice shifts `|t| <= e`, match at `r >= 0.5` with the
+    second-best under 0.3 and F the other side's best, clear absence when F lies wholly inside one
+    reviewed area and no footprint covers 10 per cent of it under any shift. Requirements 13.2,
+    13.3, 13.4, 13.6, 13.13 and 13.15 and the design "match" section rewritten. Properties:
+    `T_AB ∘ T_BA` is the identity within tolerance; the score never decreases as `e` grows; a
+    clear absence at a larger error is one at a smaller error (the old counterexample is a regular
+    regression test, `test_the_xfail_counterexample_of_session_025_never_becomes_an_absence`); a
+    copy shifted by less than `e` always matches when nothing else is near; footprints further
+    apart than `e` never match and give an absence inside a reviewed area; results do not depend on
+    processing order; nothing is written when validation fails.
+    Files: `pipeline/buried_pipeline/align/pairwise.py`, `pipeline/buried_pipeline/match/{rules,compute,run}.py`,
+    `pipeline/tests/align/test_pairwise.py`, `pipeline/tests/match/*.py`.
+    Requirements: 13.2, 13.3, 13.4, 13.6, 13.13, 13.15.
 
 - [ ] 19. The `buried-evidence` MCP server (session 025)
   - [x] 19.1 `pipeline/buried_pipeline/mcp/` (`store.py` reads the committed files and

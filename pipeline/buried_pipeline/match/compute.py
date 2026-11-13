@@ -15,7 +15,6 @@ from typing import Any
 
 from shapely.geometry import shape
 from shapely.geometry.base import BaseGeometry
-from shapely.ops import unary_union
 
 from buried_pipeline.match import rules
 from buried_pipeline.match.apply import (
@@ -34,7 +33,7 @@ from buried_pipeline.match.apply import (
     strip_auto,
 )
 from buried_pipeline.match.links import Edge, components, edge, split_candidate_links
-from buried_pipeline.match.rules import Building, Outcome, Plate
+from buried_pipeline.match.rules import Building, Outcome, PairRegistration, Plate
 
 
 @dataclass(frozen=True)
@@ -52,12 +51,10 @@ class MatchInputs:
     aerials: Mapping[str, AerialInfo]
     year_to: Mapping[str, int]  # per source id
     decisions: Decisions = field(default_factory=Decisions)
-    # Per plate: its smallest digitising term, max(1.0, 2 x pixel size). With `pairwise_error_m`
-    # it lets the absence test use the pairwise figure.
-    min_own_term_m: Mapping[str, float] = field(default_factory=dict)
-    # Pairwise alignment errors keyed by the two plates' source ids in sorted order (requirement
-    # 13.15). A pair of plates that is absent here is compared with their absolute errors.
-    pairwise_error_m: Mapping[tuple[str, str], float] = field(default_factory=dict)
+    # Pairwise registrations keyed by the two plates' source ids in sorted order (requirement
+    # 13.15). A pair of plates that is absent here is compared as drawn, with the sum of their
+    # absolute errors.
+    registrations: Mapping[tuple[str, str], PairRegistration] = field(default_factory=dict)
 
 
 @dataclass
@@ -76,10 +73,6 @@ class MatchResult:
     counts: dict[tuple[str, str], PairCounts]
 
 
-def _round(r: float | None) -> float | None:
-    return None if r is None else round(r, 4)
-
-
 def _building(ref: FeatureRef, feature: Mapping[str, Any]) -> Building:
     return Building(
         id=ref.id,
@@ -91,11 +84,7 @@ def _building(ref: FeatureRef, feature: Mapping[str, Any]) -> Building:
 
 
 def _plate(
-    source: str,
-    doc: Mapping[str, Any],
-    buildings: list[Building],
-    min_error: float,
-    min_own_term: float | None = None,
+    source: str, doc: Mapping[str, Any], buildings: list[Building], min_error: float
 ) -> Plate:
     mapped = doc.get("mapped_area")
     reviewed = [
@@ -106,10 +95,9 @@ def _plate(
     return Plate(
         source=source,
         mapped_area=shape(mapped["geometry"]) if mapped else None,
-        reviewed_area=unary_union(reviewed) if reviewed else None,
+        reviewed_areas=tuple(reviewed),
         buildings=tuple(sorted(buildings, key=lambda b: b.id)),
         min_error_m=min_error,
-        min_own_term_m=min_own_term,
     )
 
 
@@ -140,7 +128,6 @@ def compute_match(inputs: MatchInputs) -> MatchResult:
             docs[p],
             [b for b in buildings.values() if b.source == p],
             inputs.min_error_m[p],
-            inputs.min_own_term_m.get(p),
         )
         for p in sorted(inputs.plate_sources)
     }
@@ -165,9 +152,7 @@ def compute_match(inputs: MatchInputs) -> MatchResult:
                 f,
                 p,
                 excluded,
-                inputs.pairwise_error_m.get(
-                    (min(f.source, p.source), max(f.source, p.source))
-                ),
+                inputs.registrations.get((min(f.source, p.source), max(f.source, p.source))),
             )
 
     source_of = {fid: b.source for fid, b in buildings.items()}
@@ -212,9 +197,12 @@ def compute_match(inputs: MatchInputs) -> MatchResult:
             count(source_of[x], source_of[y]).matched += 1
 
     # Step 3b: the other outcomes, for features with no origin or person observation there.
+    # A feature that is one side of a mutual pair has had its say above (written, sent to review
+    # as a clash, or dropped because a person has spoken), whatever its own outcome was.
+    paired = {(x, source_of[y]) for a, b in pairs for x, y in ((a, b), (b, a))}
     for (fid, plate_source), outcome in sorted(outcomes.items()):
         f_ref = refs[fid]
-        if has_origin_or_person(f_ref.props, plate_source):
+        if has_origin_or_person(f_ref.props, plate_source) or (fid, plate_source) in paired:
             continue
         origin = source_of[fid]
         if outcome.kind == rules.MATCH_CANDIDATE:
@@ -236,7 +224,10 @@ def compute_match(inputs: MatchInputs) -> MatchResult:
                     "feature": fid,
                     "plate": plate_source,
                     "reason": outcome.reason,
-                    "candidates": [{"feature": c, "r": _round(r)} for c, r in outcome.scores],
+                    "candidates": [
+                        {"feature": c, "r": round(r, 4), "covered": round(cov, 4)}
+                        for c, r, cov in outcome.scores
+                    ],
                 }
             )
             count(origin, plate_source).review += 1

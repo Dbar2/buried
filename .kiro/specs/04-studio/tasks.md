@@ -119,9 +119,14 @@ steps they extend, then 17 and 18.
     Requirements: 3.1, 3.2, 4.1 to 4.4.
     Session 025 built the fetch part only: `service/plates.py` (`PlateFetcher.ensure`, one plate
     per call, host allowlist, manifest size and SHA-256 check, held-out plate only with
-    `live=True`, no warm-up) with `tests/service/test_plates.py` (fake HTTP). Still to do: the
-    index query and `in_bounds`, inspect, the two endpoints (the fetch endpoint must set `live`
-    from the request alone), and `BURIED_CACHE_DIR` in `config.py`. Not ticked.
+    `live=True`, no warm-up) with `tests/service/test_plates.py` (fake HTTP). Session 026 wired it
+    in behind `BURIED_CACHE_DIR` (and optional `BURIED_PLATE_MANIFEST`): `Snapshot.resolve_plate`
+    for `POST /v1/extract`, `_fetch_for_publish` for `POST /v1/publish`, both always `live=True`,
+    a fetched raster must hash to the request's `plate_ref`; `GET /v1/plates/registered` never reads
+    the held-out raster (`Snapshot.listed_ref`). Tests: `tests/service/test_fetch_wiring.py` (stub
+    fetcher; the guard in `test_plates.py` now names the two functions allowed to call `ensure`).
+    Still to do: the index query and `in_bounds`, inspect, and the two endpoints
+    (`/v1/plates/index`, `/v1/plates/fetch`). Not ticked.
   - [ ] 4.2 **[PBT] S9** Only allowlisted downloads. A property for the fetch part is in
     `tests/service/test_plates.py` (any id, either a refusal with no request or one request to the
     Registry's URL on an allowlisted host); 4.2 stays open for the index and the endpoints.
@@ -347,7 +352,10 @@ steps they extend, then 17 and 18.
     `.kiro/steering/tech.md` and the URLs in `docs/kiro-sessions/` notes.
     Files: `.kiro/steering/tech.md`, `docs/kiro-sessions/<NNN>-deploy.md`.
     Requirements: 19.1, 19.5, 22.4.
-  - [ ] 15.3 Record the walkthrough (maintainer) from a real Studio session, with WebVTT captions and
+    Session 026 wrote the exact Service steps into `tech.md` (Studio service, "Deploy steps"),
+    added `pipeline/railway.json` and made the image fetch plates on demand
+    (`BURIED_CACHE_DIR=/var/cache/buried`). Nothing is deployed and the image has not been built.
+    Not ticked. the walkthrough (maintainer) from a real Studio session, with WebVTT captions and
     an HTML transcript, no third-party logos or footage.
     Files: `web/public/walkthrough/**`.
     Requirements: 19.4.

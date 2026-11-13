@@ -7,6 +7,7 @@ from typing import Any
 import pytest
 from shapely.geometry import box, shape
 
+from buried_pipeline.align.affine import LocalAffine
 from buried_pipeline.cli import main
 from buried_pipeline.errors import PipelineError
 from buried_pipeline.io.registry import load_registry
@@ -117,10 +118,13 @@ def test_review_cases_write_no_observation_and_land_on_the_list(match_root: Path
         ("plate", F1, P1935, "partial_overlap"),
         ("plate", G1, P1911, "partial_overlap"),
     ]
-    # The committed records share six control references, so the pairwise figure sets `e` here
-    # (requirement 13.15), not the sum of the two position errors that gave 0.2951.
+    # The committed records share six control references, so the pairwise registration sets `e`
+    # and brings plate B into plate A's frame (requirement 13.15), not the sum of the two position
+    # errors (7.8 m) with the plates as drawn. Recompute the scores from the figures it recorded.
     pairwise = read_json_file(match_root.match_pairwise)["pairwise"]
     assert [row["used"] for row in pairwise] == [True]
+    row = pairwise[0]
+    assert row["plates"] == [P1911, P1935]  # A is the lower id; B is mapped onto it
     f_box = building(P1911, 1, 0, 0, 40, 40)
     g_box = building(P1935, 1, 25, 0, 65, 40)
     e = rules.pair_error(
@@ -128,11 +132,19 @@ def test_review_cases_write_no_observation_and_land_on_the_list(match_root: Path
                  ALIGNMENT_ERROR_M[P1911]),
         Building(G1, P1935, shape(g_box["geometry"]), g_box["properties"]["position_error_m"],
                  ALIGNMENT_ERROR_M[P1935]),
-        pairwise[0]["pairwise_error_m"],
+        row["pairwise_error_m"],
     )  # fmt: skip
-    expected = rules.overlap_score(shape(f_box["geometry"]), shape(g_box["geometry"]), e)
     assert e < 7.8
-    assert review[0]["candidates"] == [{"feature": G1, "r": pytest.approx(expected, abs=1e-4)}]
+    t = row["b_to_a"]
+    to_a = LocalAffine(*t["linear"], tuple(t["from_origin_m"]), tuple(t["to_origin_m"]))
+    ov = rules.overlap(
+        shape(f_box["geometry"]), rules.transform_geometry(shape(g_box["geometry"]), to_a), e
+    )
+    assert ov is not None
+    (candidate,) = review[0]["candidates"]
+    assert candidate["feature"] == G1
+    assert candidate["r"] == pytest.approx(ov.iou, abs=1e-4)
+    assert candidate["covered"] == pytest.approx(ov.covered, abs=1e-4)
     assert any("sent to review 1" in line for line in lines)
     assert result.review == review
 
@@ -257,14 +269,14 @@ def test_a_chain_across_three_plates_that_would_hold_two_1911_229_features_is_re
     docs = {
         P1911: evidence_doc(
             P1911,
-            [building(P1911, 1, 0, 0, 100, 100), building(P1911, 2, 138, 0, 238, 100)],
+            [building(P1911, 1, 0, 0, 100, 100), building(P1911, 2, 96, 0, 196, 100)],
             mapped=wide, reviewed=[wide],
         ),
         P1935: evidence_doc(
-            P1935, [building(P1935, 1, 46, 0, 146, 100)], mapped=wide, reviewed=[wide]
+            P1935, [building(P1935, 1, 32, 0, 132, 100)], mapped=wide, reviewed=[wide]
         ),
         P1911B: evidence_doc(
-            P1911B, [building("fip_v3_1911_232", 1, 92, 0, 192, 100)], mapped=wide, reviewed=[wide]
+            P1911B, [building("fip_v3_1911_232", 1, 64, 0, 164, 100)], mapped=wide, reviewed=[wide]
         ),
     }  # fmt: skip
     result = compute_match(
