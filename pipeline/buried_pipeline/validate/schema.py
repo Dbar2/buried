@@ -27,10 +27,13 @@ DEF_BY_FILE_NAME = {
     "sources.json": "sourceRegistry",
     "project.json": "project",
     "plate_manifest.json": "plateManifest",
+    "finds.json": "finds",
 }
 # A name that is not a `$defs` entry of the evidence Schema: its shape is checked in code by
 # validate/plate_manifest.py, and `SchemaSet.issues` answers for it.
 CODE_CHECKED_DEFS = frozenset({"plateManifest"})
+# Files checked against a Schema file of their own (data/schema/finds.schema.json).
+OWN_SCHEMA_DEFS = {"finds": Path("data") / "schema" / "finds.schema.json"}
 
 
 @dataclass(frozen=True)
@@ -82,16 +85,32 @@ def _message(e: JsonSchemaError) -> str:
 class SchemaSet:
     """The Schema plus one validator per `$defs` entry (format checking on)."""
 
-    def __init__(self, schema: dict[str, Any]) -> None:
+    def __init__(
+        self, schema: dict[str, Any], own_schemas: dict[str, dict[str, Any]] | None = None
+    ) -> None:
         self.schema = schema
         self._defs: dict[str, Any] = schema["$defs"]
         self._validators: dict[str, Draft202012Validator] = {}
+        # Schemas that stand alone, by the name `def_for_path` gives their file (finds).
+        self._own: dict[str, Draft202012Validator] = {}
+        for name, doc in (own_schemas or {}).items():
+            Draft202012Validator.check_schema(doc)
+            self._own[name] = Draft202012Validator(
+                doc, format_checker=Draft202012Validator.FORMAT_CHECKER
+            )
 
     @cached_property
     def def_names(self) -> list[str]:
         return sorted(self._defs)
 
+    def _own_validator(self, def_name: str) -> Draft202012Validator:
+        if def_name not in self._own:
+            raise PipelineError(f"The Schema file for {def_name} was not loaded")
+        return self._own[def_name]
+
     def validator(self, def_name: str) -> Draft202012Validator:
+        if def_name in OWN_SCHEMA_DEFS:
+            return self._own_validator(def_name)
         if def_name not in self._defs:
             raise PipelineError(f"The Schema has no definition named {def_name}")
         if def_name not in self._validators:
@@ -129,4 +148,12 @@ def load_schema(root: Path) -> SchemaSet:
         raise PipelineError(f"The Schema is missing: {path}") from exc
     except json.JSONDecodeError as exc:
         raise PipelineError(f"The Schema is not valid JSON: {path}: {exc}") from exc
-    return SchemaSet(schema)
+    own: dict[str, dict[str, Any]] = {}
+    for name, relative in OWN_SCHEMA_DEFS.items():
+        if not (root / relative).is_file():
+            continue  # a tree with no finds Schema cannot hold a finds file; checking one says so
+        try:
+            own[name] = json.loads((root / relative).read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            raise PipelineError(f"The Schema is not valid JSON: {root / relative}: {exc}") from exc
+    return SchemaSet(schema, own)

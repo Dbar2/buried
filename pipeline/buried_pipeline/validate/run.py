@@ -29,7 +29,7 @@ CONTRACT_DIRECTORIES = (
 def contract_files(paths: Paths) -> list[Path]:
     """Every contract file under data/, in a fixed order. raw/, work/ and schema/ are never read."""
     found: list[Path] = []
-    for name in ("sources.json", "project.json", "plate_manifest.json"):
+    for name in ("sources.json", "project.json", "plate_manifest.json", "finds.json"):
         p = paths.data / name
         if p.is_file():
             found.append(p)

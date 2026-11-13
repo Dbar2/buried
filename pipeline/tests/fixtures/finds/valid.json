@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "finds": [
+    {
+      "id": "find_0001",
+      "slug": "first-synthetic-find",
+      "kind": "building",
+      "order": 1,
+      "tag": "First placeholder",
+      "noun": "building",
+      "readings": [
+        {
+          "source": "fip_v3_1911_229",
+          "feature_id": "bld_fip_v3_1911_229_0001",
+          "lettered": ["Placeholder lettering", "Second placeholder line"],
+          "crop_px": { "x": 200, "y": 300, "width": 400, "height": 200 },
+          "read_by": "Synthetic Reader",
+          "read_on": "2026-11-13"
+        }
+      ]
+    },
+    {
+      "id": "find_0002",
+      "slug": "second-synthetic-find",
+      "kind": "area",
+      "order": 2,
+      "tag": "Second placeholder",
+      "noun": "yard",
+      "readings": [
+        {
+          "source": "fip_v3_1911_229",
+          "feature_id": "bld_fip_v3_1911_229_0002",
+          "lettered": ["Another placeholder"],
+          "crop_px": { "x": 1000, "y": 1000, "width": 300, "height": 150 },
+          "read_by": "Synthetic Reader",
+          "read_on": "2026-11-13"
+        }
+      ]
+    }
+  ]
+}

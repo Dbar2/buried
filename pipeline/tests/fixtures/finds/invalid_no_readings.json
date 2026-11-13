@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "finds": [
+    {
+      "id": "find_0001",
+      "slug": "first-synthetic-find",
+      "kind": "building",
+      "order": 1,
+      "tag": "First placeholder",
+      "noun": "building",
+      "readings": []
+    }
+  ]
+}
