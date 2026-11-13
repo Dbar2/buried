@@ -45,10 +45,11 @@ test('each route sets its title and description; the static page carries the Ope
   const lot = lotWithTheBuilding();
 
   await page.goto('/');
-  await expect(page).toHaveTitle('Buried · Forgotten maps, rebuilt with proof.');
+  await expect(page).toHaveTitle('Buried: something used to stand here');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Something used to stand here.');
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', 'https://buried.pages.dev/social-card.png');
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /Forgotten maps, rebuilt with proof\./);
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /^Raise the past over one Toronto block, then click any ghost\b/);
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Buried: something used to stand here');
 
   // The address search is at /place, and a find's path opens the Block page as a first request.
   const search = await page.goto('/place');

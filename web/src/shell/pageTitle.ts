@@ -3,9 +3,13 @@ import { useEffect } from 'react';
 /** The name of the site, last in every title: "541 and 543 Queen St E · Buried". */
 export const SITE_NAME = 'Buried';
 
-/** The description in `index.html`, and the one the landing keeps. */
+/** The description in `index.html` for the address search and the places and reports, which the landing keeps. */
 export const SITE_DESCRIPTION =
   "Forgotten maps, rebuilt with proof. Type an address in the part of Toronto Buried covers and read what archival fire insurance plans show stood there. Buried screens; it doesn't certify.";
+
+/** The title and the description of `/`, the first-visit page. A crawler reads them from `index.html`, which carries the same text. */
+export const BLOCK_TITLE = 'Buried: something used to stand here';
+export const BLOCK_DESCRIPTION = 'Raise the past over one Toronto block, then click any ghost to see the fire insurance plan that shows it and the lettering it was read from.';
 
 export type PageName = 'block' | 'landing' | 'place' | 'report' | 'studio' | 'sources' | 'explorer';
 
@@ -24,7 +28,7 @@ const LABELS: Record<Exclude<PageName, 'block' | 'landing' | 'place' | 'report'>
 export function titleFor(page: PageName, address: string | null = null): string {
   switch (page) {
     case 'block':
-      return `${SITE_NAME} · Forgotten maps, rebuilt with proof.`;
+      return BLOCK_TITLE;
     case 'landing':
       return `${SITE_NAME} · What was here?`;
     case 'place':
@@ -66,6 +70,8 @@ export function useFindDocumentTitle(title: string | null, description: string |
 /** The meta description of a page. It states only what the page is; it makes no finding about a lot. */
 export function descriptionFor(page: PageName, address: string | null = null): string {
   switch (page) {
+    case 'block':
+      return BLOCK_DESCRIPTION;
     case 'place':
     case 'report':
       return address
