@@ -10,10 +10,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from buried_pipeline.extract.params import HELD_OUT_PATTERNS
 from buried_pipeline.paths import find_repo_root
 
 HELD_OUT = "fip_v3_1935_232"
-FORBIDDEN_TEXT = ("fip_v3_1935_232", "1935_232", "1935-232")
+FORBIDDEN_TEXT = HELD_OUT_PATTERNS
 
 
 def map_area_problems(map_area_dir: Path) -> list[str]:

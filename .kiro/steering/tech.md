@@ -38,7 +38,10 @@ the contract between the pipeline, the shell and Unity, whatever comes later.
   swappable. The Explorer, the Report and the Sources page work with the service down.
 - **API server** (spec 04): one, the Studio service. It is stateless and exposes the pipeline's own
   pure functions (inspect, align, extract, match, publish with validation) plus label assist. It
-  never computes dates, lot relations or confidence wording. Nothing else is a server.
+  never computes dates, lot relations or confidence wording. The only other server is the
+  `buried-evidence` MCP server (session 025): a local, read-only stdio process that Kiro starts,
+  not a network service. It serves facts from the committed files and computes no dates, lot
+  relations or confidence wording either.
 - **Runtime AI provider** (spec 04): Amazon Bedrock, behind a label provider interface in the
   service, for label assist only (product rule 9). The model id comes from
   `BURIED_LABEL_MODEL_ID` and must be a vision-capable Anthropic Claude model enabled in the
@@ -197,7 +200,26 @@ invent commands; when one is added, record it here.
     recomputes every `match_auto` result on each run, so running it twice gives the same bytes.
     Writes `data/work/match/review.json` (cases for a person, and pending aerial checks) and
     prints counts per source pair. Aerials without an alignment record or tile sidecar are
-    skipped and named. Code writes `not_covered` for an aerial and nothing else.
+    skipped and named. Code writes `not_covered` for an aerial and nothing else. For two plates that
+    share at least four control references, plate-to-plate tests use their pairwise alignment error
+    (spec 02 13.15) instead of the sum of their absolute errors; each run writes the figures it
+    used to `data/work/match/pairwise.json`.
+  - Held-out write hook (spec 02 task 17), run by `.kiro/hooks/held-out.json` (still `"enabled":
+    false`; the maintainer enables it): `uv --directory pipeline run python -m
+    buried_pipeline.hooks.held_out_write`. Reads the hook event as JSON on standard input; exits 2
+    with a message when a write under `pipeline/buried_pipeline/extract/params/`,
+    `pipeline/tests/fixtures/extract/` or `data/control/map_area/` names plate 232 (1935), else 0.
+    The patterns are `HELD_OUT_PATTERNS` in `extract/params.py`.
+  - Evidence MCP server (session 025), read-only, stdio: `uv --directory pipeline run python -m
+    buried_pipeline.mcp` (from the repository root; `BURIED_REPO_ROOT` overrides the root, default
+    the nearest ancestor with `.kiro/`). Tools: `find_places`, `features_near`, `list_sources`,
+    `plate_alignment`, `plate_work`. It reads `data/` and `data/work/` and writes nothing. It is
+    hand-written JSON-RPC over lines on stdin and stdout, so the pipeline gains no dependency.
+    Tests: `uv run pytest tests/mcp`. Register it for Kiro in `.kiro/settings/mcp.json` (the
+    builder's write there was refused by a permission rule in session 025; the maintainer adds it):
+    `{"mcpServers": {"buried-evidence": {"command": "uv", "args": ["--directory", "pipeline",
+    "run", "python", "-m", "buried_pipeline.mcp"], "autoApprove": ["find_places",
+    "features_near", "list_sources", "plate_alignment", "plate_work"]}}}`.
 - Unity (spec 03), run from the repository root with `tools/unity.sh` (headless Unity 6000.3.26f1;
   set `UNITY_BIN` to override the editor path; logs in `unity/Logs/`):
   - `tools/unity.sh exec Buried.Editor.Setup.Run`: creates the palette asset, URP assets, player
@@ -217,6 +239,11 @@ invent commands; when one is added, record it here.
     `POST /v1/publish`. Plate rasters are read from `data/raw/<id>/` on the machine the Service
     runs on; the image has none, so extract and publish need the plate fetch (spec 04 task 4).
     The Service writes nothing under `data/`.
+    Plate fetch for a Service with an empty `data/raw/` (session 025, spec 04 task 4.1 fetch part):
+    `buried_pipeline.service.plates.PlateFetcher.ensure(source_id, live=False)` downloads one
+    registered plate into a cache directory laid out like `data/raw/`, checks size and SHA-256
+    against a manifest when one has an entry, and refuses any other host. The held-out plate needs
+    `live=True`. No endpoint or cache setting calls it yet.
   - Tests: `uv run pytest tests/service`. Docker image (spec 04 task 3.4), from the repository
     root: `docker build -f pipeline/Dockerfile .`. Its context is set by
     `pipeline/Dockerfile.dockerignore` (BuildKit reads it next to the Dockerfile; a

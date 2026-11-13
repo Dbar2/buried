@@ -5,17 +5,20 @@ from datetime import UTC, datetime
 from typing import Any
 
 import pytest
-from shapely.geometry import box
+from shapely.geometry import box, shape
 
 from buried_pipeline.cli import main
 from buried_pipeline.errors import PipelineError
 from buried_pipeline.io.registry import load_registry
+from buried_pipeline.match import rules
 from buried_pipeline.match.apply import Decisions
 from buried_pipeline.match.compute import AerialInfo, MatchInputs, compute_match
+from buried_pipeline.match.rules import Building
 from buried_pipeline.match.run import plate_min_error, run_match
 from buried_pipeline.paths import Paths
 from buried_pipeline.validate.run import validate_would_be
 from tests.helpers.synthetic_evidence import (
+    ALIGNMENT_ERROR_M,
     EAST0,
     NORTH0,
     P1911,
@@ -114,7 +117,22 @@ def test_review_cases_write_no_observation_and_land_on_the_list(match_root: Path
         ("plate", F1, P1935, "partial_overlap"),
         ("plate", G1, P1911, "partial_overlap"),
     ]
-    assert review[0]["candidates"] == [{"feature": G1, "r": pytest.approx(0.2951, abs=1e-3)}]
+    # The committed records share six control references, so the pairwise figure sets `e` here
+    # (requirement 13.15), not the sum of the two position errors that gave 0.2951.
+    pairwise = read_json_file(match_root.match_pairwise)["pairwise"]
+    assert [row["used"] for row in pairwise] == [True]
+    f_box = building(P1911, 1, 0, 0, 40, 40)
+    g_box = building(P1935, 1, 25, 0, 65, 40)
+    e = rules.pair_error(
+        Building(F1, P1911, shape(f_box["geometry"]), f_box["properties"]["position_error_m"],
+                 ALIGNMENT_ERROR_M[P1911]),
+        Building(G1, P1935, shape(g_box["geometry"]), g_box["properties"]["position_error_m"],
+                 ALIGNMENT_ERROR_M[P1935]),
+        pairwise[0]["pairwise_error_m"],
+    )  # fmt: skip
+    expected = rules.overlap_score(shape(f_box["geometry"]), shape(g_box["geometry"]), e)
+    assert e < 7.8
+    assert review[0]["candidates"] == [{"feature": G1, "r": pytest.approx(expected, abs=1e-4)}]
     assert any("sent to review 1" in line for line in lines)
     assert result.review == review
 

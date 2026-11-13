@@ -117,7 +117,14 @@ steps they extend, then 17 and 18.
     Files: `pipeline/buried_pipeline/service/plates.py`, `pipeline/buried_pipeline/service/app.py`,
     `pipeline/tests/service/test_plates.py`, `pipeline/tests/fixtures/service/**`.
     Requirements: 3.1, 3.2, 4.1 to 4.4.
-  - [ ] 4.2 **[PBT] S9** Only allowlisted downloads.
+    Session 025 built the fetch part only: `service/plates.py` (`PlateFetcher.ensure`, one plate
+    per call, host allowlist, manifest size and SHA-256 check, held-out plate only with
+    `live=True`, no warm-up) with `tests/service/test_plates.py` (fake HTTP). Still to do: the
+    index query and `in_bounds`, inspect, the two endpoints (the fetch endpoint must set `live`
+    from the request alone), and `BURIED_CACHE_DIR` in `config.py`. Not ticked.
+  - [ ] 4.2 **[PBT] S9** Only allowlisted downloads. A property for the fetch part is in
+    `tests/service/test_plates.py` (any id, either a refusal with no request or one request to the
+    Registry's URL on an allowlisted host); 4.2 stays open for the index and the endpoints.
     Files: `pipeline/tests/service/test_plates_properties.py`.
     Requirements: 3.1, 3.2, 4.3.
   - [ ] 4.3 Implement `raster_cache.py` (plate refs, URL map, LRU for index plates, 2 h TTL and
