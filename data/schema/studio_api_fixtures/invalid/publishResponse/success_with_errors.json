@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "evidence_file_text": "{}\n",
+  "counts": {
+    "accepted": 0,
+    "published_now": 0,
+    "already_published": 0,
+    "rejected": 0,
+    "undecided": 0,
+    "unconfirmed": 0
+  },
+  "new_feature_ids": [],
+  "errors": [{ "path": "x", "pointer": "/", "reason": "y" }]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "source": "fip_v3_1911_229",
+  "decisions": [
+    {
+      "type": "approve",
+      "proposal_id": "fip_v3_1911_229_p_0123456789ab",
+      "confirmed_by": "Test Reviewer",
+      "confirmed_at": "2026-11-15T10:00:00-05:00"
+    }
+  ],
+  "reviewed_areas": []
+}

@@ -1,0 +1,8 @@
+{
+  "api_version": "1.0.0",
+  "service_version": "0.1.0",
+  "data_version": "abababababababababababababababababababababababababababababababab",
+  "label_provider": "bedrock",
+  "limits": {},
+  "test_mode": true
+}

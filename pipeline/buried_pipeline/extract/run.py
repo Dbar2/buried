@@ -19,10 +19,11 @@ import numpy as np
 
 from buried_pipeline.errors import PipelineError
 from buried_pipeline.extract.document import build_collection, dumps
-from buried_pipeline.extract.maparea import load_map_area
+from buried_pipeline.extract.maparea import MapArea, Mapping, load_map_area
 from buried_pipeline.extract.params import DEFAULT_PARAMS_ID, ExtractParams, load_params
 from buried_pipeline.extract.preview import draw_preview, quality_band
 from buried_pipeline.extract.propose import ExtractStats, find_candidates
+from buried_pipeline.extract.region import drop_touching_border, region_border_sides, window_for
 from buried_pipeline.extract.tone import to_grey
 from buried_pipeline.fetch.manifest import sha256_file
 from buried_pipeline.inspect.georef import find_raster, read_raster_info
@@ -55,6 +56,55 @@ def window_grey(pixels: np.ndarray, crop: dict[str, int]) -> np.ndarray:
     return np.ascontiguousarray(to_grey(pixels[y : y + h, x : x + w]))
 
 
+@dataclass(frozen=True)
+class ExtractDocument:
+    doc: dict[str, Any]
+    stats: ExtractStats
+    below_minimum_area: int
+    grey: np.ndarray  # the window that was searched
+    window_origin: tuple[int, int]  # its top-left pixel on the full-resolution raster
+    dropped_touching_border: int = 0
+
+
+def extract_document(
+    pixels: np.ndarray,
+    source_id: str,
+    record: dict[str, Any],
+    record_sha256: str,
+    map_area: MapArea,
+    mapping: Mapping,
+    params: ExtractParams,
+    region_px: dict[str, int] | None = None,
+) -> ExtractDocument:
+    """Everything `extract` does after the inputs are read: the proposal file as a dict.
+
+    With `region_px` (spec 04 requirement 23.5) only that pixel rectangle, clipped to the map
+    area's bounding box, is searched, and every proposal touching a side of the rectangle that is
+    the region's own border is dropped. Without it this is the whole map area, exactly as the
+    command always did."""
+    window = window_for(region_px, map_area.crop_px)
+    grey = window_grey(pixels, window)
+    candidates, stats = find_candidates(
+        grey,
+        (window["x"], window["y"]),
+        list(map_area.pixel_polygon),
+        [list(line) for line in map_area.fold_lines],
+        float(record["source_pixel_size_m"]),
+        params,
+    )
+    dropped = 0
+    if region_px is not None:
+        candidates, dropped = drop_touching_border(
+            candidates, window, region_border_sides(region_px, map_area.crop_px)
+        )
+    doc, below_minimum = build_collection(
+        source_id, params, record_sha256, map_area, candidates, mapping
+    )
+    if region_px is not None:
+        doc["region_px"] = dict(region_px)
+    return ExtractDocument(doc, stats, below_minimum, grey, (window["x"], window["y"]), dropped)
+
+
 def extract_source(
     paths: Paths,
     registry: Registry,
@@ -77,21 +127,14 @@ def extract_source(
     pixels = read_pixels(info.file)
     if pixels.shape[0] != info.height or pixels.shape[1] != info.width:
         raise PipelineError(f"{source_id}: raster size changed while reading")
-    grey = window_grey(pixels, crop)
-    del pixels
-
-    candidates, stats = find_candidates(
-        grey,
-        (crop["x"], crop["y"]),
-        list(map_area.pixel_polygon),
-        [list(line) for line in map_area.fold_lines],
-        float(record["source_pixel_size_m"]),
-        params,
-    )
     mapping = chosen_mapping(record, info.transform, info.crs)
-    doc, below_minimum = build_collection(
-        source_id, params, sha256_file(paths.alignment_record(source_id)), map_area,
-        candidates, mapping,
+    result_doc = extract_document(
+        pixels, source_id, record, sha256_file(paths.alignment_record(source_id)),
+        map_area, mapping, params,
+    )  # fmt: skip
+    del pixels
+    doc, stats, below_minimum, grey = (
+        result_doc.doc, result_doc.stats, result_doc.below_minimum_area, result_doc.grey,
     )  # fmt: skip
     out_path = paths.proposals_file(source_id)
     atomic_write_text(out_path, dumps(doc))

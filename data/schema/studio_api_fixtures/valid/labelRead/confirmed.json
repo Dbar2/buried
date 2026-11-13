@@ -1,0 +1,12 @@
+{
+  "review_item_id": "fip_v3_1911_229_p_0123456789ab",
+  "field": "storeys",
+  "crop_px": { "x": 10, "y": 20, "width": 120, "height": 60 },
+  "provider": "bedrock",
+  "model_id": "example-model-id",
+  "proposed_text": "2",
+  "status": "proposed",
+  "confirmed_text": "2",
+  "confirmed_by": "Test Reviewer",
+  "confirmed_at": "2026-11-15T10:00:00-05:00"
+}

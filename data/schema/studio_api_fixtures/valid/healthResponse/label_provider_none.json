@@ -1,0 +1,7 @@
+{
+  "api_version": "1.0.0",
+  "service_version": "0.1.0",
+  "data_version": "0000000000000000000000000000000000000000000000000000000000000000",
+  "label_provider": "none",
+  "limits": { "extract": 30, "publish": 120 }
+}

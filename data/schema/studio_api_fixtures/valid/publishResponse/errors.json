@@ -1,0 +1,11 @@
+{
+  "ok": false,
+  "errors": [
+    {
+      "path": "decisions",
+      "review_item_id": "fip_v3_1911_229_p_0123456789ab",
+      "pointer": "/",
+      "reason": "this proposal lies inside a reviewed area but has no accepted or rejected decision"
+    }
+  ]
+}

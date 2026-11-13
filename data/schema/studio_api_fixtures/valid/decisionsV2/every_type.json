@@ -1,0 +1,55 @@
+{
+  "version": 2,
+  "source": "fip_v3_1911_229",
+  "decisions": [
+    {
+      "type": "accept",
+      "proposal_id": "fip_v3_1911_229_p_0123456789ab",
+      "confirmed_by": "Test Reviewer",
+      "confirmed_at": "2026-11-15T10:00:00-05:00",
+      "attributes": { "storeys": 2 },
+      "confidence": "documented",
+      "confidence_reason": "Read from the plate"
+    },
+    {
+      "type": "reject",
+      "proposal_id": "fip_v3_1911_229_p_ba9876543210",
+      "reason": "A tree",
+      "confirmed_by": "Test Reviewer",
+      "confirmed_at": "2026-11-15T10:00:00-05:00"
+    },
+    {
+      "type": "merge",
+      "proposal_ids": ["fip_v3_1911_229_p_000000000001", "fip_v3_1911_229_p_000000000002"],
+      "pixel_polygon": [[0, 0], [10, 0], [10, 10], [0, 10]],
+      "confirmed_by": "Test Reviewer",
+      "confirmed_at": "2026-11-15T10:00:00-05:00"
+    },
+    {
+      "type": "split",
+      "proposal_id": "fip_v3_1911_229_p_000000000003",
+      "confirmed_by": "Test Reviewer",
+      "confirmed_at": "2026-11-15T10:00:00-05:00",
+      "parts": [
+        { "pixel_polygon": [[0, 0], [5, 0], [5, 10], [0, 10]] },
+        { "pixel_polygon": [[5, 0], [10, 0], [10, 10], [5, 10]], "attributes": { "storeys": 1 } }
+      ]
+    },
+    {
+      "type": "trace",
+      "kind": "water",
+      "pixel_geometry": { "type": "LineString", "coordinates": [[0, 0], [10, 10]] },
+      "confidence": "documented",
+      "confidence_reason": "Traced by a person from the water drawn on fip_v3_1911_229",
+      "confirmed_by": "Test Reviewer",
+      "confirmed_at": "2026-11-15T10:00:00-05:00"
+    }
+  ],
+  "reviewed_areas": [
+    {
+      "pixel_polygon": [[0, 0], [1000, 0], [1000, 800], [0, 800]],
+      "confirmed_by": "Test Reviewer",
+      "confirmed_at": "2026-11-15T10:30:00-05:00"
+    }
+  ]
+}

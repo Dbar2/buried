@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "source": "fip_v3_1911_229",
+  "decisions": [
+    {
+      "type": "merge",
+      "proposal_ids": ["fip_v3_1911_229_p_000000000001"],
+      "pixel_polygon": [[0, 0], [10, 0], [10, 10], [0, 10]],
+      "confirmed_by": "Test Reviewer",
+      "confirmed_at": "2026-11-15T10:00:00-05:00"
+    }
+  ],
+  "reviewed_areas": []
+}

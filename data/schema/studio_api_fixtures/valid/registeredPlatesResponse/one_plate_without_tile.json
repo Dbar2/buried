@@ -1,0 +1,26 @@
+{
+  "api_version": "1.0.0",
+  "data_version": "0000000000000000000000000000000000000000000000000000000000000000",
+  "plates": [
+    {
+      "source": {
+        "id": "fip_v3_1911_229",
+        "type": "fire_insurance_plan",
+        "title": "Synthetic plate",
+        "year_from": 1911,
+        "year_to": 1914,
+        "url": "https://example.invalid/plate.zip",
+        "licence_note": "Synthetic.",
+        "attribution_line": "Synthetic attribution.",
+        "attribution_status": "confirmed",
+        "rights_checked_on": "2026-11-10",
+        "held_out": false
+      },
+      "tile_sidecar": null,
+      "has_alignment_record": false,
+      "has_map_area": false,
+      "raster_available": false,
+      "plate_ref": null
+    }
+  ]
+}

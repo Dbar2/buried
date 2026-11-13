@@ -1,0 +1,725 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buried.invalid/schema/studio_api.schema.json",
+  "title": "Buried Studio service API",
+  "description": "Request and response bodies of the Studio service (spec 04). api_version is 1.0.0. Files that are later hashed or exported travel as canonical text: json.dumps(obj, sort_keys=True, indent=2, ensure_ascii=False) + newline. Shared definitions are referenced from evidence.schema.json. Every body is validated against its $defs entry; there is no root constraint.",
+  "$defs": {
+    "apiVersion": {
+      "description": "The Service API version this schema describes.",
+      "const": "1.0.0"
+    },
+    "dataVersion": {
+      "description": "SHA-256 (lowercase hex) of the canon contract files, by the rule in spec 04 design 'Data version'.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "plateRef": {
+      "description": "SHA-256 (lowercase hex) of the raster file's bytes: the key of the Service's raster cache.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "canonicalText": {
+      "description": "A contract file as text, in the canonical serialisation. Stored and exported verbatim.",
+      "type": "string",
+      "minLength": 2
+    },
+    "pixelRegion": {
+      "description": "A full-resolution pixel rectangle on a plate (GDAL corner convention).",
+      "$ref": "evidence.schema.json#/$defs/cropPx"
+    },
+    "errorCode": {
+      "enum": [
+        "invalid_request",
+        "version_mismatch",
+        "data_version_mismatch",
+        "not_allowed",
+        "too_large",
+        "rate_limited",
+        "not_found",
+        "no_georeferencing",
+        "validation_failed",
+        "upstream_failed",
+        "timeout"
+      ]
+    },
+    "errorBody": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["error"],
+      "properties": {
+        "error": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "message", "details"],
+          "properties": {
+            "code": { "$ref": "#/$defs/errorCode" },
+            "message": { "type": "string", "minLength": 1 },
+            "details": { "type": "array", "items": {} }
+          }
+        }
+      }
+    },
+    "limits": {
+      "description": "Per-address hourly limits by endpoint group, and the daily label cap.",
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "healthResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["api_version", "service_version", "data_version", "label_provider", "limits"],
+      "properties": {
+        "api_version": { "$ref": "#/$defs/apiVersion" },
+        "service_version": { "type": "string", "minLength": 1 },
+        "data_version": { "$ref": "#/$defs/dataVersion" },
+        "label_provider": { "enum": ["bedrock", "none"] },
+        "limits": { "$ref": "#/$defs/limits" },
+        "test_mode": { "const": true }
+      }
+    },
+    "registeredPlate": {
+      "description": "A plate in the canon registry, with what the Studio needs to start on it. plate_ref and raster_available describe the raster the Service holds locally; the Service holds no result of any plate.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "tile_sidecar",
+        "has_alignment_record",
+        "has_map_area",
+        "raster_available",
+        "plate_ref"
+      ],
+      "properties": {
+        "source": { "$ref": "evidence.schema.json#/$defs/source" },
+        "tile_sidecar": {
+          "description": "The published tile's sidecar, or null if the plate has no tile.",
+          "oneOf": [{ "$ref": "evidence.schema.json#/$defs/tileSidecar" }, { "type": "null" }]
+        },
+        "has_alignment_record": { "type": "boolean" },
+        "has_map_area": { "type": "boolean" },
+        "raster_available": { "type": "boolean" },
+        "plate_ref": { "oneOf": [{ "$ref": "#/$defs/plateRef" }, { "type": "null" }] }
+      }
+    },
+    "registeredPlatesResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["api_version", "data_version", "plates"],
+      "properties": {
+        "api_version": { "$ref": "#/$defs/apiVersion" },
+        "data_version": { "$ref": "#/$defs/dataVersion" },
+        "plates": { "type": "array", "items": { "$ref": "#/$defs/registeredPlate" } }
+      }
+    },
+    "indexPlate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["edition", "plate", "name", "source_id", "footprint", "in_bounds"],
+      "properties": {
+        "edition": { "enum": ["1911", "1935"] },
+        "plate": { "type": "integer", "minimum": 1 },
+        "name": { "type": "string" },
+        "source_id": { "$ref": "evidence.schema.json#/$defs/sourceId" },
+        "footprint": { "$ref": "evidence.schema.json#/$defs/polygonGeometry" },
+        "in_bounds": { "type": "boolean" }
+      }
+    },
+    "platesIndexResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plates"],
+      "properties": { "plates": { "type": "array", "items": { "$ref": "#/$defs/indexPlate" } } }
+    },
+    "imageInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width_px", "height_px", "full_width_px", "full_height_px"],
+      "properties": {
+        "width_px": { "type": "integer", "minimum": 1 },
+        "height_px": { "type": "integer", "minimum": 1 },
+        "full_width_px": { "type": "integer", "minimum": 1 },
+        "full_height_px": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "platesFetchRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["api_version", "source_id"],
+      "properties": {
+        "api_version": { "$ref": "#/$defs/apiVersion" },
+        "source_id": { "$ref": "evidence.schema.json#/$defs/sourceId" }
+      }
+    },
+    "platesFetchResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plate_ref", "source_id", "inspect", "image"],
+      "properties": {
+        "plate_ref": { "$ref": "#/$defs/plateRef" },
+        "source_id": { "$ref": "evidence.schema.json#/$defs/sourceId" },
+        "inspect": { "type": "object" },
+        "image": { "$ref": "#/$defs/imageInfo" }
+      }
+    },
+    "uploadResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plate_ref", "georeferenced", "inspect", "image"],
+      "properties": {
+        "plate_ref": { "$ref": "#/$defs/plateRef" },
+        "georeferenced": { "type": "boolean" },
+        "inspect": { "oneOf": [{ "type": "object" }, { "type": "null" }] },
+        "image": { "$ref": "#/$defs/imageInfo" }
+      }
+    },
+    "alignRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["api_version", "data_version", "plate_ref", "source", "control_file_text"],
+      "properties": {
+        "api_version": { "$ref": "#/$defs/apiVersion" },
+        "data_version": { "$ref": "#/$defs/dataVersion" },
+        "plate_ref": { "$ref": "#/$defs/plateRef" },
+        "source": { "$ref": "evidence.schema.json#/$defs/source" },
+        "control_file_text": { "$ref": "#/$defs/canonicalText" }
+      }
+    },
+    "alignResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "control_file_text",
+        "alignment_record_text",
+        "min_feature_position_error_m",
+        "digitising_error_m",
+        "tile_sidecar"
+      ],
+      "properties": {
+        "control_file_text": { "$ref": "#/$defs/canonicalText" },
+        "alignment_record_text": { "$ref": "#/$defs/canonicalText" },
+        "min_feature_position_error_m": { "type": "number", "exclusiveMinimum": 0 },
+        "digitising_error_m": { "type": "number", "exclusiveMinimum": 0 },
+        "tile_sidecar": { "$ref": "evidence.schema.json#/$defs/tileSidecar" }
+      }
+    },
+    "proposalFeature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "geometry", "properties"],
+      "properties": {
+        "type": { "const": "Feature" },
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(_[a-z0-9]+)*_p_[0-9a-f]{12}$" },
+        "geometry": { "$ref": "evidence.schema.json#/$defs/polygonGeometry" },
+        "properties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tone_class",
+            "pixel_polygon",
+            "crop_px",
+            "area_m2",
+            "quality",
+            "weaknesses"
+          ],
+          "properties": {
+            "tone_class": { "enum": ["light", "mid", "dark", "hatched", "mixed"] },
+            "pixel_polygon": {
+              "type": "array",
+              "minItems": 3,
+              "items": { "$ref": "evidence.schema.json#/$defs/pixelPoint" }
+            },
+            "crop_px": { "$ref": "evidence.schema.json#/$defs/cropPx" },
+            "area_m2": { "type": "number", "exclusiveMinimum": 0 },
+            "quality": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "score",
+                "outline_closure",
+                "fill_uniformity",
+                "text_clear",
+                "edge_clear",
+                "shape_fidelity"
+              ],
+              "properties": {
+                "score": { "$ref": "#/$defs/unitInterval" },
+                "outline_closure": { "$ref": "#/$defs/unitInterval" },
+                "fill_uniformity": { "$ref": "#/$defs/unitInterval" },
+                "text_clear": { "$ref": "#/$defs/unitInterval" },
+                "edge_clear": { "$ref": "#/$defs/unitInterval" },
+                "shape_fidelity": { "$ref": "#/$defs/unitInterval" }
+              }
+            },
+            "weaknesses": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "unitInterval": { "type": "number", "minimum": 0, "maximum": 1 },
+    "proposalFile": {
+      "description": "What `buried extract` writes (spec 02 design 'Proposal file'), plus region_px when a region was searched.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "crs",
+        "source",
+        "params_id",
+        "params_sha256",
+        "alignment_record_sha256",
+        "map_area_sha256",
+        "map_area_px",
+        "map_area_geometry",
+        "features"
+      ],
+      "properties": {
+        "type": { "const": "FeatureCollection" },
+        "crs": { "const": "EPSG:26917" },
+        "source": { "$ref": "evidence.schema.json#/$defs/sourceId" },
+        "params_id": { "type": "string", "minLength": 1 },
+        "params_sha256": { "$ref": "#/$defs/sha256" },
+        "alignment_record_sha256": { "$ref": "#/$defs/sha256" },
+        "map_area_sha256": { "$ref": "#/$defs/sha256" },
+        "map_area_px": {
+          "type": "array",
+          "minItems": 3,
+          "items": { "$ref": "evidence.schema.json#/$defs/pixelPoint" }
+        },
+        "map_area_geometry": { "$ref": "evidence.schema.json#/$defs/polygonGeometry" },
+        "region_px": { "$ref": "#/$defs/pixelRegion" },
+        "features": { "type": "array", "items": { "$ref": "#/$defs/proposalFeature" } }
+      }
+    },
+    "extractRequest": {
+      "description": "alignment_record_text is optional: without it the canon alignment record is used. The map area is the canon map area file.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["api_version", "data_version", "plate_ref", "source", "region_px"],
+      "properties": {
+        "api_version": { "$ref": "#/$defs/apiVersion" },
+        "data_version": { "$ref": "#/$defs/dataVersion" },
+        "plate_ref": { "$ref": "#/$defs/plateRef" },
+        "source": { "$ref": "evidence.schema.json#/$defs/source" },
+        "alignment_record_text": { "$ref": "#/$defs/canonicalText" },
+        "region_px": { "$ref": "#/$defs/pixelRegion" }
+      }
+    },
+    "extractResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["proposal_file_text", "dropped"],
+      "properties": {
+        "proposal_file_text": { "$ref": "#/$defs/canonicalText" },
+        "dropped": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["touching_region_border", "outside_project_bounds"],
+          "properties": {
+            "touching_region_border": { "type": "integer", "minimum": 0 },
+            "outside_project_bounds": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "labelField": { "enum": ["storeys", "use", "street_number"] },
+    "labelsRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["api_version", "plate_ref", "crop_px", "field", "consent"],
+      "properties": {
+        "api_version": { "$ref": "#/$defs/apiVersion" },
+        "plate_ref": { "$ref": "#/$defs/plateRef" },
+        "crop_px": { "$ref": "evidence.schema.json#/$defs/cropPx" },
+        "field": { "$ref": "#/$defs/labelField" },
+        "consent": { "type": "boolean" }
+      }
+    },
+    "labelsResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "provider", "crop_px"],
+      "properties": {
+        "status": { "enum": ["proposed", "not_legible", "unavailable"] },
+        "reason": { "type": "string" },
+        "provider": { "enum": ["bedrock", "none"] },
+        "model_id": { "type": "string", "minLength": 1 },
+        "crop_px": { "$ref": "evidence.schema.json#/$defs/cropPx" },
+        "text": { "type": "string" }
+      }
+    },
+    "labelRead": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review_item_id",
+        "field",
+        "crop_px",
+        "provider",
+        "model_id",
+        "proposed_text",
+        "status",
+        "confirmed_text",
+        "confirmed_by",
+        "confirmed_at"
+      ],
+      "properties": {
+        "review_item_id": { "type": "string", "minLength": 1 },
+        "field": { "$ref": "#/$defs/labelField" },
+        "crop_px": { "$ref": "evidence.schema.json#/$defs/cropPx" },
+        "provider": { "type": "string", "minLength": 1 },
+        "model_id": { "type": "string", "minLength": 1 },
+        "proposed_text": { "oneOf": [{ "type": "string" }, { "type": "null" }] },
+        "status": { "enum": ["proposed", "not_legible", "unavailable"] },
+        "confirmed_text": { "oneOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }] },
+        "confirmed_by": { "type": "string", "minLength": 1 },
+        "confirmed_at": { "$ref": "evidence.schema.json#/$defs/dateTime" }
+      }
+    },
+    "pixelPolygon": {
+      "type": "array",
+      "minItems": 3,
+      "items": { "$ref": "evidence.schema.json#/$defs/pixelPoint" }
+    },
+    "attributeReadDecision": {
+      "description": "Where on the plate a reviewer read one attribute. confirmed_by and confirmed_at come from the decision that carries it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attribute", "crop_px", "read_by"],
+      "properties": {
+        "attribute": { "enum": ["use", "material", "storeys", "street_number"] },
+        "crop_px": { "$ref": "evidence.schema.json#/$defs/cropPx" },
+        "read_by": { "enum": ["person", "label_assist"] },
+        "provider": { "type": "string", "minLength": 1 },
+        "model_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "confidenceClass": { "enum": ["documented", "estimated", "unknown"] },
+    "reviewedAreaDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pixel_polygon", "confirmed_by", "confirmed_at"],
+      "properties": {
+        "pixel_polygon": { "$ref": "#/$defs/pixelPolygon" },
+        "confirmed_by": { "type": "string", "minLength": 1 },
+        "confirmed_at": { "$ref": "evidence.schema.json#/$defs/dateTime" },
+        "covers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["building", "water", "land_use"] }
+        }
+      }
+    },
+    "acceptDecisionV2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "proposal_id", "confirmed_by", "confirmed_at"],
+      "properties": {
+        "type": { "const": "accept" },
+        "proposal_id": { "type": "string", "minLength": 1 },
+        "confirmed_by": { "type": "string", "minLength": 1 },
+        "confirmed_at": { "$ref": "evidence.schema.json#/$defs/dateTime" },
+        "pixel_polygon": { "$ref": "#/$defs/pixelPolygon" },
+        "attributes": { "$ref": "evidence.schema.json#/$defs/attributes" },
+        "attribute_reads": { "type": "array", "items": { "$ref": "#/$defs/attributeReadDecision" } },
+        "confidence": { "$ref": "#/$defs/confidenceClass" },
+        "confidence_reason": { "type": "string", "minLength": 1 },
+        "position_error_m": { "type": "number", "minimum": 0 }
+      }
+    },
+    "rejectDecisionV2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "proposal_id", "confirmed_by", "confirmed_at"],
+      "properties": {
+        "type": { "const": "reject" },
+        "proposal_id": { "type": "string", "minLength": 1 },
+        "confirmed_by": { "type": "string", "minLength": 1 },
+        "confirmed_at": { "$ref": "evidence.schema.json#/$defs/dateTime" },
+        "reason": { "type": "string" }
+      }
+    },
+    "mergeDecisionV2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "proposal_ids", "pixel_polygon", "confirmed_by", "confirmed_at"],
+      "properties": {
+        "type": { "const": "merge" },
+        "proposal_ids": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "pixel_polygon": { "$ref": "#/$defs/pixelPolygon" },
+        "confirmed_by": { "type": "string", "minLength": 1 },
+        "confirmed_at": { "$ref": "evidence.schema.json#/$defs/dateTime" },
+        "attributes": { "$ref": "evidence.schema.json#/$defs/attributes" },
+        "attribute_reads": { "type": "array", "items": { "$ref": "#/$defs/attributeReadDecision" } },
+        "confidence": { "$ref": "#/$defs/confidenceClass" },
+        "confidence_reason": { "type": "string", "minLength": 1 },
+        "position_error_m": { "type": "number", "minimum": 0 }
+      }
+    },
+    "splitPartV2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pixel_polygon"],
+      "properties": {
+        "pixel_polygon": { "$ref": "#/$defs/pixelPolygon" },
+        "attributes": { "$ref": "evidence.schema.json#/$defs/attributes" },
+        "attribute_reads": { "type": "array", "items": { "$ref": "#/$defs/attributeReadDecision" } },
+        "confidence": { "$ref": "#/$defs/confidenceClass" },
+        "confidence_reason": { "type": "string", "minLength": 1 },
+        "position_error_m": { "type": "number", "minimum": 0 }
+      }
+    },
+    "splitDecisionV2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "proposal_id", "parts", "confirmed_by", "confirmed_at"],
+      "properties": {
+        "type": { "const": "split" },
+        "proposal_id": { "type": "string", "minLength": 1 },
+        "confirmed_by": { "type": "string", "minLength": 1 },
+        "confirmed_at": { "$ref": "evidence.schema.json#/$defs/dateTime" },
+        "parts": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/splitPartV2" } }
+      }
+    },
+    "traceDecisionV2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "kind",
+        "pixel_geometry",
+        "confidence",
+        "confidence_reason",
+        "confirmed_by",
+        "confirmed_at"
+      ],
+      "properties": {
+        "type": { "const": "trace" },
+        "kind": { "enum": ["building", "water"] },
+        "pixel_geometry": {
+          "description": "A Polygon (a building, or water) or a LineString (water only) in integer full-resolution pixels.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "coordinates"],
+          "properties": {
+            "type": { "enum": ["Polygon", "LineString"] },
+            "coordinates": { "type": "array" }
+          }
+        },
+        "confirmed_by": { "type": "string", "minLength": 1 },
+        "confirmed_at": { "$ref": "evidence.schema.json#/$defs/dateTime" },
+        "attributes": { "$ref": "evidence.schema.json#/$defs/attributes" },
+        "attribute_reads": { "type": "array", "items": { "$ref": "#/$defs/attributeReadDecision" } },
+        "confidence": { "$ref": "#/$defs/confidenceClass" },
+        "confidence_reason": { "type": "string", "minLength": 1 },
+        "position_error_m": { "type": "number", "minimum": 0 }
+      }
+    },
+    "decisionV2": {
+      "description": "One decision of the v2 file. The Service builds accept and reject; merge, split and trace are in the contract and are refused by name until spec 04 task 2.1 is done.",
+      "oneOf": [
+        { "$ref": "#/$defs/acceptDecisionV2" },
+        { "$ref": "#/$defs/rejectDecisionV2" },
+        { "$ref": "#/$defs/mergeDecisionV2" },
+        { "$ref": "#/$defs/splitDecisionV2" },
+        { "$ref": "#/$defs/traceDecisionV2" }
+      ]
+    },
+    "decisionsV2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "source", "decisions", "reviewed_areas"],
+      "properties": {
+        "version": { "const": 2 },
+        "source": { "$ref": "evidence.schema.json#/$defs/sourceId" },
+        "decisions": { "type": "array", "items": { "$ref": "#/$defs/decisionV2" } },
+        "reviewed_areas": { "type": "array", "items": { "$ref": "#/$defs/reviewedAreaDecision" } },
+        "label_reads": { "type": "array", "items": { "$ref": "#/$defs/labelRead" } },
+        "street_numbers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["review_item_id", "text", "confirmed_by", "confirmed_at"],
+            "properties": {
+              "review_item_id": { "type": "string", "minLength": 1 },
+              "text": { "type": "string", "minLength": 1 },
+              "label_read_index": { "type": "integer", "minimum": 0 },
+              "confirmed_by": { "type": "string", "minLength": 1 },
+              "confirmed_at": { "$ref": "evidence.schema.json#/$defs/dateTime" }
+            }
+          }
+        }
+      }
+    },
+    "decisionsV1": {
+      "description": "Spec 02's decisions file (design 'Decisions file'): accept or reject, read as the same decisions. confirmed_by and confirmed_at may be absent; such an accept is not published.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "decisions"],
+      "properties": {
+        "source": { "$ref": "evidence.schema.json#/$defs/sourceId" },
+        "version": { "const": 1 },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["proposal_id", "decision"],
+            "properties": {
+              "proposal_id": { "type": "string", "minLength": 1 },
+              "decision": { "enum": ["accept", "reject"] },
+              "confirmed_by": { "type": "string" },
+              "confirmed_at": { "type": "string" },
+              "pixel_polygon": { "$ref": "#/$defs/pixelPolygon" },
+              "attributes": { "$ref": "evidence.schema.json#/$defs/attributes" },
+              "attribute_reads": { "type": "array" },
+              "confidence": { "enum": ["documented", "estimated", "unknown"] },
+              "confidence_reason": { "type": "string", "minLength": 1 },
+              "position_error_m": { "type": "number", "minimum": 0 }
+            }
+          }
+        },
+        "reviewed_areas": { "type": "array", "items": { "$ref": "#/$defs/reviewedAreaDecision" } }
+      }
+    },
+    "workspaceState": {
+      "description": "Every workspace file the overlay needs, as canonical text where the file is exported verbatim.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sources", "control_files", "alignment_records", "evidence_files", "tile_sidecars"],
+      "properties": {
+        "sources": { "type": "array", "items": { "$ref": "evidence.schema.json#/$defs/source" } },
+        "control_files": { "type": "array", "items": { "$ref": "#/$defs/canonicalText" } },
+        "alignment_records": { "type": "array", "items": { "$ref": "#/$defs/canonicalText" } },
+        "evidence_files": { "type": "array", "items": { "$ref": "#/$defs/canonicalText" } },
+        "tile_sidecars": {
+          "type": "array",
+          "items": { "$ref": "evidence.schema.json#/$defs/tileSidecar" }
+        }
+      }
+    },
+    "publishRequest": {
+      "description": "In this version of the Service, workspace must be empty (no workspace sources, files or evidence): publishing a workspace source is not built yet. source_id names a canon plate, and the evidence file already in canon for it is the one extended.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "api_version",
+        "data_version",
+        "dry_run",
+        "source_id",
+        "workspace",
+        "proposal_file_text",
+        "decisions"
+      ],
+      "properties": {
+        "api_version": { "$ref": "#/$defs/apiVersion" },
+        "data_version": { "$ref": "#/$defs/dataVersion" },
+        "dry_run": { "type": "boolean" },
+        "source_id": { "$ref": "evidence.schema.json#/$defs/sourceId" },
+        "workspace": { "$ref": "#/$defs/workspaceState" },
+        "proposal_file_text": { "$ref": "#/$defs/canonicalText" },
+        "decisions": {
+          "oneOf": [{ "$ref": "#/$defs/decisionsV2" }, { "$ref": "#/$defs/decisionsV1" }]
+        }
+      }
+    },
+    "publishCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accepted",
+        "published_now",
+        "already_published",
+        "rejected",
+        "undecided",
+        "unconfirmed"
+      ],
+      "properties": {
+        "accepted": { "type": "integer", "minimum": 0 },
+        "published_now": { "type": "integer", "minimum": 0 },
+        "already_published": { "type": "integer", "minimum": 0 },
+        "rejected": { "type": "integer", "minimum": 0 },
+        "undecided": { "type": "integer", "minimum": 0 },
+        "unconfirmed": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "publishError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "pointer", "reason"],
+      "properties": {
+        "path": { "type": "string" },
+        "feature_id": { "type": "string" },
+        "review_item_id": { "type": "string" },
+        "pointer": { "type": "string" },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    },
+    "publishResponse": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ok", "evidence_file_text", "counts", "new_feature_ids"],
+          "properties": {
+            "ok": { "const": true },
+            "evidence_file_text": { "$ref": "#/$defs/canonicalText" },
+            "counts": { "$ref": "#/$defs/publishCounts" },
+            "new_feature_ids": {
+              "type": "array",
+              "items": { "$ref": "evidence.schema.json#/$defs/featureId" }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ok", "errors"],
+          "properties": {
+            "ok": { "const": false },
+            "errors": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/publishError" } }
+          }
+        }
+      ]
+    },
+    "matchRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["api_version", "data_version", "workspace", "match_decisions"],
+      "properties": {
+        "api_version": { "$ref": "#/$defs/apiVersion" },
+        "data_version": { "$ref": "#/$defs/dataVersion" },
+        "workspace": { "$ref": "#/$defs/workspaceState" },
+        "match_decisions": { "type": "object" }
+      }
+    },
+    "matchResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_files", "review", "suggested_for_canon"],
+      "properties": {
+        "evidence_files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "text"],
+            "properties": {
+              "source": { "$ref": "evidence.schema.json#/$defs/sourceId" },
+              "text": { "$ref": "#/$defs/canonicalText" }
+            }
+          }
+        },
+        "review": { "type": "array", "items": { "type": "object" } },
+        "suggested_for_canon": { "type": "array", "items": { "type": "object" } }
+      }
+    }
+  }
+}

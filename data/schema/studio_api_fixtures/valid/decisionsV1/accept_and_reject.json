@@ -1,0 +1,23 @@
+{
+  "source": "fip_v3_1911_229",
+  "decisions": [
+    {
+      "proposal_id": "fip_v3_1911_229_p_0123456789ab",
+      "decision": "accept",
+      "confirmed_by": "Test Reviewer",
+      "confirmed_at": "2026-11-15T10:00:00-05:00",
+      "attributes": { "storeys": 2 },
+      "confidence": "documented",
+      "confidence_reason": "Footprint and storeys read from the plate"
+    },
+    { "proposal_id": "fip_v3_1911_229_p_ba9876543210", "decision": "reject" }
+  ],
+  "reviewed_areas": [
+    {
+      "pixel_polygon": [[0, 0], [1000, 0], [1000, 800], [0, 800]],
+      "confirmed_by": "Test Reviewer",
+      "confirmed_at": "2026-11-15T10:30:00-05:00",
+      "covers": ["building"]
+    }
+  ]
+}

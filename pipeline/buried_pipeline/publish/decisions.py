@@ -179,15 +179,20 @@ def _reads(value: Any, item: str, out: list[Problem]) -> tuple[AttributeRead, ..
 
 
 def _decision(raw: Any, index: int, v2: bool, out: list[Problem]) -> Decision | None:
-    if not isinstance(raw, dict) or not isinstance(raw.get("proposal_id"), str):
+    if not isinstance(raw, dict):
+        out.append(Problem(f"decision #{index} must be an object"))
+        return None
+    kind = raw.get("type" if v2 else "decision")
+    if v2 and kind in V2_UNSUPPORTED_TYPES:
+        ids = raw.get("proposal_ids") or [raw.get("proposal_id")]
+        named = next((i for i in ids if isinstance(i, str)), None)
+        out.append(Problem(f"decision type {kind!r} is not supported yet (only accept and "
+                           "reject are)", named))
+        return None
+    if not isinstance(raw.get("proposal_id"), str):
         out.append(Problem(f"decision #{index} needs a proposal_id"))
         return None
     pid: str = raw["proposal_id"]
-    kind = raw.get("type" if v2 else "decision")
-    if kind in V2_UNSUPPORTED_TYPES and v2:
-        out.append(Problem(f"decision type {kind!r} is not supported yet (only accept and "
-                           "reject are)", pid))
-        return None
     if kind not in ("accept", "reject"):
         out.append(Problem(f"{'type' if v2 else 'decision'} must be accept or reject", pid))
         return None

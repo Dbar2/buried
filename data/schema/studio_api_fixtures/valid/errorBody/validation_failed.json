@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "validation_failed",
+    "message": "The evidence file failed validation.",
+    "details": [{ "pointer": "/features/0", "reason": "example" }]
+  }
+}

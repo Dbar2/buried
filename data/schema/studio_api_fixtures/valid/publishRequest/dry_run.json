@@ -1,0 +1,19 @@
+{
+  "api_version": "1.0.0",
+  "data_version": "0000000000000000000000000000000000000000000000000000000000000000",
+  "dry_run": true,
+  "source_id": "fip_v3_1911_229",
+  "workspace": {
+    "sources": [],
+    "control_files": [],
+    "alignment_records": [],
+    "evidence_files": [],
+    "tile_sidecars": []
+  },
+  "proposal_file_text": "{}\n",
+  "decisions": {
+    "source": "fip_v3_1911_229",
+    "decisions": [],
+    "reviewed_areas": []
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "api_version": "1.0.0",
+  "data_version": "0000000000000000000000000000000000000000000000000000000000000000",
+  "plates": [
+    {
+      "source": {
+        "id": "fip_v3_1911_229",
+        "type": "fire_insurance_plan",
+        "title": "Synthetic plate",
+        "year_from": 1911,
+        "year_to": 1914,
+        "url": "https://example.invalid/plate.zip",
+        "licence_note": "Synthetic.",
+        "attribution_line": "Synthetic attribution.",
+        "attribution_status": "confirmed",
+        "rights_checked_on": "2026-11-10",
+        "held_out": false
+      },
+      "tile_sidecar": {
+        "schema_version": "1.1.0",
+        "source": "fip_v3_1911_229",
+        "image": "fip_v3_1911_229.jpg",
+        "width_px": 4096,
+        "height_px": 3000,
+        "corners": {
+          "top_left": [500000.0, 4000100.0],
+          "top_right": [500150.0, 4000100.0],
+          "bottom_right": [500150.0, 4000000.0],
+          "bottom_left": [500000.0, 4000000.0]
+        },
+        "transform": "supplied",
+        "alignment_error_m": 4.3,
+        "source_pixel_size_m": 0.0592,
+        "tile_pixel_size_m": 0.0366,
+        "attribution_line": "Synthetic attribution."
+      },
+      "has_alignment_record": true,
+      "has_map_area": true,
+      "raster_available": true,
+      "plate_ref": "1111111111111111111111111111111111111111111111111111111111111111"
+    }
+  ]
+}
