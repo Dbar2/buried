@@ -1,0 +1,6654 @@
+{
+  "crs": "EPSG:26917",
+  "features": [
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632485.826915,
+              4834808.476019
+            ],
+            [
+              632486.418957,
+              4834808.141696
+            ],
+            [
+              632499.240902,
+              4834812.486709
+            ],
+            [
+              632499.336757,
+              4834813.026708
+            ],
+            [
+              632497.287632,
+              4834812.797538
+            ],
+            [
+              632487.231841,
+              4834809.663091
+            ],
+            [
+              632485.826915,
+              4834808.476019
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0001",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 11,
+            "width": 119,
+            "x": 1274,
+            "y": 3145
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_00f61d0f4713",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632589.486009,
+              4834849.951828
+            ],
+            [
+              632591.593867,
+              4834844.70166
+            ],
+            [
+              632595.639959,
+              4834845.783578
+            ],
+            [
+              632593.694678,
+              4834851.338025
+            ],
+            [
+              632592.318885,
+              4834850.926673
+            ],
+            [
+              632591.234884,
+              4834851.241738
+            ],
+            [
+              632590.713792,
+              4834850.446761
+            ],
+            [
+              632589.486009,
+              4834849.951828
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0002",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 53,
+            "width": 40,
+            "x": 2202,
+            "y": 3064
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_017e97abe006",
+          "tone_class": "dark"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632427.503733,
+              4834946.868466
+            ],
+            [
+              632424.072706,
+              4834944.052925
+            ],
+            [
+              632426.826642,
+              4834940.913452
+            ],
+            [
+              632429.244618,
+              4834942.914759
+            ],
+            [
+              632428.519132,
+              4834943.720522
+            ],
+            [
+              632429.532182,
+              4834944.534756
+            ],
+            [
+              632427.503733,
+              4834946.868466
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0003",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 45,
+            "width": 45,
+            "x": 1086,
+            "y": 1933
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_042d43cda59d",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632440.040967,
+              4835094.559045
+            ],
+            [
+              632443.416545,
+              4835084.830193
+            ],
+            [
+              632443.893938,
+              4835084.46159
+            ],
+            [
+              632444.031611,
+              4835083.09657
+            ],
+            [
+              632445.078022,
+              4835083.792945
+            ],
+            [
+              632445.374043,
+              4835083.625783
+            ],
+            [
+              632445.082251,
+              4835082.899365
+            ],
+            [
+              632445.741015,
+              4835082.329322
+            ],
+            [
+              632446.658211,
+              4835082.603557
+            ],
+            [
+              632446.357961,
+              4835083.664298
+            ],
+            [
+              632447.504456,
+              4835084.007092
+            ],
+            [
+              632446.803873,
+              4835086.482154
+            ],
+            [
+              632448.490254,
+              4835087.114206
+            ],
+            [
+              632448.896696,
+              4835087.874903
+            ],
+            [
+              632449.422016,
+              4835087.7763
+            ],
+            [
+              632450.489571,
+              4835084.004777
+            ],
+            [
+              632451.12954,
+              4835083.940454
+            ],
+            [
+              632451.421333,
+              4835084.666872
+            ],
+            [
+              632452.046736,
+              4835084.214689
+            ],
+            [
+              632456.599353,
+              4835085.703725
+            ],
+            [
+              632455.598521,
+              4835089.239528
+            ],
+            [
+              632456.970086,
+              4835090.54446
+            ],
+            [
+              632457.36619,
+              4835090.023719
+            ],
+            [
+              632458.760779,
+              4835089.929352
+            ],
+            [
+              632459.561445,
+              4835087.100709
+            ],
+            [
+              632460.038837,
+              4835086.732107
+            ],
+            [
+              632460.626651,
+              4835087.291363
+            ],
+            [
+              632461.52928,
+              4835087.177739
+            ],
+            [
+              632464.591455,
+              4835088.221143
+            ],
+            [
+              632464.520504,
+              4835089.350442
+            ],
+            [
+              632465.977586,
+              4835089.913935
+            ],
+            [
+              632465.195715,
+              4835092.236857
+            ],
+            [
+              632466.848735,
+              4835092.986769
+            ],
+            [
+              632467.025878,
+              4835093.678907
+            ],
+            [
+              632467.76593,
+              4835093.261004
+            ],
+            [
+              632468.433152,
+              4835090.903802
+            ],
+            [
+              632469.431636,
+              4835091.330176
+            ],
+            [
+              632470.027907,
+              4835090.102274
+            ],
+            [
+              632475.645731,
+              4835091.781964
+            ],
+            [
+              632474.678259,
+              4835095.199907
+            ],
+            [
+              632475.57666,
+              4835095.979862
+            ],
+            [
+              632472.615981,
+              4835104.682253
+            ],
+            [
+              632458.891406,
+              4835100.450865
+            ],
+            [
+              632457.511384,
+              4835100.933092
+            ],
+            [
+              632456.216879,
+              4835100.673879
+            ],
+            [
+              632454.645147,
+              4835100.076107
+            ],
+            [
+              632454.224139,
+              4835098.92755
+            ],
+            [
+              632449.408862,
+              4835097.487815
+            ],
+            [
+              632449.627823,
+              4835096.274935
+            ],
+            [
+              632449.121298,
+              4835095.867818
+            ],
+            [
+              632446.794947,
+              4835095.30009
+            ],
+            [
+              632446.542625,
+              4835096.630831
+            ],
+            [
+              632441.646059,
+              4835095.038956
+            ],
+            [
+              632441.043679,
+              4835094.09184
+            ],
+            [
+              632440.040967,
+              4835094.559045
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0004",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 119,
+            "width": 289,
+            "x": 1557,
+            "y": 797
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_0e3e522b620f",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632420.840931,
+              4835048.166887
+            ],
+            [
+              632420.371995,
+              4835046.74833
+            ],
+            [
+              632419.354717,
+              4835046.827675
+            ],
+            [
+              632417.624637,
+              4835045.032045
+            ],
+            [
+              632420.149274,
+              4835041.824014
+            ],
+            [
+              632421.314563,
+              4835041.661088
+            ],
+            [
+              632422.012798,
+              4835043.148204
+            ],
+            [
+              632423.742877,
+              4835044.943834
+            ],
+            [
+              632420.840931,
+              4835048.166887
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0005",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 52,
+            "width": 49,
+            "x": 1264,
+            "y": 1125
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_0fd87c1be71e",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632541.024534,
+              4834869.594085
+            ],
+            [
+              632540.092772,
+              4834868.93199
+            ],
+            [
+              632536.849226,
+              4834868.090027
+            ],
+            [
+              632536.45735,
+              4834867.71719
+            ],
+            [
+              632535.40671,
+              4834867.914395
+            ],
+            [
+              632535.048195,
+              4834867.423697
+            ],
+            [
+              632534.097639,
+              4834867.267322
+            ],
+            [
+              632533.051227,
+              4834866.570948
+            ],
+            [
+              632532.859518,
+              4834865.490949
+            ],
+            [
+              632534.218865,
+              4834862.445844
+            ],
+            [
+              632535.236144,
+              4834862.366499
+            ],
+            [
+              632542.577463,
+              4834839.505873
+            ],
+            [
+              632543.11735,
+              4834839.79513
+            ],
+            [
+              632542.994243,
+              4834841.54801
+            ],
+            [
+              632545.687565,
+              4834840.819276
+            ],
+            [
+              632546.748543,
+              4834841.90351
+            ],
+            [
+              632546.596303,
+              4834842.880671
+            ],
+            [
+              632547.790725,
+              4834843.493464
+            ],
+            [
+              632548.115879,
+              4834844.102022
+            ],
+            [
+              632542.227881,
+              4834861.388943
+            ],
+            [
+              632541.206374,
+              4834862.361868
+            ],
+            [
+              632540.99775,
+              4834864.856188
+            ],
+            [
+              632541.652286,
+              4834865.179724
+            ],
+            [
+              632541.614696,
+              4834866.191164
+            ],
+            [
+              632542.756962,
+              4834867.427538
+            ],
+            [
+              632541.797948,
+              4834869.058322
+            ],
+            [
+              632541.024534,
+              4834869.594085
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0006",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 239,
+            "width": 84,
+            "x": 1782,
+            "y": 2803
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_1353dd00d9f8",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632610.187287,
+              4834859.848577
+            ],
+            [
+              632609.862133,
+              4834859.240019
+            ],
+            [
+              632613.383374,
+              4834853.389764
+            ],
+            [
+              632607.774007,
+              4834849.922914
+            ],
+            [
+              632608.040896,
+              4834848.980033
+            ],
+            [
+              632616.620811,
+              4834852.056708
+            ],
+            [
+              632615.843169,
+              4834853.486051
+            ],
+            [
+              632610.187287,
+              4834859.848577
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0007",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 80,
+            "width": 76,
+            "x": 2349,
+            "y": 3041
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_1444344e35c4",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632433.566504,
+              4834840.66075
+            ],
+            [
+              632434.506723,
+              4834839.535685
+            ],
+            [
+              632435.405124,
+              4834840.31564
+            ],
+            [
+              632439.976536,
+              4834841.298957
+            ],
+            [
+              632440.654096,
+              4834840.223194
+            ],
+            [
+              632441.289836,
+              4834841.05245
+            ],
+            [
+              632442.077817,
+              4834840.904546
+            ],
+            [
+              632442.515739,
+              4834838.478785
+            ],
+            [
+              632443.222431,
+              4834838.178742
+            ],
+            [
+              632444.675284,
+              4834839.635813
+            ],
+            [
+              632443.259552,
+              4834844.198078
+            ],
+            [
+              632442.486139,
+              4834844.733842
+            ],
+            [
+              632439.046655,
+              4834843.70546
+            ],
+            [
+              632437.345708,
+              4834842.685549
+            ],
+            [
+              632436.787026,
+              4834842.902012
+            ],
+            [
+              632434.0688,
+              4834841.961446
+            ],
+            [
+              632433.566504,
+              4834840.66075
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0008",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 53,
+            "width": 87,
+            "x": 927,
+            "y": 2767
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_150aa297a626",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632485.715614,
+              4835071.143343
+            ],
+            [
+              632482.088649,
+              4835068.141384
+            ],
+            [
+              632482.430717,
+              4835065.175623
+            ],
+            [
+              632487.279824,
+              4835059.466722
+            ],
+            [
+              632487.33198,
+              4835058.843142
+            ],
+            [
+              632488.764158,
+              4835057.737335
+            ],
+            [
+              632488.816314,
+              4835057.113755
+            ],
+            [
+              632491.636972,
+              4835053.738562
+            ],
+            [
+              632492.854418,
+              4835052.952056
+            ],
+            [
+              632492.447976,
+              4835052.191359
+            ],
+            [
+              632491.693357,
+              4835052.221403
+            ],
+            [
+              632487.51194,
+              4835048.542326
+            ],
+            [
+              632489.392379,
+              4835046.292198
+            ],
+            [
+              632490.295008,
+              4835046.178573
+            ],
+            [
+              632490.051143,
+              4835045.722155
+            ],
+            [
+              632490.54733,
+              4835044.847832
+            ],
+            [
+              632490.958001,
+              4835044.71495
+            ],
+            [
+              632491.364443,
+              4835045.475648
+            ],
+            [
+              632492.004412,
+              4835045.411325
+            ],
+            [
+              632491.010157,
+              4835044.09137
+            ],
+            [
+              632493.878742,
+              4835040.986177
+            ],
+            [
+              632509.758165,
+              4835054.298949
+            ],
+            [
+              632506.641486,
+              4835057.841303
+            ],
+            [
+              632504.944768,
+              4835055.927813
+            ],
+            [
+              632504.567458,
+              4835055.942835
+            ],
+            [
+              632504.663313,
+              4835056.482834
+            ],
+            [
+              632505.351209,
+              4835056.688511
+            ],
+            [
+              632506.541403,
+              4835058.194884
+            ],
+            [
+              632503.491446,
+              4835061.501518
+            ],
+            [
+              632502.822344,
+              4835060.790121
+            ],
+            [
+              632502.082291,
+              4835061.208025
+            ],
+            [
+              632498.488688,
+              4835058.088205
+            ],
+            [
+              632498.492917,
+              4835057.194625
+            ],
+            [
+              632497.442277,
+              4835057.391831
+            ],
+            [
+              632487.395886,
+              4835069.600376
+            ],
+            [
+              632486.474461,
+              4835070.21972
+            ],
+            [
+              632485.724071,
+              4835069.356184
+            ],
+            [
+              632485.42805,
+              4835069.523346
+            ],
+            [
+              632486.259729,
+              4835070.539021
+            ],
+            [
+              632485.715614,
+              4835071.143343
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0009",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 255,
+            "width": 195,
+            "x": 1831,
+            "y": 1097
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_1acc5fdb6a36",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632424.220717,
+              4834943.969344
+            ],
+            [
+              632421.573442,
+              4834941.899479
+            ],
+            [
+              632424.246089,
+              4834938.607867
+            ],
+            [
+              632426.860003,
+              4834940.795592
+            ],
+            [
+              632424.220717,
+              4834943.969344
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0010",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 42,
+            "width": 40,
+            "x": 1061,
+            "y": 1948
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_1faf8a161ef3",
+          "tone_class": "light"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632374.57422,
+              4834978.3418
+            ],
+            [
+              632369.442247,
+              4834974.506348
+            ],
+            [
+              632370.357562,
+              4834971.711985
+            ],
+            [
+              632375.585391,
+              4834976.087436
+            ],
+            [
+              632374.57422,
+              4834978.3418
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0011",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 42,
+            "width": 53,
+            "x": 716,
+            "y": 1563
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_2332b2539f7b",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632441.833994,
+              4835027.59835
+            ],
+            [
+              632440.406044,
+              4835027.810578
+            ],
+            [
+              632438.823975,
+              4835025.931367
+            ],
+            [
+              632437.677481,
+              4835025.588573
+            ],
+            [
+              632437.762998,
+              4835024.847133
+            ],
+            [
+              632436.66443,
+              4835024.774338
+            ],
+            [
+              632436.587371,
+              4835023.728619
+            ],
+            [
+              632438.248848,
+              4835022.691371
+            ],
+            [
+              632439.830917,
+              4835024.570582
+            ],
+            [
+              632442.234327,
+              4835026.184029
+            ],
+            [
+              632441.833994,
+              4835027.59835
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0012",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 35,
+            "width": 51,
+            "x": 1368,
+            "y": 1330
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_27e99b7aca58",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632598.00954,
+              4834854.545662
+            ],
+            [
+              632602.748226,
+              4834847.908901
+            ],
+            [
+              632606.852583,
+              4834850.542259
+            ],
+            [
+              632606.800427,
+              4834851.165838
+            ],
+            [
+              632605.879003,
+              4834851.785183
+            ],
+            [
+              632605.808052,
+              4834852.914483
+            ],
+            [
+              632604.623967,
+              4834853.583128
+            ],
+            [
+              632604.09019,
+              4834855.46889
+            ],
+            [
+              632603.187561,
+              4834855.582515
+            ],
+            [
+              632602.987394,
+              4834856.289675
+            ],
+            [
+              632601.678323,
+              4834855.642602
+            ],
+            [
+              632600.952836,
+              4834856.448366
+            ],
+            [
+              632598.00954,
+              4834854.545662
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0013",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 71,
+            "width": 63,
+            "x": 2281,
+            "y": 3046
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_2db452e4513f",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632578.007908,
+              4834856.235403
+            ],
+            [
+              632578.060064,
+              4834855.611823
+            ],
+            [
+              632579.077343,
+              4834855.532478
+            ],
+            [
+              632578.52712,
+              4834853.961782
+            ],
+            [
+              632579.742685,
+              4834850.106677
+            ],
+            [
+              632581.266489,
+              4834850.434449
+            ],
+            [
+              632584.762358,
+              4834849.945672
+            ],
+            [
+              632584.462108,
+              4834851.006413
+            ],
+            [
+              632583.788777,
+              4834851.188596
+            ],
+            [
+              632584.261941,
+              4834851.713573
+            ],
+            [
+              632582.831643,
+              4834855.887979
+            ],
+            [
+              632580.882602,
+              4834855.305229
+            ],
+            [
+              632581.059745,
+              4834855.997368
+            ],
+            [
+              632580.071599,
+              4834856.852432
+            ],
+            [
+              632578.007908,
+              4834856.235403
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0014",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 65,
+            "width": 41,
+            "x": 2123,
+            "y": 2994
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_301ea791370c",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632383.372643,
+              4835049.619778
+            ],
+            [
+              632379.425697,
+              4835062.245832
+            ],
+            [
+              632378.393852,
+              4835061.937317
+            ],
+            [
+              632377.616209,
+              4835063.36666
+            ],
+            [
+              632378.677187,
+              4835064.450894
+            ],
+            [
+              632378.29142,
+              4835066.253075
+            ],
+            [
+              632376.959325,
+              4835067.005302
+            ],
+            [
+              632376.600811,
+              4835066.514604
+            ],
+            [
+              632375.718856,
+              4835069.191107
+            ],
+            [
+              632374.309701,
+              4835068.897614
+            ],
+            [
+              632374.520205,
+              4835069.471893
+            ],
+            [
+              632375.356113,
+              4835069.593989
+            ],
+            [
+              632375.499895,
+              4835070.403987
+            ],
+            [
+              632376.694317,
+              4835071.016781
+            ],
+            [
+              632375.712279,
+              4835074.046864
+            ],
+            [
+              632367.342868,
+              4835071.544469
+            ],
+            [
+              632367.088665,
+              4835069.806611
+            ],
+            [
+              632366.138108,
+              4835069.650236
+            ],
+            [
+              632365.312539,
+              4835070.809579
+            ],
+            [
+              632358.777519,
+              4835068.855654
+            ],
+            [
+              632358.419005,
+              4835068.364956
+            ],
+            [
+              632357.745674,
+              4835068.547139
+            ],
+            [
+              632356.288592,
+              4835067.983647
+            ],
+            [
+              632355.853018,
+              4835066.44723
+            ],
+            [
+              632354.295852,
+              4835066.237318
+            ],
+            [
+              632353.307706,
+              4835067.092383
+            ],
+            [
+              632344.775718,
+              4835064.285708
+            ],
+            [
+              632343.762668,
+              4835063.471473
+            ],
+            [
+              632343.055976,
+              4835063.771517
+            ],
+            [
+              632341.780266,
+              4835063.006584
+            ],
+            [
+              632344.315708,
+              4835054.049215
+            ],
+            [
+              632344.645091,
+              4835053.764194
+            ],
+            [
+              632345.691502,
+              4835054.460568
+            ],
+            [
+              632346.168895,
+              4835054.091966
+            ],
+            [
+              632346.986007,
+              4835054.719781
+            ],
+            [
+              632347.075753,
+              4835053.084762
+            ],
+            [
+              632348.632918,
+              4835053.294674
+            ],
+            [
+              632348.703869,
+              4835052.165374
+            ],
+            [
+              632349.835797,
+              4835052.120308
+            ],
+            [
+              632350.971955,
+              4835051.181663
+            ],
+            [
+              632362.632839,
+              4835054.796021
+            ],
+            [
+              632363.364434,
+              4835056.165277
+            ],
+            [
+              632364.65894,
+              4835056.42449
+            ],
+            [
+              632364.802721,
+              4835057.234489
+            ],
+            [
+              632367.687753,
+              4835057.585754
+            ],
+            [
+              632368.552793,
+              4835058.483569
+            ],
+            [
+              632369.866093,
+              4835058.237063
+            ],
+            [
+              632371.18785,
+              4835056.203397
+            ],
+            [
+              632371.325523,
+              4835054.838377
+            ],
+            [
+              632370.09774,
+              4835054.343443
+            ],
+            [
+              632369.657937,
+              4835053.700606
+            ],
+            [
+              632372.385089,
+              4835045.823236
+            ],
+            [
+              632383.014128,
+              4835049.12908
+            ],
+            [
+              632383.372643,
+              4835049.619778
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0015",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 213,
+            "width": 304,
+            "x": 695,
+            "y": 817
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_3308a61c5032",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632516.294596,
+              4835066.35225
+            ],
+            [
+              632515.391967,
+              4835066.465874
+            ],
+            [
+              632513.728609,
+              4835064.434524
+            ],
+            [
+              632513.122001,
+              4835064.380987
+            ],
+            [
+              632512.519621,
+              4835063.43387
+            ],
+            [
+              632511.765002,
+              4835063.463914
+            ],
+            [
+              632509.872346,
+              4835061.364005
+            ],
+            [
+              632513.15583,
+              4835057.23235
+            ],
+            [
+              632513.806137,
+              4835058.449466
+            ],
+            [
+              632514.560756,
+              4835058.419423
+            ],
+            [
+              632519.134049,
+              4835062.471337
+            ],
+            [
+              632517.926941,
+              4835064.539282
+            ],
+            [
+              632517.172322,
+              4835064.569326
+            ],
+            [
+              632517.201455,
+              4835065.345046
+            ],
+            [
+              632516.294596,
+              4835066.35225
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0016",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 67,
+            "width": 77,
+            "x": 2043,
+            "y": 1203
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_3346fc1f9bb8",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632451.387929,
+              4834897.634509
+            ],
+            [
+              632451.94661,
+              4834897.418046
+            ],
+            [
+              632488.434273,
+              4834909.094614
+            ],
+            [
+              632491.267148,
+              4834910.069459
+            ],
+            [
+              632491.492218,
+              4834911.031597
+            ],
+            [
+              632472.706153,
+              4834908.866234
+            ],
+            [
+              632470.183864,
+              4834908.112087
+            ],
+            [
+              632451.387929,
+              4834897.634509
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0017",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 41,
+            "width": 353,
+            "x": 1200,
+            "y": 2336
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_3b80b986eb01",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632529.218009,
+              4834955.676241
+            ],
+            [
+              632524.186118,
+              4834951.487209
+            ],
+            [
+              632528.953937,
+              4834945.626168
+            ],
+            [
+              632534.067115,
+              4834949.967339
+            ],
+            [
+              632529.218009,
+              4834955.676241
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0018",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 78,
+            "width": 76,
+            "x": 1908,
+            "y": 2102
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_3df1791cb9c2",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632498.725451,
+              4834820.897527
+            ],
+            [
+              632495.825853,
+              4834820.158402
+            ],
+            [
+              632494.595722,
+              4834823.625646
+            ],
+            [
+              632487.783476,
+              4834821.333163
+            ],
+            [
+              632488.784309,
+              4834817.797359
+            ],
+            [
+              632485.330259,
+              4834816.381118
+            ],
+            [
+              632487.805088,
+              4834809.834488
+            ],
+            [
+              632490.704686,
+              4834810.573613
+            ],
+            [
+              632491.536364,
+              4834811.589288
+            ],
+            [
+              632492.964314,
+              4834811.377061
+            ],
+            [
+              632500.956415,
+              4834813.894479
+            ],
+            [
+              632498.725451,
+              4834820.897527
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0019",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 93,
+            "width": 120,
+            "x": 1288,
+            "y": 3054
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_40cec48f08d8",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632594.586502,
+              4834856.973738
+            ],
+            [
+              632593.984122,
+              4834856.026621
+            ],
+            [
+              632594.284372,
+              4834854.965881
+            ],
+            [
+              632595.787501,
+              4834852.730774
+            ],
+            [
+              632595.26641,
+              4834851.935797
+            ],
+            [
+              632596.913321,
+              4834850.510689
+            ],
+            [
+              632597.496906,
+              4834851.963526
+            ],
+            [
+              632598.170236,
+              4834851.781342
+            ],
+            [
+              632598.872699,
+              4834852.374878
+            ],
+            [
+              632596.944333,
+              4834854.355007
+            ],
+            [
+              632595.885236,
+              4834856.339372
+            ],
+            [
+              632594.586502,
+              4834856.973738
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0020",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 56,
+            "width": 31,
+            "x": 2252,
+            "y": 3027
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_4542a7881def",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632380.427452,
+              4834982.265068
+            ],
+            [
+              632379.266391,
+              4834981.534414
+            ],
+            [
+              632378.330401,
+              4834981.765899
+            ],
+            [
+              632375.29125,
+              4834979.323196
+            ],
+            [
+              632375.070408,
+              4834977.467478
+            ],
+            [
+              632375.585391,
+              4834976.087436
+            ],
+            [
+              632376.110711,
+              4834975.988833
+            ],
+            [
+              632376.287854,
+              4834976.680972
+            ],
+            [
+              632376.813174,
+              4834976.582369
+            ],
+            [
+              632376.521381,
+              4834975.855951
+            ],
+            [
+              632375.914773,
+              4834975.802414
+            ],
+            [
+              632376.396394,
+              4834974.540233
+            ],
+            [
+              632382.264192,
+              4834978.85136
+            ],
+            [
+              632381.438622,
+              4834980.010704
+            ],
+            [
+              632380.521426,
+              4834979.736469
+            ],
+            [
+              632381.305178,
+              4834980.482144
+            ],
+            [
+              632380.427452,
+              4834982.265068
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0021",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 52,
+            "width": 61,
+            "x": 768,
+            "y": 1545
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_523ee09ba9b3",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632576.671124,
+              4834896.103689
+            ],
+            [
+              632574.774239,
+              4834894.89736
+            ],
+            [
+              632574.482446,
+              4834894.170941
+            ],
+            [
+              632570.970131,
+              4834891.203261
+            ],
+            [
+              632571.418392,
+              4834890.058939
+            ],
+            [
+              632570.882734,
+              4834888.876103
+            ],
+            [
+              632572.596367,
+              4834887.215275
+            ],
+            [
+              632573.742862,
+              4834887.558069
+            ],
+            [
+              632574.664286,
+              4834886.938724
+            ],
+            [
+              632575.696131,
+              4834887.247239
+            ],
+            [
+              632575.839913,
+              4834888.057238
+            ],
+            [
+              632578.616404,
+              4834890.549242
+            ],
+            [
+              632578.334949,
+              4834891.104263
+            ],
+            [
+              632579.004051,
+              4834891.81566
+            ],
+            [
+              632578.666212,
+              4834893.88784
+            ],
+            [
+              632576.671124,
+              4834896.103689
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0022",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 67,
+            "width": 74,
+            "x": 2141,
+            "y": 2679
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_57242ee0d5de",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632392.599097,
+              4835016.584668
+            ],
+            [
+              632391.852936,
+              4835014.827553
+            ],
+            [
+              632391.375543,
+              4835015.196155
+            ],
+            [
+              632390.181121,
+              4835014.583361
+            ],
+            [
+              632386.931466,
+              4835011.566379
+            ],
+            [
+              632387.183788,
+              4835010.235639
+            ],
+            [
+              632386.810708,
+              4835009.357081
+            ],
+            [
+              632387.784288,
+              4835008.114157
+            ],
+            [
+              632392.376376,
+              4835011.660352
+            ],
+            [
+              632391.42159,
+              4835012.397556
+            ],
+            [
+              632391.976042,
+              4835013.074673
+            ],
+            [
+              632392.20957,
+              4835012.249652
+            ],
+            [
+              632392.882901,
+              4835012.067469
+            ],
+            [
+              632394.923568,
+              4835014.083797
+            ],
+            [
+              632392.599097,
+              4835016.584668
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0023",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 55,
+            "width": 76,
+            "x": 935,
+            "y": 1306
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_5a3d2cd8bbe5",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632430.73929,
+              4834942.466811
+            ],
+            [
+              632429.640723,
+              4834942.394017
+            ],
+            [
+              632429.015319,
+              4834942.8462
+            ],
+            [
+              632425.913675,
+              4834939.745637
+            ],
+            [
+              632427.364648,
+              4834938.134111
+            ],
+            [
+              632427.971256,
+              4834938.187648
+            ],
+            [
+              632429.032234,
+              4834939.271882
+            ],
+            [
+              632428.798706,
+              4834940.096903
+            ],
+            [
+              632429.734697,
+              4834939.865418
+            ],
+            [
+              632430.155705,
+              4834941.013975
+            ],
+            [
+              632430.714386,
+              4834940.797512
+            ],
+            [
+              632431.416849,
+              4834941.391048
+            ],
+            [
+              632430.73929,
+              4834942.466811
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0024",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 34,
+            "width": 48,
+            "x": 1091,
+            "y": 1968
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_5e642d26c4bf",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632452.407585,
+              4835018.359801
+            ],
+            [
+              632448.747259,
+              4835015.475701
+            ],
+            [
+              632451.85971,
+              4835012.826927
+            ],
+            [
+              632453.469031,
+              4835012.413259
+            ],
+            [
+              632453.942195,
+              4835012.938236
+            ],
+            [
+              632453.512729,
+              4835013.576838
+            ],
+            [
+              632454.444491,
+              4835014.238933
+            ],
+            [
+              632454.865499,
+              4835015.38749
+            ],
+            [
+              632452.407585,
+              4835018.359801
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0025",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 49,
+            "width": 49,
+            "x": 1447,
+            "y": 1432
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_64a0bd7a0809",
+          "tone_class": "dark"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632448.383579,
+              4835029.940136
+            ],
+            [
+              632447.126664,
+              4835028.669483
+            ],
+            [
+              632445.898881,
+              4835028.174549
+            ],
+            [
+              632445.315296,
+              4835026.721713
+            ],
+            [
+              632446.251287,
+              4835026.490228
+            ],
+            [
+              632446.65162,
+              4835025.075907
+            ],
+            [
+              632455.309531,
+              4835015.136748
+            ],
+            [
+              632456.460254,
+              4835014.585962
+            ],
+            [
+              632456.497844,
+              4835013.574523
+            ],
+            [
+              632458.559654,
+              4835011.122953
+            ],
+            [
+              632462.593061,
+              4835014.885611
+            ],
+            [
+              632460.6459,
+              4835017.37146
+            ],
+            [
+              632459.843354,
+              4835017.131504
+            ],
+            [
+              632460.068424,
+              4835018.093642
+            ],
+            [
+              632456.340908,
+              4835022.476039
+            ],
+            [
+              632455.304834,
+              4835023.061104
+            ],
+            [
+              632455.185956,
+              4835023.920404
+            ],
+            [
+              632450.551582,
+              4835029.310005
+            ],
+            [
+              632449.367497,
+              4835029.978651
+            ],
+            [
+              632448.383579,
+              4835029.940136
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0026",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 171,
+            "width": 112,
+            "x": 1445,
+            "y": 1332
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_64d99b01c421",
+          "tone_class": "light"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632456.408581,
+              4835070.562174
+            ],
+            [
+              632454.23447,
+              4835069.017286
+            ],
+            [
+              632454.209566,
+              4835067.347987
+            ],
+            [
+              632453.769763,
+              4835066.705149
+            ],
+            [
+              632454.461888,
+              4835066.017246
+            ],
+            [
+              632455.345723,
+              4835066.409341
+            ],
+            [
+              632454.857993,
+              4835065.496504
+            ],
+            [
+              632455.20617,
+              4835064.705763
+            ],
+            [
+              632456.14216,
+              4835064.474278
+            ],
+            [
+              632456.759106,
+              4835065.809254
+            ],
+            [
+              632459.029072,
+              4835067.894142
+            ],
+            [
+              632457.79706,
+              4835068.292788
+            ],
+            [
+              632458.022131,
+              4835069.254926
+            ],
+            [
+              632456.408581,
+              4835070.562174
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0027",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 47,
+            "width": 45,
+            "x": 1604,
+            "y": 1033
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_6b07048d8e5c",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632608.659254,
+              4834860.414384
+            ],
+            [
+              632603.64193,
+              4834856.613212
+            ],
+            [
+              632606.821102,
+              4834853.728717
+            ],
+            [
+              632607.604854,
+              4834854.474393
+            ],
+            [
+              632607.567264,
+              4834855.485832
+            ],
+            [
+              632608.221799,
+              4834855.809369
+            ],
+            [
+              632608.684626,
+              4834855.052907
+            ],
+            [
+              632608.196896,
+              4834854.14007
+            ],
+            [
+              632609.151681,
+              4834853.402865
+            ],
+            [
+              632608.119836,
+              4834853.094351
+            ],
+            [
+              632607.980283,
+              4834851.390772
+            ],
+            [
+              632609.00179,
+              4834850.417848
+            ],
+            [
+              632611.51985,
+              4834852.065574
+            ],
+            [
+              632610.742208,
+              4834853.494917
+            ],
+            [
+              632612.457721,
+              4834854.902688
+            ],
+            [
+              632609.695328,
+              4834859.829319
+            ],
+            [
+              632608.659254,
+              4834860.414384
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0028",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 79,
+            "width": 67,
+            "x": 2331,
+            "y": 3033
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_6dd545cc934e",
+          "tone_class": "dark"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632538.124014,
+              4834945.299921
+            ],
+            [
+              632536.767015,
+              4834944.382848
+            ],
+            [
+              632535.831024,
+              4834944.614333
+            ],
+            [
+              632531.568319,
+              4834940.783117
+            ],
+            [
+              632531.772714,
+              4834939.182376
+            ],
+            [
+              632533.190326,
+              4834937.68871
+            ],
+            [
+              632533.744779,
+              4834938.365827
+            ],
+            [
+              632533.229796,
+              4834939.745869
+            ],
+            [
+              632535.943794,
+              4834941.580014
+            ],
+            [
+              632535.948022,
+              4834940.686434
+            ],
+            [
+              632536.836086,
+              4834940.18495
+            ],
+            [
+              632535.220656,
+              4834938.423599
+            ],
+            [
+              632533.844862,
+              4834938.012246
+            ],
+            [
+              632533.734441,
+              4834937.084388
+            ],
+            [
+              632534.426567,
+              4834936.396484
+            ],
+            [
+              632539.491818,
+              4834940.467656
+            ],
+            [
+              632539.779382,
+              4834942.087654
+            ],
+            [
+              632538.3223,
+              4834941.524162
+            ],
+            [
+              632539.789719,
+              4834943.369093
+            ],
+            [
+              632538.124014,
+              4834945.299921
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0029",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 61,
+            "width": 74,
+            "x": 1941,
+            "y": 2204
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_6fc99542b165",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632581.069146,
+              4834871.34036
+            ],
+            [
+              632581.846789,
+              4834869.911016
+            ],
+            [
+              632583.012078,
+              4834869.74809
+            ],
+            [
+              632583.566531,
+              4834870.425207
+            ],
+            [
+              632586.140975,
+              4834870.555774
+            ],
+            [
+              632586.532851,
+              4834870.928612
+            ],
+            [
+              632587.654442,
+              4834869.602107
+            ],
+            [
+              632589.115752,
+              4834869.27202
+            ],
+            [
+              632590.850061,
+              4834870.17407
+            ],
+            [
+              632590.960481,
+              4834871.101929
+            ],
+            [
+              632591.56709,
+              4834871.155466
+            ],
+            [
+              632591.685968,
+              4834870.296166
+            ],
+            [
+              632592.669886,
+              4834870.334681
+            ],
+            [
+              632593.697502,
+              4834871.536775
+            ],
+            [
+              632593.230447,
+              4834873.186816
+            ],
+            [
+              632592.442467,
+              4834873.33472
+            ],
+            [
+              632592.208939,
+              4834874.159741
+            ],
+            [
+              632586.376383,
+              4834872.799352
+            ],
+            [
+              632585.613307,
+              4834874.616555
+            ],
+            [
+              632582.355194,
+              4834873.386732
+            ],
+            [
+              632581.069146,
+              4834871.34036
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0030",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 50,
+            "width": 102,
+            "x": 2183,
+            "y": 2868
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_721b9e1924da",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632568.09731,
+              4834864.01033
+            ],
+            [
+              632567.065465,
+              4834863.701815
+            ],
+            [
+              632567.025995,
+              4834861.644656
+            ],
+            [
+              632566.63412,
+              4834861.271819
+            ],
+            [
+              632559.788513,
+              4834859.097195
+            ],
+            [
+              632561.452338,
+              4834854.097769
+            ],
+            [
+              632562.580038,
+              4834854.946283
+            ],
+            [
+              632562.976143,
+              4834854.425541
+            ],
+            [
+              632562.765638,
+              4834853.851262
+            ],
+            [
+              632561.700432,
+              4834853.660608
+            ],
+            [
+              632565.695305,
+              4834841.304554
+            ],
+            [
+              632566.31648,
+              4834841.74595
+            ],
+            [
+              632567.859079,
+              4834841.568003
+            ],
+            [
+              632568.346809,
+              4834842.48084
+            ],
+            [
+              632569.16815,
+              4834842.215076
+            ],
+            [
+              632571.786293,
+              4834843.509221
+            ],
+            [
+              632572.463852,
+              4834842.433459
+            ],
+            [
+              632573.462336,
+              4834842.859833
+            ],
+            [
+              632573.491469,
+              4834843.635553
+            ],
+            [
+              632574.527543,
+              4834843.050488
+            ],
+            [
+              632575.000707,
+              4834843.575465
+            ],
+            [
+              632571.606333,
+              4834853.810037
+            ],
+            [
+              632570.866281,
+              4834854.227941
+            ],
+            [
+              632571.239361,
+              4834855.106498
+            ],
+            [
+              632568.09731,
+              4834864.01033
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0031",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 179,
+            "width": 87,
+            "x": 1984,
+            "y": 2910
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_75f9e11f35a8",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632527.704996,
+              4834887.215724
+            ],
+            [
+              632527.265193,
+              4834886.572887
+            ],
+            [
+              632530.163379,
+              4834877.212637
+            ],
+            [
+              632531.047214,
+              4834877.604732
+            ],
+            [
+              632531.853988,
+              4834876.951108
+            ],
+            [
+              632531.791495,
+              4834876.293249
+            ],
+            [
+              632530.674133,
+              4834876.726174
+            ],
+            [
+              632530.396907,
+              4834876.387616
+            ],
+            [
+              632533.142853,
+              4834868.004526
+            ],
+            [
+              632535.096123,
+              4834867.693697
+            ],
+            [
+              632535.421276,
+              4834868.302255
+            ],
+            [
+              632538.879555,
+              4834868.824917
+            ],
+            [
+              632540.021821,
+              4834870.06129
+            ],
+            [
+              632540.647224,
+              4834869.609107
+            ],
+            [
+              632541.335121,
+              4834869.814784
+            ],
+            [
+              632541.626914,
+              4834870.541202
+            ],
+            [
+              632541.030643,
+              4834871.769104
+            ],
+            [
+              632541.141063,
+              4834872.696963
+            ],
+            [
+              632540.205073,
+              4834872.928448
+            ],
+            [
+              632539.938184,
+              4834873.871329
+            ],
+            [
+              632539.068916,
+              4834873.867093
+            ],
+            [
+              632538.372562,
+              4834875.448576
+            ],
+            [
+              632536.882119,
+              4834875.002944
+            ],
+            [
+              632536.552736,
+              4834875.287965
+            ],
+            [
+              632537.66587,
+              4834875.748619
+            ],
+            [
+              632538.105673,
+              4834876.391457
+            ],
+            [
+              632533.866935,
+              4834888.291092
+            ],
+            [
+              632532.486913,
+              4834888.773319
+            ],
+            [
+              632527.704996,
+              4834887.215724
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0032",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 171,
+            "width": 80,
+            "x": 1785,
+            "y": 2633
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_765d00626f87",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632423.490981,
+              4834852.093575
+            ],
+            [
+              632422.717567,
+              4834852.629339
+            ],
+            [
+              632422.244403,
+              4834852.104362
+            ],
+            [
+              632418.804919,
+              4834851.07598
+            ],
+            [
+              632417.472824,
+              4834851.828206
+            ],
+            [
+              632412.413681,
+              4834849.932053
+            ],
+            [
+              632412.073961,
+              4834848.935635
+            ],
+            [
+              632411.304776,
+              4834848.577819
+            ],
+            [
+              632412.005359,
+              4834846.102757
+            ],
+            [
+              632412.516113,
+              4834845.616295
+            ],
+            [
+              632412.974711,
+              4834845.753412
+            ],
+            [
+              632412.553703,
+              4834844.604855
+            ],
+            [
+              632422.838793,
+              4834847.807861
+            ],
+            [
+              632423.178513,
+              4834848.804279
+            ],
+            [
+              632423.985288,
+              4834848.150655
+            ],
+            [
+              632424.458452,
+              4834848.675632
+            ],
+            [
+              632423.490981,
+              4834852.093575
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0033",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 45,
+            "width": 106,
+            "x": 766,
+            "y": 2653
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_7667215ed712",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632562.540107,
+              4834891.111604
+            ],
+            [
+              632560.662017,
+              4834889.399555
+            ],
+            [
+              632561.516719,
+              4834889.01593
+            ],
+            [
+              632561.358371,
+              4834887.818072
+            ],
+            [
+              632561.854559,
+              4834886.94375
+            ],
+            [
+              632563.08657,
+              4834886.545104
+            ],
+            [
+              632562.646767,
+              4834885.902266
+            ],
+            [
+              632561.729572,
+              4834885.628031
+            ],
+            [
+              632561.781728,
+              4834885.004451
+            ],
+            [
+              632563.753792,
+              4834884.187901
+            ],
+            [
+              632565.517233,
+              4834885.865672
+            ],
+            [
+              632564.36839,
+              4834889.485056
+            ],
+            [
+              632563.365677,
+              4834889.95226
+            ],
+            [
+              632563.820046,
+              4834890.982958
+            ],
+            [
+              632563.0175,
+              4834890.743002
+            ],
+            [
+              632562.540107,
+              4834891.111604
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0034",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 57,
+            "width": 32,
+            "x": 2059,
+            "y": 2685
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_76cca3374b0f",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632436.005616,
+              4834807.002455
+            ],
+            [
+              632437.354626,
+              4834802.67591
+            ],
+            [
+              632438.697059,
+              4834803.205123
+            ],
+            [
+              632439.059802,
+              4834802.802241
+            ],
+            [
+              632440.535679,
+              4834802.860014
+            ],
+            [
+              632441.042204,
+              4834803.267131
+            ],
+            [
+              632441.113155,
+              4834802.137831
+            ],
+            [
+              632443.276928,
+              4834802.40128
+            ],
+            [
+              632443.287266,
+              4834803.682719
+            ],
+            [
+              632441.246131,
+              4834808.697167
+            ],
+            [
+              632436.005616,
+              4834807.002455
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0035",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 54,
+            "width": 51,
+            "x": 870,
+            "y": 3046
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_7e5786278890",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632370.382005,
+              4835011.603764
+            ],
+            [
+              632366.965544,
+              4835009.176083
+            ],
+            [
+              632366.125408,
+              4835009.947567
+            ],
+            [
+              632365.5188,
+              4835009.89403
+            ],
+            [
+              632361.710464,
+              4835007.093511
+            ],
+            [
+              632362.354662,
+              4835006.135608
+            ],
+            [
+              632361.585477,
+              4835005.777792
+            ],
+            [
+              632361.035253,
+              4835004.207096
+            ],
+            [
+              632364.108233,
+              4834999.501162
+            ],
+            [
+              632364.891985,
+              4835000.246838
+            ],
+            [
+              632365.306884,
+              4834999.220376
+            ],
+            [
+              632370.76824,
+              4835002.770807
+            ],
+            [
+              632370.253257,
+              4835004.150849
+            ],
+            [
+              632373.817728,
+              4835006.494949
+            ],
+            [
+              632370.382005,
+              4835011.603764
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0036",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 85,
+            "width": 108,
+            "x": 716,
+            "y": 1293
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_865cfb8bbdcc",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632383.370287,
+              4835022.390252
+            ],
+            [
+              632388.615498,
+              4835016.160609
+            ],
+            [
+              632389.007374,
+              4835016.533446
+            ],
+            [
+              632389.714066,
+              4835016.233403
+            ],
+            [
+              632390.216362,
+              4835017.5341
+            ],
+            [
+              632391.444145,
+              4835018.029033
+            ],
+            [
+              632386.313583,
+              4835024.292956
+            ],
+            [
+              632383.370287,
+              4835022.390252
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0037",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 71,
+            "width": 55,
+            "x": 937,
+            "y": 1231
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_8eb6ccdea9e8",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632414.198783,
+              4835058.453076
+            ],
+            [
+              632412.741701,
+              4835057.889583
+            ],
+            [
+              632412.345596,
+              4835058.410325
+            ],
+            [
+              632408.432948,
+              4835056.856966
+            ],
+            [
+              632407.557571,
+              4835054.677712
+            ],
+            [
+              632408.220564,
+              4835053.214089
+            ],
+            [
+              632409.725573,
+              4835054.047581
+            ],
+            [
+              632409.377396,
+              4835054.838322
+            ],
+            [
+              632409.5879,
+              4835055.412601
+            ],
+            [
+              632410.261231,
+              4835055.230418
+            ],
+            [
+              632411.111704,
+              4835055.740373
+            ],
+            [
+              632411.574531,
+              4835054.983911
+            ],
+            [
+              632414.651272,
+              4835056.415174
+            ],
+            [
+              632414.198783,
+              4835058.453076
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0038",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 31,
+            "width": 62,
+            "x": 1205,
+            "y": 1025
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_91338455f298",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632543.757319,
+              4834839.730807
+            ],
+            [
+              632544.5016,
+              4834838.419324
+            ],
+            [
+              632545.944116,
+              4834838.594956
+            ],
+            [
+              632545.44182,
+              4834837.294259
+            ],
+            [
+              632546.315317,
+              4834836.404915
+            ],
+            [
+              632548.564608,
+              4834835.926924
+            ],
+            [
+              632548.641667,
+              4834836.972643
+            ],
+            [
+              632547.163442,
+              4834840.877049
+            ],
+            [
+              632545.033029,
+              4834840.49574
+            ],
+            [
+              632543.757319,
+              4834839.730807
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0039",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 44,
+            "width": 33,
+            "x": 1811,
+            "y": 3040
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_94f81fd1fd26",
+          "tone_class": "dark"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632466.982165,
+              4835030.131921
+            ],
+            [
+              632465.070714,
+              4835028.537731
+            ],
+            [
+              632465.112532,
+              4835026.632712
+            ],
+            [
+              632463.780437,
+              4835027.384938
+            ],
+            [
+              632462.112851,
+              4835026.247167
+            ],
+            [
+              632463.005143,
+              4835024.852104
+            ],
+            [
+              632463.476427,
+              4835022.308483
+            ],
+            [
+              632463.299284,
+              4835021.616344
+            ],
+            [
+              632462.740603,
+              4835021.832807
+            ],
+            [
+              632461.975646,
+              4835020.581411
+            ],
+            [
+              632460.274699,
+              4835019.5615
+            ],
+            [
+              632459.82033,
+              4835018.530803
+            ],
+            [
+              632461.61948,
+              4835016.128535
+            ],
+            [
+              632463.205778,
+              4835017.114167
+            ],
+            [
+              632464.141769,
+              4835016.882682
+            ],
+            [
+              632469.140298,
+              4835021.189574
+            ],
+            [
+              632469.594667,
+              4835022.220271
+            ],
+            [
+              632468.98383,
+              4835023.060314
+            ],
+            [
+              632466.303194,
+              4835021.108309
+            ],
+            [
+              632464.241384,
+              4835023.559878
+            ],
+            [
+              632464.777041,
+              4835024.742715
+            ],
+            [
+              632466.17163,
+              4835024.648348
+            ],
+            [
+              632466.444627,
+              4835025.880486
+            ],
+            [
+              632468.781315,
+              4835027.729653
+            ],
+            [
+              632466.982165,
+              4835030.131921
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0040",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 97,
+            "width": 93,
+            "x": 1543,
+            "y": 1374
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_96c04550efb7",
+          "tone_class": "dark"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632455.035576,
+              4834934.391051
+            ],
+            [
+              632446.983329,
+              4834927.253596
+            ],
+            [
+              632449.870709,
+              4834923.642683
+            ],
+            [
+              632451.813641,
+              4834922.050414
+            ],
+            [
+              632453.022629,
+              4834923.051067
+            ],
+            [
+              632452.951679,
+              4834924.180367
+            ],
+            [
+              632453.625009,
+              4834923.998184
+            ],
+            [
+              632455.321728,
+              4834925.911674
+            ],
+            [
+              632456.224357,
+              4834925.79805
+            ],
+            [
+              632457.481273,
+              4834927.068703
+            ],
+            [
+              632457.051807,
+              4834927.707304
+            ],
+            [
+              632457.410322,
+              4834928.198002
+            ],
+            [
+              632458.298385,
+              4834927.696518
+            ],
+            [
+              632458.967487,
+              4834928.407914
+            ],
+            [
+              632458.629647,
+              4834930.480095
+            ],
+            [
+              632457.393407,
+              4834931.772321
+            ],
+            [
+              632457.485033,
+              4834933.205899
+            ],
+            [
+              632456.090444,
+              4834933.300266
+            ],
+            [
+              632455.035576,
+              4834934.391051
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0041",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 89,
+            "width": 101,
+            "x": 1232,
+            "y": 2095
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_985d376fb146",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632470.567262,
+              4834816.696973
+            ],
+            [
+              632470.903221,
+              4834811.556194
+            ],
+            [
+              632471.960438,
+              4834806.503231
+            ],
+            [
+              632473.402954,
+              4834806.678864
+            ],
+            [
+              632473.728107,
+              4834807.287422
+            ],
+            [
+              632474.238861,
+              4834806.800959
+            ],
+            [
+              632475.222779,
+              4834806.839474
+            ],
+            [
+              632475.695943,
+              4834807.364452
+            ],
+            [
+              632476.435996,
+              4834806.946548
+            ],
+            [
+              632477.482407,
+              4834807.642922
+            ],
+            [
+              632478.518481,
+              4834807.057857
+            ],
+            [
+              632479.579459,
+              4834808.142091
+            ],
+            [
+              632481.140853,
+              4834807.458424
+            ],
+            [
+              632481.580656,
+              4834808.101261
+            ],
+            [
+              632482.960678,
+              4834807.619034
+            ],
+            [
+              632483.36712,
+              4834808.379732
+            ],
+            [
+              632483.877874,
+              4834807.893269
+            ],
+            [
+              632484.68042,
+              4834808.133225
+            ],
+            [
+              632484.304991,
+              4834811.216846
+            ],
+            [
+              632482.674526,
+              4834816.098411
+            ],
+            [
+              632477.625721,
+              4834815.483697
+            ],
+            [
+              632477.634178,
+              4834813.696538
+            ],
+            [
+              632477.108858,
+              4834813.795141
+            ],
+            [
+              632476.337325,
+              4834817.399503
+            ],
+            [
+              632470.567262,
+              4834816.696973
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0042",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 100,
+            "width": 110,
+            "x": 1158,
+            "y": 3052
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_9a5a06eaad33",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632431.061613,
+              4834891.684916
+            ],
+            [
+              632431.929001,
+              4834888.620553
+            ],
+            [
+              632432.802498,
+              4834887.731209
+            ],
+            [
+              632435.439436,
+              4834888.519635
+            ],
+            [
+              632434.123787,
+              4834892.72832
+            ],
+            [
+              632431.061613,
+              4834891.684916
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0043",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 36,
+            "width": 28,
+            "x": 1023,
+            "y": 2372
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_a3419d944e75",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632429.722479,
+              4834935.51538
+            ],
+            [
+              632445.17243,
+              4834918.27505
+            ],
+            [
+              632445.13484,
+              4834919.28649
+            ],
+            [
+              632446.568898,
+              4834921.249281
+            ],
+            [
+              632442.726733,
+              4834925.597399
+            ],
+            [
+              632442.99973,
+              4834926.829537
+            ],
+            [
+              632443.429196,
+              4834926.190935
+            ],
+            [
+              632444.442246,
+              4834927.005169
+            ],
+            [
+              632443.253933,
+              4834928.567395
+            ],
+            [
+              632441.734358,
+              4834927.346043
+            ],
+            [
+              632440.913016,
+              4834927.611807
+            ],
+            [
+              632436.856118,
+              4834932.279225
+            ],
+            [
+              632436.885251,
+              4834933.054945
+            ],
+            [
+              632435.390579,
+              4834933.502892
+            ],
+            [
+              632435.486434,
+              4834934.042891
+            ],
+            [
+              632432.155022,
+              4834937.904546
+            ],
+            [
+              632429.722479,
+              4834935.51538
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0044",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 184,
+            "width": 103,
+            "x": 1112,
+            "y": 2014
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_a542c797fa43",
+          "tone_class": "light"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632382.550819,
+              4834994.532911
+            ],
+            [
+              632380.997883,
+              4834993.429419
+            ],
+            [
+              632376.574481,
+              4834992.362522
+            ],
+            [
+              632375.062894,
+              4834996.384788
+            ],
+            [
+              632366.322751,
+              4834989.041657
+            ],
+            [
+              632367.208934,
+              4834985.471574
+            ],
+            [
+              632368.059408,
+              4834985.981529
+            ],
+            [
+              632368.803689,
+              4834984.670046
+            ],
+            [
+              632367.723917,
+              4834984.091532
+            ],
+            [
+              632368.061756,
+              4834982.019351
+            ],
+            [
+              632368.653798,
+              4834981.685028
+            ],
+            [
+              632369.537633,
+              4834982.077124
+            ],
+            [
+              632369.293768,
+              4834981.620705
+            ],
+            [
+              632369.937966,
+              4834980.662802
+            ],
+            [
+              632378.252873,
+              4834987.750956
+            ],
+            [
+              632377.881672,
+              4834989.940997
+            ],
+            [
+              632381.158579,
+              4834990.6651
+            ],
+            [
+              632382.550819,
+              4834994.532911
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0045",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 111,
+            "width": 145,
+            "x": 722,
+            "y": 1423
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_a81f06bccc3e",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632509.289648,
+              4834827.507689
+            ],
+            [
+              632509.938075,
+              4834825.656207
+            ],
+            [
+              632510.573816,
+              4834826.485463
+            ],
+            [
+              632510.96992,
+              4834825.964722
+            ],
+            [
+              632510.730284,
+              4834824.614723
+            ],
+            [
+              632508.895893,
+              4834824.066253
+            ],
+            [
+              632511.174784,
+              4834817.333205
+            ],
+            [
+              632514.876928,
+              4834818.312286
+            ],
+            [
+              632515.379224,
+              4834819.612982
+            ],
+            [
+              632515.9567,
+              4834818.8908
+            ],
+            [
+              632517.103195,
+              4834819.233594
+            ],
+            [
+              632514.104926,
+              4834828.947424
+            ],
+            [
+              632509.289648,
+              4834827.507689
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0046",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 85,
+            "width": 55,
+            "x": 1495,
+            "y": 3058
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_aa8e39077753",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632387.72508,
+              4834989.432567
+            ],
+            [
+              632383.199714,
+              4834985.650652
+            ],
+            [
+              632385.213597,
+              4834982.929083
+            ],
+            [
+              632386.355863,
+              4834984.165457
+            ],
+            [
+              632385.797182,
+              4834984.381919
+            ],
+            [
+              632386.022252,
+              4834985.344058
+            ],
+            [
+              632386.466284,
+              4834985.093316
+            ],
+            [
+              632387.054097,
+              4834985.652572
+            ],
+            [
+              632387.827511,
+              4834985.116809
+            ],
+            [
+              632389.509664,
+              4834986.642439
+            ],
+            [
+              632387.72508,
+              4834989.432567
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0047",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 45,
+            "width": 53,
+            "x": 852,
+            "y": 1507
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_aa9e6864c39f",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632506.711032,
+              4835077.804333
+            ],
+            [
+              632503.475943,
+              4835075.175211
+            ],
+            [
+              632506.592622,
+              4835071.632856
+            ],
+            [
+              632506.992955,
+              4835070.218535
+            ],
+            [
+              632506.619874,
+              4835069.339978
+            ],
+            [
+              632509.588543,
+              4835065.881204
+            ],
+            [
+              632507.514515,
+              4835063.982736
+            ],
+            [
+              632508.932127,
+              4835062.489069
+            ],
+            [
+              632509.778372,
+              4835063.892604
+            ],
+            [
+              632511.498114,
+              4835064.406795
+            ],
+            [
+              632511.952483,
+              4835065.437492
+            ],
+            [
+              632514.370459,
+              4835067.438799
+            ],
+            [
+              632513.803321,
+              4835069.442421
+            ],
+            [
+              632512.690187,
+              4835068.981767
+            ],
+            [
+              632508.518639,
+              4835073.614906
+            ],
+            [
+              632509.168947,
+              4835074.832022
+            ],
+            [
+              632506.711032,
+              4835077.804333
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0048",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 125,
+            "width": 70,
+            "x": 2023,
+            "y": 1094
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_b32a05aff0d3",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632524.627375,
+              4835149.379644
+            ],
+            [
+              632523.25581,
+              4835148.074712
+            ],
+            [
+              632523.197546,
+              4835146.523273
+            ],
+            [
+              632524.023115,
+              4835145.363929
+            ],
+            [
+              632525.976385,
+              4835145.053099
+            ],
+            [
+              632527.281228,
+              4835146.593752
+            ],
+            [
+              632527.258204,
+              4835147.993051
+            ],
+            [
+              632525.644654,
+              4835149.300299
+            ],
+            [
+              632524.627375,
+              4835149.379644
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0049",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 37,
+            "width": 36,
+            "x": 2344,
+            "y": 576
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_b542725f5e10",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632560.991881,
+              4834944.467164
+            ],
+            [
+              632560.112276,
+              4834943.181489
+            ],
+            [
+              632560.116504,
+              4834942.28791
+            ],
+            [
+              632561.238095,
+              4834940.961405
+            ],
+            [
+              632562.584756,
+              4834940.597038
+            ],
+            [
+              632563.353941,
+              4834940.954854
+            ],
+            [
+              632564.070971,
+              4834941.93625
+            ],
+            [
+              632564.014586,
+              4834943.453409
+            ],
+            [
+              632562.549047,
+              4834944.677076
+            ],
+            [
+              632560.991881,
+              4834944.467164
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0050",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 34,
+            "width": 34,
+            "x": 2176,
+            "y": 2264
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_b5dc2d5ea57a",
+          "tone_class": "dark"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632364.644373,
+              4835056.03663
+            ],
+            [
+              632363.364434,
+              4835056.165277
+            ],
+            [
+              632362.632839,
+              4835054.796021
+            ],
+            [
+              632358.276159,
+              4835053.493404
+            ],
+            [
+              632358.232461,
+              4835052.329825
+            ],
+            [
+              632357.152688,
+              4835051.751311
+            ],
+            [
+              632356.594007,
+              4835051.967774
+            ],
+            [
+              632355.662245,
+              4835051.305679
+            ],
+            [
+              632354.984686,
+              4835052.381442
+            ],
+            [
+              632350.857305,
+              4835051.147383
+            ],
+            [
+              632350.8761,
+              4835050.641664
+            ],
+            [
+              632349.385657,
+              4835050.196031
+            ],
+            [
+              632348.449666,
+              4835050.427516
+            ],
+            [
+              632345.894017,
+              4835049.79123
+            ],
+            [
+              632346.165134,
+              4835047.954769
+            ],
+            [
+              632346.757177,
+              4835047.620446
+            ],
+            [
+              632346.546672,
+              4835047.046168
+            ],
+            [
+              632348.362737,
+              4835041.069581
+            ],
+            [
+              632349.069429,
+              4835040.769538
+            ],
+            [
+              632350.363934,
+              4835041.028751
+            ],
+            [
+              632348.892286,
+              4835040.077399
+            ],
+            [
+              632349.125814,
+              4835039.252378
+            ],
+            [
+              632354.791565,
+              4835041.202068
+            ],
+            [
+              632354.739409,
+              4835041.825648
+            ],
+            [
+              632356.965676,
+              4835042.746957
+            ],
+            [
+              632357.691162,
+              4835041.941193
+            ],
+            [
+              632365.764552,
+              4835044.610751
+            ],
+            [
+              632365.889539,
+              4835045.926469
+            ],
+            [
+              632365.264136,
+              4835046.378652
+            ],
+            [
+              632366.687857,
+              4835047.060005
+            ],
+            [
+              632365.680915,
+              4835048.420789
+            ],
+            [
+              632366.101924,
+              4835049.569346
+            ],
+            [
+              632364.732239,
+              4835051.333012
+            ],
+            [
+              632365.659772,
+              4835052.888687
+            ],
+            [
+              632364.644373,
+              4835056.03663
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0051",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 99,
+            "width": 168,
+            "x": 696,
+            "y": 928
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_b75994472b08",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632508.768613,
+              4835076.246343
+            ],
+            [
+              632508.44346,
+              4835075.637785
+            ],
+            [
+              632509.202308,
+              4835074.714162
+            ],
+            [
+              632508.485278,
+              4835073.732766
+            ],
+            [
+              632512.475454,
+              4835069.301068
+            ],
+            [
+              632513.292567,
+              4835069.928883
+            ],
+            [
+              632512.729657,
+              4835071.038925
+            ],
+            [
+              632513.02145,
+              4835071.765344
+            ],
+            [
+              632511.289022,
+              4835073.931891
+            ],
+            [
+              632510.73034,
+              4835074.148354
+            ],
+            [
+              632510.223815,
+              4835073.741237
+            ],
+            [
+              632510.052781,
+              4835075.224117
+            ],
+            [
+              632508.768613,
+              4835076.246343
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0052",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 63,
+            "width": 32,
+            "x": 2060,
+            "y": 1111
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_bfe9d1596920",
+          "tone_class": "light"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632596.92695,
+              4834864.960102
+            ],
+            [
+              632597.652437,
+              4834864.154339
+            ],
+            [
+              632604.612693,
+              4834866.363242
+            ],
+            [
+              632603.209648,
+              4834868.244768
+            ],
+            [
+              632601.981864,
+              4834867.749835
+            ],
+            [
+              632601.70041,
+              4834868.304856
+            ],
+            [
+              632597.721039,
+              4834866.987217
+            ],
+            [
+              632596.92695,
+              4834864.960102
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0053",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 23,
+            "width": 65,
+            "x": 2296,
+            "y": 2955
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_c1cdac542017",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632392.598133,
+              4834905.879405
+            ],
+            [
+              632393.465521,
+              4834902.815043
+            ],
+            [
+              632394.487028,
+              4834901.842118
+            ],
+            [
+              632404.032066,
+              4834905.463027
+            ],
+            [
+              632402.735213,
+              4834909.165992
+            ],
+            [
+              632398.641193,
+              4834907.814073
+            ],
+            [
+              632397.686408,
+              4834908.551278
+            ],
+            [
+              632392.904491,
+              4834906.993683
+            ],
+            [
+              632392.598133,
+              4834905.879405
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0054",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 45,
+            "width": 91,
+            "x": 746,
+            "y": 2163
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_c47758c17ee9",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632485.330259,
+              4834816.381118
+            ],
+            [
+              632482.874693,
+              4834815.391251
+            ],
+            [
+              632484.805407,
+              4834809.448944
+            ],
+            [
+              632484.728347,
+              4834808.403225
+            ],
+            [
+              632485.139018,
+              4834808.270343
+            ],
+            [
+              632487.475706,
+              4834810.11951
+            ],
+            [
+              632485.330259,
+              4834816.381118
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0055",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 63,
+            "width": 26,
+            "x": 1265,
+            "y": 3089
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_c68e821146bb",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632446.63562,
+              4834921.013561
+            ],
+            [
+              632445.689292,
+              4834919.963607
+            ],
+            [
+              632445.726882,
+              4834918.952167
+            ],
+            [
+              632444.943131,
+              4834918.206491
+            ],
+            [
+              632447.811716,
+              4834915.101298
+            ],
+            [
+              632449.489639,
+              4834917.520508
+            ],
+            [
+              632446.63562,
+              4834921.013561
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0056",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 49,
+            "width": 35,
+            "x": 1195,
+            "y": 2180
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_d1a102e3251b",
+          "tone_class": "light"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632421.640164,
+              4834941.663758
+            ],
+            [
+              632418.405075,
+              4834939.034636
+            ],
+            [
+              632421.011,
+              4834935.978744
+            ],
+            [
+              632422.874524,
+              4834937.302934
+            ],
+            [
+              632422.540913,
+              4834938.481535
+            ],
+            [
+              632423.405953,
+              4834939.37935
+            ],
+            [
+              632421.640164,
+              4834941.663758
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0057",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 43,
+            "width": 41,
+            "x": 1029,
+            "y": 1960
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_db4830ec4084",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632529.745663,
+              4834889.232053
+            ],
+            [
+              632525.637077,
+              4834887.492275
+            ],
+            [
+              632528.84585,
+              4834878.352723
+            ],
+            [
+              632529.696324,
+              4834878.862678
+            ],
+            [
+              632527.231832,
+              4834886.690747
+            ],
+            [
+              632527.671635,
+              4834887.333584
+            ],
+            [
+              632529.964624,
+              4834888.019172
+            ],
+            [
+              632530.404427,
+              4834888.66201
+            ],
+            [
+              632529.745663,
+              4834889.232053
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0058",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 83,
+            "width": 41,
+            "x": 1774,
+            "y": 2623
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_e4aaa31b2b17",
+          "tone_class": "dark"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632427.08833,
+              4834798.967184
+            ],
+            [
+              632426.094075,
+              4834797.64723
+            ],
+            [
+              632426.198387,
+              4834796.40007
+            ],
+            [
+              632427.367905,
+              4834795.343565
+            ],
+            [
+              632428.958431,
+              4834795.435617
+            ],
+            [
+              632430.134058,
+              4834796.55413
+            ],
+            [
+              632430.010951,
+              4834798.30701
+            ],
+            [
+              632428.760145,
+              4834799.211376
+            ],
+            [
+              632427.08833,
+              4834798.967184
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0059",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 32,
+            "width": 35,
+            "x": 767,
+            "y": 3089
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_e5bc44b1629e",
+          "tone_class": "dark"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632568.236864,
+              4834865.713908
+            ],
+            [
+              632568.751846,
+              4834864.333866
+            ],
+            [
+              632576.060279,
+              4834865.752028
+            ],
+            [
+              632576.233194,
+              4834867.337746
+            ],
+            [
+              632575.307541,
+              4834868.85067
+            ],
+            [
+              632574.457067,
+              4834868.340715
+            ],
+            [
+              632574.853172,
+              4834867.819973
+            ],
+            [
+              632574.117347,
+              4834867.344297
+            ],
+            [
+              632573.721243,
+              4834867.865039
+            ],
+            [
+              632574.079758,
+              4834868.355737
+            ],
+            [
+              632573.965108,
+              4834868.321457
+            ],
+            [
+              632569.360335,
+              4834867.456001
+            ],
+            [
+              632568.891399,
+              4834866.037445
+            ],
+            [
+              632568.236864,
+              4834865.713908
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0060",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 29,
+            "width": 68,
+            "x": 2067,
+            "y": 2886
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_eb046cfc41f3",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632466.675324,
+              4834973.665011
+            ],
+            [
+              632464.601296,
+              4834971.766543
+            ],
+            [
+              632464.032277,
+              4834970.701566
+            ],
+            [
+              632467.363689,
+              4834966.839911
+            ],
+            [
+              632467.970297,
+              4834966.893448
+            ],
+            [
+              632468.089175,
+              4834966.034148
+            ],
+            [
+              632472.904921,
+              4834960.443106
+            ],
+            [
+              632475.843989,
+              4834963.23939
+            ],
+            [
+              632466.675324,
+              4834973.665011
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0061",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 118,
+            "width": 78,
+            "x": 1468,
+            "y": 1815
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_f2de45ee0be1",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632574.686834,
+              4834861.378497
+            ],
+            [
+              632575.464477,
+              4834859.949154
+            ],
+            [
+              632576.381673,
+              4834860.223389
+            ],
+            [
+              632576.425371,
+              4834861.386968
+            ],
+            [
+              632578.75595,
+              4834861.061117
+            ],
+            [
+              632580.752919,
+              4834861.913866
+            ],
+            [
+              632580.782051,
+              4834862.689586
+            ],
+            [
+              632582.076556,
+              4834862.948799
+            ],
+            [
+              632582.701959,
+              4834862.496616
+            ],
+            [
+              632584.044392,
+              4834863.025829
+            ],
+            [
+              632582.999861,
+              4834865.398053
+            ],
+            [
+              632575.810305,
+              4834863.120591
+            ],
+            [
+              632575.145432,
+              4834861.515615
+            ],
+            [
+              632574.686834,
+              4834861.378497
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0062",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 25,
+            "width": 79,
+            "x": 2109,
+            "y": 2934
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_f92ced792393",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632499.32131,
+              4835076.234031
+            ],
+            [
+              632496.592747,
+              4835074.012026
+            ],
+            [
+              632498.358536,
+              4835071.727619
+            ],
+            [
+              632498.960915,
+              4835072.674735
+            ],
+            [
+              632499.519597,
+              4835072.458272
+            ],
+            [
+              632498.802567,
+              4835071.476876
+            ],
+            [
+              632500.320263,
+              4835069.62963
+            ],
+            [
+              632503.015465,
+              4835071.969495
+            ],
+            [
+              632499.32131,
+              4835076.234031
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0063",
+      "properties": {
+        "attributes": {},
+        "confidence": "estimated",
+        "confidence_reason": "Footprint from automated extraction, accepted by rule in a draft pass (quality 0.66 or better, no weakness flags). Storeys not yet read.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "confirmed_at": "2026-11-13T14:42:16Z",
+          "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+          "crop_px": {
+            "height": 54,
+            "width": 47,
+            "x": 1965,
+            "y": 1089
+          },
+          "digitising_error_m": 1.0,
+          "extraction_params_id": "v1",
+          "origin_source": "fip_v3_1935_229",
+          "proposal_id": "fip_v3_1935_229_p_fdec7ef759c2",
+          "tone_class": "mid"
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    }
+  ],
+  "mapped_area": {
+    "geometry": {
+      "coordinates": [
+        [
+          [
+            632313.5450235297,
+            4835088.952014592
+          ],
+          [
+            632596.3852546193,
+            4835173.5192845
+          ],
+          [
+            632616.8689614214,
+            4835101.153177305
+          ],
+          [
+            632500.2671559687,
+            4835021.931354613
+          ],
+          [
+            632633.6345108347,
+            4834861.362235981
+          ],
+          [
+            632641.3409216999,
+            4834834.136550701
+          ],
+          [
+            632405.621620881,
+            4834763.658112545
+          ],
+          [
+            632313.5450235297,
+            4835088.952014592
+          ]
+        ]
+      ],
+      "type": "Polygon"
+    },
+    "method": "map_area"
+  },
+  "origin_source": "fip_v3_1935_229",
+  "reviewed_areas": [
+    {
+      "confirmed_at": "2026-11-13T14:42:16Z",
+      "confirmed_by": "Buried maintainers (draft pass by rule, not checked one by one)",
+      "covers": [
+        "building"
+      ],
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632501.833736,
+              4835099.867666
+            ],
+            [
+              632519.031156,
+              4835105.009576
+            ],
+            [
+              632514.360604,
+              4835121.509991
+            ],
+            [
+              632497.163184,
+              4835116.368081
+            ],
+            [
+              632501.833736,
+              4835099.867666
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "method": "person",
+      "pixel_polygon": [
+        [
+          2066,
+          910
+        ],
+        [
+          2216,
+          910
+        ],
+        [
+          2216,
+          770
+        ],
+        [
+          2066,
+          770
+        ]
+      ]
+    }
+  ],
+  "schema_version": "1.1.0",
+  "type": "FeatureCollection"
+}
