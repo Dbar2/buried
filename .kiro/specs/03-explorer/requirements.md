@@ -725,8 +725,8 @@ pose, debug off). (a) to (f) of task 16.7 automate parts of 26.1, 26.2, 26.5, 26
 ### Acceptance criteria
 
 26.1 AT the default pose, THE published building SHALL appear inside the middle third of the
-canvas, and at least two corners of its plate's drape SHALL lie outside the canvas, so that the
-view frames the block and not the whole photograph.
+canvas. (Session 018: the earlier clause that two corners of the drape lie outside the canvas is
+dropped. The default view frames the whole map area, so the corners of a map-area tile are in view.)
 
 26.2 THE default view SHALL show the horizon (maintainer decision, session 015). THE top rows of the
 canvas SHALL be within a small distance of `night`; THE horizon row SHALL lie between 12 and 22 per

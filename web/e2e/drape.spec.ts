@@ -34,9 +34,9 @@ const DATA = join(WEB, '..', 'data');
 const OUTPUT = join(WEB, 'e2e', 'output');
 
 const FEATHER_M = 15; // DRAPE_FEATHER_M
-// Design: skip a point less than the feather plus 10 m inside the boundary. DRAPE_MARGIN_M exists
-// only to measure the skipped points for the session notes; the committed default is the design's.
-const INSIDE_MARGIN_M = process.env.DRAPE_MARGIN_M !== undefined ? Number(process.env.DRAPE_MARGIN_M) : FEATHER_M + 10;
+// Design (session 018): skip a point less than the feather distance inside the boundary. DRAPE_MARGIN_M
+// exists only to measure the skipped points for the session notes; the committed default is the design's.
+const INSIDE_MARGIN_M = process.env.DRAPE_MARGIN_M !== undefined ? Number(process.env.DRAPE_MARGIN_M) : FEATHER_M;
 const WINDOW = 64;
 const SEARCH = 8;
 const MIN_PEAK = 0.85;

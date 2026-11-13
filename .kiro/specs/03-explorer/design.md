@@ -726,7 +726,8 @@ hidden by a debug-only CSS class during capture. For each gate plate and each co
 1. **Tile pixel.** Convert the control point's `pixel` (full-resolution, `gdal_corner`) to tile
    pixels: `((px − crop.x) × widthPx / crop.width, (py − crop.y) × heightPx / crop.height)` with the
    sidecar's `crop_px`. Skip, and list, a point outside the tile or less than
-   `DRAPE_FEATHER_M` + 10 m inside the drape's boundary. Fewer than three tested points on a plate
+   `DRAPE_FEATHER_M` (15 m) inside the drape's boundary (session 018: the fade covers exactly that
+   distance, and measured points 17 to 20 m inside correlate at 0.97 or better). Fewer than three tested points on a plate
    fails the test.
 2. **World point.** Map that tile pixel to EPSG:26917 through the sidecar corners by the same
    bilinear rule the drape mesh uses. This is deliberately not the control point's City

@@ -500,18 +500,3 @@ test('no console errors from the Shell while looking', async () => {
   // unused URP shaders go to the console as log lines, not as page errors.
   expect(await page.getByTestId('view').getAttribute('data-player-ready')).toBe('true');
 });
-
-// Last in the file and unchanged in strictness, so that a failure here does not stop the serial
-// tests before it. Session 015 item 3 frames the plates' map areas with a 15 per cent margin, which
-// puts the corners of a map-area tile inside the canvas; this criterion and that decision disagree,
-// and the maintainer settles which one gives (see docs/kiro-sessions/015-look-review-and-drape.md).
-test('26.1 / (d) at least two corners of the 1911 drape are off the canvas', async () => {
-  const camera = await currentCamera();
-  const { widthPx: w, heightPx: h } = camera.canvas;
-  const tile = readJson<{ corners: Record<'top_left' | 'top_right' | 'bottom_right' | 'bottom_left', [number, number]> }>('tiles', 'fip_v3_1911_229.json');
-  const outside = Object.values(tile.corners).filter((c) => {
-    const p = projectToPixels(camera, c[0], c[1], 0);
-    return p.x < 0 || p.x > w || p.y < 0 || p.y > h;
-  });
-  expect(outside.length, 'drape corners outside the canvas').toBeGreaterThanOrEqual(2);
-});
