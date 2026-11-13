@@ -5,6 +5,7 @@ import { ReportView } from './ReportView';
 import { lotForPoint, searchAddresses } from './search';
 import { useReportData, useReportModel } from './useReportData';
 import { Loading } from '../shell/Mark';
+import { SetPageTitle } from '../shell/SetPageTitle';
 
 /**
  * /report: pick a lot by address (from the clipped City address points) or arrive with `?lot=` from
@@ -36,6 +37,7 @@ export function ReportRoute() {
 
   return (
     <main className="report-route">
+      <SetPageTitle page="report" address={model?.kind === 'report' ? (model.place.addresses[0] ?? null) : null} />
       <form className="report-search" role="search" onSubmit={(e) => e.preventDefault()}>
         <label htmlFor="report-address">Find a lot by address</label>
         <input

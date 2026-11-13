@@ -6,41 +6,44 @@ Don River, Toronto, built from Goad's Volume 3 plates (1911 and 1931, revised to
 
 Tagline: "Forgotten maps, rebuilt with proof." Entry for Kiroween 2026.
 
-![A building volume extruded from a footprint traced on the 1911 plate, standing on its own drawing](docs/gate/gate-1911-bank-closeup.jpg)
+Live site: <https://buried.pages.dev>. Type an address and the page for that lot opens.
 
-*The one hand-traced building, a footprint read from the 1911 plate (plate 229) and extruded at runtime
-by the Unity WebGL build, standing on its own drawing on the draped plate.*
+![The place page for 541 Queen St E: the 1911 scene on the left, the report for the lot on the right](docs/progress/place-page-541-queen-1911.png)
+
+*The place page for a lot on Queen St E, at the 1911 era. The scene is on the left and the report
+for the lot is on the right.*
 
 ## Where it stands
 
-Status as of the go/no-go gate, 2026-11-12. Details and numbers are in `docs/gate/README.md`.
+Status is read from the repository as of the last commit to this file. The go/no-go gate results
+are in `docs/gate/README.md`.
 
 | State | What |
 |---|---|
-| Works today | Alignment measured on two plates (1911 and 1931-35 editions of plate 229) against six City of Toronto intersections. |
-| Works today | Pipeline commands: `fetch`, `inspect`, `present`, `align-check`, `control-crops`, `validate`, `tile`. |
-| Works today | The evidence schema, the Python validator, and the TypeScript date logic, era lists and `same_as` links. |
-| Works today | A Unity WebGL build with one building and two eras (1911 and 1935), embedded in the web shell through a typed bridge. |
-| Specified, not built | The Reconstruction Studio (spec 04) and the Report (spec 05). |
-| Specified, not built | The Explorer's dusk look, ghosts, Dig, Lantern, Show Evidence, Water remembers (spec 03 beyond the gate). |
-| Specified, not built | The "on this lot" test, findings and the banned-word check (spec 01 tasks 7 and 8). |
-| Specified, not built | Footprint extraction, `publish` and `match`. These commands are registered and exit 2 with "not implemented yet". The 1947 aerials are not fetched. |
-| Draft, awaiting review | The control points for both plates: picked by eye from 60 m crops, all in the northern two-thirds of plate 229. |
-| Draft, awaiting review | The one traced building, `bld_fip_v3_1911_229_0001`, marked "gate draft, unreviewed" in its provenance. |
+| Works today | The site at `buried.pages.dev`: a landing with one search field ("What was here?"), and the place page at `/place?lot=...`. The place page puts the dig (a Unity WebGL scene with a depth gauge) beside the report for that lot. The report also has its own page, `/report`, for printing and sharing. |
+| Works today | The Explorer shows 163 published buildings as ghosts across the 1911 and 1931-35 eras, each with an evidence card, and a 2D map with a text list when the Player cannot run. |
+| Works today | The Report: findings with status labels, "on this lot" and "near this lot" tests, a coverage statement, a list of records checked, and a one-page print layout. |
+| Works today | The Studio slice: fetch a registered plate, extract footprints, review them one by one, publish into the workspace, and export a bundle for the maintainer to review. |
+| Works today | Pipeline commands: `fetch`, `inspect`, `present`, `align-check`, `control-crops`, `tile`, `extract`, `publish`, `match`, `validate`. `extract` is deterministic image processing; `publish` writes only what a person accepted. |
+| Works today | The `buried-evidence` MCP server (`pipeline/buried_pipeline/mcp`, registered in `.kiro/settings/mcp.json`) and the two agents that read it: `archivist` (sources, rights) and `plate-qa` (what a reviewer should look at). The held-out-plate write hook is enabled. |
+| Draft | The 163 published buildings: 100 on the 1911 plate and 63 on the 1931-35 plate. One is the hand-traced bank. The other 162 were accepted by a quality rule in a draft pass, marked "not checked one by one" in their provenance, and none has its storeys read. |
+| Draft | The control points for both plates, picked by eye from 60 m crops, all in the northern two-thirds of plate 229, and the map areas, set once by hand. |
+| Not built | Studio Align and editing: the Studio does not yet let you place control points or edit footprints. |
+| Not built | 1947 imagery. Two aerial records are registered in `data/sources.json`, but neither has an alignment record, so neither is tiled or shown. |
+| Not built | A tracing interface for past land use, and any land-use finding drawn from a plate's lettering. |
+| Not built | A deployed Studio service. The site is static; extract and publish need the service run locally. |
+| Not built | Water remembers: no water source has been chosen. |
 
-Measured at the gate:
+Measured at the gate (plate 229, against six City of Toronto intersections):
 
 | Plate | Supplied georeferencing RMSE | Worst point | Published as |
 |---|---|---|---|
 | 1911 (revised to 1914) | 2.140 m | 3.504 m | within about 4.3 m |
 | 1931, revised to 1935 | 1.504 m | 2.607 m | within about 3.1 m |
 
-The traced building is positioned within about 4.5 m. Switching between the two eras moves the
-building and three control-point markers by 0 px, against a 2 px threshold. That check proves the
-camera and projection agree across eras. It does not prove the plates sit correctly under the
-markers; the two close-ups (`docs/gate/`) and the alignment numbers above are the evidence for that.
-The WebGL build is 7.9 MB compressed. Test counts at the gate: web 267 (Vitest, fast-check), Unity
-EditMode 54, Playwright 2, plus the pytest and Hypothesis suite in `pipeline/`.
+Alignment is measured only at the control points. The alignment record states their hull, and a
+position error is less certain outside it, which includes the southern third of plate 229. The
+held-out plate (232, 1931-35) has not been published.
 
 ## Run what exists
 
@@ -63,8 +66,9 @@ uv run buried validate
 
 `pytest` ends with a line such as `N passed`. `ruff` prints `All checks passed!`. `validate` checks every
 contract file under `data/` against the schema and exits 0, or exits 1 and lists each error.
-`uv run buried fetch`, `inspect`, `present`, `align-check <SOURCE_ID>`, `control-crops <SOURCE_ID>` and
-`tile` are described in `.kiro/steering/tech.md`. `fetch` writes to `data/raw/`, which is gitignored.
+`uv run buried fetch`, `inspect`, `present`, `align-check <SOURCE_ID>`, `control-crops <SOURCE_ID>`,
+`tile`, `extract`, `publish` and `match` are described in `.kiro/steering/tech.md`. `fetch` writes to
+`data/raw/`, which is gitignored.
 
 Web shell, from `web/`:
 
@@ -76,7 +80,7 @@ npm run build
 npm run preview
 ```
 
-`npm test` runs Vitest and prints a summary with no failed files (267 tests at the gate). `typecheck`
+`npm test` runs Vitest and prints a summary with no failed files. `typecheck`
 prints nothing and exits 0. `build` type-checks, then Vite prints its output files and a `built in` line.
 `preview` serves the build on a local URL. The Explorer needs the Unity build below in
 `web/public/unity/`; without it the page loads and the Player does not.
@@ -91,9 +95,8 @@ tools/unity.sh build
 
 The first command imports packages and creates the scenes and assets; the first run takes several
 minutes. Every `tools/unity.sh` call ends with `unity exit code: 0   log: unity/Logs/<mode>.log`.
-`test` also prints the `<test-run ...>` line from the results file; look for `failed="0"` (54 tests at
-the gate). `build` writes the WebGL build to `web/public/unity/`, which is gitignored (7.9 MB
-compressed at the gate).
+`test` also prints the `<test-run ...>` line from the results file; look for `failed="0"`. `build`
+writes the WebGL build to `web/public/unity/`, which is gitignored.
 
 Gate end-to-end test, from `web/`, after the Unity build:
 
@@ -108,7 +111,7 @@ Unity build, and should report `2 passed`. Screenshots and pixel deltas go to `w
 ## Repository layout
 
 ```
-web/        Vite + React + TypeScript shell: Explorer page, Sources page, bridge (JS side), Evidence Library
+web/        Vite + React + TypeScript shell: landing, place page, Explorer, Studio, Report, Sources, bridge (JS side), Evidence Library
 unity/      Unity 6 project: runtime meshing, drape, camera, bridge (C# side and .jslib), EditMode tests
 pipeline/   Python 3.12 package `buried_pipeline` and the `buried` command
 data/       The contract files: schema, source registry, project origin, evidence, control points,
@@ -127,12 +130,13 @@ All stored coordinates are EPSG:26917 (metres). Longitude and latitude do not ap
 - `.kiro/specs/`: five specs (evidence model, pipeline, explorer, studio, report), each with
   requirements, design and a task list. A task is ticked only after its tests pass.
 - `.kiro/hooks/`: seven hook files that run validation, the banned-word tests and the bridge tests
-  on save, plus a held-out-plate write guard that is disabled until the script it calls is written.
-  `.kiro/hooks/README.md` says what each guards and why.
-- `.kiro/agents/`: three agent configurations (architect, builder, coder) with different tools and
-  permissions.
-- `docs/kiro-sessions/`: the task brief given to Kiro for each session, numbered 001 to 013, including
-  the one that produced this README.
+  on save, plus a write guard for the held-out plate. `.kiro/hooks/README.md` says what each guards
+  and why.
+- `.kiro/agents/`: six agent configurations. `architect` writes specs, `builder` and `coder`
+  implement tasks, `mechanic` makes small edits, and `archivist` and `plate-qa` read the evidence
+  files through the MCP server and write notes, never evidence.
+- `docs/kiro-sessions/`: the task brief given to Kiro for each session, numbered 001 to 031,
+  including the one that produced this README.
 
 The rules in `.kiro/steering/` require property-based tests (Hypothesis in Python, fast-check in
 TypeScript, seeded generators in Unity EditMode). Two things they caught:
@@ -149,7 +153,7 @@ TypeScript, seeded generators in Unity EditMode). Two things they caught:
   extrusion property (E4) generates polygons with up to three holes.
 
 The steering also requires a test that fails if any extraction fixture or parameter set references
-plate 232 (1935), the held-out plate. The hook that blocks agent writes mentioning it is written but not yet enabled.
+plate 232 (1935), the held-out plate. The hook that blocks agent writes mentioning it is enabled.
 
 ## Sources and credits
 
@@ -159,7 +163,7 @@ Plates:
 - 1931, revised to 1935 edition: "Library and Archives Canada, National Map Collection (NMC-0013999).
   Digitized and georeferenced by the University of Toronto Map & Data Library."
 
-1947 aerial photographs (registered in `.kiro/steering/sources.md`, none fetched yet): "1947 aerial
+1947 aerial photographs (registered in `data/sources.json` and `.kiro/steering/sources.md`, none shown): "1947 aerial
 photographs: City of Toronto Archives. Georeferenced by the University of Toronto Map & Data Library."
 
 Present-day layers (building outlines, property boundaries, address points, intersections):

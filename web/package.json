@@ -18,7 +18,8 @@
     "size": "tsx scripts/sizeReport.ts",
     "gen:types": "tsx scripts/genTypes.ts",
     "gen:bridge-types": "tsx scripts/genBridgeTypes.ts",
-    "gen:bridge-samples": "tsx scripts/genBridgeSamples.ts"
+    "gen:bridge-samples": "tsx scripts/genBridgeSamples.ts",
+    "gen:social-card": "tsx scripts/renderSocialCard.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",

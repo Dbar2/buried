@@ -60,7 +60,7 @@ async function debugState(page: Page): Promise<DebugState> {
 }
 
 async function failIfPlayerUnavailable(page: Page): Promise<void> {
-  const message = page.locator('.stage-message');
+  const message = page.locator('.stage-message, [data-testid="fallback-reason"]');
   if ((await message.count()) > 0) {
     const text = (await message.first().textContent()) ?? '';
     if (/did not load|cannot show|could not be loaded/.test(text)) throw new Error(`The 3D view is not available: ${text}`);

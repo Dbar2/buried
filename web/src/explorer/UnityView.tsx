@@ -6,7 +6,7 @@ import type { UnityInstance } from '../bridge/unityLoader';
 import type { GateModel } from './gateModel';
 import type { CameraPose } from './cameraPose';
 import { buildAddFeatures, buildLoadEra, buildMarkers, buildSceneInit, buildSetCamera, buildSetDepth } from './gateScene';
-import { buildClearLot, buildFocusLot } from './pinnedLot';
+import { buildClearLot, buildFocusLot, buildSetDrapeMode } from './pinnedLot';
 import type { LotPolygon } from './pinnedLot';
 import { buildSetLantern, buildShowEvidence } from './lantern';
 import type { EvidenceCommand, LensCommand } from './lantern';
@@ -43,6 +43,8 @@ export type UnityViewProps = {
   lantern: LensCommand | null;
   /** Show Evidence (bridge 0.6.0): the ghost to make transparent and the drape to put beneath it, or null. */
   evidence: EvidenceCommand | null;
+  /** "View original scan": `original` shows the untouched rasters; `lit` is the default look. */
+  drapeMode: 'lit' | 'original';
   onPlayerState: (state: PlayerState) => void;
   onFeatureClicked: (featureId: string, eraId: string) => void;
   /** The Player cannot be used; the reason is fit to show. */
@@ -207,6 +209,14 @@ export default function UnityView(props: UnityViewProps) {
       pinned.current = false;
     }
   }, [running, lot]);
+  // "View original scan" (bridge 0.5.0): the default is lit, so nothing is sent until it changes.
+  const sentMode = useRef<'lit' | 'original'>('lit');
+  const { drapeMode } = props;
+  useEffect(() => {
+    if (!running || sentMode.current === drapeMode) return;
+    bridgeRef.current?.send(buildSetDrapeMode(drapeMode));
+    sentMode.current = drapeMode;
+  }, [running, drapeMode]);
   useEffect(() => {
     if (!running || !debug || !cameraCommand) return;
     bridgeRef.current?.send(buildSetCamera(cameraCommand.pose));

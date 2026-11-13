@@ -10,7 +10,7 @@ const ORIGIN = `http://127.0.0.1:${PORT}`;
 
 export default defineConfig({
   ...base,
-  testMatch: ['**/hosting.spec.ts', '**/polish.spec.ts', '**/report.spec.ts'],
+  testMatch: ['**/hosting.spec.ts', '**/polish.spec.ts', '**/report.spec.ts', '**/cardsync.spec.ts'],
   use: { ...base.use, baseURL: ORIGIN },
   webServer: {
     command: `npx vite preview --host 127.0.0.1 --port ${PORT} --strictPort`,

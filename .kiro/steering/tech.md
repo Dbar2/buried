@@ -342,9 +342,12 @@ invent commands; when one is added, record it here.
     `dist/`) gives `/assets/*` a year of caching, `/data/index.json` `no-cache`, and the three
     Brotli Unity files (`unity.data.unityweb`, `unity.framework.js.unityweb`,
     `unity.wasm.unityweb`) their type and `Content-Encoding: br`. If a host drops those headers
-    the Unity loader's JavaScript decompression fallback still starts the Player. `public/_redirects`
-    rewrites `/place`, `/report`, `/studio`, `/sources` and `/explorer` to `index.html` (status 200).
-    The build prints a size report (largest files, total); `npm run size [DIR]` prints it again.
+    the Unity loader's JavaScript decompression fallback still starts the Player. There is no
+    `public/_redirects` and there must be no top-level `404.html`: with no `404.html`, Pages serves
+    `index.html` for `/place`, `/report`, `/studio`, `/sources` and `/explorer` on its own. A rule
+    `/place /index.html 200` was tried first (session 027) and on the live site Pages answered
+    `/place?lot=...` with a 308 to `/?lot=...`, which opens the wrong page; with the file removed all
+    four deep links returned 200 (session 031). `vite/hosting.test.ts` asserts neither file exists. The build prints a size report (largest files, total); `npm run size [DIR]` prints it again.
   - The Studio service address is `VITE_STUDIO_SERVICE_URL`, read when the site is built: an
     `https://` address, or `/` for the page's own origin (the dev server and `vite preview` proxy
     `/v1`; `npm run test:e2e:studio` builds with `/`). Unset in a production build, the Studio says
@@ -352,8 +355,21 @@ invent commands; when one is added, record it here.
     `BURIED_ALLOWED_ORIGINS`.
   - Deploy (maintainer; run from the repository root, after `tools/unity.sh build`):
     `VITE_STUDIO_SERVICE_URL=https://<service host> npm --prefix web run build` then
-    `npx wrangler pages deploy web/dist --project-name <pages project> --branch main`. The project
-    name is the maintainer's to pick. Nothing has been deployed.
+    `npx wrangler pages deploy web/dist --project-name buried --branch main`. This is the command
+    that worked for the live site, `https://buried.pages.dev` (session 031). The Studio service is
+    not deployed.
+  - Sharing and first load (session 031), from `web/`: `index.html` carries the title, the description and
+    the Open Graph tags a crawler reads without running the script; each route sets its own title and
+    description in the browser (`src/shell/pageTitle.ts`, "541 and 543 Queen St E · Buried"), so a link
+    preview of a deep link shows the generic card text, not the address. The card image is
+    `public/social-card.png`, rendered once from `social/card.css` and the palette tokens by
+    `npm run gen:social-card` and committed. `npx playwright test e2e/firstload.spec.ts` measures the
+    landing (field, examples and scene times, with and without 4x CPU throttling, to
+    `e2e/output/firstload.json`); `npx playwright test e2e/phone.spec.ts` is the 390 px touch pass
+    (`phone-landing.png`, `phone-place.png`, `phone-card.png`, `phone-fallback.png`). Checkouts that
+    run beside each other share port 4173 and `reuseExistingServer` then serves another checkout's
+    build; `npx playwright test -c playwright.isolated.config.ts <spec>` uses port 4183 and never
+    reuses a server (not for `brand.spec.ts` or `art.spec.ts`, which hold 4173 in a constant).
   - Check: `npm run build`, then `npx playwright test -c playwright.hosting.config.ts`. It starts its
     own `vite preview` on port 4174 (never reusing a server on 4173), loads `/place?lot=...`,
     `/report`, `/sources` and `/studio` as first requests, and writes

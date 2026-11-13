@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Band } from './Band';
 import type { Report, ReportModel, SourceEntry } from './buildReport';
 import * as copy from './copy';
@@ -7,6 +7,7 @@ import type { Group } from './findings';
 import { liveLink } from './links';
 import { moreFindingsText, printSplit } from './printModel';
 import { RichText } from './richText';
+import { scrollBandIntoView } from './scrollBand';
 import './report.css';
 import './report.print.css';
 
@@ -14,6 +15,8 @@ export type ReportViewProps = {
   model: ReportModel;
   /** Set when the Report is a panel beside the Explorer: a band then moves the Explorer to its era. */
   onBandSelect?: (eraId: string) => void;
+  /** The era the scene is showing. Its band is marked and, in a scrolling report column, scrolled into view. */
+  activeEraId?: string | null;
 };
 
 /**
@@ -21,7 +24,7 @@ export type ReportViewProps = {
  * "Buried screens; it doesn't certify.". Status and confidence are text first; dates, ids and
  * figures are set in IBM Plex Mono. The view only lays out the model; it decides nothing.
  */
-export function ReportView({ model, onBandSelect }: ReportViewProps) {
+export function ReportView({ model, onBandSelect, activeEraId = null }: ReportViewProps) {
   if (model.kind === 'not_reconstructed') {
     return (
       <article className="report" data-testid="report-not-reconstructed">
@@ -43,11 +46,32 @@ export function ReportView({ model, onBandSelect }: ReportViewProps) {
       </article>
     );
   }
-  return <FullReport report={model} onBandSelect={onBandSelect} />;
+  return <FullReport report={model} onBandSelect={onBandSelect} activeEraId={activeEraId} />;
 }
 
-function FullReport({ report, onBandSelect }: { report: Report; onBandSelect: ((eraId: string) => void) | undefined }) {
+function FullReport({
+  report,
+  onBandSelect,
+  activeEraId,
+}: {
+  report: Report;
+  onBandSelect: ((eraId: string) => void) | undefined;
+  activeEraId: string | null;
+}) {
   const [copied, setCopied] = useState(false);
+  const bandList = useRef<HTMLOListElement>(null);
+  const shown = useRef<string | null>(null);
+  // The band for the era on screen comes into view when the era changes, not when the page opens.
+  useEffect(() => {
+    const first = shown.current === null;
+    shown.current = activeEraId;
+    if (first || activeEraId === null) return;
+    const band = bandList.current?.querySelector<HTMLElement>(`[data-era="${CSS.escape(activeEraId)}"]`);
+    const container = bandList.current?.closest<HTMLElement>('.report-scroll');
+    if (!band || !container || typeof container.scrollTo !== 'function') return;
+    const reduced = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    scrollBandIntoView(container, band, reduced);
+  }, [activeEraId]);
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(report.links.share);
@@ -89,9 +113,16 @@ function FullReport({ report, onBandSelect }: { report: Report; onBandSelect: ((
 
       <section aria-labelledby="report-core">
         <h2 id="report-core">{copy.SECTION_HEADINGS.coreSample}</h2>
-        <ol className="bands">
+        <ol className="bands" ref={bandList}>
           {report.coreSample.map((band) => (
-            <Band key={band.eraId} band={band} sources={report.sources} onSelect={onBandSelect} href={onBandSelect ? undefined : liveLink('', lotId, band.eraId)} />
+            <Band
+              key={band.eraId}
+              band={band}
+              sources={report.sources}
+              onSelect={onBandSelect}
+              href={onBandSelect ? undefined : liveLink('', lotId, band.eraId)}
+              active={activeEraId === band.eraId}
+            />
           ))}
         </ol>
       </section>

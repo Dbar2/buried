@@ -12,6 +12,8 @@ export type BandProps = {
   href?: string;
   /** In a panel beside the Explorer a band moves the Explorer to its era. */
   onSelect?: (eraId: string) => void;
+  /** The scene is showing this band's era (place page): marked by a rule, `aria-current` and the words "Showing". */
+  active?: boolean;
 };
 
 const CROP_PX = 112;
@@ -22,7 +24,7 @@ const LARGE_PX = 560;
  * and the plain sentences beside it. The picture opens larger on click or Enter, with its
  * attribution. Source ids sit in `title` text and in the enlarged view, never in the sentences.
  */
-export function Band({ band, sources = [], href, onSelect }: BandProps) {
+export function Band({ band, sources = [], href, onSelect, active = false }: BandProps) {
   const [open, setOpen] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLButtonElement>(null);
@@ -43,7 +45,13 @@ export function Band({ band, sources = [], href, onSelect }: BandProps) {
   });
 
   return (
-    <li className="band" data-era={band.eraId} data-testid={`band-${band.eraId}`}>
+    <li
+      className={active ? 'band band--active' : 'band'}
+      data-era={band.eraId}
+      data-active={active ? 'true' : undefined}
+      aria-current={active ? 'true' : undefined}
+      data-testid={`band-${band.eraId}`}
+    >
       <div className="band-head">
         <h3>
           {onSelect ? (
@@ -58,6 +66,11 @@ export function Band({ band, sources = [], href, onSelect }: BandProps) {
             label
           )}
         </h3>
+        {active && (
+          <span className="band-now no-print" data-testid={`band-now-${band.eraId}`}>
+            Showing
+          </span>
+        )}
       </div>
       <div className="band-picture">
         {picture ? (
