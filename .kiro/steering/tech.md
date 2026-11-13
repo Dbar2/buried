@@ -156,6 +156,22 @@ invent commands; when one is added, record it here.
     copies `web/public/unity/` into `dist/`, so run `npm run build` after every Unity build, and
     only once `web/public/unity/Build/` has stopped changing (the Unity build was seen to finish
     writing its data file after the command returned).
+  - Block page, the first visit (spec 06, sessions 042 to 045), from `web/` after `npm run build`:
+    `npx playwright test -c playwright.blockflat.config.ts` (no WebGL; port 4175; no Unity build
+    needed) and `npx playwright test -c playwright.block.config.ts` (the `@unity` specs, against
+    the real Player in `web/public/unity/`; port 4176). Screenshots go to `web/e2e/output/block-*.png`.
+    `npm run gen:still-scene` writes `data/work/still/scene.json` from the repository's `data/`
+    (input to the Still render below). `npm run test:e2e:landuse` runs the land-use browser test
+    (session 045).
+  - Still render (spec 06 U9, sessions 040 and 043), from the repository root:
+    `tools/unity.sh exec Buried.Editor.Still.Render` writes `web/public/still/block-wide.jpg`,
+    `block-tall.jpg` and `block.json` (committed), and `data/work/still/block-*-raised.jpg` (not
+    committed, for checking the raised look by eye). It needs a graphics device, so `tools/unity.sh`
+    starts the editor without `-nographics` for this method only. Order: `npm --prefix web run
+    gen:still-scene`, then `tools/unity.sh exec Buried.Editor.Setup.Run` after any token change,
+    then the render. Do not commit `unity/Assets/Buried/Scenes/Bootstrap.unity` or the
+    `ProjectSettings` files that `Setup.Run` touches. Rerun both generators when `data/finds.json`
+    or the evidence changes, or `block.json` keeps stale anchors.
 - Pipeline (spec 02), all run from `pipeline/`:
   - Environment: `uv sync` (Python 3.12).
   - Tests: `uv run pytest`. Lint: `uv run ruff check .`.
@@ -212,6 +228,18 @@ invent commands; when one is added, record it here.
     not wholly inside the plate's map area. A land-use trace becomes a `use_<source>_<NNNN>`
     feature (review item id `<source>_t_<12 hex>` in `provenance.proposal_id`, no
     `extraction_params_id` or `tone_class`). Prints counts. Running it twice gives the same file.
+    Since schema 1.2.0 (session 038) it also writes `provenance.review`: `reviewed` with the
+    decision's reviewer and the date part of its `confirmed_at`.
+  - Review-state migration (session 038, evidence schema 1.2.0), from the repository root:
+    `uv --directory pipeline run python -m buried_pipeline.migrate.review_state [--dry-run]`.
+    Idempotent. Sets `provenance.review` on every feature in `data/evidence/*.geojson`:
+    `draft_hand` where `confirmed_by` names a hand tracing or a gate draft (13 features),
+    `draft_rule` for the rest (162), `reviewed` for none. Evidence files carry
+    `EVIDENCE_SCHEMA_VERSION` 1.2.0; every other contract file stays at 1.1.0, because a control
+    file's hash is pinned in its alignment record. `buried validate` also checks
+    `data/finds.json` against `data/schema/finds.schema.json` (spec 06) and rejects an evidence
+    file stamped below 1.2.0. `npm run gen:types` (from `web/`) also writes
+    `src/evidence/finds.types.generated.ts`.
   - Add observations and links to published buildings from every other source that covers them:
     `uv run buried match [--decisions PATH]`. Reads every `data/evidence/*.geojson`, the plates'
     alignment records, the tile sidecars of registered aerials that have an alignment record, and
@@ -238,7 +266,8 @@ invent commands; when one is added, record it here.
   - Evidence MCP server (session 025), read-only, stdio: `uv --directory pipeline run python -m
     buried_pipeline.mcp` (from the repository root; `BURIED_REPO_ROOT` overrides the root, default
     the nearest ancestor with `.kiro/`). Tools: `find_places`, `features_near`, `plate_features`,
-    `list_sources`, `plate_alignment`, `plate_work`. It reads `data/` and `data/work/` and writes
+    `list_sources`, `plate_alignment`, `plate_work`. `find_places` returns matching finds (slug, tag,
+    readings, each feature's `provenance.review` as stored) before addresses (session 038). It reads `data/` and `data/work/` and writes
     nothing. No result is larger than 20 KB: lists are paged (`limit`, `cursor`; the result says
     `total`, `returned`, `more` and `next_cursor`). `features_near` takes `source`, `compact` (rows
     under a shared `columns` list, about 100 per page) and `cursor`; `plate_features` gives one

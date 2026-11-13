@@ -38,9 +38,16 @@ person) and `on` (ISO date) required for `reviewed`, forbidden otherwise. `confi
 the decisions file's reviewer and date. `web/src/evidence/review.ts` gives "Status: reviewed by
 <by>, <on>" or "Status: draft, not yet reviewed"; the word "Confirmed" is not in it.
 
-## Bridge 0.7.0
+## Bridge 0.8.0
 
-Only group U edits `data/schema/bridge.schema.json`.
+Only group U edits `data/schema/bridge.schema.json`. Session 040 built the five messages below
+as bridge 0.8.0 (0.7.0 was the number planned here). The new properties are snake_case
+(`feature_ids`, `era_id`, `first_feature_id`, `feature_id`, `on_screen`); the rest of the schema
+stays camelCase. The Player added two things this design did not list: an optional `held` boolean
+on `scene/loadEra` (the era's sheet is drawn dim with its ghosts down and today's buildings solid,
+until `scene/raise`; the Block page sends `held: true` on its first load) and
+`scene/selectFeature` (optional `feature_id`; absent clears), because no Shell-to-Player message
+carried selection. A held load also takes the `BlockCamera` pose.
 
 | Message | Direction | Payload |
 |---|---|---|
@@ -54,10 +61,17 @@ Only group U edits `data/schema/bridge.schema.json`.
   is false behind the camera or outside the canvas. `scene/anchors` is sent after
   `scene/setAnchors`, after `scene/raised`, after a resize, and at most once per frame while the
   camera moves; never while nothing changes.
-- The Player owns the raise: plinths sink over 600 ms, the sheet brightens, then each ghost's
+- The Player owns the raise: today's buildings sink flat over 600 ms and stay as a thin `--block`
+  outline at about 35 per cent (session 043; not 1 m plinths), the sheet brightens, then each ghost's
   edges draw on and its fill rises over 700 ms, starts staggered by distance from the first
   find's centroid so the last starts by 1.5 s. Reduced motion or `animate: false`: end state at
-  once. Selection keeps the existing message; the Player maps it to lantern edges.
+  once. The Shell selects with `scene/selectFeature`; the Player maps it to lantern edges.
+  After a raise the era stays drawn whole until the next `scene/setDepth`. `scene/frameFeature`,
+  `scene/selectFeature` and `scene/raise` for a feature the scene does not hold answer with an
+  `error`. `scene/anchors` `width` and `height` are the canvas in pixels divided by the Player's
+  pixel-scale guess, so the Shell maps by `x / width` and `y / height` against the canvas it
+  measures. Setting the Lantern on is ignored by the Player above depth 0; at a plan stop the
+  Shell moves the ruler to Today first (session 044).
 
 ## Load states
 

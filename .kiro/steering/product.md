@@ -22,7 +22,7 @@ lettering crop that names it. The verb is **"Raise the past"**. Detail: spec 06,
    with the map that proves it." Paper tags pinned to the map: "Overall factory", "Bank", "Coal
    yard". No search field; the header holds the wordmark and "Sources". A still picture of the
    real scene shows at once while the Player loads; the button never waits on an endless spinner.
-2. **Raise.** Today's blocks sink to low plinths, the sheet brightens, and the 1911 plan's
+2. **Raise.** Today's blocks sink flat and stay as a thin outline, the sheet brightens, and the 1911 plan's
    buildings stand up as ghosts, staggered, in about two seconds. The camera stays put.
 3. **First find.** The overall factory selects itself: lantern edges, a leader line to a
    catalogue card at the right (a bottom sheet on a phone): "LETTERED ON THE 1911 PLAN", the name
