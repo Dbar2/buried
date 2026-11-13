@@ -27,10 +27,15 @@ IDENTITY: Transform6 = (1.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 
 @dataclass(frozen=True)
 class Found:
-    """What one place holds. `transform` is None when absent or the identity (GDAL's 'none')."""
+    """What one place holds. `transform` is None when absent or the identity (GDAL's 'none').
+
+    `crs_label` says where in the sidecar the CRS was read (`pam_srs` for the `<SRS>` element,
+    `pam_esri_xform` for the spatial reference ESRI wrote inside its GeodataXform block).
+    """
 
     transform: Transform6 | None
     crs: str | None
+    crs_label: str = "pam_srs"
 
 
 @dataclass(frozen=True)
@@ -64,7 +69,7 @@ def choose_georef(
         if prj_crs:
             return Choice(world_transform, prj_crs, WORLD_FILE, "prj_file")
         if pam and pam.crs:
-            return Choice(world_transform, pam.crs, WORLD_FILE, "pam_srs")
+            return Choice(world_transform, pam.crs, WORLD_FILE, pam.crs_label)
 
     problems: list[str] = []
     if tags and tags.transform and not tags.crs:

@@ -458,3 +458,45 @@ def test_propose_origin_needs_every_plate_inspected(
     write_geotiff(paths.raw / "fip_v3_1911_229" / "a.tif", NORTH_UP_26917)
     assert main(["--root", str(paths.root), "inspect", "fip_v3_1911_229", "--propose-origin"]) == 1
     assert "No inspect report for fip_v3_1935_229" in capsys.readouterr().err
+
+
+ESRI_XFORM_PAM = """<PAMDataset>
+  <Metadata domain="xml:ESRI" format="xml">
+    <GeodataXform xmlns:typens="http://www.esri.com/schemas/ArcGIS/10.0">
+      <PolynomialOrder>1</PolynomialOrder>
+      <SpatialReference>
+        <WKT>{wkt}</WKT>
+        <WKID>{wkid}</WKID>
+      </SpatialReference>
+    </GeodataXform>
+  </Metadata>
+</PAMDataset>
+"""
+
+
+def test_jpeg_world_file_takes_its_crs_from_the_esri_xform_when_there_is_no_srs(
+    tmp_path: Path,
+) -> None:
+    """The U of T 1947 aerials: a world file, and a PAM sidecar whose only CRS is ESRI's."""
+    jpg = write_jpeg(tmp_path / "p.jpg")
+    write_world_file(jpg, ROTATED_26917)
+    sidecar = jpg.with_name(jpg.name + ".aux.xml")
+    sidecar.write_text(ESRI_XFORM_PAM.format(wkt="x", wkid=26917), encoding="utf-8")
+    info = read_raster_info(jpg)
+    assert info.georef_source == "world_file"
+    assert info.crs_source == "pam_esri_xform"
+    assert info.crs == "EPSG:26917"
+    assert info.transform == pytest.approx(ROTATED_26917)
+
+
+def test_esri_xform_with_no_usable_crs_still_fails_loudly(tmp_path: Path) -> None:
+    jpg = write_jpeg(tmp_path / "p.jpg")
+    write_world_file(jpg, ROTATED_26917)
+    sidecar = jpg.with_name(jpg.name + ".aux.xml")
+    sidecar.write_text(
+        "<PAMDataset><Metadata><GeodataXform><SpatialReference/></GeodataXform></Metadata>"
+        "</PAMDataset>",
+        encoding="utf-8",
+    )
+    with pytest.raises(PipelineError, match="no CRS"):
+        read_raster_info(jpg)

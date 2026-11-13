@@ -60,6 +60,34 @@
       "holding": "Library and Archives Canada, National Map Collection, NMC-0013999"
     },
     {
+      "id": "aerial_1947_s0012_fl1947_it0018h",
+      "type": "aerial_photograph",
+      "title": "1947 aerial photograph s0012_fl1947_it0018h, black and white, georeferenced by U of T",
+      "year_from": 1947,
+      "year_to": 1947,
+      "url": "https://maps.library.utoronto.ca/datapub/toronto/air_photos_1947/Black%20and%20White/s0012_fl1947_it0018h.zip",
+      "licence_note": "U of T Map & Data Library collection page: \"Require permission to use: None. Require acknowledgement to use: None. Cost for use: None. Restrictions: Public.\" Credit anyway.",
+      "attribution_line": "1947 aerial photographs: City of Toronto Archives. Georeferenced by the University of Toronto Map & Data Library.",
+      "attribution_status": "confirmed",
+      "rights_checked_on": "2026-11-12",
+      "held_out": false,
+      "holding": "City of Toronto Archives"
+    },
+    {
+      "id": "aerial_1947_s0012_fl1947_it0022d",
+      "type": "aerial_photograph",
+      "title": "1947 aerial photograph s0012_fl1947_it0022d, black and white, georeferenced by U of T",
+      "year_from": 1947,
+      "year_to": 1947,
+      "url": "https://maps.library.utoronto.ca/datapub/toronto/air_photos_1947/Black%20and%20White/s0012_fl1947_it0022d.zip",
+      "licence_note": "U of T Map & Data Library collection page: \"Require permission to use: None. Require acknowledgement to use: None. Cost for use: None. Restrictions: Public.\" Credit anyway.",
+      "attribution_line": "1947 aerial photographs: City of Toronto Archives. Georeferenced by the University of Toronto Map & Data Library.",
+      "attribution_status": "confirmed",
+      "rights_checked_on": "2026-11-12",
+      "held_out": false,
+      "holding": "City of Toronto Archives"
+    },
+    {
       "id": "present_toronto_building_outlines_2026",
       "type": "present_day_reference",
       "title": "City of Toronto Open Data: topographic mapping building outlines",

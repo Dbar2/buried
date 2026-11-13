@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from buried_pipeline.errors import PipelineError
+from buried_pipeline.fetch.aerials import check_aerial_url
 from buried_pipeline.fetch.manifest import (
     entry_mismatches,
     file_record,
@@ -32,7 +33,8 @@ URL_1935 = re.compile(
     r"^https://maps\.library\.utoronto\.ca/datapub/FIP/vol3_1935/Georeferenced/v3-1935-(\d+)\.zip$"
 )
 PLATE_TYPE = "fire_insurance_plan"
-
+AERIAL_TYPE = "aerial_photograph"
+FETCHABLE_TYPES = (PLATE_TYPE, AERIAL_TYPE)
 
 @dataclass(frozen=True)
 class FetchResult:
@@ -60,16 +62,16 @@ def check_plate_url(source: Source) -> None:
 
 
 def select_sources(registry: Registry, ids: list[str]) -> list[Source]:
-    """No ids: every registered plate. Ids: only those, which must be registered plates."""
+    """No ids: every registered plate and aerial. Ids: only those, which must be registered."""
     if not ids:
-        return list(registry.by_type(PLATE_TYPE))
+        return [s for s in registry.sources if s.type in FETCHABLE_TYPES]
     selected = []
     for source_id in ids:
         source = registry.get(source_id)
-        if source.type != PLATE_TYPE:
+        if source.type not in FETCHABLE_TYPES:
             raise PipelineError(
-                f"{source_id}: type {source.type} cannot be fetched yet "
-                "(aerial downloads arrive with spec 02 task 5.2)"
+                f"{source_id}: type {source.type} cannot be fetched "
+                "(only fire insurance plates and 1947 aerials are downloaded)"
             )
         selected.append(source)
     return selected
@@ -81,7 +83,10 @@ def check_fetchable(source: Source) -> None:
             f"{source.id}: rights_checked_on is null. Check the item's rights statement, then "
             "record the date in data/sources.json."
         )
-    check_plate_url(source)
+    if source.type == AERIAL_TYPE:
+        check_aerial_url(source.id, source.url)
+    else:
+        check_plate_url(source)
 
 
 def fetch_plates(

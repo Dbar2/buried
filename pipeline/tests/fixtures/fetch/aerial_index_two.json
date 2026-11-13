@@ -1,0 +1,45 @@
+{
+  "objectIdFieldName": "FID",
+  "spatialReference": { "wkid": 26917 },
+  "fields": [],
+  "features": [
+    {
+      "attributes": {
+        "Name": "S0012_FL1947_IT0002H",
+        "url": "https://example.test/aerials/s0012_fl1947_it0002h.jpg",
+        "zip_url": "https://maps.library.utoronto.ca/datapub/toronto/air_photos_1947/Black and White/s0012_fl1947_it0002h.zip",
+        "thumbnail_url": "https://example.test/aerials/s0012_fl1947_it0002h_t.jpg"
+      },
+      "geometry": {
+        "rings": [
+          [
+            [632100.0, 4834900.0],
+            [632900.0, 4834900.0],
+            [632900.0, 4835400.0],
+            [632100.0, 4835400.0],
+            [632100.0, 4834900.0]
+          ]
+        ]
+      }
+    },
+    {
+      "attributes": {
+        "Name": "S0012_FL1947_IT0001H",
+        "url": "https://example.test/aerials/s0012_fl1947_it0001h.jpg",
+        "zip_url": "https://maps.library.utoronto.ca/datapub/toronto/air_photos_1947/Black and White/s0012_fl1947_it0001h.zip",
+        "thumbnail_url": null
+      },
+      "geometry": {
+        "rings": [
+          [
+            [631800.0, 4834500.0],
+            [632500.0, 4834500.0],
+            [632500.0, 4835100.0],
+            [631800.0, 4835100.0],
+            [631800.0, 4834500.0]
+          ]
+        ]
+      }
+    }
+  ]
+}

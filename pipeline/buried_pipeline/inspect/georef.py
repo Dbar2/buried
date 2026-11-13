@@ -165,6 +165,7 @@ def _read_pam(raster: Path) -> Found | None:
         transform = usable_transform((gt[1], gt[2], gt[0], gt[4], gt[5], gt[3]))
 
     crs: str | None = None
+    crs_label = "pam_srs"
     srs_text = root.findtext("SRS")
     if srs_text and srs_text.strip():
         try:
@@ -173,7 +174,30 @@ def _read_pam(raster: Path) -> Found | None:
             raise PipelineError(
                 f"PAM sidecar {sidecar.name}: the SRS cannot be read: {exc}"
             ) from exc
-    return Found(transform, crs)
+    else:
+        crs = _esri_xform_crs(root, sidecar.name)
+        if crs:
+            crs_label = "pam_esri_xform"
+    return Found(transform, crs, crs_label)
+
+
+def _esri_xform_crs(root: ET.Element, sidecar_name: str) -> str | None:
+    """The CRS ESRI stored in `<GeodataXform><SpatialReference>` of a sidecar that has no `<SRS>`
+    (the U of T 1947 aerials). Its authority code (`WKID`) is used when present; otherwise its
+    WKT. This is the publisher's statement about this same raster, not a guess."""
+    for spatial in root.iter("SpatialReference"):
+        wkid = (spatial.findtext("LatestWKID") or spatial.findtext("WKID") or "").strip()
+        wkt = (spatial.findtext("WKT") or "").strip()
+        try:
+            if wkid.isdigit():
+                return _crs_text(CRS.from_epsg(int(wkid)))
+            if wkt:
+                return _crs_text(CRS.from_wkt(wkt))
+        except CRSError as exc:
+            raise PipelineError(
+                f"PAM sidecar {sidecar_name}: the ESRI spatial reference cannot be read: {exc}"
+            ) from exc
+    return None
 
 
 def _read_dimensions(path: Path) -> tuple[int, int, int]:

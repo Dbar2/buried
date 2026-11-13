@@ -56,7 +56,23 @@ outlines; there is no colour for brick or wood.
 listed here before it is added to `data/sources.json`. The list comes from
 `buried fetch --aerial-candidates` and a person's check that the photo covers the showcase plates.
 
-None yet.
+Checked on 2026-11-12 with `buried fetch --aerial-candidates` (four records intersect the plates'
+union bounds) and by comparing each footprint polygon with the map areas of plate 229 (both
+editions) and the inspect bounds of plate 232. Two records cover the plates and are in use:
+
+| Source id | Index `Name` | Black-and-white zip size | Footprint covers |
+|---|---|---|---|
+| `aerial_1947_s0012_fl1947_it0018h` | `s0012_fl1947_it0018h` | 11.7 MB | all of plate 229's map area; 97% of plate 232's bounds |
+| `aerial_1947_s0012_fl1947_it0022d` | `s0012_fl1947_it0022d` | 10.7 MB | all of plate 229's map area; 89 to 95% of plate 232's bounds |
+
+Not used: `s0012_fl1947_it0018g` (footprint misses the plates) and `s0012_fl1947_it0022c`
+(touches 0.1% of plate 1935/229's map area). A footprint covering a spot says the photograph
+includes it; it does not say the spot is readable. Only a person sets that.
+
+The ground control for these photographs is U of T's own georeferencing, which Buried has not
+measured against City intersections. Neither photograph has an alignment record, so neither is
+tiled yet: the tile sidecar Schema requires an alignment error, and none can be stated until
+control points are read. No feature is published from an aerial until one is measured.
 
 ## Present-day sources (City of Toronto Open Data)
 
