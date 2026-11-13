@@ -65,10 +65,16 @@ PAGING_NOTE = (
 TOOLS: list[Json] = [
     _tool(
         "find_places",
-        "Find present-day addresses (City of Toronto address points) whose text contains every "
-        "word of the query, with the property lots whose polygon contains each address point; "
-        "or a lot by its parcel id. Coordinates are EPSG:26917 metres." + PAGING_NOTE,
-        {"query": {**STR, "description": "Address words, e.g. '75 sumach', or a parcel id"},
+        "Find the finds in data/finds.json (a building or yard the plans letter on the block) and "
+        "present-day addresses (City of Toronto address points) whose text contains every word "
+        "of the query, or a lot by its parcel id. A find comes with its slug, tag, noun, and "
+        "each reading: the plan's source id, the feature id, the lettering as read, the crop, "
+        "who read it and when, the feature's status, and the feature's review state "
+        "(provenance.review: reviewed, draft_rule or draft_hand, with by and on when reviewed). "
+        "An address comes with the lots whose polygon contains its point. Finds are listed "
+        "before addresses under one cursor. Coordinates are EPSG:26917 metres." + PAGING_NOTE,
+        {"query": {**STR, "description": "Words from a find's tag or lettering, an address "
+                   "such as '75 sumach', or a parcel id"},
          "limit": LIMIT, "cursor": CURSOR},
         ["query"],
     ),
