@@ -11,29 +11,60 @@ add to it, and get the documented history of a place it covers.
 Entry for Kiroween 2026, category Resurrection (Frankenstein is the fallback, decided at
 submission). Tagline: "Forgotten maps, rebuilt with proof."
 
-## The three parts
+## The place page and the three parts
 
-1. **Explorer.** A foggy 3D neighbourhood at dusk. Digging down goes back in time, one era per
-   layer. Vanished buildings rise as ghosts where they stood, each showing how sure we are.
-   Includes Dig, ghosts, the Lantern (a lens showing the past inside, the present outside),
-   Show Evidence (the source beneath a ghost) and Water remembers (documented creeks, marsh and
-   shorelines).
+The first ten seconds: type an address, the camera drops to the lot, the past rises, and a plain
+page says what stood there.
+
+- **The unit is the place page.** One screen per lot: the dig (3D) on the left, a paper report on
+  the right. The Explorer and the Report are two halves of it, not two destinations. The Studio
+  stays its own screen.
+- **Search first.** The landing is the dusk scene with the wordmark and one field, "What was
+  here?", plus two or three real example addresses from the coverage area. No tour, no modal.
+- **The core sample is made of pictures.** For each era the place page shows a real crop of that
+  lot from that era's source (today's map, the 1947 photograph when aligned, the 1931-35 plate,
+  the 1911 plate), with the lot outlined, next to one plain sentence. A crop is evidence a person
+  can read without our interpreting it, so it appears even where nothing has been reviewed,
+  labelled "From the plate, not yet reviewed". The sentence beside an unreviewed crop says what
+  the source is and states no finding.
+- **Plain words in the body, ids in the footnotes.** Sentences name sources as "the 1911 plan"
+  and "the 1931-35 plan". Source ids, plate numbers and error figures sit in mono in a sources
+  block and on hover or focus, never in the middle of a sentence.
+
+1. **Explorer.** The left half. A foggy 3D neighbourhood at dusk. Digging down goes back in time,
+   one era per layer. Vanished buildings rise as ghosts where they stood, each showing how sure
+   we are. Includes Dig, ghosts, the Lantern (a lens showing the past inside, the present
+   outside), Show Evidence (the source beneath a ghost) and Water remembers (documented creeks,
+   marsh and shorelines).
 2. **Reconstruction Studio.** Import a plate, align it to today's map with the error in metres,
    let Buried propose footprints, confirm them, publish. Published buildings rise in the Explorer
    in that plate's era with full provenance. This proves Buried is a tool, not a hand-built model.
-3. **Report.** "The documented history of this place." Pick a lot inside the covered area and get
-   what stood there and when, what the records show about water and past land use, what they
-   cannot tell you, and who to talk to next. On screen beside the 3D view, plus a one-page PDF and
-   a share link. The Report never depends on 3D working.
+3. **Report.** The right half. "The documented history of this place." For a lot inside the
+   covered area: what stood there and when, what the records show about water and past land use,
+   what they cannot tell you, and who to talk to next. Also a one-page PDF and a share link. The
+   Report never depends on 3D working.
+
+## Past land use is the practical value
+
+Uses lettered on the plates (yards, works, factories, stables, shops) are recorded as read by a
+person, like material, and drive the "past land use" findings. This is what a buyer, renovator or
+neighbour would act on. "Buried screens; it doesn't certify" and the dig pointer stay.
 
 ## Who it is for
 
-- **Residents and buyers** (the face of the demo): what was on my street, and is anything worth
-  asking a professional about.
-- **Homeowners planning to dig:** what used to be there, and a pointer to request locates through
-  Ontario Dig Authority. Buried's maps are not utility locates.
+- **People who live in, are buying, or are about to dig into an old city block** (the face of the
+  demo): what was on my street, what the plans show was used here, and is anything worth asking a
+  professional about. For a dig, a pointer to request locates through Ontario Dig Authority.
+  Buried's maps are not utility locates.
 - **Heritage groups, museums, researchers:** the Studio, to rebuild their own neighbourhoods.
 - **Environmental and property professionals** (later): a faster first pass at historical research.
+
+## Kiro is part of the product
+
+The repository ships what a Kiro user needs to add a plate or a city: steering, hooks, the
+`archivist` and `plate-qa` agents, and an MCP server that answers "what do the records show at
+this address" from the evidence files. It reads the evidence files; it computes no dates, lot
+relations or confidence wording of its own.
 
 ## Showcase area and eras
 
@@ -54,9 +85,11 @@ submission). Tagline: "Forgotten maps, rebuilt with proof."
 ## Scope at submission
 
 Real, end to end:
+- Place page: search, dig and report on one screen, with the picture core sample.
 - Explorer: the showcase area, four eras, Dig, ghosts, Lantern, Show Evidence, Water remembers.
 - Studio: import, align, extract, review, publish, shown live on the held-out plate.
 - Report: any lot inside the coverage area, with coverage disclosure, PDF and share link.
+- Kiro kit: steering, hooks, the two agents and the evidence MCP server.
 - Story mode ("The Lost Marsh", industrial waterfront), built only after the three parts work.
   It needs its own sources. It never claims residential lots were marsh without evidence.
 
