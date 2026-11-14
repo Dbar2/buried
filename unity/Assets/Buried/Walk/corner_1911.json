@@ -1,0 +1,215 @@
+{
+  "plaques": [
+    {
+      "slug": "bank",
+      "feature_id": "bld_fip_v3_1911_229_0001",
+      "pos": [
+        13.812,
+        1.05,
+        121.5
+      ],
+      "facing": [
+        -0.2261,
+        0.0,
+        0.9741
+      ]
+    },
+    {
+      "slug": "overall-factory",
+      "feature_id": "bld_fip_v3_1911_229_0101",
+      "pos": [
+        -7.562,
+        1.05,
+        114.5
+      ],
+      "facing": [
+        -0.2983,
+        0.0,
+        0.9545
+      ]
+    },
+    {
+      "slug": "machine-shop",
+      "feature_id": "bld_fip_v3_1911_229_0102",
+      "pos": [
+        1.485,
+        1.05,
+        45.597
+      ],
+      "facing": [
+        0.6489,
+        0.0,
+        -0.7609
+      ]
+    }
+  ],
+  "lamps": [
+    {
+      "name": "marker_lamp_1",
+      "pos": [
+        -57.125,
+        3.8,
+        99.5
+      ]
+    },
+    {
+      "name": "marker_lamp_2",
+      "pos": [
+        -25.812,
+        3.8,
+        109.5
+      ]
+    },
+    {
+      "name": "marker_lamp_3",
+      "pos": [
+        3.188,
+        3.8,
+        118.5
+      ]
+    },
+    {
+      "name": "marker_lamp_4",
+      "pos": [
+        14.875,
+        3.8,
+        121.5
+      ]
+    },
+    {
+      "name": "marker_lamp_5",
+      "pos": [
+        23.0,
+        3.8,
+        95.5
+      ]
+    },
+    {
+      "name": "marker_lamp_6",
+      "pos": [
+        9.112,
+        3.8,
+        52.373
+      ]
+    }
+  ],
+  "refs": [
+    {
+      "name": "marker_ref_bank_ne",
+      "pos": [
+        13.802,
+        0.0,
+        117.168
+      ]
+    },
+    {
+      "name": "marker_ref_factory_n",
+      "pos": [
+        10.742,
+        0.0,
+        96.009
+      ]
+    },
+    {
+      "name": "marker_ref_origin",
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "hydrants": [
+    {
+      "name": "prop_hydrant_1",
+      "pos": [
+        18.062,
+        0.0,
+        145.0
+      ],
+      "from": "the plan's hydrant symbol"
+    },
+    {
+      "name": "prop_hydrant_2",
+      "pos": [
+        -29.0,
+        0.0,
+        17.0
+      ],
+      "from": "the plan's hydrant symbol"
+    }
+  ],
+  "spawn": {
+    "pos": [
+      -18.75,
+      0.0,
+      120.0
+    ],
+    "look_at": [
+      11.812,
+      1.6,
+      121.0
+    ]
+  },
+  "walk_bounds": [
+    [
+      -82.562,
+      109.0
+    ],
+    [
+      6.75,
+      137.0
+    ],
+    [
+      4.5,
+      144.5
+    ],
+    [
+      24.938,
+      151.0
+    ],
+    [
+      27.188,
+      143.5
+    ],
+    [
+      49.125,
+      150.5
+    ],
+    [
+      70.75,
+      82.0
+    ],
+    [
+      24.188,
+      41.5
+    ],
+    [
+      -17.75,
+      26.5
+    ],
+    [
+      -37.438,
+      89.0
+    ],
+    [
+      -72.688,
+      78.0
+    ]
+  ],
+  "axes": "pos is [east, up, north] in project-local metres (easting - E0, height, northing - N0); walk_bounds is [east, north]",
+  "origin": {
+    "easting": 632500,
+    "northing": 4835000
+  },
+  "source": "fip_v3_1911_229",
+  "imagined": [
+    "wall materials",
+    "windows and doors",
+    "sign paint and letterforms",
+    "lamps and poles",
+    "storey heights in metres",
+    "the fence on the north side of Queen Street"
+  ],
+  "textures": "Poly Haven (polyhaven.com), CC0"
+}
