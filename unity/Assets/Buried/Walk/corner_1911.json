@@ -211,5 +211,20 @@
     "storey heights in metres",
     "the fence on the north side of Queen Street"
   ],
+  "from_photographs": [
+    {
+      "what": "a Carhartt sign on the factory roof, facing the bridge",
+      "source": "City of Toronto Archives, Fonds 1231, Item 1625 (26 Oct 1911)"
+    },
+    {
+      "what": "the bank's lettered frieze under its cornice",
+      "source": "City of Toronto Archives, Fonds 1231, Item 509 (19 May 1915)"
+    },
+    {
+      "what": "setts between the rails, dirt roadway either side, concrete sidewalks",
+      "source": "City of Toronto Archives, Fonds 1231, Items 512 and 1625 (Oct 1911)"
+    }
+  ],
+  "date_note": "The plan is the 1911 edition revised to 1914. The City's heritage survey dates the bank to 1912, so this is the block about 1914.",
   "textures": "Poly Haven (polyhaven.com), CC0"
 }

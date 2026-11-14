@@ -95,7 +95,9 @@ def stone_fascia(text: str, size: tuple[int, int], fname: str) -> None:
 def main() -> None:
     os.makedirs(OUT, exist_ok=True)
     random.seed(0)
-    stone_fascia("BANK OF NOVA SCOTIA", (2048, 256), "sign_bank.png")
+    stone_fascia("THE BANK OF NOVA SCOTIA", (2048, 192), "sign_bank.png")
+    painted(["HAMILTON CARHARTT MANUFACTURER", "GLOVES AND OVERALLS"], (2048, 384), "sign_carhartt_roof.png",
+            ("Rockwell.ttc", 2), paint=(24, 26, 24), ink=(228, 218, 196), seed=13, wear_strength=0.25)
     painted(["HAMILTON CARHARTT MFR. LTD.", "GLOVE & OVERALL FACTORY"], (2048, 512), "sign_carhartt.png",
             ("Rockwell.ttc", 2), seed=5)
     painted(["WM. R. PERRIN & CO. LIMITED", "MACHINE SHOP"], (2048, 512), "sign_perrin.png",

@@ -154,7 +154,7 @@ def window_mat(name: str, png: str, emit_strength: float) -> bpy.types.Material:
 MAT: dict[str, bpy.types.Material] = {}
 SIZE = {  # real-world size of one texture tile, metres
     "brick_a": 1.0, "brick_b": 2.5, "road": 1.3, "yard": 1.3, "planks": 1.8, "roughcast": 1.0,
-    "clapboard": 1.57, "shed": 2.0, "stone": 2.16, "roof": 4.0, "iron": 1.0, "setts": 2.0,
+    "clapboard": 1.57, "shed": 2.0, "stone": 2.16, "roof": 4.0, "iron": 1.0, "setts": 2.0, "walk": 2.16,
 }
 
 
@@ -171,6 +171,7 @@ def make_materials() -> None:
     MAT["roof"] = pbr("roof", "roof_09")
     MAT["iron"] = pbr("iron", "rusty_metal_02")
     MAT["setts"] = pbr("setts", "cobblestone_floor_08", (0.42, 0.42, 0.44))
+    MAT["walk"] = pbr("walk", "concrete_wall_007", (0.55, 0.55, 0.55))
     MAT["frame"] = flat("frame", (0.035, 0.07, 0.05), rough=0.6)            # dark green window paint
     MAT["frame_light"] = flat("frame_light", (0.42, 0.38, 0.30), rough=0.6)  # cream paint
     MAT["door"] = flat("door", (0.06, 0.035, 0.022), rough=0.5)
@@ -193,6 +194,7 @@ def make_materials() -> None:
     MAT["wire"] = flat("wire", (0.012, 0.012, 0.012), rough=0.6)
     MAT["sign_bank"] = decal("sign_bank", "sign_bank.png")
     MAT["sign_carhartt"] = decal("sign_carhartt", "sign_carhartt.png")
+    MAT["sign_carhartt_roof"] = decal("sign_carhartt_roof", "sign_carhartt_roof.png")
     MAT["sign_perrin"] = decal("sign_perrin", "sign_perrin.png")
     MAT["sign_queen"] = decal("sign_queen", "sign_street_queen.png")
     MAT["sign_river"] = decal("sign_river", "sign_street_river.png")
@@ -422,9 +424,9 @@ def bays(L: float, pitch: float, margin: float) -> list[float]:
 
 STYLES = {
     # floors: (floor level, sill above floor, window height); ww window width; pitch bay spacing
-    "bank": dict(wall="brick_b", base=0.7, floors=[(0.7, 0.95, 2.5), (5.0, 0.9, 2.1)], top=9.3, roof=8.5, ww=1.25,
-                 pitch=2.85, margin=1.1, panes=(1, 2), frame="frame", cornice=True, course=True, lit=0.5,
-                 arch=0.2, pilasters=True, chimneys=2),
+    "bank": dict(wall="brick_b", base=0.7, floors=[(0.7, 0.95, 2.4), (4.7, 0.9, 1.9)], top=9.3, roof=8.5, ww=1.3,
+                 pitch=3.3, margin=1.0, panes=(1, 2), frame="frame", cornice=True, course=True, lit=0.55,
+                 arch=0.18, pilasters=True, chimneys=2, frieze=True),
     "factory": dict(wall="brick_b", base=1.0, floors=[(1.0, 1.0, 2.3), (5.0, 0.95, 2.1)], top=9.2, roof=8.5, ww=1.75,
                     pitch=3.15, margin=1.2, panes=(3, 4), frame="frame", cornice=True, course=True, lit=0.4,
                     basement=True, arch=0.28, pilasters=True, lit_mat="win_lit_factory", stack=True),
@@ -497,6 +499,8 @@ def building(name: str, ring: list[Vector], style_name: str, street_edges=None, 
             if st["course"] and len(st["floors"]) > 1:
                 zc = st["floors"][1][0] - 0.55
                 band(mb, a, b, zc, zc + 0.22, 0.06, "stone")
+            if st.get("frieze"):
+                band(mb, a, b, top - 1.45, top - 0.75, 0.115, "stone")
             if st["cornice"]:
                 band(mb, a, b, top - 0.75, top - 0.45, 0.22, "stone")
                 band(mb, a, b, top - 0.45, top - 0.30, 0.36, "stone")
@@ -716,11 +720,11 @@ def build_scene() -> dict:
     road.flat_face(ccw([P(-700, -700), P(4400, -700), P(4400, 4800), P(-700, 4800)]), 0.0, "road")
     road.build()
     slab("ground_yard", [P(1250, 358), P(2440, 358), P(2455, 372), P(2455, 955), P(1840, 1215), P(1250, 1300)], 0.0, 0.12, "yard", "stone")
-    slab("ground_walk_queen_south", [P(1250, 322), P(2455, 322), P(2455, 358), P(1250, 358)], 0.0, 0.15, "planks", "shed")
-    slab("ground_walk_river_west", [P(2455, 322), P(2491, 322), P(2491, 988), P(2455, 955)], 0.0, 0.151, "planks", "shed")
+    slab("ground_walk_queen_south", [P(1250, 322), P(2455, 322), P(2455, 358), P(1250, 358)], 0.0, 0.15, "walk", "stone")
+    slab("ground_walk_river_west", [P(2455, 322), P(2491, 322), P(2491, 988), P(2455, 955)], 0.0, 0.151, "walk", "stone")
     kd = (P(2455, 955) - P(1840, 1215)).normalized()
     kn = Vector((kd.y, -kd.x)) * (36 * 0.0838)
-    slab("ground_walk_king_north", [P(1840, 1215), P(1840, 1215) + kn, P(2455, 955) + kn, P(2455, 955)], 0.0, 0.149, "planks", "shed")
+    slab("ground_walk_king_north", [P(1840, 1215), P(1840, 1215) + kn, P(2455, 955) + kn, P(2455, 955)], 0.0, 0.149, "walk", "stone")
     slab("ground_walk_queen_north", [P(1250, 122), P(2440, 122), P(2440, 158), P(1250, 158)], 0.0, 0.15, "planks", "shed")
 
     rails = MB("rail_queen")
@@ -790,14 +794,31 @@ def build_scene() -> dict:
     lengths = [(bank[(i + 1) % len(bank)] - bank[i]).length for i in range(len(bank))]
     b_chamfer = min((i for i in range(len(bank))), key=lambda i: lengths[i])
     building("bld_bank", bank, "bank", street_edges={b_north, b_east, b_chamfer}, doors={b_chamfer: None})
-    sign_on("sign_bank_north", bank, b_north, "sign_bank", 8.6, 0.62, 4.45)
-    sign_on("sign_bank_east", bank, b_east, "sign_bank", 8.6, 0.62, 4.45)
+    sign_on("sign_bank_north", bank, b_north, "sign_bank", 7.6, 0.56, 8.2, out=0.125)
+    sign_on("sign_bank_east", bank, b_east, "sign_bank", 7.6, 0.56, 8.2, out=0.125)
 
     f_north = edge_facing(factory, P(2095, 318))
     f_east = edge_facing(factory, P(2370, 450))
     building("bld_factory", factory, "factory", street_edges=set(range(4)), doors={f_north: None})
     sign_on("sign_factory_north", factory, f_north, "sign_carhartt", 11.5, 1.25, 4.9)
-    sign_on("sign_factory_east", factory, f_east, "sign_carhartt", 13.5, 1.25, 4.9)
+    # The October 1911 photograph shows a sign on the roof, facing the bridge.
+    fa, fb = ccw(factory)[f_east], ccw(factory)[(f_east + 1) % 4]
+    fd = (fb - fa).normalized()
+    fn = Vector((fd.y, -fd.x))
+    roof_sign = MB("sign_factory_roof")
+    L_e = (fb - fa).length
+    u0s, u1s, z0s, z1s = L_e * 0.12, L_e * 0.88, 9.9, 12.3
+    for sgn, out in ((1, -0.9), (-1, -0.95)):
+        pa, pb = fa + fd * u0s + fn * out, fa + fd * u1s + fn * out
+        if sgn < 0:
+            pa, pb = pb, pa
+        roof_sign.face([v3(pa, z0s), v3(pb, z0s), v3(pb, z1s), v3(pa, z1s)], "sign_carhartt_roof" if sgn > 0 else "post",
+                       [(0, 0), (1, 0), (1, 1), (0, 1)])
+    for k in range(6):
+        c = fa + fd * (u0s + (u1s - u0s) * k / 5) + fn * (-0.93)
+        cylinder(roof_sign, c, 8.5, 12.3, 0.05, 0.05, "post", 4, cap=False)
+        cylinder(roof_sign, c + fn * (-1.4), 8.5, 8.6, 0.05, 0.05, "post", 4, cap=False)
+    roof_sign.build()
 
     m_south = edge_facing(machine, P(2075, 1235))
     building("bld_machine_shop", machine, "shop_brick", street_edges={m_south}, doors={m_south: None})
@@ -948,6 +969,12 @@ def build_scene() -> dict:
     manifest["source"] = "fip_v3_1911_229"
     manifest["imagined"] = ["wall materials", "windows and doors", "sign paint and letterforms", "lamps and poles",
                             "storey heights in metres", "the fence on the north side of Queen Street"]
+    manifest["from_photographs"] = [
+        {"what": "a Carhartt sign on the factory roof, facing the bridge", "source": "City of Toronto Archives, Fonds 1231, Item 1625 (26 Oct 1911)"},
+        {"what": "the bank's lettered frieze under its cornice", "source": "City of Toronto Archives, Fonds 1231, Item 509 (19 May 1915)"},
+        {"what": "setts between the rails, dirt roadway either side, concrete sidewalks", "source": "City of Toronto Archives, Fonds 1231, Items 512 and 1625 (Oct 1911)"},
+    ]
+    manifest["date_note"] = "The plan is the 1911 edition revised to 1914. The City's heritage survey dates the bank to 1912, so this is the block about 1914."
     manifest["textures"] = "Poly Haven (polyhaven.com), CC0"
     return manifest
 
