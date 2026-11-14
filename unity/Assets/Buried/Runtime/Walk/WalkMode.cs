@@ -106,6 +106,8 @@ namespace Buried.Walk
         {
             yield return new WaitForEndOfFrame();
             if (_world == null) yield break;
+            Debug.Log("[walk] screen " + Screen.width + "x" + Screen.height + ", camera pixels " + _camera.pixelWidth + "x" + _camera.pixelHeight
+                      + ", rect " + _camera.rect + ", safe area " + Screen.safeArea + ", dpi " + Screen.dpi);
             _bridge.Send(BridgeMessageTypes.WalkReady, new WalkReadyPayload());
             SendState(true);
         }

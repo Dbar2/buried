@@ -172,6 +172,16 @@ invent commands; when one is added, record it here.
     then the render. Do not commit `unity/Assets/Buried/Scenes/Bootstrap.unity` or the
     `ProjectSettings` files that `Setup.Run` touches. Rerun both generators when `data/finds.json`
     or the evidence changes, or `block.json` keeps stale anchors.
+  - The walk test (spec 07, session 049; the page is `/walk`, linked from nowhere; bridge 0.9.0). The corner is
+    `unity/Assets/Buried/Walk/corner_1911.glb` (made in Blender by `tools/blender/corner_1911.py`, not committed by
+    the builder) with `corner_1911.json`. `tools/unity.sh exec Buried.Editor.Setup.Run` imports it (glTFast,
+    `com.unity.cloud.gltfast`), places it on the manifest and writes the prefab and `WalkAsset` under
+    `unity/Assets/Buried/Walk/Generated/` (gitignored); `tools/unity.sh exec Buried.Editor.WalkInspect.Dump`
+    writes the model's node list to `data/work/walk/inspect.txt`; `tools/unity.sh exec Buried.Editor.WalkStill.Render`
+    (graphics, like `Still.Render`) writes five 1600 by 1000 stills to `data/work/walk/`. From `web/`, after
+    `npm run build`: `npx playwright test -c playwright.walk.config.ts` (own `vite preview` on port 4177, a GPU
+    Chromium; writes `e2e/output/walk-*.png` and `walk-frame-times.json`). `/walk?debug=1` adds a teleport box and a
+    pose read-out for the test.
 - Pipeline (spec 02), all run from `pipeline/`:
   - Environment: `uv sync` (Python 3.12).
   - Tests: `uv run pytest`. Lint: `uv run ruff check .`.

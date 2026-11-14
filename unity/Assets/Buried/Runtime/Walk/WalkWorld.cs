@@ -15,6 +15,8 @@ namespace Buried.Walk
     {
         /// <summary>The URP renderer the walk draws with (Forward+, so every lamp and the lantern light each pixel).</summary>
         public const int WalkRendererIndex = 1;
+        /// <summary>A layer of its own for the lantern in the hand, so the lantern's light does not wash it out.</summary>
+        public const int LanternLayer = 8;
 
         public GameObject Root;
         public GameObject Model;
@@ -28,6 +30,8 @@ namespace Buried.Walk
         public bool ReducedMotion;
 
         private Transform _cameraParent;
+        private float _oldNear;
+        private float _oldFar;
         private bool _oldFog;
         private FogMode _oldFogMode;
         private Color _oldFogColor;
@@ -96,6 +100,11 @@ namespace Buried.Walk
             RenderSettings.ambientLight = WalkSettings.AmbientColor;
             Camera.clearFlags = CameraClearFlags.SolidColor;
             Camera.backgroundColor = WalkSettings.FogColor;
+            // The Block camera looks from hundreds of metres and keeps a near plane of metres; the walk looks at a wall 0.3 m away.
+            _oldNear = Camera.nearClipPlane;
+            _oldFar = Camera.farClipPlane;
+            Camera.nearClipPlane = WalkSettings.NearClipM;
+            Camera.farClipPlane = WalkSettings.FarClipM;
 
             var moonObject = new GameObject("Moon");
             moonObject.transform.SetParent(Root.transform, false);
@@ -167,13 +176,32 @@ namespace Buried.Walk
             Transform hand;
             if (WalkPlacement.Index(Model.transform).TryGetValue(WalkPlacement.HandLanternName, out hand))
             {
+                // The lantern's vertices are modelled where the Blender object stood, not at its node origin, so its
+                // middle is found first and the node is set so that the middle sits on the pivot (the brief's offset
+                // is where the lantern hangs in the view).
+                Bounds bounds = new Bounds(hand.position, Vector3.zero);
+                bool any = false;
+                foreach (Renderer r in hand.GetComponentsInChildren<Renderer>(true))
+                {
+                    if (!any) bounds = r.bounds;
+                    else bounds.Encapsulate(r.bounds);
+                    any = true;
+                }
+                Vector3 centreLocal = any ? hand.InverseTransformPoint(bounds.center) : Vector3.zero;
                 hand.SetParent(LanternPivot, false);
-                hand.localPosition = Vector3.zero;
                 hand.localRotation = Quaternion.identity;
+                hand.localScale = hand.localScale * WalkSettings.LanternScale;
+                hand.localPosition = -centreLocal * WalkSettings.LanternScale;
                 foreach (Renderer r in hand.GetComponentsInChildren<Renderer>(true))
                 {
                     r.shadowCastingMode = ShadowCastingMode.Off;
                     r.receiveShadows = false;
+                    r.gameObject.layer = LanternLayer; // the lantern's own light skips it, so the glass is not blown out
+                    foreach (Material material in r.materials)
+                    {
+                        // Its glass and flame are emissive; at 0.6 m, with bloom, they wash out to white, so they are held down.
+                        if (material.HasProperty("emissiveFactor")) material.SetColor("emissiveFactor", material.GetColor("emissiveFactor") * WalkSettings.LanternGlow);
+                    }
                 }
             }
             else
@@ -183,13 +211,14 @@ namespace Buried.Walk
 
             var lightObject = new GameObject("LanternLight");
             lightObject.transform.SetParent(LanternPivot, false);
-            lightObject.transform.localPosition = new Vector3(0f, -0.14f, 0f);
+            lightObject.transform.localPosition = new Vector3(0f, 0.06f, -0.12f);
             Lantern = lightObject.AddComponent<Light>();
             Lantern.type = LightType.Point;
             Lantern.color = WalkSettings.LanternColor;
             Lantern.intensity = WalkSettings.LanternIntensity;
             Lantern.range = WalkSettings.LanternRangeM;
             Lantern.shadows = LightShadows.None;
+            Lantern.cullingMask = ~(1 << LanternLayer);
         }
 
         /// <summary>The road is wet: its roughness is capped, so the lamps and the lantern leave streaks on it (requirement 4.4).</summary>
@@ -280,6 +309,8 @@ namespace Buried.Walk
             {
                 Camera.clearFlags = _oldClear;
                 Camera.backgroundColor = _oldBackground;
+                Camera.nearClipPlane = _oldNear;
+                Camera.farClipPlane = _oldFar;
                 Camera.transform.SetParent(_cameraParent, false);
                 Camera.GetUniversalAdditionalCameraData().SetRenderer(_oldRenderer);
             }

@@ -27,9 +27,10 @@ case "$MODE" in
   exec)
     METHOD="${2:?usage: tools/unity.sh exec <Namespace.Class.Method>}"
     LOG="$PROJECT/Logs/exec.log"
-    # Buried.Editor.Still.Render draws pictures, so it needs a graphics device; every other method runs headless.
+    # Buried.Editor.Still.Render and WalkStill.Render draw pictures, so they need a graphics device; every other method runs headless.
     GRAPHICS="-nographics"
     [ "$METHOD" = "Buried.Editor.Still.Render" ] && GRAPHICS=""
+    [ "$METHOD" = "Buried.Editor.WalkStill.Render" ] && GRAPHICS=""
     "$UNITY_BIN" -batchmode $GRAPHICS -quit -projectPath "$PROJECT" -executeMethod "$METHOD" \
       -logFile "$LOG" < /dev/null
     CODE=$? ;;
