@@ -74,14 +74,27 @@ def _img(path: str, colorspace: str):
     return img
 
 
-def pbr(name: str, tex_id: str) -> bpy.types.Material:
+def pbr(name: str, tex_id: str, tint=None) -> bpy.types.Material:
     m = bpy.data.materials.new(name)
     m.use_nodes = True
     nt = m.node_tree
     bsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
     col = nt.nodes.new("ShaderNodeTexImage")
     col.image = _img(os.path.join(TEX, f"{tex_id}_col_1k.jpg"), "sRGB")
-    nt.links.new(col.outputs["Color"], bsdf.inputs["Base Color"])
+    if tint is None:
+        nt.links.new(col.outputs["Color"], bsdf.inputs["Base Color"])
+    else:
+        mix = nt.nodes.new("ShaderNodeMix")
+        mix.data_type = "RGBA"
+        mix.blend_type = "MULTIPLY"
+        fac = next(i for i in mix.inputs if i.identifier == "Factor_Float")
+        a_in = next(i for i in mix.inputs if i.identifier == "A_Color")
+        b_in = next(i for i in mix.inputs if i.identifier == "B_Color")
+        res = next(o for o in mix.outputs if o.identifier == "Result_Color")
+        fac.default_value = 1.0
+        b_in.default_value = (*tint, 1.0)
+        nt.links.new(col.outputs["Color"], a_in)
+        nt.links.new(res, bsdf.inputs["Base Color"])
     rough = nt.nodes.new("ShaderNodeTexImage")
     rough.image = _img(os.path.join(TEX, f"{tex_id}_rough_1k.jpg"), "Non-Color")
     nt.links.new(rough.outputs["Color"], bsdf.inputs["Roughness"])
@@ -123,18 +136,33 @@ def decal(name: str, png: str) -> bpy.types.Material:
     return m
 
 
+def window_mat(name: str, png: str, emit_strength: float) -> bpy.types.Material:
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    bsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+    tex = nt.nodes.new("ShaderNodeTexImage")
+    tex.image = _img(os.path.join(TEX, "windows", png), "sRGB")
+    nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+    bsdf.inputs["Roughness"].default_value = 0.12 if emit_strength == 0 else 0.4
+    if emit_strength > 0:
+        nt.links.new(tex.outputs["Color"], bsdf.inputs["Emission Color"])
+        bsdf.inputs["Emission Strength"].default_value = emit_strength
+    return m
+
+
 MAT: dict[str, bpy.types.Material] = {}
 SIZE = {  # real-world size of one texture tile, metres
     "brick_a": 1.0, "brick_b": 2.5, "road": 1.3, "yard": 1.3, "planks": 1.8, "roughcast": 1.0,
-    "clapboard": 1.57, "shed": 2.0, "stone": 2.16, "roof": 4.0, "iron": 1.0,
+    "clapboard": 1.57, "shed": 2.0, "stone": 2.16, "roof": 4.0, "iron": 1.0, "setts": 2.0,
 }
 
 
 def make_materials() -> None:
     MAT["brick_a"] = pbr("brick_a", "red_brick_03")
     MAT["brick_b"] = pbr("brick_b", "red_bricks_04")
-    MAT["road"] = pbr("road", "brown_mud_03")
-    MAT["yard"] = pbr("yard", "brown_mud_03")
+    MAT["road"] = pbr("road", "brown_mud_03", (0.62, 0.60, 0.58))
+    MAT["yard"] = pbr("yard", "brown_mud_03", (0.45, 0.42, 0.38))
     MAT["planks"] = pbr("planks", "weathered_brown_planks")
     MAT["roughcast"] = pbr("roughcast", "white_plaster_02")
     MAT["clapboard"] = pbr("clapboard", "weathered_plank_siding")
@@ -142,6 +170,7 @@ def make_materials() -> None:
     MAT["stone"] = pbr("stone", "concrete_wall_007")
     MAT["roof"] = pbr("roof", "roof_09")
     MAT["iron"] = pbr("iron", "rusty_metal_02")
+    MAT["setts"] = pbr("setts", "cobblestone_floor_08", (0.42, 0.42, 0.44))
     MAT["frame"] = flat("frame", (0.035, 0.07, 0.05), rough=0.6)            # dark green window paint
     MAT["frame_light"] = flat("frame_light", (0.42, 0.38, 0.30), rough=0.6)  # cream paint
     MAT["door"] = flat("door", (0.06, 0.035, 0.022), rough=0.5)
@@ -155,6 +184,13 @@ def make_materials() -> None:
     MAT["hydrant"] = flat("hydrant", (0.28, 0.035, 0.025), rough=0.5, metal=0.2)
     MAT["flame"] = flat("flame", (1.0, 0.7, 0.3), rough=0.5, emit=(1.0, 0.62, 0.22), emit_strength=14.0)
     MAT["lantern_glass"] = flat("lantern_glass", (0.9, 0.8, 0.6), rough=0.1, emit=(1.0, 0.66, 0.28), emit_strength=1.6, alpha=0.35)
+    for k in ("a", "b", "c"):
+        MAT[f"win_lit_{k}"] = window_mat(f"win_lit_{k}", f"win_lit_{k}.png", 1.6)
+    MAT["win_lit_factory"] = window_mat("win_lit_factory", "win_lit_factory.png", 1.4)
+    MAT["win_dark_a"] = window_mat("win_dark_a", "win_dark_a.png", 0.0)
+    MAT["win_dark_b"] = window_mat("win_dark_b", "win_dark_b.png", 0.0)
+    MAT["puddle"] = flat("puddle", (0.010, 0.013, 0.016), rough=0.03)
+    MAT["wire"] = flat("wire", (0.012, 0.012, 0.012), rough=0.6)
     MAT["sign_bank"] = decal("sign_bank", "sign_bank.png")
     MAT["sign_carhartt"] = decal("sign_carhartt", "sign_carhartt.png")
     MAT["sign_perrin"] = decal("sign_perrin", "sign_perrin.png")
@@ -258,6 +294,41 @@ def quad_on(mb: MB, a: Vector, d: Vector, n: Vector, u0, u1, z0, z1, depth: floa
     mb.face([v3(pa, z0), v3(pb, z0), v3(pb, z1), v3(pa, z1)], mat, uv)
 
 
+def pick_glass(o: dict) -> str:
+    if o.get("lit"):
+        return o.get("lit_mat") or random.choice(("win_lit_a", "win_lit_b", "win_lit_c"))
+    return random.choice(("win_dark_a", "win_dark_b"))
+
+
+def arch_head(mb: MB, a: Vector, d: Vector, n: Vector, u0, u1, z1, rise, wall_mat: str, band_mat: str) -> None:
+    """Fills the top corners of a rectangular opening so its head reads as a segmental arch, and
+    lays a band of voussoirs over it."""
+    s = SIZE.get(wall_mat, 1.0)
+    steps = 8
+    arc = []
+    for k in range(steps + 1):
+        t = k / steps
+        arc.append((u0 + (u1 - u0) * t, z1 - rise * (2 * t - 1) ** 2))
+    half = steps // 2
+    for side in (0, 1):
+        pts = arc[: half + 1] if side == 0 else arc[half:]
+        corner = (u0, z1) if side == 0 else (u1, z1)
+        poly = ([corner] + pts) if side == 0 else (pts + [corner])
+        pts3 = [v3(a + d * u + n * 0.004, z) for u, z in poly]
+        uvs = [(u / s, z / s) for u, z in poly]
+        # Keep the outward winding (counter-clockwise seen from outside: u right, z up).
+        area = sum(poly[i][0] * poly[(i + 1) % len(poly)][1] - poly[(i + 1) % len(poly)][0] * poly[i][1] for i in range(len(poly)))
+        if area < 0:
+            pts3.reverse(); uvs.reverse()
+        mb.face(pts3, wall_mat, uvs)
+    thick = 0.25
+    for k in range(steps):
+        (ua, za), (ub, zb) = arc[k], arc[k + 1]
+        pa, pb = a + d * (ua - 0.0) + n * 0.014, a + d * ub + n * 0.014
+        mb.face([v3(pa, za), v3(pb, zb), v3(pb, zb + thick), v3(pa, za + thick)], band_mat,
+                [(k / steps, 0), ((k + 1) / steps, 0), ((k + 1) / steps, 0.12), (k / steps, 0.12)])
+
+
 def opening(mb: MB, a: Vector, d: Vector, n: Vector, o: dict, wall_mat: str) -> None:
     u0, u1, z0, z1 = o["u0"], o["u1"], o["z0"], o["z1"]
     kind = o.get("kind", "window")
@@ -274,18 +345,20 @@ def opening(mb: MB, a: Vector, d: Vector, n: Vector, o: dict, wall_mat: str) -> 
     if kind == "door":
         transom = min(0.55, (z1 - z0) * 0.2)
         quad_on(mb, a, d, n, u0, u1, z0, z1 - transom, -depth, "door")
-        quad_on(mb, a, d, n, u0, u1, z1 - transom, z1, -depth, "glass_lit" if o.get("lit") else "glass_dark")
+        quad_on(mb, a, d, n, u0, u1, z1 - transom, z1, -depth, "glass_lit" if o.get("lit") else "win_dark_a")
         quad_on(mb, a, d, n, u0, u1, z1 - transom - 0.04, z1 - transom + 0.04, -depth + 0.02, frame)
         if u1 - u0 > 1.3:  # double door: a centre stile
             um = (u0 + u1) / 2
             quad_on(mb, a, d, n, um - 0.03, um + 0.03, z0, z1 - transom, -depth + 0.02, frame)
-        # A stone step.
-        step_a, step_b = a + d * (u0 - 0.15) + n * 0.45, a + d * (u1 + 0.15) + n * 0.45
-        base_a, base_b = a + d * (u0 - 0.15), a + d * (u1 + 0.15)
-        mb.face([v3(base_a, z0), v3(base_b, z0), v3(step_b, z0), v3(step_a, z0)], "stone", [(0, 0), (1, 0), (1, 0.3), (0, 0.3)])
-        mb.face([v3(step_a, 0.15), v3(step_b, 0.15), v3(step_b, z0), v3(step_a, z0)], "stone", [(0, 0), (1, 0), (1, 0.1), (0, 0.1)])
+        # A stone stoop: a landing at the door and as many steps as the floor height needs.
+        risers = max(1, math.ceil((z0 - 0.15) / 0.19))
+        rise = (z0 - 0.15) / risers
+        for k in range(risers):
+            top_z = z0 - k * rise
+            out1 = 0.55 + k * 0.30
+            oriented_box(mb, a, d, n, u0 - 0.2 - (0.0 if k else 0.0), u1 + 0.2, 0.06, out1, 0.15, top_z, "stone")
     else:
-        glass = "glass_lit" if o.get("lit") else "glass_dark"
+        glass = pick_glass(o)
         if kind == "shop":
             bulk = 0.55
             quad_on(mb, a, d, n, u0, u1, z0, z0 + bulk, -depth, "door")
@@ -312,8 +385,20 @@ def opening(mb: MB, a: Vector, d: Vector, n: Vector, o: dict, wall_mat: str) -> 
             ta, tb = sa + n * 0.09, sb + n * 0.09
             mb.face([v3(ta, z0 - 0.11), v3(tb, z0 - 0.11), v3(tb, z0), v3(ta, z0)], "stone", [(0, 0), (1, 0), (1, 0.06), (0, 0.06)])
             mb.face([v3(ta, z0), v3(tb, z0), v3(sb, z0), v3(sa, z0)], "stone", [(0, 0), (1, 0), (1, 0.06), (0, 0.06)])
-    if o.get("lintel", True):
+    if o.get("arch"):
+        arch_head(mb, a, d, n, u0, u1, z1, o["arch"], wall_mat, "stone")
+    elif o.get("lintel", True):
         quad_on(mb, a, d, n, u0 - 0.12, u1 + 0.12, z1, z1 + 0.26, 0.012, "stone", [(0, 0), (1.5, 0), (1.5, 0.15), (0, 0.15)])
+
+
+def oriented_box(mb: MB, a: Vector, d: Vector, n: Vector, u0, u1, out0, out1, z0, z1, mat: str) -> None:
+    """A box standing against a wall: top, front and both ends (the back is against the wall)."""
+    p = [a + d * u0 + n * out0, a + d * u1 + n * out0, a + d * u1 + n * out1, a + d * u0 + n * out1]
+    w, dp, h = (u1 - u0) / 2.0, (out1 - out0) / 2.0, (z1 - z0) / 2.0
+    mb.face([v3(p[3], z1), v3(p[2], z1), v3(p[1], z1), v3(p[0], z1)], mat, [(0, 0), (w, 0), (w, dp), (0, dp)])
+    mb.face([v3(p[3], z0), v3(p[2], z0), v3(p[2], z1), v3(p[3], z1)], mat, [(0, 0), (w, 0), (w, h), (0, h)])
+    mb.face([v3(p[0], z0), v3(p[3], z0), v3(p[3], z1), v3(p[0], z1)], mat, [(0, 0), (dp, 0), (dp, h), (0, h)])
+    mb.face([v3(p[2], z0), v3(p[1], z0), v3(p[1], z1), v3(p[2], z1)], mat, [(0, 0), (dp, 0), (dp, h), (0, h)])
 
 
 def band(mb: MB, a: Vector, b: Vector, z0: float, z1: float, out: float, mat: str) -> None:
@@ -337,18 +422,24 @@ def bays(L: float, pitch: float, margin: float) -> list[float]:
 
 STYLES = {
     # floors: (floor level, sill above floor, window height); ww window width; pitch bay spacing
-    "bank": dict(wall="brick_a", base=0.7, floors=[(0.7, 0.95, 2.5), (5.0, 0.9, 2.1)], top=9.3, roof=8.5, ww=1.25,
-                 pitch=2.85, margin=1.1, panes=(1, 2), frame="frame", cornice=True, course=True, lit=0.45),
+    "bank": dict(wall="brick_b", base=0.7, floors=[(0.7, 0.95, 2.5), (5.0, 0.9, 2.1)], top=9.3, roof=8.5, ww=1.25,
+                 pitch=2.85, margin=1.1, panes=(1, 2), frame="frame", cornice=True, course=True, lit=0.5,
+                 arch=0.2, pilasters=True, chimneys=2),
     "factory": dict(wall="brick_b", base=1.0, floors=[(1.0, 1.0, 2.3), (5.0, 0.95, 2.1)], top=9.2, roof=8.5, ww=1.75,
-                    pitch=3.15, margin=1.2, panes=(3, 4), frame="frame", cornice=True, course=True, lit=0.35,
-                    basement=True),
-    "shop_brick": dict(wall="brick_b", base=0.4, floors=[(0.4, 1.0, 2.0), (4.4, 0.9, 1.9)], top=8.2, roof=7.6, ww=2.1,
-                       pitch=3.5, margin=1.3, panes=(3, 3), frame="frame", cornice=False, course=True, lit=0.25),
+                    pitch=3.15, margin=1.2, panes=(3, 4), frame="frame", cornice=True, course=True, lit=0.4,
+                    basement=True, arch=0.28, pilasters=True, lit_mat="win_lit_factory", stack=True),
+    "shop_brick": dict(wall="brick_a", base=0.4, floors=[(0.4, 1.0, 2.0), (4.4, 0.9, 1.9)], top=8.2, roof=7.6, ww=2.1,
+                       pitch=3.5, margin=1.3, panes=(3, 3), frame="frame", cornice=False, course=True, lit=0.3,
+                       arch=0.3, pilasters=True, lit_mat="win_lit_factory", stack=True),
     "row_brick": dict(wall="brick_a", base=0.3, floors=[(0.3, 0.9, 1.7), (3.5, 0.85, 1.6)], top=7.0, roof=6.5, ww=1.05,
-                      pitch=2.45, margin=0.9, panes=(1, 2), frame="frame_light", cornice=True, course=False, lit=0.3),
-    "row_roughcast": dict(wall="roughcast", base=0.3, floors=[(0.3, 0.9, 1.6), (3.3, 0.85, 1.5)], top=6.6, roof=6.2,
+                      pitch=2.45, margin=0.9, panes=(1, 2), frame="frame_light", cornice=True, course=False, lit=0.35,
+                      arch=0.14, chimneys=3),
+    "row_roughcast": dict(wall="roughcast", base=0.3, floors=[(0.3, 0.9, 1.6), (3.3, 0.85, 1.5)], top=5.9, roof=5.9,
                           ww=0.95, pitch=2.5, margin=0.8, panes=(1, 2), frame="frame", cornice=False, course=False,
-                          lit=0.3, trim=False),
+                          lit=0.35, trim=False, gable=True, chimneys=2),
+    "house_clapboard": dict(wall="clapboard", base=0.3, floors=[(0.3, 0.9, 1.5), (3.1, 0.8, 1.4)], top=5.5, roof=5.5,
+                            ww=0.9, pitch=2.4, margin=0.7, panes=(1, 2), frame="frame_light", cornice=False,
+                            course=False, lit=0.3, trim=False, gable=True, chimneys=1),
     "shed": dict(wall="shed", base=0.0, floors=[], top=3.0, roof=2.9, ww=0, pitch=99, margin=0, panes=(1, 1),
                  frame="frame", cornice=False, course=False, lit=0.0),
 }
@@ -392,7 +483,7 @@ def building(name: str, ring: list[Vector], style_name: str, street_edges=None, 
                     ww = st["ww"]
                     ops.append(dict(u0=c - ww / 2, u1=c + ww / 2, z0=zf + sill, z1=zf + sill + wh, kind="window", lit=lit,
                                     panes=st["panes"], frame=st["frame"], trim=st.get("trim", True),
-                                    lintel=st.get("trim", True)))
+                                    lintel=st.get("trim", True), arch=st.get("arch"), lit_mat=st.get("lit_mat")))
                 if s == 0 and st.get("basement") and i in street:
                     for c in centres:
                         ops.append(dict(u0=c - st["ww"] / 2, u1=c + st["ww"] / 2, z0=0.28, z1=0.78, kind="window", lit=False,
@@ -410,12 +501,77 @@ def building(name: str, ring: list[Vector], style_name: str, street_edges=None, 
                 band(mb, a, b, top - 0.75, top - 0.45, 0.22, "stone")
                 band(mb, a, b, top - 0.45, top - 0.30, 0.36, "stone")
             band(mb, a, b, top - 0.06, top + 0.06, 0.05, "stone")
-    mb.flat_face(ring, st["roof"], "roof")
+        if st.get("pilasters") and i in street and i not in plain_edges and L > 4.0:
+            centres = bays(L, st["pitch"], st["margin"])
+            start = centres[0] - st["pitch"] / 2
+            d_ = (b - a).normalized()
+            n_ = Vector((d_.y, -d_.x))
+            for k in range(len(centres) + 1):
+                u = max(0.28, min(L - 0.28, start + st["pitch"] * k))
+                pilaster(mb, a + d_ * u, d_, n_, 0.0, top - 0.75, wm)
+    if st.get("gable") and n == 4:
+        gable_roof(mb, ring, st["roof"], wm)
+    else:
+        mb.flat_face(ring, st["roof"], "roof")
+    for k in range(st.get("chimneys", 0)):
+        t = (k + 0.5) / st["chimneys"]
+        longest = max(range(n), key=lambda i: (ring[(i + 1) % n] - ring[i]).length)
+        a, b = ring[longest], ring[(longest + 1) % n]
+        d_ = (b - a).normalized()
+        inward = Vector((-d_.y, d_.x))
+        c = a + (b - a) * t + inward * 1.2
+        zc = st["roof"] + (1.6 if st.get("gable") else 0.0)
+        mb.box((c.x - 0.32, c.y - 0.42, st["roof"] - 0.2), (c.x + 0.32, c.y + 0.42, zc + 1.5), "brick_a")
+        mb.box((c.x - 0.38, c.y - 0.48, zc + 1.5), (c.x + 0.38, c.y + 0.48, zc + 1.62), "stone")
+    if st.get("stack"):
+        c = sum(ring, Vector((0.0, 0.0))) / n
+        far = max(ring, key=lambda q: (q - Vector((10.0, 115.0))).length)
+        c = c + (far - c) * 0.72
+        cylinder(mb, c, st["roof"] - 0.2, st["roof"] + 6.5, 0.62, 0.46, "brick_a", 10)
     return mb.build()
 
 
+def pilaster(mb: MB, at: Vector, d: Vector, n: Vector, z0: float, z1: float, mat: str, width=0.46, out=0.10) -> None:
+    s = SIZE.get(mat, 1.0)
+    l, r = at - d * (width / 2), at + d * (width / 2)
+    fl, fr = l + n * out, r + n * out
+    mb.face([v3(fl, z0), v3(fr, z0), v3(fr, z1), v3(fl, z1)], mat, [(0, z0 / s), (width / s, z0 / s), (width / s, z1 / s), (0, z1 / s)])
+    mb.face([v3(l, z0), v3(fl, z0), v3(fl, z1), v3(l, z1)], mat, [(0, z0 / s), (out / s, z0 / s), (out / s, z1 / s), (0, z1 / s)])
+    mb.face([v3(fr, z0), v3(r, z0), v3(r, z1), v3(fr, z1)], mat, [(0, z0 / s), (out / s, z0 / s), (out / s, z1 / s), (0, z1 / s)])
+    mb.face([v3(fl, z1), v3(fr, z1), v3(r, z1), v3(l, z1)], "stone", [(0, 0), (0.3, 0), (0.3, 0.1), (0, 0.1)])
+
+
+def gable_roof(mb: MB, ring: list[Vector], eave_z: float, wall_mat: str, pitch_deg=36.0, overhang=0.35) -> None:
+    """A pitched roof on a four-sided footprint, ridge along the longer axis."""
+    e = [(ring[(i + 1) % 4] - ring[i]).length for i in range(4)]
+    i0 = 0 if e[0] + e[2] >= e[1] + e[3] else 1          # long edges are i0 and i0 + 2
+    a, b, c, d = ring[i0], ring[(i0 + 1) % 4], ring[(i0 + 2) % 4], ring[(i0 + 3) % 4]
+    span = ((d - a).length + (c - b).length) / 2
+    rise = math.tan(math.radians(pitch_deg)) * span / 2
+    r0, r1 = (a + d) / 2, (b + c) / 2                      # ridge ends
+    along = (b - a).normalized()
+    out_ab = Vector((along.y, -along.x))
+    s = SIZE["roof"]
+    ridge_z = eave_z + rise
+    for (p, q, sign) in ((a, b, 1.0), (c, d, 1.0)):
+        dirn = (q - p).normalized()
+        nrm = Vector((dirn.y, -dirn.x))
+        pe, qe = p + nrm * overhang - dirn * overhang, q + nrm * overhang + dirn * overhang
+        rp = (r0 if (p - a).length < 1e-6 else r1) - dirn * overhang
+        rq = (r1 if (p - a).length < 1e-6 else r0) + dirn * overhang
+        drop = math.tan(math.radians(pitch_deg)) * overhang
+        L = (qe - pe).length
+        slope = math.hypot(span / 2 + overhang, rise + drop)
+        mb.face([v3(pe, eave_z - drop), v3(qe, eave_z - drop), v3(rq, ridge_z), v3(rp, ridge_z)], "roof",
+                [(0, 0), (L / s, 0), (L / s, slope / s), (0, slope / s)])
+    sw = SIZE.get(wall_mat, 1.0)
+    for (p, q, r) in ((b, c, r1), (d, a, r0)):                # gable ends
+        mb.face([v3(p, eave_z), v3(q, eave_z), v3(r, ridge_z)], wall_mat,
+                [(0, eave_z / sw), ((q - p).length / sw, eave_z / sw), ((q - p).length / 2 / sw, ridge_z / sw)])
+
+
 def sign_on(name: str, ring: list[Vector], edge: int, mat: str, width: float, height: float, z_centre: float,
-            u_centre: float | None = None, out=0.035) -> bpy.types.Object:
+            u_centre: float | None = None, out=0.13) -> bpy.types.Object:
     ring = ccw(ring)
     a, b = ring[edge], ring[(edge + 1) % len(ring)]
     L = (b - a).length
@@ -557,7 +713,7 @@ def build_scene() -> dict:
 
     # Ground. Tile pixels: Queen's south lot line is y = 358, its north side y = 122 (66 ft).
     road = MB("ground_road")
-    road.flat_face(ccw([P(1100, -120), P(3250, -120), P(3250, 1520), P(1100, 1520)]), 0.0, "road")
+    road.flat_face(ccw([P(-700, -700), P(4400, -700), P(4400, 4800), P(-700, 4800)]), 0.0, "road")
     road.build()
     slab("ground_yard", [P(1250, 358), P(2440, 358), P(2455, 372), P(2455, 955), P(1840, 1215), P(1250, 1300)], 0.0, 0.12, "yard", "stone")
     slab("ground_walk_queen_south", [P(1250, 322), P(2455, 322), P(2455, 358), P(1250, 358)], 0.0, 0.15, "planks", "shed")
@@ -569,7 +725,7 @@ def build_scene() -> dict:
 
     rails = MB("rail_queen")
     for cy in (211, 229, 251, 269):
-        a, b = P(1100, cy), P(3250, cy)
+        a, b = P(-300, cy), P(4000, cy)
         d = (b - a).normalized()
         n = Vector((d.y, -d.x)) * 0.03
         ring = ccw([a + n, b + n, b - n, a - n])
@@ -577,6 +733,31 @@ def build_scene() -> dict:
         for i in range(4):
             wall(rails, ring[i], ring[(i + 1) % 4], 0.0, 0.035, "rail")
     rails.build()
+
+    # Setts between the rails, and standing water on the road (Unity gives it the shine).
+    setts = MB("ground_track_bed")
+    setts.flat_face(ccw([P(-300, 200), P(4000, 200), P(4000, 280), P(-300, 280)]), 0.012, "setts")
+    setts.build()
+    puddles = MB("puddles")
+    rng = random.Random(7)
+    placed = 0
+    while placed < 34:
+        px, py = rng.uniform(1350, 2950), rng.uniform(135, 1250)
+        on_queen = 135 < py < 318 and px < 3000
+        on_junction = 2500 < px < 2950 and 135 < py < 950
+        if not (on_queen or on_junction):
+            continue
+        c = P(px, py)
+        rx, ry, rot = rng.uniform(0.5, 2.3), rng.uniform(0.35, 1.2), rng.uniform(0, math.pi)
+        ring = []
+        for k in range(12):
+            ang = 2 * math.pi * k / 12
+            r = 1.0 + 0.22 * math.sin(ang * 3 + rng.uniform(0, 6))
+            x, y = rx * r * math.cos(ang), ry * r * math.sin(ang)
+            ring.append(Vector((c.x + x * math.cos(rot) - y * math.sin(rot), c.y + x * math.sin(rot) + y * math.cos(rot))))
+        puddles.flat_face(ccw(ring), 0.016, "puddle")
+        placed += 1
+    puddles.build()
 
     fence = MB("fence_queen_north")
     wall(fence, P(2440, 122), P(1330, 122), 0.15, 2.6, "shed")
@@ -633,6 +814,41 @@ def build_scene() -> dict:
     for fid in ("0028", "0017", "0063", "0082"):
         building(f"bld_shed_{fid}", feature_ring(f"bld_fip_v3_1911_229_{fid}"), "shed")
 
+    # The rest of the block, from the evidence file, as plainer buildings that fade into the fog.
+    explicit = [bank, factory, machine, row_a, row_b, king538] + [feature_ring(f"bld_fip_v3_1911_229_{f}") for f in ("0013", "0028", "0017", "0063", "0082")]
+
+    def inside(pt: Vector, ring) -> bool:
+        c = False
+        for i in range(len(ring)):
+            a_, b_ = ring[i], ring[(i + 1) % len(ring)]
+            if (a_.y > pt.y) != (b_.y > pt.y) and pt.x < (b_.x - a_.x) * (pt.y - a_.y) / (b_.y - a_.y) + a_.x:
+                c = not c
+        return c
+
+    count = 0
+    for fid, f in EVIDENCE.items():
+        pr = f["properties"]
+        if pr["kind"] != "building" or pr["status"] != "published" or f["geometry"]["type"] != "Polygon":
+            continue
+        ring = ccw(world_ring(f["geometry"]["coordinates"][0]))
+        cen = sum(ring, Vector((0.0, 0.0))) / len(ring)
+        if any(inside(cen, r) for r in explicit) or len(ring) < 3:
+            continue
+        area = abs(sum(ring[i].x * ring[(i + 1) % len(ring)].y - ring[(i + 1) % len(ring)].x * ring[i].y for i in range(len(ring)))) / 2
+        storeys = pr["attributes"].get("storeys")
+        if storeys and storeys >= 2 and area > 150:
+            style = "shop_brick" if area > 300 else "row_brick"
+        elif area < 40:
+            style = "shed"
+        else:
+            style = random.choice(("row_roughcast", "house_clapboard", "house_clapboard"))
+        if len(ring) > 12:   # ragged rule-drawn outlines: use the bounding quad along the first edge
+            xs, ys = [q.x for q in ring], [q.y for q in ring]
+            ring = [Vector((min(xs), min(ys))), Vector((max(xs), min(ys))), Vector((max(xs), max(ys))), Vector((min(xs), max(ys)))]
+        building(f"bld_back_{fid[-4:]}", ring, style)
+        count += 1
+    print("backdrop buildings:", count)
+
     # Street furniture.
     lamp_spots = [(1560, 330), (1960, 330), (2330, 330), (2476, 338), (2476, 660)]
     kmid = (P(1840, 1215) + P(2455, 955)) / 2 + kn * 0.6
@@ -648,6 +864,40 @@ def build_scene() -> dict:
         hydrant(f"prop_hydrant_{k + 1}", P(*spot))
         h = P(*spot)
         manifest["hydrants"].append({"name": f"prop_hydrant_{k + 1}", "pos": [round(h.x, 3), 0.0, round(h.y, 3)], "from": "the plan's hydrant symbol"})
+
+    # Overhead wires: pole to pole along the north side, and the two trolley wires over the tracks.
+    wires = MB("wires")
+
+    def wire(p0, p1, sag: float, segs=8, w=0.012) -> None:
+        pts = []
+        for k in range(segs + 1):
+            t = k / segs
+            pts.append(Vector((p0[0] + (p1[0] - p0[0]) * t, p0[1] + (p1[1] - p0[1]) * t, p0[2] + (p1[2] - p0[2]) * t - sag * 4 * t * (1 - t))))
+        for k in range(segs):
+            a3, b3 = pts[k], pts[k + 1]
+            for off in (Vector((0, 0, w)), Vector((w, w, 0))):
+                wires.face([tuple(a3 - off), tuple(b3 - off), tuple(b3 + off), tuple(a3 + off)], "wire", [(0, 0), (1, 0), (1, 1), (0, 1)])
+                wires.face([tuple(a3 + off), tuple(b3 + off), tuple(b3 - off), tuple(a3 - off)], "wire", [(0, 0), (1, 0), (1, 1), (0, 1)])
+
+    pole_px = (1400, 1750, 2100, 2420)
+    dirn = along.normalized()
+    for k in range(len(pole_px) - 1):
+        a2, b2 = P(pole_px[k], 150), P(pole_px[k + 1], 150)
+        for z, half in ((8.69, 1.0), (8.69, 0.45), (7.99, 0.8)):
+            for sgn in (-1, 1):
+                off = Vector((dirn.y, -dirn.x)) * 0.0 + dirn * 0.0
+                side = Vector((-dirn.y, dirn.x)) * 0.0
+                o = dirn * 0.0
+                la = a2 + Vector((dirn.x, dirn.y)) * (sgn * half)
+                lb = b2 + Vector((dirn.x, dirn.y)) * (sgn * half)
+                wire((la.x, la.y, z), (lb.x, lb.y, z), 0.55)
+    for cy in (220, 260):
+        a2, b2 = P(600, cy), P(3600, cy)
+        wire((a2.x, a2.y, 5.6), (b2.x, b2.y, 5.6), 0.0, segs=2, w=0.01)
+    for x in pole_px:  # span wires from each pole across the street
+        a2, b2 = P(x, 150), P(x, 322)
+        wire((a2.x, a2.y, 6.9), (b2.x, b2.y, 6.4), 0.5, segs=6, w=0.008)
+    wires.build()
 
     # Street-name boards on the corner lamp post.
     corner = P(2476, 338)
@@ -765,11 +1015,12 @@ def render_previews(manifest: dict, out_dir: str) -> None:
     extra.remove(sun)
     bg.inputs["Color"].default_value = (0.012, 0.022, 0.03, 1.0)
     bg.inputs["Strength"].default_value = 1.0
-    moon = add_light("SUN", (0, 0, 30), 0.08, (0.55, 0.7, 1.0), "preview_moon")
+    moon = add_light("SUN", (0, 0, 30), 0.25, (0.55, 0.7, 1.0), "preview_moon")
     moon.rotation_euler = (math.radians(55), 0, math.radians(150))
     for lm in manifest["lamps"]:
-        add_light("POINT", (lm["pos"][0], lm["pos"][2], lm["pos"][1]), 260, (1.0, 0.66, 0.32), "preview_" + lm["name"], 0.15)
-    add_light("POINT", (eye[0] + 0.5, eye[1] - 0.2, 1.1), 60, (1.0, 0.62, 0.28), "preview_lantern", 0.05)
+        add_light("POINT", (lm["pos"][0], lm["pos"][2], lm["pos"][1]), 2600, (1.0, 0.66, 0.32), "preview_" + lm["name"], 0.15)
+    add_light("POINT", (eye[0] + 0.5, eye[1] - 0.2, 1.1), 500, (1.0, 0.62, 0.28), "preview_lantern", 0.05)
+    scene.view_settings.exposure = 1.2
     for nm, e, tgt, lens in (("night_street", eye, target, 22),
                              ("night_corner", (la[0] + 22, la[2] + 16, 1.65), (la[0] - 6, la[2] - 8, 4.0), 22),
                              ("night_factory", (factory_eye := (sp[0] + 6, sp[2] - 2, 1.65)), (sp[0] + 10, sp[2] - 14, 4.0), 20)):
