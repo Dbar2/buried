@@ -1,6 +1,7 @@
 using System.Collections;
 using Buried.Interop;
 using Buried.Look;
+using Buried.Walk;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -17,6 +18,8 @@ namespace Buried.Scene
     {
         public BuriedPalette palette;
         public ShaderSet shaders = new ShaderSet();
+        /// <summary>The corner of the walk test (spec 07), recorded by Buried.Editor.Setup; null when the model is not in the project.</summary>
+        public WalkAsset walk;
 
         private Bridge _bridge;
 
@@ -35,7 +38,10 @@ namespace Buried.Scene
             WebGLInput.captureAllKeyboardInput = false;
 #endif
 
-            Build(palette, shaders, _bridge);
+            Built built = Build(palette, shaders, _bridge);
+
+            // The walk test (spec 07) sleeps until walk/enter. A Player built without the model answers walk/enter with an error.
+            gameObject.AddComponent<WalkMode>().Configure(_bridge, built.Camera, built.Rig, walk);
         }
 
         /// <summary>What <see cref="Build"/> creates.</summary>

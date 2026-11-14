@@ -48,7 +48,8 @@ namespace Buried.Editor
             EnsureGlobalSettings();
             ApplyPlayerSettings();
             UseOldInputManager();
-            WriteBootstrapScene(palette, shaders);
+            Walk.WalkAsset walk = WalkSetup.Run();
+            WriteBootstrapScene(palette, shaders, walk);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -120,19 +121,75 @@ namespace Buried.Editor
             }
 
             // HDR on so that edge emission above 1 can bloom (tone mapping stays None, so everything
-            // below 1, drapes included, is unchanged); no MSAA (exact flat colours); no shadows (the
-            // dusk light is soft and the cost matters on WebGL).
+            // below 1, drapes included, is unchanged); no MSAA (exact flat colours). The Block scene's sun
+            // casts no shadow (its light says so), so supporting the main light's shadows costs it nothing; the walk's
+            // moon casts soft shadows out to 45 m (spec 07 requirement 4.2). Additional lights stay shadowless.
             pipeline.supportsHDR = true;
             pipeline.msaaSampleCount = 1;
             pipeline.renderScale = 1f;
             var serialized = new SerializedObject(pipeline);
-            SetBool(serialized, "m_MainLightShadowsSupported", false);
+            SetBool(serialized, "m_MainLightShadowsSupported", true);
             SetBool(serialized, "m_AdditionalLightShadowsSupported", false);
-            SetBool(serialized, "m_SoftShadowsSupported", false);
+            SetBool(serialized, "m_SoftShadowsSupported", true);
+            SetFloat(serialized, "m_ShadowDistance", Walk.WalkSettings.ShadowDistanceM);
+            SetInt(serialized, "m_MainLightShadowmapResolution", 2048);
+            SetInt(serialized, "m_ShadowCascadeCount", 2);
+
+            // A second renderer for the walk: Forward+, so the six lamps and the lantern light every pixel (per-object
+            // light lists would pick them by each mesh's centre, and the road is one long mesh). The camera selects it
+            // on walk/enter (WalkWorld.WalkRendererIndex); the Block scene keeps renderer 0.
+            UniversalRendererData walkRenderer = EnsureWalkRenderer();
+            SerializedProperty renderers = serialized.FindProperty("m_RendererDataList");
+            if (renderers != null)
+            {
+                if (renderers.arraySize < 2) renderers.arraySize = 2;
+                renderers.GetArrayElementAtIndex(0).objectReferenceValue = rendererData;
+                renderers.GetArrayElementAtIndex(Walk.WalkWorld.WalkRendererIndex).objectReferenceValue = walkRenderer;
+            }
+            else
+            {
+                Debug.LogWarning("The URP asset has no m_RendererDataList; the walk has no renderer of its own.");
+            }
             serialized.ApplyModifiedProperties();
             EditorUtility.SetDirty(pipeline);
             EditorUtility.SetDirty(rendererData);
             return pipeline;
+        }
+
+        private static UniversalRendererData EnsureWalkRenderer()
+        {
+            string path = RenderingFolder + "/WalkRenderer.asset";
+            var data = AssetDatabase.LoadAssetAtPath<UniversalRendererData>(path);
+            if (data == null)
+            {
+                data = ScriptableObject.CreateInstance<UniversalRendererData>();
+                AssetDatabase.CreateAsset(data, path);
+            }
+            data.renderingMode = RenderingMode.ForwardPlus;
+            EditorUtility.SetDirty(data);
+            return data;
+        }
+
+        private static void SetFloat(SerializedObject serialized, string property, float value)
+        {
+            SerializedProperty p = serialized.FindProperty(property);
+            if (p == null)
+            {
+                Debug.LogWarning("The URP asset has no property " + property + "; left at its default.");
+                return;
+            }
+            p.floatValue = value;
+        }
+
+        private static void SetInt(SerializedObject serialized, string property, int value)
+        {
+            SerializedProperty p = serialized.FindProperty(property);
+            if (p == null)
+            {
+                Debug.LogWarning("The URP asset has no property " + property + "; left at its default.");
+                return;
+            }
+            p.intValue = value;
         }
 
         private static void SetBool(SerializedObject serialized, string property, bool value)
@@ -248,16 +305,23 @@ namespace Buried.Editor
 
         // ---- Scene ----
 
-        private static void WriteBootstrapScene(BuriedPalette palette, ShaderSet shaders)
+        private static void WriteBootstrapScene(BuriedPalette palette, ShaderSet shaders, Walk.WalkAsset walk)
         {
             EnsureFolder(Path.GetDirectoryName(ScenePath));
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+            // The walk test (spec 07) draws with fog. Unity keeps a fog variant of a shader only if a scene of the build
+            // uses it, so the scene carries the walk's fog mode; the Block scene switches fog off at runtime and the walk
+            // switches it on again (WalkWorld).
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.ExponentialSquared;
 
             var go = new GameObject("Bridge");
             go.AddComponent<Interop.Bridge>();
             var bootstrap = go.AddComponent<SceneBootstrap>();
             bootstrap.palette = palette;
             bootstrap.shaders = shaders;
+            bootstrap.walk = walk;
 
             if (!EditorSceneManager.SaveScene(scene, ScenePath))
             {
