@@ -1,0 +1,8 @@
+{
+  "type": "walk/state",
+  "payload": {
+    "east": -526.701,
+    "north": -782.021,
+    "yaw_deg": 359.988
+  }
+}

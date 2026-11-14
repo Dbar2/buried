@@ -1,0 +1,8 @@
+{
+  "type": "walk/teleport",
+  "payload": {
+    "east": -1999.996,
+    "north": 612.442,
+    "yaw_deg": 315.598
+  }
+}

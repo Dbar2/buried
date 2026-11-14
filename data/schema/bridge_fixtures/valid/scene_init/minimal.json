@@ -1,7 +1,7 @@
 {
   "type": "scene/init",
   "payload": {
-    "bridgeVersion": "0.8.0",
+    "bridgeVersion": "0.9.0",
     "origin": { "easting": 632500, "northing": 4835000 },
     "bounds": { "minE": 632000, "minN": 4834500, "maxE": 633000, "maxN": 4835500 },
     "initialView": { "minE": 632100, "minN": 4834600, "maxE": 632900, "maxN": 4835400 },

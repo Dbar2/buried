@@ -107,6 +107,8 @@ namespace Buried.Scene
         {
             try
             {
+                if (BridgeMessageTypes.IsWalk(message.type)) return; // the walk test's messages belong to WalkMode
+
                 if (message.type == BridgeMessageTypes.SceneInit)
                 {
                     HandleInit((SceneInitPayload)message.payload);

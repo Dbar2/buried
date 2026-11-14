@@ -3,6 +3,6 @@
   "payload": {
     "code": "unknown_type",
     "message": "",
-    "messageType": "scene/setLantern"
+    "messageType": "walk/nearPlaque"
   }
 }

@@ -34,6 +34,10 @@ export const SHELL_TO_PLAYER = [
   'scene/selectFeature',
   'debug/markers',
   'debug/setCamera',
+  'walk/enter',
+  'walk/resume',
+  'walk/exit',
+  'walk/teleport',
 ] as const;
 export const PLAYER_TO_SHELL = [
   'ready',
@@ -43,6 +47,11 @@ export const PLAYER_TO_SHELL = [
   'featureClicked',
   'cameraChanged',
   'error',
+  'walk/ready',
+  'walk/state',
+  'walk/nearPlaque',
+  'walk/exhibit',
+  'walk/pointerLock',
 ] as const;
 export type ShellToPlayerType = (typeof SHELL_TO_PLAYER)[number];
 export type PlayerToShellType = (typeof PLAYER_TO_SHELL)[number];

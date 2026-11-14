@@ -44,6 +44,24 @@ namespace Buried.Interop
                 case BridgeMessageTypes.SceneAnchors: payload = Write((SceneAnchorsPayload)message.payload); break;
                 case BridgeMessageTypes.DebugMarkers: payload = Write((DebugMarkersPayload)message.payload); break;
                 case BridgeMessageTypes.DebugSetCamera: payload = Write((DebugSetCameraPayload)message.payload); break;
+                case BridgeMessageTypes.WalkEnter: payload = new JObject { ["reduced_motion"] = ((WalkEnterPayload)message.payload).reduced_motion }; break;
+                case BridgeMessageTypes.WalkResume: payload = new JObject(); break;
+                case BridgeMessageTypes.WalkExit: payload = new JObject(); break;
+                case BridgeMessageTypes.WalkReady: payload = new JObject(); break;
+                case BridgeMessageTypes.WalkTeleport:
+                    var teleport = (WalkTeleportPayload)message.payload;
+                    payload = new JObject { ["east"] = Num(teleport.east), ["north"] = Num(teleport.north), ["yaw_deg"] = Num(teleport.yaw_deg) };
+                    break;
+                case BridgeMessageTypes.WalkState:
+                    var state = (WalkStatePayload)message.payload;
+                    payload = new JObject { ["east"] = Num(state.east), ["north"] = Num(state.north), ["yaw_deg"] = Num(state.yaw_deg) };
+                    break;
+                case BridgeMessageTypes.WalkNearPlaque:
+                    string near = ((WalkNearPlaquePayload)message.payload).slug;
+                    payload = new JObject { ["slug"] = near == null ? JValue.CreateNull() : new JValue(near) };
+                    break;
+                case BridgeMessageTypes.WalkExhibit: payload = new JObject { ["slug"] = ((WalkExhibitPayload)message.payload).slug }; break;
+                case BridgeMessageTypes.WalkPointerLock: payload = new JObject { ["locked"] = ((WalkPointerLockPayload)message.payload).locked }; break;
                 case BridgeMessageTypes.Ready: payload = Write((ReadyPayload)message.payload); break;
                 case BridgeMessageTypes.EraLoaded: payload = Write((EraLoadedPayload)message.payload); break;
                 case BridgeMessageTypes.FeatureClicked: payload = Write((FeatureClickedPayload)message.payload); break;

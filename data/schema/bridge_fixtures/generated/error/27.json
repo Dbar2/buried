@@ -3,6 +3,6 @@
   "payload": {
     "code": "bounds_too_far",
     "message": "}l",
-    "messageType": "scene/anchors"
+    "messageType": "debug/setCamera"
   }
 }

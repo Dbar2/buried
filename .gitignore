@@ -56,3 +56,7 @@ data/work/
 
 # Parallel working copies for separate build lanes
 .worktrees/
+
+# The walk test's recorded corner (spec 07): a prefab and an asset that Buried.Editor.Setup writes from the glb
+unity/Assets/Buried/Walk/Generated/
+unity/Assets/Buried/Walk/Generated.meta

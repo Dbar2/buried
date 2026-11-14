@@ -47,6 +47,10 @@ const idPart = fc.stringMatching(/^[a-z0-9]{1,6}$/);
 /** A source id or era id: lowercase snake_case. */
 export const sourceIdArb: Arb<string> = fc.array(idPart, { minLength: 1, maxLength: 4 }).map((parts) => parts.join('_'));
 export const eraIdArb = sourceIdArb;
+/** A find's slug (bridge 0.9.0): lowercase words joined by hyphens. */
+export const slugArb: Arb<string> = fc
+  .array(fc.stringMatching(/^[a-z0-9]{1,8}$/), { minLength: 1, maxLength: 3 })
+  .map((parts) => parts.join('-'));
 export const featureIdArb: Arb<string> = fc
   .tuple(fc.constantFrom('bld', 'wtr', 'use'), sourceIdArb, fc.integer({ min: 0, max: 9999 }))
   .map(([kind, source, n]) => `${kind}_${source}_${String(n).padStart(4, '0')}`);
@@ -215,6 +219,21 @@ export const messageArbitraries: Readonly<Record<MessageType, Arb<BridgeMessage>
     'scene/selectFeature',
     fc.option(featureIdArb, { nil: undefined }).map((id) => (id === undefined ? {} : { feature_id: id })),
   ),
+  'walk/enter': message('walk/enter', fc.record({ reduced_motion: fc.boolean() })),
+  'walk/resume': message('walk/resume', fc.constant({})),
+  'walk/exit': message('walk/exit', fc.constant({})),
+  'walk/teleport': message(
+    'walk/teleport',
+    fc.record({ east: milli(-2000, 2000), north: milli(-2000, 2000), yaw_deg: milli(0, 359.999) }),
+  ),
+  'walk/ready': message('walk/ready', fc.constant({})),
+  'walk/state': message(
+    'walk/state',
+    fc.record({ east: milli(-2000, 2000), north: milli(-2000, 2000), yaw_deg: milli(0, 359.999) }),
+  ),
+  'walk/nearPlaque': message('walk/nearPlaque', fc.record({ slug: fc.option(slugArb, { nil: null }) })),
+  'walk/exhibit': message('walk/exhibit', fc.record({ slug: slugArb })),
+  'walk/pointerLock': message('walk/pointerLock', fc.record({ locked: fc.boolean() })),
   'debug/markers': message(
     'debug/markers',
     fc.record({

@@ -79,7 +79,7 @@ namespace Buried.Tests
         [Test]
         public void ThePlayerSpeaksBridge080AndKnowsTheFiveMessagesInTheRightDirections()
         {
-            Assert.AreEqual("0.8.0", BridgeVersion.Value);
+            Assert.AreEqual("0.9.0", BridgeVersion.Value);
             Assert.Contains(BridgeMessageTypes.SceneSetAnchors, BridgeMessageTypes.ShellToPlayer);
             Assert.Contains(BridgeMessageTypes.SceneRaise, BridgeMessageTypes.ShellToPlayer);
             Assert.Contains(BridgeMessageTypes.SceneFrameFeature, BridgeMessageTypes.ShellToPlayer);

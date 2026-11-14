@@ -32,8 +32,17 @@ export type BridgeMessage =
   | SceneRaiseMessage
   | SceneFrameFeatureMessage
   | SceneSelectFeatureMessage
+  | WalkEnterMessage
+  | WalkResumeMessage
+  | WalkExitMessage
+  | WalkTeleportMessage
   | DebugMarkersMessage
   | DebugSetCameraMessage
+  | WalkReadyMessage
+  | WalkStateMessage
+  | WalkNearPlaqueMessage
+  | WalkExhibitMessage
+  | WalkPointerLockMessage
   | ReadyMessage
   | EraLoadedMessage
   | SceneAnchorsMessage
@@ -155,6 +164,24 @@ export interface BridgeSchemaTypes {
   sceneShowEvidencePayload?: SceneShowEvidencePayload;
   screenPoint?: ScreenPoint1;
   sourceId?: SourceId;
+  walkEnterMessage?: WalkEnterMessage;
+  walkEnterPayload?: WalkEnterPayload;
+  walkExhibitMessage?: WalkExhibitMessage;
+  walkExhibitPayload?: WalkExhibitPayload;
+  walkExitMessage?: WalkExitMessage;
+  walkExitPayload?: WalkExitPayload;
+  walkNearPlaqueMessage?: WalkNearPlaqueMessage;
+  walkNearPlaquePayload?: WalkNearPlaquePayload;
+  walkPointerLockMessage?: WalkPointerLockMessage;
+  walkPointerLockPayload?: WalkPointerLockPayload;
+  walkReadyMessage?: WalkReadyMessage;
+  walkReadyPayload?: WalkReadyPayload;
+  walkResumeMessage?: WalkResumeMessage;
+  walkResumePayload?: WalkResumePayload;
+  walkStateMessage?: WalkStateMessage;
+  walkStatePayload?: WalkStatePayload;
+  walkTeleportMessage?: WalkTeleportMessage;
+  walkTeleportPayload?: WalkTeleportPayload;
 }
 /**
  * Where one feature's anchor is on the canvas, in CSS pixels from the top left. The anchor is the top centre of the feature's volume, or the ground centroid of a land-use area. on_screen is false behind the camera, outside the canvas, or for a feature the scene does not hold (then x and y are 0).
@@ -183,7 +210,7 @@ export interface SceneInitMessage {
  * via the `definition` "sceneInitPayload".
  */
 export interface SceneInitPayload {
-  bridgeVersion: '0.8.0';
+  bridgeVersion: '0.9.0';
   origin: OriginPoint;
   bounds: SceneBounds;
   initialView: Rect;
@@ -613,6 +640,81 @@ export interface SceneSelectFeaturePayload {
   feature_id?: string;
 }
 /**
+ * Shell to Player (0.9.0, the walk test). Enter the walk: the Player builds the corner at night, puts the camera at the spawn point and answers walk/ready. The Shell asks for the pointer lock itself, in the click that sends this. With reduced_motion true there is no head bob, no lantern sway and no flicker.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkEnterMessage".
+ */
+export interface WalkEnterMessage {
+  type: 'walk/enter';
+  payload: WalkEnterPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkEnterPayload".
+ */
+export interface WalkEnterPayload {
+  reduced_motion: boolean;
+}
+/**
+ * Shell to Player (0.9.0). The exhibit panel was closed: movement and the plaque prompt work again, once the pointer is locked.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkResumeMessage".
+ */
+export interface WalkResumeMessage {
+  type: 'walk/resume';
+  payload: WalkResumePayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkResumePayload".
+ */
+export interface WalkResumePayload {}
+/**
+ * Shell to Player (0.9.0). Leave the walk: the Player releases the pointer and removes the corner.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkExitMessage".
+ */
+export interface WalkExitMessage {
+  type: 'walk/exit';
+  payload: WalkExitPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkExitPayload".
+ */
+export interface WalkExitPayload {}
+/**
+ * Shell to Player (0.9.0, for tests only). Put the visitor at east, north (project-local metres, the same frame as the manifest and Unity's x and z), facing yaw_deg (clockwise from north). A point outside the walk bounds is moved to the nearest point inside.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkTeleportMessage".
+ */
+export interface WalkTeleportMessage {
+  type: 'walk/teleport';
+  payload: WalkTeleportPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkTeleportPayload".
+ */
+export interface WalkTeleportPayload {
+  /**
+   * Project-local metres (easting minus E0).
+   */
+  east: number;
+  /**
+   * Project-local metres (northing minus N0).
+   */
+  north: number;
+  /**
+   * Degrees clockwise from north.
+   */
+  yaw_deg: number;
+}
+/**
  * Shell to Player. Only honoured when scene/init had debug: true.
  *
  * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
@@ -795,6 +897,91 @@ export interface DebugSetCameraPayload {
   headingDeg: number;
 }
 /**
+ * Player to Shell (0.9.0). The corner is built and the camera stands at the spawn point.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkReadyMessage".
+ */
+export interface WalkReadyMessage {
+  type: 'walk/ready';
+  payload: WalkReadyPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkReadyPayload".
+ */
+export interface WalkReadyPayload {}
+/**
+ * Player to Shell (0.9.0). Where the visitor stands and which way they face. At most four a second, and only when something changed.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkStateMessage".
+ */
+export interface WalkStateMessage {
+  type: 'walk/state';
+  payload: WalkStatePayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkStatePayload".
+ */
+export interface WalkStatePayload {
+  east: number;
+  north: number;
+  yaw_deg: number;
+}
+/**
+ * Player to Shell (0.9.0). The plaque the visitor is near and looking at (within 3.2 m and 25 degrees), or null when there is none. Sent when it changes.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkNearPlaqueMessage".
+ */
+export interface WalkNearPlaqueMessage {
+  type: 'walk/nearPlaque';
+  payload: WalkNearPlaquePayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkNearPlaquePayload".
+ */
+export interface WalkNearPlaquePayload {
+  slug: string | null;
+}
+/**
+ * Player to Shell (0.9.0). The visitor opened a plaque (a click while locked, or E). The Player has released the pointer and stopped moving; it waits for walk/resume.
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkExhibitMessage".
+ */
+export interface WalkExhibitMessage {
+  type: 'walk/exhibit';
+  payload: WalkExhibitPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkExhibitPayload".
+ */
+export interface WalkExhibitPayload {
+  slug: string;
+}
+/**
+ * Player to Shell (0.9.0). The pointer lock changed (Esc, a click, or the Player releasing it for an exhibit).
+ *
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkPointerLockMessage".
+ */
+export interface WalkPointerLockMessage {
+  type: 'walk/pointerLock';
+  payload: WalkPointerLockPayload;
+}
+/**
+ * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
+ * via the `definition` "walkPointerLockPayload".
+ */
+export interface WalkPointerLockPayload {
+  locked: boolean;
+}
+/**
  * Player to Shell. Sent once, after the first rendered frame.
  *
  * This interface was referenced by `BridgeSchemaTypes`'s JSON-Schema
@@ -809,7 +996,7 @@ export interface ReadyMessage {
  * via the `definition` "readyPayload".
  */
 export interface ReadyPayload {
-  bridgeVersion: '0.8.0';
+  bridgeVersion: '0.9.0';
   unityVersion: string;
 }
 /**

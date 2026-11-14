@@ -3,6 +3,6 @@
   "payload": {
     "code": "mesh_build_failed",
     "message": "w#",
-    "messageType": "scene/raise"
+    "messageType": "walk/nearPlaque"
   }
 }

@@ -1,0 +1,6 @@
+{
+  "type": "walk/nearPlaque",
+  "payload": {
+    "slug": "ca"
+  }
+}

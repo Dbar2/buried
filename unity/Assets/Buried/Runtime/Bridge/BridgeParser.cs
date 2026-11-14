@@ -54,6 +54,15 @@ namespace Buried.Interop
                 case BridgeMessageTypes.SceneRaised: return new ParsedMessage(type, ParseSceneRaised(payload));
                 case BridgeMessageTypes.DebugMarkers: return new ParsedMessage(type, ParseDebugMarkers(payload));
                 case BridgeMessageTypes.DebugSetCamera: return new ParsedMessage(type, ParseDebugSetCamera(payload));
+                case BridgeMessageTypes.WalkEnter: return new ParsedMessage(type, ParseWalkEnter(payload));
+                case BridgeMessageTypes.WalkResume: JsonFields.Exactly(payload, "payload"); return new ParsedMessage(type, new WalkResumePayload());
+                case BridgeMessageTypes.WalkExit: JsonFields.Exactly(payload, "payload"); return new ParsedMessage(type, new WalkExitPayload());
+                case BridgeMessageTypes.WalkTeleport: return new ParsedMessage(type, ParseWalkTeleport(payload));
+                case BridgeMessageTypes.WalkReady: JsonFields.Exactly(payload, "payload"); return new ParsedMessage(type, new WalkReadyPayload());
+                case BridgeMessageTypes.WalkState: return new ParsedMessage(type, ParseWalkState(payload));
+                case BridgeMessageTypes.WalkNearPlaque: return new ParsedMessage(type, ParseWalkNearPlaque(payload));
+                case BridgeMessageTypes.WalkExhibit: return new ParsedMessage(type, ParseWalkExhibit(payload));
+                case BridgeMessageTypes.WalkPointerLock: return new ParsedMessage(type, ParseWalkPointerLock(payload));
                 case BridgeMessageTypes.Ready: return new ParsedMessage(type, ParseReady(payload));
                 case BridgeMessageTypes.EraLoaded: return new ParsedMessage(type, ParseEraLoaded(payload));
                 case BridgeMessageTypes.FeatureClicked: return new ParsedMessage(type, ParseFeatureClicked(payload));
@@ -454,6 +463,73 @@ namespace Buried.Interop
             }
             JsonFields.RequireUnique(result.markers.Select(m => m.id), p + ".markers", "marker id");
             return result;
+        }
+
+        // ---- The walk test (bridge 0.9.0) ----
+
+        private static readonly System.Text.RegularExpressions.Regex SlugPattern =
+            new System.Text.RegularExpressions.Regex(@"^[a-z0-9]+(-[a-z0-9]+)*$", System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+
+        private static WalkEnterPayload ParseWalkEnter(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.Exactly(o, p, "reduced_motion");
+            return new WalkEnterPayload { reduced_motion = JsonFields.Boolean(o, "reduced_motion", p) };
+        }
+
+        private static WalkTeleportPayload ParseWalkTeleport(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.Exactly(o, p, "east", "north", "yaw_deg");
+            double yaw = JsonFields.NumberIn(o, "yaw_deg", p, 0.0, 360.0);
+            if (yaw >= 360.0) throw JsonFields.Fail(p + ".yaw_deg", "must be below 360");
+            return new WalkTeleportPayload
+            {
+                east = JsonFields.NumberIn(o, "east", p, -50000.0, 50000.0),
+                north = JsonFields.NumberIn(o, "north", p, -50000.0, 50000.0),
+                yaw_deg = yaw,
+            };
+        }
+
+        private static WalkStatePayload ParseWalkState(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.Exactly(o, p, "east", "north", "yaw_deg");
+            double yaw = JsonFields.NumberIn(o, "yaw_deg", p, 0.0, 360.0);
+            if (yaw >= 360.0) throw JsonFields.Fail(p + ".yaw_deg", "must be below 360");
+            return new WalkStatePayload
+            {
+                east = JsonFields.NumberIn(o, "east", p, -50000.0, 50000.0),
+                north = JsonFields.NumberIn(o, "north", p, -50000.0, 50000.0),
+                yaw_deg = yaw,
+            };
+        }
+
+        private static WalkNearPlaquePayload ParseWalkNearPlaque(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.Exactly(o, p, "slug");
+            JToken slug = o["slug"];
+            if (slug.Type == JTokenType.Null) return new WalkNearPlaquePayload { slug = null };
+            string value = JsonFields.String(o, "slug", p, 1, 64);
+            if (!SlugPattern.IsMatch(value)) throw JsonFields.Fail(p + ".slug", "\"" + value + "\" is not a slug");
+            return new WalkNearPlaquePayload { slug = value };
+        }
+
+        private static WalkExhibitPayload ParseWalkExhibit(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.Exactly(o, p, "slug");
+            string value = JsonFields.String(o, "slug", p, 1, 64);
+            if (!SlugPattern.IsMatch(value)) throw JsonFields.Fail(p + ".slug", "\"" + value + "\" is not a slug");
+            return new WalkExhibitPayload { slug = value };
+        }
+
+        private static WalkPointerLockPayload ParseWalkPointerLock(JObject o)
+        {
+            const string p = "payload";
+            JsonFields.Exactly(o, p, "locked");
+            return new WalkPointerLockPayload { locked = JsonFields.Boolean(o, "locked", p) };
         }
 
         // ---- Player to Shell ----

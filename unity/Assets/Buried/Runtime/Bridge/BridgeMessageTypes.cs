@@ -21,6 +21,10 @@ namespace Buried.Interop
         public const string SceneSelectFeature = "scene/selectFeature";
         public const string DebugMarkers = "debug/markers";
         public const string DebugSetCamera = "debug/setCamera";
+        public const string WalkEnter = "walk/enter";
+        public const string WalkResume = "walk/resume";
+        public const string WalkExit = "walk/exit";
+        public const string WalkTeleport = "walk/teleport";
 
         // Player to Shell
         public const string Ready = "ready";
@@ -30,16 +34,29 @@ namespace Buried.Interop
         public const string FeatureClicked = "featureClicked";
         public const string CameraChanged = "cameraChanged";
         public const string Error = "error";
+        public const string WalkReady = "walk/ready";
+        public const string WalkState = "walk/state";
+        public const string WalkNearPlaque = "walk/nearPlaque";
+        public const string WalkExhibit = "walk/exhibit";
+        public const string WalkPointerLock = "walk/pointerLock";
 
         public static readonly string[] ShellToPlayer =
         {
             SceneInit, SceneLoadEra, SceneAddFeatures, SceneSetDepth, SceneFocusLot, SceneClearLot, SceneSetDrapeMode, SceneSetLantern,
             SceneShowEvidence, SceneSetAnchors, SceneRaise, SceneFrameFeature, SceneSelectFeature, DebugMarkers, DebugSetCamera,
+            WalkEnter, WalkResume, WalkExit, WalkTeleport,
         };
         public static readonly string[] PlayerToShell =
         {
             Ready, EraLoaded, SceneAnchors, SceneRaised, FeatureClicked, CameraChanged, Error,
+            WalkReady, WalkState, WalkNearPlaque, WalkExhibit, WalkPointerLock,
         };
+
+        /// <summary>The walk test's messages (bridge 0.9.0). The Block scene's controller ignores them; the walk mode handles them.</summary>
+        public static bool IsWalk(string type)
+        {
+            return type != null && type.StartsWith("walk/", StringComparison.Ordinal);
+        }
 
         public static bool IsShellToPlayer(string type)
         {

@@ -3,6 +3,6 @@
   "payload": {
     "code": "mesh_build_failed",
     "message": "Q",
-    "messageType": "scene/addFeatures"
+    "messageType": "scene/frameFeature"
   }
 }
