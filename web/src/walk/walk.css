@@ -1,0 +1,187 @@
+/* The walk test, /walk (spec 07). Parchment on soot, Libre Baskerville for the title, one lantern button. */
+.walk {
+  background: var(--soot);
+  color: var(--parchment);
+  height: 100%;
+  inset: 0;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+.walk-canvas {
+  display: block;
+  height: 100%;
+  outline: none;
+  width: 100%;
+}
+
+.walk-intro {
+  align-items: flex-start;
+  background: var(--soot);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  inset: 0;
+  justify-content: center;
+  padding: var(--space-5) clamp(var(--space-4), 8vw, 10rem);
+  position: absolute;
+}
+
+.walk-kicker {
+  color: var(--parchment-dim);
+  font-size: 0.875rem;
+  letter-spacing: 0.18em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.walk-title {
+  color: var(--parchment);
+  font-family: var(--font-heading);
+  font-size: clamp(4rem, 14vw, 9rem);
+  line-height: 1;
+}
+
+.walk-line {
+  color: var(--parchment);
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.walk-button {
+  align-items: center;
+  background: var(--lantern);
+  border: 1px solid var(--lantern);
+  border-radius: 2px;
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+}
+
+.walk-button:disabled {
+  cursor: progress;
+}
+
+.walk-button:focus-visible,
+.walk-link:focus-visible {
+  outline: 2px solid var(--lantern);
+  outline-offset: 3px;
+}
+
+.walk-sentence {
+  margin: 0;
+  max-width: 36rem;
+}
+
+.walk-link {
+  color: var(--parchment);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.walk-unavailable {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  justify-content: center;
+  padding: var(--space-5) clamp(var(--space-4), 8vw, 10rem);
+}
+
+/* The centre dot: small, and never the only way to know where you look. */
+.walk-dot {
+  background: var(--parchment);
+  border-radius: 50%;
+  height: 4px;
+  left: 50%;
+  opacity: 0.7;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+}
+
+.walk-hint,
+.walk-prompt {
+  background: var(--haze);
+  border: 1px solid var(--copper);
+  border-radius: 2px;
+  color: var(--parchment);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  pointer-events: none;
+  position: absolute;
+}
+
+.walk-hint {
+  bottom: var(--space-4);
+  left: var(--space-4);
+}
+
+.walk-prompt {
+  bottom: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.walk-paused {
+  align-items: center;
+  background: var(--soot);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  inset: 0;
+  justify-content: center;
+  opacity: 0.88;
+  position: absolute;
+}
+
+.walk-exhibit {
+  bottom: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-height: calc(100% - 2 * var(--space-4));
+  overflow-y: auto;
+  position: absolute;
+  right: var(--space-4);
+  top: var(--space-4);
+  width: min(380px, calc(100% - 2 * var(--space-4)));
+}
+
+.walk-exhibit .walk-note {
+  background: var(--haze);
+  border-left: 2px solid var(--copper);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+}
+
+.walk-debug {
+  align-items: center;
+  background: var(--haze);
+  bottom: var(--space-2);
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  position: absolute;
+  right: var(--space-2);
+}
+
+@media (max-width: 720px) {
+  .walk-exhibit {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    width: 100%;
+  }
+}

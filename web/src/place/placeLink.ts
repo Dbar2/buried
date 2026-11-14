@@ -13,8 +13,9 @@ export function placeLink(lotId: string, eraId: string | null = null): string {
  *  - `place`: `/place` with a `lot`; `search`: `/place` without one (the address search, once the
  *    landing).
  *  - `report`, `studio`, `sources`: as before.
+ *  - `walk`: `/walk`, the walk test (spec 07). Not linked from anywhere.
  */
-export type Route = 'block' | 'search' | 'place' | 'report' | 'studio' | 'sources' | 'explorer';
+export type Route = 'block' | 'search' | 'place' | 'report' | 'studio' | 'sources' | 'explorer' | 'walk';
 
 /** `/find/<slug>`: one path segment after `find`, no more. */
 const FIND_PATH = /^\/find\/[^/]+$/;
@@ -37,6 +38,7 @@ export function routeFor(pathname: string, search: string): Route {
   if (path === '/studio') return 'studio';
   if (path === '/sources') return 'sources';
   if (path === '/explorer') return 'explorer';
+  if (path === '/walk') return 'walk';
   if (FIND_PATH.test(path)) return 'block';
   return search.replace(/^\?/, '') === '' ? 'block' : 'explorer';
 }

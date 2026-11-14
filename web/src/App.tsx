@@ -16,6 +16,8 @@ const SourcesPage = lazy(() => import('./sources/SourcesPage').then((m) => ({ de
 const StudioPage = lazy(() => import('./studio/StudioPage').then((m) => ({ default: m.StudioPage })));
 // The Report never loads the Explorer, the bridge or Unity.
 const ReportRoute = lazy(() => import('./report/ReportRoute').then((m) => ({ default: m.ReportRoute })));
+// The walk test (spec 07) loads its own Player; no header, nothing links to it.
+const WalkPage = lazy(() => import('./walk/WalkPage').then((m) => ({ default: m.WalkPage })));
 
 /**
  * Routes (`routeFor`, spec 06 requirement 7.3): `/` and `/find/<slug>` are the Block page, `/place`
@@ -27,6 +29,12 @@ const ReportRoute = lazy(() => import('./report/ReportRoute').then((m) => ({ def
 export function App() {
   const route = routeFor(window.location.pathname, window.location.search);
   switch (route) {
+    case 'walk':
+      return (
+        <Suspense fallback={<Loading text="Lighting the lamp." />}>
+          <WalkPage />
+        </Suspense>
+      );
     case 'block':
       return (
         <div className="page">
