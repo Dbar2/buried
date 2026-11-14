@@ -167,3 +167,16 @@ Outside the coverage area, say "Not reconstructed yet." Nothing else.
   Buried uses begin with colonial-era mapping. Buried does not write its own land
   acknowledgement; it links to the City of Toronto's published land acknowledgement. The
   maintainer approves the final wording before submission. Never invent.
+
+## The walk (a test)
+
+`/walk` (spec 07) is a test of one street corner, walked in first person at night. It is a
+**labelled reconstruction**, the way a museum labels one. The plan gives the outline, the storeys
+read from it and the name as lettered. The brick, the windows, the doors, the lamps and the sign
+paint are imagined, and every exhibit panel says so. This is the one place where the walk shows
+walls, windows and signs that no source gives; the "no windows" rule for ghosts still holds on the
+Block page and in the Explorer. All other honesty rules hold in the walk: a find's name is the
+plate's lettering, the status line is the record's own, no banned words, nothing is called
+"confirmed" that no named person reviewed. Later sessions must not "fix" this by removing the
+labelled reconstruction, or by dropping the labels. If the maintainer rejects the test, the mode is
+removed whole.

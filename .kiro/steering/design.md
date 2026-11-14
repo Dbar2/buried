@@ -195,3 +195,15 @@ and labels appear in the scene, the evidence card, the list view and the Report.
 - **Restraint.** No particles, lens flares, chromatic aberration, film grain or camera shake.
   Post-processing is limited to tone mapping and subtle bloom on `--lantern` emission only.
   Blender props use the same palette and never stand in for buildings.
+
+## The walk (a test)
+
+`/walk` (spec 07) is a labelled reconstruction, not a ghost scene, so for this mode only the
+"no windows, chimneys, cornices or roofs" rule of "The past" is lifted: walls, windows, doors,
+lamps and painted signs are drawn, because a street at eye height needs them. Each exhibit panel
+states what the plan gives (the outline, the storeys, the name) and what is imagined (the brick,
+the windows, the sign paint). The night look (deep blue-green fog, a dim moon, warm lamps, a hand
+lantern, a wet road) belongs to this mode alone. Tone mapping, bloom on emissive surfaces and a
+vignette are its only post-processing; no grain, chromatic aberration or camera shake. The page
+uses the palette tokens: Libre Baskerville for the title, parchment on soot, one `--lantern`
+button. Later sessions must not remove the labels or apply the ghost rules to it.
