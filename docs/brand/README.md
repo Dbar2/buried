@@ -22,3 +22,14 @@ guides the Studio.
 
 The decisions taken from them are written into `.kiro/steering/design.md` and
 `.kiro/steering/product.md`; those files, not these images, are what the build follows.
+
+## The walk (Nov 13, evening)
+
+Three more generated frames, for the walkable-museum direction the maintainer proposed and
+approved that evening. Direction only; nothing in them ships.
+
+| File | What it settles |
+|---|---|
+| `concept-i-walk-street.jpg` | Walking Queen Street East at night in first person, lantern in hand, plaques in front of the named buildings. |
+| `concept-j-walk-plaque.jpg` | An exhibit plaque opening a museum label: what is from the plan, what is imagined. |
+| `concept-k-walk-era.jpg` | The street dissolving from the plan's date into today's massing. |
