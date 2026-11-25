@@ -1,0 +1,22 @@
+{
+ "strata.webp": {
+  "width": 1024,
+  "height": 1536
+ },
+ "lantern.webp": {
+  "width": 311,
+  "height": 640
+ },
+ "skyline.webp": {
+  "width": 1800,
+  "height": 600
+ },
+ "spade.webp": {
+  "width": 400,
+  "height": 800
+ },
+ "paper.webp": {
+  "width": 1497,
+  "height": 996
+ }
+}
