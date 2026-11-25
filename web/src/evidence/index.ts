@@ -46,6 +46,7 @@ export {
 export type { ProvenanceFacts } from './plainWords';
 export { reviewStatusLine, isReviewed, DRAFT_STATUS } from './review';
 export { parseFindsFile } from './findsFile';
+export { INDUSTRIAL_ENTRIES, industrialMatch, normaliseForMatch } from './industrialUse';
 export {
   findPositionLine,
   ghostTitle,

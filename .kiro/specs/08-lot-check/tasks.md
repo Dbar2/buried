@@ -3,7 +3,7 @@
 One builder session, in order. **(demo)** marks what the demo video needs. Record new commands in
 `tech.md`. Old `PlacePage` and `Landing` stay in the tree, unrouted.
 
-- [ ] 1. **(demo)** Industrial list: `web/src/evidence/industrialUse.ts` and test, exported from the
+- [x] 1. **(demo)** Industrial list: `web/src/evidence/industrialUse.ts` and test, exported from the
   Evidence Library index. P2; list sorted, unique, lowercase, no banned words. (4.1)
 - [ ] 2. **(demo)** Verdict: `web/src/lotcheck/lotCheck.ts`, `copy.ts`, test. Fixtures: the Percy
   Street lot (on), one beside it (near), a covered lot with no match, a lot outside coverage.
