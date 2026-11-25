@@ -1,5 +1,7 @@
 # 07 Walk test: tasks
 
+Parked on Nov 25: not linked, not shipped.
+
 - [x] 1. Spec and steering notes ("The walk (a test)" in product.md and design.md).
 - [x] 2. Import: glTFast, `WalkAsset`, `Setup` records the model and manifest; EditMode test.
 - [x] 3. Placement: `WalkMath` rigid fit, `WalkPlacement`, colliders; EditMode tests (2 cm).

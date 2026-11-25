@@ -4,83 +4,76 @@ inclusion: always
 
 # Product: Buried
 
-Buried turns archival fire insurance plans and aerial photos into a 3D model of a neighbourhood
-through time. Every building it shows carries the evidence behind it. People can explore the model,
-add to it, and get the documented history of a place it covers.
+Buried reads old fire insurance plans and aerial photos and tells you what the plans recorded on a
+piece of land, with the proof. Type an address; see what the plans lettered there, the scan it was
+read from, and what the records cannot tell you. A 3D model of the block exists behind it.
 
 Entry for Kiroween 2026, category Resurrection (Frankenstein is the fallback, decided at
 submission). Tagline: "Forgotten maps, rebuilt with proof."
 
-## The first visit and the find
+## The lot check
 
-The unit is a **find**: one thing the plans letter on this block (a building or a yard), with the
-lettering crop that names it. The verb is **"Raise the past"**. Detail: spec 06, `data/finds.json`.
+Decided on Nov 25 (session 050), not to be reopened: **finish one product, the lot check.** The raised
+block, the walk and the Studio stay in the repository but are not the front door. Detail: spec 08.
 
-1. **Land** (`/`). The block at once: the 1911 sheet like paper on a dark table, lit warm from
-   the upper left as if by a lamp, today's buildings on it as soot blocks, a little ground fog.
-   "Something used to stand here." One lantern button, "Raise the past", over "Every ghost comes
-   with the map that proves it." Paper tags pinned to the map: "Overall factory", "Bank", "Coal
-   yard". No search field; the header holds the wordmark and "Sources". A still picture of the
-   real scene shows at once while the Player loads; the button never waits on an endless spinner.
-2. **Raise.** Today's blocks sink flat and stay as a thin outline, the sheet brightens, and the 1911 plan's
-   buildings stand up as ghosts, staggered, in about two seconds. The camera stays put.
-3. **First find.** The overall factory selects itself: lantern edges, a leader line to a
-   catalogue card at the right (a bottom sheet on a phone): "LETTERED ON THE 1911 PLAN", the name
-   as lettered, the lettering crop, "Seen on: 1911 plan, sheet 229", "Placed within about N m",
-   "Status: ...", "Show the original sheet".
-4. **Look around.** Find tags along the top switch finds; any ghost can be clicked. The era ruler
-   has Today, 1935, 1911; on a find it says what the other plan letters there. The Lantern is a
-   round lens dragged with a pointer or a finger.
-5. **Keep it.** "Share this find" copies `/find/<slug>`, which opens raised on that find. "Full
-   record" opens the Report for that lot. "Look up an address" is a small link to the place page.
+Who it is for: **someone about to buy, dig or plant on an old city lot.** They want to know whether
+the old plans recorded an industrial use on or beside it, and to see the plan that says so. Also
+curious residents and local-history teachers, who get the same page.
 
-Where the rest sits. "Buried screens; it doesn't certify." is not on the landing; it stays word
-for word at the top of the record, the Report and the print.
+1. **Landing** (`/`). Parchment page, slim soot header ("Buried"; "How it works", "Sources").
+   Kicker "A LOT CHECK FROM OLD FIRE-INSURANCE PLANS". Headline "What was on this land?". One line:
+   "Before you buy, dig or plant, see what the old plans recorded on your lot." One address field
+   and one lantern button, "Check this address". "Try:" and three example addresses, chosen by code
+   from lots with a recorded use. One fact, computed from the data and never typed in ("On this
+   block, six addresses stand on a former coal and wood yard."), beside the plan with that yard
+   outlined. A coverage line: "Covered so far: one block of Toronto. Plans of 1911-14 and 1931-35."
+2. **Result** (`/lot/<lot id>`; `/place?lot=` shows the same page).
+   - The address as the title, one plain tag and one sentence quoting the plan ("The 1911 and 1931-35
+     plans letter this lot “Coal & Wood Yard”."). The tag is one of "Past industrial use
+     recorded", "Industrial use recorded next to this lot", "No industrial use lettered on these
+     plans", "Not covered yet".
+   - A compare view: one map, a draggable divider, the old plan (untouched scan, lot outlined) on the
+     left and today (City building outlines and lot lines) on the right, a switch between the two
+     plans. Keyboard and touch work.
+   - "What the plans show": one row per plan and one for today, each with its lettering crop and a
+     line ("1911: Coal & Wood Yard, J. W. Corson & Co.").
+   - "What this does not tell you": today's soil, water or structure; "Buried screens; it doesn't
+     certify."; request locates through Ontario Dig Authority before a dig.
+   - One primary action, "Download the one-page record" (the print Report), and "Share this check".
+   - A provenance strip: who scanned the plan, placed within about X m, how the outline was
+     traced, review status. Every figure comes from the record.
+3. **How it works** (`/how`). Four short steps, one picture each, then "Built with Kiro" in a few
+   plain lines (agents propose, a person confirms, hooks stop bad writes).
 
-1. **Explorer.** The 3D scene on `/`, `/find/<slug>` and the place page: ghosts rise where they
-   stood, each showing how sure we are. Raise, the era ruler (Dig on the place page), the
-   Lantern, Show Evidence (the source beneath a ghost), Water remembers (documented water).
-2. **Reconstruction Studio** (`/studio`, not in the header; the Sources page links it as "The
-   workshop (runs on a maintainer's machine)"). Import a plate, align it with the error in
-   metres, let Buried propose footprints, confirm, publish; they rise in that plate's era with
-   full provenance. This proves Buried is a tool, not a hand-built model.
-3. **Report** (`/report`, the "Full record"): "The documented history of this place." What stood
-   on a covered lot and when, water and past land use, what the records cannot tell you, who to
-   talk to next; a one-page PDF and a share link. It never depends on 3D working.
-4. **Place page** (`/place?lot=`; search at `/place`): unchanged, reached by "Look up an address".
+The lot check needs no WebGL and does not fetch the Unity Player on first load.
 
-- **The core sample is made of pictures.** For each era the place page shows a real crop of that
-  lot from that era's source, with the lot outlined, next to one plain sentence. A crop is
-  evidence a person can read without our interpreting it, so it appears even where nothing has
-  been reviewed, labelled "From the plate, not yet reviewed", beside a sentence that says what the
-  source is and states no finding. A row for one plan says what that plan shows; a feature first
-  read from another plan is worded "first drawn on the 1911 plan; drawn again on the 1935 plan".
-- **Plain words in the body, ids in the footnotes.** Sentences name sources as "the 1911 plan"
-  and "the 1931-35 plan". Source ids, plate numbers and error figures sit in mono in a sources
-  block and on hover or focus, never in the middle of a sentence.
+The showcase for the demo: a coal and wood yard lettered behind Percy Street on the 1911 plan
+(J. W. Corson & Co.) and the 1931-35 plan (Northern Fuels Co.), with six present-day addresses on
+it (2A to 2D Percy St, 549 King St E, 37 Sumach St). The page computes this; nothing is scripted.
+
+## Where the rest sits
+
+- **Block** (`/block`, and `/find/<slug>` links already shared). The raised 3D block with finds, the
+  era ruler and the Lantern. Linked once, from the result page, as "See this block in 3D". If its
+  download is too large to ship (spec 08 task 10), the link and the route go.
+- **Report** (`/report`). The long printable record: "The documented history of this place." Reached
+  from "Download the one-page record". It never depends on 3D working.
+- **Reconstruction Studio** (`/studio`). Import a plate, align it with the error in metres, propose
+  footprints, confirm, publish. Runs on a maintainer's machine. Linked only from the Sources page.
+  It proves Buried is a tool, not a hand-built model.
+- **Walk** (`/walk`, spec 07). Parked on Nov 25: not linked, not shipped. If revived, it stays a
+  labelled reconstruction: the plan gives outline, storeys and lettered name; brick, windows, signs
+  and lamps are imagined and every panel says so. No one removes those labels to "fix" it.
+- **Place page** (`/place?lot=`) and its search: replaced by the lot check pages.
+- **Kiro kit.** Steering, hooks, the `archivist` and `plate-qa` agents and the read-only
+  `buried-evidence` MCP server, which answers "what do the records show at this address" from the
+  evidence files and computes no dates, lot relations or confidence wording.
 
 ## Past land use is the practical value
 
 Uses lettered on the plates (yards, works, factories, stables, shops) are recorded as read by a
-person, like material, and drive the "past land use" findings. This is what a buyer, renovator or
-neighbour would act on. "Buried screens; it doesn't certify" and the dig pointer stay.
-
-## Who it is for
-
-- **Curious residents and local-history teachers** (first contact, the face of the demo): what
-  stood on this block, what the plans lettered there, and the map that proves it.
-- **People who live in, are buying, or will dig into an old city block:** "Full record" and the
-  Report carry the past-land-use screening, with a pointer to request locates through Ontario Dig
-  Authority before a dig. Buried's maps are not utility locates.
-- **Heritage groups, museums, researchers:** the Studio, to rebuild their own neighbourhoods.
-- **Environmental and property professionals** (later): a faster first pass at historical research.
-
-## Kiro is part of the product
-
-The repository ships what a Kiro user needs to add a plate or a city: steering, hooks, the
-`archivist` and `plate-qa` agents, and an MCP server that answers "what do the records show at
-this address" from the evidence files. It reads the evidence files; it computes no dates, lot
-relations or confidence wording of its own.
+person, like material, and drive the verdict. This is what a buyer, renovator or neighbour would
+act on. Buried's maps are not utility locates.
 
 ## Showcase area and eras
 
@@ -90,45 +83,33 @@ relations or confidence wording of its own.
 - Sources: Goad fire insurance plan Volume 3, plates 229 and 232, editions 1911 (rev. 1914) and
   1931 (rev. 1935, which U of T calls the 1935 edition); the 1947 aerial photographs. See
   `sources.md`.
-- The plate scans are greyscale photographic copies. A grey tone on a scan is not a construction
-  material. Material is recorded only when it is read from the plate's lettering or legend.
+- The plate scans are greyscale photographic copies. A grey tone is not a construction material.
+  Material is recorded only when read from the plate's lettering or legend.
 - **Plate 232 (1935) is the held-out plate.** It is never used to tune extraction. It is the plate
-  processed live in the demo.
-- An earlier layer is a stretch goal. It needs its own sources before any work starts.
-- Choose blocks from where the data overlaps. Write story content only after the sources show what
-  happened. Never script a building, use, demolition or creek ahead of the evidence.
+  processed live in the Studio demo.
+- Choose blocks from where the data overlaps. Never script a building, use, demolition or creek
+  ahead of the evidence.
 
 ## Scope at submission
 
 Real, end to end:
-- First visit: the block, Raise the past, the three finds with their cards, the era ruler (Today,
-  1935, 1911; 1947 joins once its imagery is aligned), the draggable Lantern, share links. Works
-  on a phone and without WebGL.
-- Place page: address search, dig and report on one screen, with the picture core sample.
-- Explorer: the showcase area, Dig, ghosts, Lantern, Show Evidence, Water remembers.
+- Landing, Result and How pages for any lot inside the coverage area, with coverage disclosure,
+  the compare view, the one-page record and share links. Works on a phone and without WebGL.
 - Studio: import, align, extract, review, publish, on the held-out plate, on a maintainer's machine.
-- Report: any lot inside the coverage area, with coverage disclosure, PDF and share link.
 - Kiro kit: steering, hooks, the two agents and the evidence MCP server.
-- Story mode ("The Lost Marsh", industrial waterfront), built only after the three parts work.
-  It needs its own sources. It never claims residential lots were marsh without evidence.
+- Block page, only if it ships in a small download.
 
-Stretch: the 1947 Lantern for any Toronto address.
-
-Cut until after the competition:
-- Citywide reports.
-- Ontario's Environmental Site Registry and the federal contaminated sites inventory.
-- General-purpose AI chat.
-- Photoreal reconstruction, street-level AR, other cities.
-- Any claim about present-day condition.
-
-Outside the coverage area, say "Not reconstructed yet." Nothing else.
+Cut: story mode, the walk, the 1947 Lantern for any address, citywide reports, Ontario's
+Environmental Site Registry and the federal contaminated sites inventory, general-purpose AI chat,
+photoreal reconstruction, street-level AR, other cities, and any claim about present-day
+condition. Outside the coverage area, say "Not reconstructed yet." Nothing else.
 
 ## Honesty rules (hard rules, enforced in code and tests)
 
 1. **Banned words.** Report text and generated text never contain "contaminated", "unsafe",
    "safe", "safer", "safest", "clean", "cleaner", "cleanest" or the phrase "will flood". Matching
    is whole-word and case-insensitive, so "safety" is allowed. A test fails the build if they
-   appear.
+   appear. This covers every lot check page, not only the Report.
 2. **On this lot vs near this lot.** A finding is "on this lot" only if the feature overlaps the
    lot by more than its position error. Otherwise it is "near this lot (within X m)". The exact
    test is in `evidence.md`.
@@ -138,7 +119,8 @@ Outside the coverage area, say "Not reconstructed yet." Nothing else.
 4. **No source, no claim.** Every feature and every finding links to at least one source.
 5. **Each finding has a status:** Documented, Estimated, Nothing found in these records, or
    Not covered. "Nothing found" always lists which records and years were checked.
-6. **"Buried screens; it doesn't certify."** This line sits at the top of every report.
+6. **"Buried screens; it doesn't certify."** This line sits at the top of every report and on the
+   result page's "What this does not tell you".
 7. **Every report says what the records cannot tell you:** present-day soil, water or structural
    condition; anything outside the years covered; underground utilities. It includes the
    "request locates through Ontario Dig Authority before you dig" pointer.
@@ -148,8 +130,8 @@ Outside the coverage area, say "Not reconstructed yet." Nothing else.
    computed in code. An LLM only writes sentences from facts it is given, with one exception:
    in the Studio, a vision model may propose the text of a label printed on a source (storeys, a
    use, a street number, or a material as lettered or in the legend) for a person to confirm or
-   correct. The proposal keeps the crop it was
-   read from. The model never touches geometry, coordinates, dates or confidence.
+   correct. The proposal keeps the crop it was read from. The model never touches geometry,
+   coordinates, dates or confidence.
 10. **Generated sentences are checked before display:** no banned words, no numbers absent from
     the evidence, no sources absent from the evidence pack.
 11. **No invented exact years.** Use "Built by", "Gone by", "Last seen", never "Built in" unless a
@@ -158,25 +140,29 @@ Outside the coverage area, say "Not reconstructed yet." Nothing else.
     read from. Buried never names a business, owner or use that the plate does not letter, and
     never says "confirmed" of a record no named person has reviewed.
 
+### The verdict (spec 08)
+
+13. **Industrial is decided by code, from lettering, by one list.** The list of words and phrases
+    lives in the Evidence Library, is reviewed by the maintainer (coal, wood yard, lumber,
+    factory, machine shop, foundry, cork, mill, works, oil, gas, garage, auto, laundry, dye,
+    paint, tannery, storage of fuel, and the like), and matches whole words. No word outside the
+    list triggers the tag. The tag always appears with the lettering that triggered it, and the
+    crop it was read from.
+14. **Relation.** "On this lot" and "next to this lot (within X m)" follow rule 2 and
+    `evidence.md`. No page invents a nearer or wider claim.
+15. **No industrial use lettered is not a clearance.** "No industrial use lettered on these plans"
+    carries, beside it, the line that it is not a clearance and says nothing about the land today.
+    The absence and coverage rules (3 and 5) hold: a lot the plans do not cover gets "Not covered
+    yet", never "No industrial use".
+16. **Names are the plan's lettering, quoted.** Status lines are the record's own wording. A
+    landing fact is computed from the evidence files and checked like any generated sentence.
+
 ## Tone
 
 - Plain language for non-specialists. Specific numbers with units and sources.
-- The Explorer can be atmospheric. The Report is sober and printable, because it may go to an
-  inspector or a lawyer.
+- The lot check is calm and exact. The Report is sober and printable, because it may go to an
+  inspector or a lawyer. The 3D pages may be atmospheric.
 - History before colonial maps is outside what these records cover. Say so plainly: the records
   Buried uses begin with colonial-era mapping. Buried does not write its own land
   acknowledgement; it links to the City of Toronto's published land acknowledgement. The
   maintainer approves the final wording before submission. Never invent.
-
-## The walk (a test)
-
-`/walk` (spec 07) is a test of one street corner, walked in first person at night. It is a
-**labelled reconstruction**, the way a museum labels one. The plan gives the outline, the storeys
-read from it and the name as lettered. The brick, the windows, the doors, the lamps and the sign
-paint are imagined, and every exhibit panel says so. This is the one place where the walk shows
-walls, windows and signs that no source gives; the "no windows" rule for ghosts still holds on the
-Block page and in the Explorer. All other honesty rules hold in the walk: a find's name is the
-plate's lettering, the status line is the record's own, no banned words, nothing is called
-"confirmed" that no named person reviewed. Later sessions must not "fix" this by removing the
-labelled reconstruction, or by dropping the labels. If the maintainer rejects the test, the mode is
-removed whole.
