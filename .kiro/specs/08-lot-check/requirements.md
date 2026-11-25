@@ -16,11 +16,12 @@ in the Evidence Library). *Coverage area*: lots for which `buildReport` does not
 1.2 THE Shell SHALL NOT route `/walk`, and no page SHALL link to it.
 1.3 THE Landing, Result and How page SHALL NOT request a URL under `/unity/`, load the bridge or
     create a WebGL context.
-1.4 THE Landing SHALL transfer at most 600 KB (compressed HTML, script, CSS, fonts, images) before
-    the visitor acts. THE Result SHALL transfer at most 550 KB before the plan tile is requested,
-    and SHALL request the tile only after its text is on screen. (Session 052: the first figure,
-    400 KB, was the architect's own. The page validates the evidence files against the schema
-    before it prints anything, and that validator is most of the weight.)
+1.4 THE Landing SHALL transfer at most 950 KB (compressed HTML, script, CSS, fonts, images) before
+    the visitor acts. THE Result SHALL transfer at most 700 KB before the plan tile is requested,
+    and SHALL request the tile only after its text is on screen. (Session 053: the night art, about
+    600 KB of WebP, is most of the new weight; the earth cross-section loads after the Landing is
+    idle. Before it the figures were 600 and 550 KB; session 052 had raised the Result's from 400,
+    because the schema validator is most of its weight.)
 
 ## Requirement 2: The Landing
 
@@ -127,3 +128,44 @@ in the Evidence Library). *Coverage area*: lots for which `buildReport` does not
     named person reviewed, and every sentence SHALL pass `checkSentence`. [PBT]
 7.4 "Buried screens; it doesn't certify." SHALL NOT be on the Landing. THE Studio SHALL be linked
     only from the Sources page.
+
+## Requirement 8: Suggestions (session 053)
+
+8.1 THE address field SHALL be an ARIA combobox with a listbox, arrow keys, Enter and Escape.
+8.2 WHILE the visitor types, THE list SHALL hold at most seven addresses, each matching every token of
+    the query: a token that starts with a digit matches the start of the house number, any other token
+    the start of a word of the street name ("2a p", "percy", "king 52"). Addresses on a lot with
+    something recorded SHALL come before any other, with a dot and the words "something recorded".
+    [PBT: P7]
+8.3 ON focus with nothing typed, THE list SHALL be headed "Try one of these" and hold the addresses
+    with something recorded, one per lot, at most eight. "or dig somewhere at random" SHALL pick one.
+8.4 WHEN nothing matches, THE page SHALL say "We have not dug there yet. Try one of these:" and show the
+    same list. WHEN an address matches but its point lies in no lot, "Not reconstructed yet." stays.
+
+## Requirement 9: The dig (session 053)
+
+9.1 WHEN a visitor chooses an address on the Landing (field, suggestion, random or a lot on the plan),
+    THE Landing SHALL play a full-window overlay, then open the Result. A direct visit to a Result
+    SHALL NOT play it. UNDER `prefers-reduced-motion` there SHALL be no overlay.
+9.2 THE depth ruler SHALL hold "Today" and then one mark per plan covering the lot, newest first, from
+    the lot's `buildLotCheck` rows. At each mark the lantern SHALL pause and a slip SHALL show that row's
+    first lettered use as the Result words it ("next door: ..." for a use near the lot), "nothing
+    lettered here" when there is none, and for Today the address. [PBT: P8]
+9.3 THE sequence SHALL take about 4.5 s with two plans (0.8 s to break ground, 1.2 s per layer, 0.8 s
+    at the bottom, 0.5 s dark beat) and never more than 7 s. WHILE the lot check is built, THE lantern
+    SHALL wait at the ground line with "Lighting the lamp…". "Skip", Escape and Enter SHALL go to the
+    Result. [PBT: P9]
+9.4 A polite live region SHALL say "Digging down through the plans" at the start and the verdict
+    sentence at the end. Focus SHALL land on the Result's title.
+9.5 THE dig SHALL show nothing the Result does not show, and the How page SHALL say so in one line.
+
+## Requirement 10: The reveal (session 053)
+
+10.1 THE record sheet SHALL open with an inscription from `buildLotCheck`: "HERE STOOD" for a use on the
+     lot, "NEXT DOOR STOOD" with "within N m" for a use near it, "NOTHING LETTERED HERE" when the plans
+     cover the lot and letter no use, "NOT DUG YET" outside the coverage. The verdict sentence and the
+     not-a-clearance line stay under it. [PBT: P10]
+10.2 THE tag SHALL be a rubber stamp with the same text. THE sheet SHALL rise in 0.6 s, the stamp land
+     0.4 s later, the divider sweep once from the right edge to the middle, the rows arrive one by one.
+     UNDER reduced motion all of it SHALL be at its end state at once.
+10.3 THE Result SHALL offer "Dig another address", back to the Landing with the field focused.

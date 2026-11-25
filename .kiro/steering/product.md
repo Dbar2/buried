@@ -20,18 +20,28 @@ Who it is for: **someone about to buy, dig or plant on an old city lot.** They w
 the old plans recorded an industrial use on or beside it, and to see the plan that says so. Also
 curious residents and local-history teachers, who get the same page.
 
-1. **Landing** (`/`). Parchment page, slim soot header ("Buried"; "How it works", "Sources").
-   Kicker "A LOT CHECK FROM OLD FIRE-INSURANCE PLANS". Headline "What was on this land?". One line:
-   "Before you buy, dig or plant, see what the old plans recorded on your lot." One address field
-   and one lantern button, "Check this address". "Try:" and three example addresses, chosen by code
-   from lots with a recorded use. One fact, computed from the data and never typed in ("On this
-   block, six addresses stand on a former coal and wood yard."), beside the plan with that yard
-   outlined. A coverage line: "Covered so far: one block of Toronto. Plans of 1911-14 and 1931-35."
+1. **Landing** (`/`). A night page with a slim soot header ("Buried"; "How it works", "Sources"). Kicker
+   "A LOT CHECK FROM OLD FIRE-INSURANCE PLANS". Headline "What is buried under your address?". One line:
+   "Type an address. We dig down through the old plans and show you what stood there." One address
+   combobox with suggestions (on focus, "Try one of these": addresses with something recorded; typing
+   matches the house number and the start of any street word) and one button, "Dig". "or dig somewhere
+   at random". One fact, computed from the data and never typed in ("On this block, six addresses stand
+   on a former coal and wood yard."), and the plan on a sheet of paper lit by a lantern, with the lots
+   that have something recorded outlined; clicking one digs there. A coverage line: "Covered so far: one
+   block of Toronto. Plans of 1911-14 and 1931-35."
+   **The dig** (session 053). Choosing an address on the Landing plays a full-window sequence of about
+   4.5 s: a lantern is lowered through the layers of earth, year by year, and at each plan's depth a
+   paper slip shows what that plan letters there, then the Result appears with its record sheet and
+   a rubber stamp. A direct visit to a Result, and `prefers-reduced-motion`, skip the sequence. **The
+   dig is presentation.** It shows nothing the Result does not show, it is built from the same view
+   model, and it never pretends to compute: the How page says "The dig is an animation. The lookup
+   itself is instant."
 2. **Result** (`/lot/<lot id>`; `/place?lot=` shows the same page).
-   - The address as the title, one plain tag and one sentence quoting the plan ("The 1911 and 1931-35
-     plans letter this lot “Coal & Wood Yard”."). The tag is one of "Past industrial use
+   - The address as the title, and a record sheet: an inscription ("HERE STOOD / Coal & Wood Yard /
+     recorded on the plans of 1911 and 1931-35"), one sentence quoting the plan ("The 1911 and 1931-35
+     plans letter this lot “Coal & Wood Yard”."), and the tag as a rubber stamp. The tag is one of "Past industrial use
      recorded", "Industrial use recorded next to this lot", "No industrial use lettered on these
-     plans", "Not covered yet".
+     plans", "Not covered yet" (the inscription then reads "NOT DUG YET").
    - A compare view: one map, a draggable divider, the old plan (untouched scan, lot outlined) on the
      left and today (City building outlines and lot lines) on the right, a switch between the two
      plans. Keyboard and touch work.
@@ -39,11 +49,13 @@ curious residents and local-history teachers, who get the same page.
      line ("1911: Coal & Wood Yard, J. W. Corson & Co.").
    - "What this does not tell you": today's soil, water or structure; "Buried screens; it doesn't
      certify."; request locates through Ontario Dig Authority before a dig.
-   - One primary action, "Download the one-page record" (the print Report), and "Share this check".
+   - One primary action, "Download the one-page record" (the print Report), and "Share this check" and
+     "Dig another address".
    - A provenance strip: who scanned the plan, placed within about X m, how the outline was
      traced, review status. Every figure comes from the record.
-3. **How it works** (`/how`). Four short steps, one picture each, then "Built with Kiro" in a few
-   plain lines (agents propose, a person confirms, hooks stop bad writes).
+3. **How it works** (`/how`). Four short steps, one picture each, one line about the dig ("The dig is an
+   animation. The lookup itself is instant."), then "Built with Kiro" in a few plain lines (agents
+   propose, a person confirms, hooks stop bad writes). Night theme with the lantern.
 
 The lot check needs no WebGL and does not fetch the Unity Player on first load.
 
@@ -156,12 +168,15 @@ condition. Outside the coverage area, say "Not reconstructed yet." Nothing else.
     yet", never "No industrial use".
 16. **Names are the plan's lettering, quoted.** Status lines are the record's own wording. A
     landing fact is computed from the evidence files and checked like any generated sentence.
+17. **The dig is presentation.** The dig sequence and the reveal show nothing the Result does not show.
+    Every slip, inscription and caption is built from the same `buildLotCheck` view model and passes
+    the same sentence check. They never imply a computation in progress, and the How page says so.
 
 ## Tone
 
 - Plain language for non-specialists. Specific numbers with units and sources.
-- The lot check is calm and exact. The Report is sober and printable, because it may go to an
-  inspector or a lawyer. The 3D pages may be atmospheric.
+- The lot check is calm and exact, at night. The Report is sober and printable, because it may go to an
+  inspector or a lawyer, and stays plain paper. The 3D pages may be atmospheric.
 - History before colonial maps is outside what these records cover. Say so plainly: the records
   Buried uses begin with colonial-era mapping. Buried does not write its own land
   acknowledgement; it links to the City of Toronto's published land acknowledgement. The

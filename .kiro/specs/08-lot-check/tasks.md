@@ -33,3 +33,12 @@ One builder session, in order. **(demo)** marks what the demo video needs. Recor
   request; transfer sizes against 1.4. Run the block and hosting specs and list those that fail
   because routes moved. (1.3, 1.4, 7.1)
 - [x] 11. Report: sizes, the Percy Street count, list proposals, tile size, every departure.
+
+## Session 053: the night dig
+
+- [x] 12. Write it down: steering design and product, requirements 8 to 10, P7 to P10. (0)
+- [ ] 13. Suggestions: `suggest.ts`, `AddressCombobox.tsx`, tests. (8, P7)
+- [ ] 14. The Landing at night: art, lit lots, lantern, entrance, fog. (2, 1.4)
+- [ ] 15. The dig: `digTimeline.ts`, `DigOverlay.tsx`, tests. (9, P8, P9)
+- [ ] 16. The reveal: inscription, stamp, sheet, sweep, "Dig another address". (10, P10)
+- [ ] 17. Small things, How page, Sources "Illustrations", weights, browser spec, notes.

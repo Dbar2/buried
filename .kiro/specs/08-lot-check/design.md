@@ -94,3 +94,18 @@ tile; the builder reports its size, and above 1.5 MB the maintainer decides on p
 - P5 [PBT] For any divider in [0, 1], `compareModel` output and the rendered outline path are equal.
 - P6 [PBT] "No industrial use" appears only with tag 4.4 and always with its not-a-clearance line;
   the fifth tag ("A past use is lettered on these plans") never carries that line.
+- P7 [PBT] Every suggestion matches every token of the query; no unrecorded address is listed above a
+  recorded one; at most seven.
+- P8 [PBT] Every slip's text is a line of the result's view model (or fixed copy); a muted slip belongs to
+  a row with no lines; reduced motion gives no steps.
+- P9 [PBT] Total time is between 2 and 7 s; skipping at any step ends at the Result.
+- P10 [PBT] Each inscription's lettering is the verdict's lettering; "NOT DUG YET" only for not covered.
+
+## The night dig (session 053)
+
+Pure modules: `suggest.ts` (matching, ranking), `digTimeline.ts` (timeline from a `LotCheck` and the motion
+preference; `stateAt(t)` gives the lantern position, the slips shown and the phase), `inscription` (a field
+of `verdict`, built with the sentence builder). The Landing builds the check for the chosen lot with the
+data it already holds (`computeLotCheck`, shared with the Result) and plays `DigOverlay`, which drives
+transforms from `requestAnimationFrame`; at the end it opens `/lot/<id>`. A test hook, `window.__buriedDigHold
+= <mark index>`, freezes the clock inside that mark's pause, so a test reads the screen without a sleep.

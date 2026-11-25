@@ -5,10 +5,12 @@ fileMatchPattern: ["web/**", "unity/**"]
 
 # Design
 
-Brand: **an archival atlas, read in daylight.** The lot check is a paper page: parchment ground, ink
-text, a real plan scan as the main picture, one lantern-coloured outline on the lot. The 3D block
-(`/block`) keeps the lamplit table. No invented deaths, hauntings or dialogue; no skulls, pumpkins,
-bats, faces, cartoon ghosts or jump scares.
+Brand: **an archival atlas, read by lantern at night** (session 053, the night dig). The lot check is a
+dark page with a parchment record lying on it: night ground, parchment text, a real plan scan as the main
+picture, one lantern-coloured outline on the lot. The 3D block (`/block`) keeps the lamplit table. The
+Halloween rule: night, fog, lantern, earth, spade, grave-marker lettering. No skulls, pumpkins, cartoon
+ghosts, blood or bats; no faces, jump scares, invented deaths, hauntings or dialogue; nothing invented
+about a place.
 
 ## What it must not look like
 
@@ -21,10 +23,13 @@ laid over it. A page is a column of plain sections separated by hairlines, with 
 - Wordmark "Buried" in Libre Baskerville. Tagline: "Forgotten maps, rebuilt with proof." Mark: the
   core-sample lens, a thin circle holding three or four strata lines (favicon, loading mark).
 - Motifs, used lightly: survey marks, a registration cross in a corner, plate borders, sheet
-  numbers. Real scans are the only imagery. No other logos or illustrations; the pictures in
-  `docs/brand/` are direction, not assets.
-- Layout: the lot check pages are one column, about 720 px wide for text; the compare view and the
-  landing plan may run to about 1040 px. Left-aligned text, generous line spacing, no centred blocks.
+  numbers. Real scans are the only evidence imagery. The five illustrations in `web/public/lotcheck/art/`
+  (lantern, earth cross-section, paper, skyline, spade) are decoration made with an image model; the Sources
+  page says so under "Illustrations". No other logos or illustrations; the pictures in `docs/brand/` are
+  direction, not assets.
+- Layout: the lot check text column is about 720 px wide; the Landing and the Result are two columns up to
+  about 1180 px. Left-aligned text, generous line spacing. The one centred block is the inscription at the
+  top of the record sheet, set like a grave marker.
 
 ## Palette tokens
 
@@ -44,6 +49,7 @@ from it and an EditMode test compares the two. No raw hex values in components o
 | `--block` | `#2B312D` | Today's buildings in 3D and their outline after Raise |
 | `--parchment-dim` | `#A99F8A` | Secondary text on soot or haze |
 | `--water` | `#5FB3B3` | Documented water only. Never text, links or accents |
+| `--stamp` | `#8E3B2E` | The rubber stamp on the record sheet, on parchment only. Nothing else |
 
 Contrast pairs (WCAG 2 ratios; spec 06 task W1's test measures them and fails below the floor):
 
@@ -59,15 +65,17 @@ Contrast pairs (WCAG 2 ratios; spec 06 task W1's test measures them and fails be
 | `--parchment-dim` on `--soot` | 6.9 | 4.5 | Secondary text on soot |
 | `--lantern` on `--soot` | 8.1 | 3 | Focus rings and selected marks on soot |
 | `--copper` on `--soot` | 4.4 | 3 | Hairlines and marks on soot only |
+| `--stamp` on `--parchment` | 5.5 | 4.5 | The stamp's text and double border on the record sheet |
 
 Pairs that fail and must not be used: `--lantern` on `--parchment` (1.6), so a lantern stroke on
 paper always has an `--ink` casing and a focus ring on paper is `--ink`; `--copper` on `--parchment`
 (3.0), so copper is never a needed outline or any text on the lot check pages; `--lantern` as text
 anywhere.
 
-- `--lantern` stays rare: the one primary button on a screen, the lot outline and focus on soot. Never
-  decoration, never a second button. The primary button also has a 1 px `--ink` border, because
-  lantern on parchment is 1.6.
+- `--lantern` stays rare: the one primary button on a screen, the lot outline, the lit lots on the Landing's
+  plan, the lantern's own glow and focus on soot. Never body decoration, never a second button. The primary
+  button also has a 1 px `--ink` border, because lantern on parchment is 1.6.
+- `--stamp` is used for the rubber stamp and nothing else, and only on parchment.
 - Selection and state are never colour alone: the tag is words, the selected plan switch is
   `aria-pressed` with a heavier rule, the outline has a casing.
 - The Report theme keeps its near-monochrome tokens: `--report-paper` `#FBFAF7`, `--report-ink`
@@ -87,8 +95,23 @@ anywhere.
 
 ## Motion
 
-- The lot check pages have no motion beyond the divider following the pointer and a 150 ms focus
-  change. Nothing loops, fades in on scroll or pulses.
+- The lot check pages are a night dig (session 053). Only `transform` and `opacity` animate, except the
+  compare divider's one sweep and the stamp's filter, which is applied once and never animated.
+  - Landing entrance, about 1.6 s: the lantern flickers alight (opacity), its light spreads over the paper
+    (scale and opacity), the recorded lots begin to glow one after another (80 ms apart). After that: the
+    flame flickers (opacity, 3 to 5 s), fog drifts (translate, 60 s), recorded lots pulse slowly (opacity,
+    3.2 s), and a soft pool of light follows the pointer over the map.
+  - The dig (an overlay when a visitor chooses an address on the Landing): about 4.5 s with two plans. 0.8 s
+    to break ground, 1.2 s per layer (0.6 s down, 0.6 s paused with its paper slip), 0.8 s at the bottom,
+    0.5 s dark beat. Never longer than 7 s. Skip, Escape and Enter end it. A direct visit to a Result does not
+    play it.
+  - The reveal on the Result: the sheet rises into place (0.6 s), the stamp comes down 0.4 s after (scale 1.5
+    to 1 with a little overshoot, the sheet nudges 1 px), the compare divider sweeps once from the right edge
+    to the middle, the dashed "where it stood" outline breathes (4 s), the rows arrive one after another
+    (120 ms apart). Settled by about 2.4 s.
+  - Buttons: the "Dig" label nudges down 1 px on hover and focus. Focus rings change in 150 ms.
+- `prefers-reduced-motion`: no overlay, no sweep, no pulse, no flicker, no drift. Every page cuts to its end
+  state and the Result shows the stamp in place.
 - Block page Raise: today's blocks sink flat to a thin `--block` outline at about 35 per cent
   (600 ms), the sheet brightens, then ghosts rise staggered, nearest the first find first. Ink edges
   draw on, then fill. Settled by 2.2 s. Era change: a 600 to 900 ms crossfade. The camera is still
@@ -132,26 +155,46 @@ and labels appear in the scene, the card, the list view, the compare view and th
 - Prints to one page (Letter and A4) without clipping. Sources and licence lines are printed.
 - Findings show their status label in text. Dates in Plex Mono. No icons without text.
 
-## The lot check pages
+## The lot check pages: the night dig
+
+The page is night: `--soot` ground with `--haze` fog, text on it `--parchment`, focus rings `--lantern`. The
+record is a parchment sheet (`paper.webp`) lying in the dark with `--ink` text, so the compare view, the
+rows' crops and the provenance strip keep their paper rules. Illustrations are decoration only: they never
+carry a claim. Weights: the Landing may transfer 950 KB and the Result 700 KB before the tile.
 
 - **Header.** Slim `--soot` band: wordmark left; "How it works" and "Sources" right; hairline rule in
-  `--copper` with a registration cross at each end. On the Result page, nothing else.
-- **Landing** (`/`). Parchment. Left column: kicker, headline (Baskerville, large), one sentence,
-  the address field and the lantern button side by side (stacked on a phone), "Try:" with three
-  plain text links, then the computed fact with the coverage line under it. Right of that (under it
-  on a phone): the plan crop in a hairline plate border with the yard outlined and a sheet number
-  in mono. No tiles, no stat boxes; the fact is one sentence of body text.
-- **Result** (`/lot/<id>`). One column. The address in Baskerville; under it the tag, a plain
-  rectangle with a 1 px `--ink` border and small capitals, never filled with a colour, followed by
-  the one sentence. Then the compare view, then "What the plans show", "What this does not tell
-  you", the actions, the provenance strip. Sections are separated by `--rule` hairlines and carry a
-  small-capital heading; no boxes.
+  `--copper`. The mark glows faintly `--lantern` on these pages.
+- **Landing** (`/`). Night. The skyline along the top, low fog. Left column: kicker, headline ("What is
+  buried under your address?", Baskerville, large, `--parchment`), one sentence, the address combobox and
+  the "Dig" button side by side (stacked on a phone), "or dig somewhere at random", then the computed fact
+  and the coverage line. Right (under on a phone): the real plan crop on the paper art with a lantern
+  standing at its corner and the recorded lots outlined faintly in `--lantern`. Hover or focus brightens a
+  lot and shows a paper tag with its lettering; a click digs there. The spade stands in the ground at the
+  page edge. Caption, computed: "N lots on this block have something recorded. Click one."
+- **The combobox.** A parchment field, 48 px high. Its list is parchment, `--ink` text, hairline rows of 44
+  px; a lot with something recorded carries a small `--lantern` dot and the words "something recorded".
+  Empty and focused: "Try one of these". No match: "We have not dug there yet. Try one of these:".
+- **The dig** (overlay, full window). `strata.webp` panned down behind a lantern on a rope, the skyline above
+  the ground line, earth dark except in the lantern's light. A depth ruler at the left: "Today", then each
+  plan covering the lot, newest first. At each mark the lantern pauses and a paper slip beside it shows what
+  the result shows for that layer, from `buildLotCheck`. Caption at the bottom: "Digging down to <year>…" and
+  the address. "Skip" at the lower right.
+- **Result** (`/lot/<id>`). The address in Baskerville, `--parchment`. The record sheet, with the lantern at
+  its upper left (hidden on a phone). At the top of the sheet an inscription set like a grave marker (thin
+  `--ink` rule, corner ornaments, centred, Baskerville): "HERE STOOD" or "NEXT DOOR STOOD" or "NOTHING
+  LETTERED HERE" or "NOT DUG YET", the lettered name in italic, one line of years. The verdict sentence
+  stays under it. The tag is a rubber stamp: `--stamp` text and double border, small capitals, rotated about
+  -6 degrees, slightly uneven (one SVG turbulence filter on the stamp only). The compare view is on the
+  sheet. Right column: "What the plans show", "What this does not tell you", the one `--lantern` button,
+  then "Share this check" and "Dig another address" as text links.
+- **Not covered.** "NOT DUG YET", the spade art and the coverage line. No stamp animation beyond the rest.
 - **Compare view.** One frame in a hairline plate border, 4:3 on desktop and 1:1 on a phone. The
   plan on the left, today on the right, a 2 px `--ink` divider with a round `--copper` grip
-  carrying small chevrons. The lot outline is a 3 px `--lantern` stroke inside a 5 px `--ink`
+  carrying small chevrons. The lot outline is a 4 px `--lantern` stroke inside a 6 px `--ink`
   casing, identical on both sides. Today's outlines are 1 px `--ink`; lot lines 1 px `--rule`
-  dashed. Plan switch above the frame: two text buttons, the active one with a heavier underline.
-  Corner labels "1911 plan" and "Today" in mono on parchment chips.
+  dashed. On the Today side each lettered use on the lot is also drawn as a faint dashed
+  `--parchment` line that breathes ("where it stood"). Plan switch above the frame: two text buttons,
+  the active one with a heavier underline. Corner labels "1911 plan" and "Today" in mono on parchment chips.
 - **What the plans show.** A table without a grid: each row has the lettering crop in a hairline
   frame (never recoloured), the year in mono, one line of text. Rows are separated by hairlines.
 - **Actions.** "Download the one-page record" is the one filled `--lantern` button. "Share this

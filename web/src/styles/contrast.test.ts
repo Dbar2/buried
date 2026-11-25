@@ -40,6 +40,7 @@ const PAIRS: ReadonlyArray<readonly [string, string, number, number, string]> = 
   ['lantern', 'ink', 3, 7.1, "the lot outline's stroke against its ink casing"],
   ['rule', 'parchment', 3, 3.5, 'control outlines on the card'],
   ['copper', 'soot', 3, 4.4, 'hairlines and marks only'],
+  ['stamp', 'parchment', 4.5, 5.5, "the rubber stamp's text and border on the record sheet"],
 ];
 
 describe('palette contrast (design.md "Contrast pairs")', () => {
