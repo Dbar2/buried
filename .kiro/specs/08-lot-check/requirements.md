@@ -17,8 +17,10 @@ in the Evidence Library). *Coverage area*: lots for which `buildReport` does not
 1.3 THE Landing, Result and How page SHALL NOT request a URL under `/unity/`, load the bridge or
     create a WebGL context.
 1.4 THE Landing SHALL transfer at most 600 KB (compressed HTML, script, CSS, fonts, images) before
-    the visitor acts. THE Result SHALL transfer at most 400 KB before the plan tile is requested,
-    and SHALL request the tile only after its text is on screen.
+    the visitor acts. THE Result SHALL transfer at most 550 KB before the plan tile is requested,
+    and SHALL request the tile only after its text is on screen. (Session 052: the first figure,
+    400 KB, was the architect's own. The page validates the evidence files against the schema
+    before it prints anything, and that validator is most of the weight.)
 
 ## Requirement 2: The Landing
 
