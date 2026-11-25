@@ -72,8 +72,9 @@ in the Evidence Library). *Coverage area*: lots for which `buildReport` does not
 ## Requirement 4: The verdict
 
 4.1 THE Industrial list SHALL hold the entries in product.md rule 13 and nothing else, matched
-    whole-word and case-insensitive on `lettering(use)` of buildings and areas. [PBT: only list
-    entries trigger]
+    whole-word and case-insensitive on `lettering(use)` of buildings and areas. Session 052 adds
+    `fac` (the surveyors' abbreviation of factory, lettered "Glove & Overall Fac." on the 1931-35
+    plan) on the maintainer's decision. [PBT: only list entries trigger]
 4.2 WHEN a trigger's relation is "on", THE tag SHALL be "Past industrial use recorded".
 4.3 WHEN no trigger is on the lot and one is near it, THE tag SHALL be "Industrial use recorded next
     to this lot" and the sentence SHALL give "within X m" from the relation.

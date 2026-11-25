@@ -4,8 +4,9 @@
  * alone. A word outside it never triggers the tag, and the list is matched whole-word only, so
  * "oilcloth" does not match "oil" and a plural matches only if it is listed.
  *
- * Reviewed by: not yet. The maintainer fills this line in. The builder adds no entry; proposals go in
- * the session notes.
+ * Reviewed by: not yet. The maintainer fills this line in. The builder adds no entry on its own; proposals go
+ * in the session notes. `fac` was added on the maintainer's decision (session 052): the 1931-35 plan letters
+ * "Glove & Overall Fac.", the surveyors' abbreviation of factory.
  *
  * Reads use strings only (the lettering of a building or an area), never street names.
  */
@@ -16,6 +17,7 @@ export const INDUSTRIAL_ENTRIES: readonly string[] = [
   'coal',
   'cork',
   'dye',
+  'fac',
   'factory',
   'foundry',
   'garage',

@@ -20,6 +20,9 @@ describe('the Industrial list', () => {
     expect(industrialMatch('Knitting Mill; Joseph Simpson & Sons')).toBe('mill');
     expect(industrialMatch('Machine Shop')).toBe('machine shop');
     expect(industrialMatch('Overall Factory')).toBe('factory');
+    // The 1931-35 plan's abbreviation, added on the maintainer's decision (session 052).
+    expect(industrialMatch('Glove & Overall Fac.')).toBe('fac');
+    expect(industrialMatch('Cork Fac.')).toBe('cork');
   });
 
   it('does not match a word outside the list', () => {
@@ -28,6 +31,8 @@ describe('the Industrial list', () => {
     expect(industrialMatch('Millinery')).toBeNull();
     expect(industrialMatch('Oilcloth store')).toBeNull();
     expect(industrialMatch('Coals')).toBeNull();
+    expect(industrialMatch('Facade')).toBeNull();
+    expect(industrialMatch('Fact')).toBeNull();
   });
 
   // P2: a string with no entry at word boundaries gives null; one with an entry does not.
