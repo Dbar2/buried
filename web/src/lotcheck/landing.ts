@@ -12,7 +12,7 @@ import { bufferScale, findBannedWords, industrialMatch, lotRelation } from '../e
 import type { Feature, FeatureCollection, PolygonalGeometry, PresentLayer, SourceRegistry } from '../evidence';
 import { boundsOf, boxesOverlap } from '../report/cropPlan';
 import { offsetOf, toJts, unionAll } from '../report/geom';
-import type { Jts } from '../report/geom';
+import type { Jts, Offset } from '../report/geom';
 import { LOT_POSITION_ERROR_M } from '../report/lotError';
 import { sentence, words } from '../report/sentence';
 import type { Sentence, Slot } from '../report/sentence';
@@ -48,6 +48,15 @@ function shrink(geometry: Jts, distanceM: number): Jts {
 }
 
 const isPolygonal = (g: { type: string }): g is PolygonalGeometry => g.type === 'Polygon' || g.type === 'MultiPolygon';
+
+/** Overlap in square metres of a polygonal feature with the lot, both in the lot's frame. Zero when JTS cannot read it. */
+function overlapM2(geometry: PolygonalGeometry, lotJts: Jts, offset: Offset): number {
+  try {
+    return toJts(geometry, offset).intersection(lotJts).getArea();
+  } catch {
+    return 0;
+  }
+}
 
 /** Published, registered, industrial areas. A feature whose source is not registered and confirmed is not counted. */
 function industrialAreas(collections: readonly FeatureCollection[], registry: SourceRegistry): Array<{ feature: Feature; key: string }> {
@@ -119,7 +128,14 @@ export function landingFact(collections: readonly FeatureCollection[], addresses
 
 // ---------- examples ----------
 
-export type TaggedLot = { lotId: string; addresses: readonly string[]; key: string };
+export type TaggedLot = {
+  lotId: string;
+  addresses: readonly string[];
+  key: string;
+  /** The earliest trigger's use as lettered, without the business name ("Coal & Wood Yard"), and the plan it is from. */
+  head: string;
+  sourceId: string;
+};
 export type Example = { lotId: string; address: string; key: string };
 
 /**
@@ -169,7 +185,17 @@ export function industrialLots(collections: readonly FeatureCollection[], lots: 
       if (lotJts.intersects(toJts(a.geometry, offset))) found.add(text);
     }
     if (found.size === 0) continue;
-    out.push({ lotId: lot.id, addresses: [...found].sort(byString), key: (on[0] as (typeof on)[number]).key });
+    // The use the Result's sentence is about (session 052's `leadUse`): most overlap with the lot, an area before a building, the earlier plan, the id.
+    const lead = on
+      .map((t) => ({ t, overlap: Math.round(overlapM2(t.feature.geometry as PolygonalGeometry, lotJts, offset) * 10) / 10 }))
+      .sort((a, b) => b.overlap - a.overlap || Number(b.t.feature.id.startsWith('use_')) - Number(a.t.feature.id.startsWith('use_')) || a.t.year - b.t.year || byString(a.t.feature.id, b.t.feature.id))[0] as { t: (typeof on)[number] };
+    out.push({
+      lotId: lot.id,
+      addresses: [...found].sort(byString),
+      key: lead.t.key,
+      head: useParts(lead.t.feature.properties.attributes.use ?? '').head,
+      sourceId: lead.t.feature.properties.provenance.origin_source,
+    });
   }
   return out.sort((a, b) => byString(a.lotId, b.lotId));
 }
@@ -178,7 +204,7 @@ export function industrialLots(collections: readonly FeatureCollection[], lots: 
  * Up to three distinct lots for "Try:", one address each (the first by text), one per distinct lettering
  * first, then filled by address text, shown in address order.
  */
-export function pickExamples(tagged: readonly TaggedLot[], limit = 3): Example[] {
+export function pickExamples(tagged: ReadonlyArray<Pick<TaggedLot, 'lotId' | 'addresses' | 'key'>>, limit = 3): Example[] {
   const candidates: Example[] = tagged
     .filter((t) => t.addresses.length > 0)
     .map((t) => ({ lotId: t.lotId, address: [...t.addresses].sort(byString)[0] as string, key: t.key }))

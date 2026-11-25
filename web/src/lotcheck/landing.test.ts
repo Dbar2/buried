@@ -133,7 +133,7 @@ describe('industrialLots and pickExamples', () => {
     ]);
     const collections = [makeCollection(P1911, [area(P1911, 1, [E0 + 2, N0 + 2], [10, 10], 'Coal Yard; A', 2), area(P1911, 2, [E0 + 200, N0 + 2], [10, 10], 'Baptist Mission Hall', 2)])];
     const reg = { ...registry(), sources: [...registry().sources, makeSource('fip_v3_1999_999', 1999, 1999)] };
-    expect(industrialLots(collections, lots, addresses, reg)).toEqual([{ lotId: 'lot_x', addresses: ['2A Test St', '2B Test St'], key: 'coal yard' }]);
+    expect(industrialLots(collections, lots, addresses, reg)).toEqual([{ lotId: 'lot_x', addresses: ['2A Test St', '2B Test St'], key: 'coal yard', head: 'Coal Yard', sourceId: P1911 }]);
   });
 
   it('picks up to three distinct lots, distinct lettering first, shown in address order', () => {

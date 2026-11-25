@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { FormEvent } from 'react';
 import { makeSheetTransform, ringsToPath, worldToPixel } from '../block/sheetTransform';
 import type { TileCorners } from '../block/sheetTransform';
 import { plainYears, sheetNumber } from '../evidence';
 import { lotLink } from '../place/placeLink';
 import { PRESENT_SOURCES } from '../report/buildReport';
 import { ringsOf } from '../report/cropPlan';
-import { lotForPoint, searchAddresses } from '../report/search';
+import { lotForPoint } from '../report/search';
+import { AddressCombobox } from './AddressCombobox';
 import * as copy from './copy';
-import { industrialLots, landingFact, pickExamples } from './landing';
+import { industrialLots, landingFact } from './landing';
+import { addressBook, defaultSuggestions, randomRecorded } from './suggest';
+import type { Suggestion } from './suggest';
 import { useLotData } from './useLotData';
 import '../styles/lotcheck.css';
 
@@ -45,7 +47,6 @@ export function RegistrationCrosses() {
 export function LandingPage() {
   const loaded = useLotData('landing');
   const picture = usePlanPicture();
-  const [query, setQuery] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const field = useRef<HTMLInputElement>(null);
 
@@ -54,25 +55,18 @@ export function LandingPage() {
   const lots = data?.presentLayers.get(PRESENT_SOURCES.lots);
 
   const fact = useMemo(() => (data ? landingFact(data.evidence, addresses, data.registry) : null), [data, addresses]);
-  const examples = useMemo(() => (data ? pickExamples(industrialLots(data.evidence, lots, addresses, data.registry)) : []), [data, lots, addresses]);
-  const hits = useMemo(() => searchAddresses(addresses, query), [addresses, query]);
+  const recordedLots = useMemo(() => (data ? industrialLots(data.evidence, lots, addresses, data.registry) : []), [data, lots, addresses]);
+  const book = useMemo(() => (data ? addressBook(addresses, recordedLots) : null), [data, addresses, recordedLots]);
 
-  const open = (point: [number, number]) => {
-    const id = lotForPoint(lots, point);
+  const open = (choice: Suggestion) => {
+    const id = choice.lotId ?? lotForPoint(lots, choice.point);
     if (id === null) setMessage(copy.NOT_RECONSTRUCTED);
     else window.location.assign(lotLink(id));
   };
 
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    if (query.trim().length === 0) return;
-    if (!data) {
-      setMessage('Loading the address list. Try again in a moment.');
-      return;
-    }
-    const first = hits[0];
-    if (first) open(first.point);
-    else setMessage(copy.NOT_RECONSTRUCTED);
+  const random = () => {
+    const pick = book ? randomRecorded(book, Math.random) : null;
+    if (pick) open(pick);
   };
 
   // The outline of the counted yard, from the evidence, through the picture's own transform.
@@ -96,54 +90,10 @@ export function LandingPage() {
         <p className="lc-kicker">{copy.LANDING.kicker}</p>
         <h1 className="lc-headline">{copy.LANDING.headline}</h1>
         <p className="lc-lede">{copy.LANDING.line}</p>
-        <form className="lc-form" role="search" onSubmit={submit} noValidate>
-          <label className="visually-hidden" htmlFor="lc-address">
-            {copy.LANDING.fieldLabel}
-          </label>
-          <input
-            id="lc-address"
-            ref={field}
-            className="lc-field"
-            type="search"
-            autoComplete="off"
-            placeholder={`Type an address, e.g. 2A Percy St`}
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setMessage(null);
-            }}
-            data-testid="lc-address"
-          />
-          <button type="submit" className="lc-button" data-testid="lc-check">
-            {copy.LANDING.button}
-          </button>
-        </form>
-        {hits.length > 0 && query.trim().length >= 2 ? (
-          <ul className="lc-hits" aria-label="Matching addresses" data-testid="lc-hits">
-            {hits.map((h) => (
-              <li key={h.id}>
-                <button type="button" className="lc-linkbutton" onClick={() => open(h.point)}>
-                  {h.text}
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-        {message ? (
-          <p role="status" className="lc-status" data-testid="lc-message">
-            {message}
-          </p>
-        ) : null}
-        {examples.length > 0 ? (
-          <p className="lc-try" data-testid="lc-examples">
-            <span>{copy.LANDING.try}</span>
-            {examples.map((e) => (
-              <a key={e.lotId} href={lotLink(e.lotId)}>
-                {e.address}
-              </a>
-            ))}
-          </p>
-        ) : null}
+        <AddressCombobox ref={field} book={book} onChoose={open} message={message} onEdit={() => setMessage(null)} />
+        <button type="button" className="lc-linkbutton lc-random" onClick={random} data-testid="lc-random" hidden={!book || defaultSuggestions(book, 1).length === 0}>
+          {copy.LANDING.random}
+        </button>
         {fact ? (
           <p className="lc-fact" data-testid="lc-fact">
             {fact.sentence.text}

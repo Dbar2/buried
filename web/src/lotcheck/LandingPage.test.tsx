@@ -8,15 +8,15 @@ describe('LandingPage before the data has loaded', () => {
   const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
 
   it('shows the kicker, the headline, the sentence, the field and the button in order', () => {
-    const order = ['A LOT CHECK FROM OLD FIRE-INSURANCE PLANS', 'What was on this land?', 'Before you buy, dig or plant, see what the old plans recorded on your lot.', 'Check this address'].map((s) => html.indexOf(s));
+    const order = ['A LOT CHECK FROM OLD FIRE-INSURANCE PLANS', 'What is buried under your address?', 'Type an address. We dig down through the old plans and show you what stood there.', 'role="combobox"', 'Dig'].map((s) => html.indexOf(s));
     expect(order.every((i) => i >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
-    expect(html).toContain('type="search"');
+    expect(html).toContain('aria-autocomplete="list"');
   });
 
-  it('has no fact, examples or coverage line until the records are read (they are computed, never typed)', () => {
+  it('has no fact, caption or coverage line until the records are read (they are computed, never typed)', () => {
     expect(html).not.toContain('data-testid="lc-fact"');
-    expect(html).not.toContain('data-testid="lc-examples"');
+    expect(html).not.toContain('data-testid="lc-caption"');
     expect(html).not.toContain('Covered so far');
   });
 

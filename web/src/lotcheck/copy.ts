@@ -54,16 +54,47 @@ export const ACTIONS = {
   share: 'Share this check',
   copied: 'Link copied.',
   block: 'See this block in 3D',
+  another: 'Dig another address',
 } as const;
 
 export const LANDING = {
   kicker: 'A LOT CHECK FROM OLD FIRE-INSURANCE PLANS',
-  headline: 'What was on this land?',
-  line: 'Before you buy, dig or plant, see what the old plans recorded on your lot.',
-  button: 'Check this address',
+  headline: 'What is buried under your address?',
+  line: 'Type an address. We dig down through the old plans and show you what stood there.',
+  button: 'Dig',
   fieldLabel: 'Address',
-  fieldHint: 'For example 2A Percy St',
-  try: 'Try:',
+  placeholder: 'Type an address, e.g. 2A Percy St',
+  random: 'or dig somewhere at random',
+} as const;
+
+/** The address list under the field (requirement 8). */
+export const SUGGEST = {
+  tryOne: 'Try one of these',
+  notDug: 'We have not dug there yet. Try one of these:',
+  recorded: 'something recorded',
+  listLabel: 'Matching addresses',
+  loading: 'Loading the address list.',
+} as const;
+
+/** The dig (requirement 9). The caption with a year is built in digTimeline.ts with the sentence builder. */
+export const DIG = {
+  lighting: 'Lighting the lamp…',
+  announceStart: 'Digging down through the plans',
+  captionNoPlans: 'Digging down…',
+  skip: 'Skip',
+  today: 'Today',
+  nothing: 'nothing lettered here',
+  nextDoor: 'next door: ',
+  overlayLabel: 'Digging down through the old plans',
+} as const;
+
+/** The inscription at the top of the record sheet (requirement 10). */
+export const INSCRIPTION = {
+  here: 'HERE STOOD',
+  next: 'NEXT DOOR STOOD',
+  nothing: 'NOTHING LETTERED HERE',
+  notDug: 'NOT DUG YET',
+  notQuoted: 'A use this page does not quote',
 } as const;
 
 /** Every fixed string, for the banned-word test. */
@@ -79,6 +110,9 @@ export const ALL_FIXED_COPY: readonly string[] = [
   ...Object.values(SECTION),
   ...Object.values(ACTIONS),
   ...Object.values(LANDING),
+  ...Object.values(SUGGEST),
+  ...Object.values(DIG),
+  ...Object.values(INSCRIPTION),
 ];
 
 // ---------- coverage line ----------

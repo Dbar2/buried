@@ -78,7 +78,8 @@ describe('the lot check styles use no pair design.md forbids (spec 08 task 7)', 
   it('uses lantern only for the primary button and the outline, and copper only for the divider grip', () => {
     const rules = [...noComments.matchAll(/([^{}]+)\{([^}]*)\}/g)].map((m) => ({ selector: (m[1] as string).trim(), body: m[2] as string }));
     const uses = (token: string) => rules.filter((r) => r.body.includes(`var(--${token})`)).map((r) => r.selector);
-    expect(uses('lantern').sort()).toEqual(['.lc-button', '.lc-outline']);
+    // Session 053: the suggestion list's dot ("something recorded") is lantern-coloured too (spec 08 requirement 8.2).
+    expect(uses('lantern').sort()).toEqual(['.lc-button', '.lc-dot', '.lc-outline']);
     expect(uses('copper')).toEqual(['.lc-grip']);
   });
 
