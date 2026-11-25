@@ -20,11 +20,12 @@ import type { Report, ReportModel } from '../report/buildReport';
 import { BUILDING_OUTLINES_SOURCE } from '../report/coreSample';
 import type { Band } from '../report/coreSample';
 import { versionPrefix } from '../report/links';
+import { NO_ADDRESS_HEADING } from '../report/copy';
 import { offsetOf, toJts } from '../report/geom';
 import { LOT_POSITION_ERROR_M } from '../report/lotError';
 import { STRUCTURE_RADIUS_M } from '../report/radii';
 import { statusSentences } from '../report/reviewStatus';
-import { fixed, joined, plan, position, sentence, words } from '../report/sentence';
+import { fixed, joined, num, plan, position, sentence, words } from '../report/sentence';
 import type { Sentence, Slot } from '../report/sentence';
 import * as copy from './copy';
 import type { LotTag } from './copy';
@@ -255,6 +256,19 @@ export function buildLotCheck(model: ReportModel, input: LotCheckInput): LotChec
   }
 }
 
+/**
+ * The Today row: the addresses on the lot and how many of the City's building outlines meet it ("2A, 2B, 2C and 2D
+ * Percy St, 6 building outlines."). A lot with no address, or with no outline, keeps the Report's own sentence.
+ */
+function todaySentences(heading: Sentence, band: Band | undefined): Sentence[] {
+  if (!band) return [];
+  const count = band.buildingCount;
+  if (count === undefined || count === 0 || heading.text === NO_ADDRESS_HEADING) return band.sentences;
+  const address: Slot = { text: heading.text, numbers: heading.pack.numbers, ids: heading.pack.ids, verbatim: heading.pack.verbatim };
+  const noun = words(count === 1 ? ' building outline.' : ' building outlines.');
+  return [sentence`${address}, ${num(count)}${noun}`];
+}
+
 function build(report: Report, input: LotCheckInput): LotCheck {
   const { lot, collections, tiles, sources } = input;
   const lotId = report.place.lotId;
@@ -369,7 +383,7 @@ function build(report: Report, input: LotCheckInput): LotCheck {
     };
   });
   const today = report.coreSample.find((b) => b.sourceIds.includes(BUILDING_OUTLINES_SOURCE));
-  const todayRow: TodayRow = { kind: 'today', yearLabel: 'Today', sentences: today?.sentences ?? [] };
+  const todayRow: TodayRow = { kind: 'today', yearLabel: 'Today', sentences: todaySentences(report.place.heading, today) };
 
   // ---- provenance ----
   const shown = recordItems.length > 0 ? [...new Set(recordItems.map((i) => i.sourceId))] : plateIds;

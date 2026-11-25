@@ -28,6 +28,9 @@ export const COULD_NOT_PRODUCE = 'This check could not be produced.';
 /** The row of a plan whose lettering holds a word this site does not print. */
 export const WORDING_NOT_REPRODUCED = 'Its wording is not reproduced here. The crop shows it as lettered.';
 
+/** The line under a use that the Industrial list matched: "Counts as industrial use (matched: coal)". */
+export const countsAsIndustrial = (matched: string): string => `Counts as industrial use (matched: ${matched})`;
+
 export const LOADING_PLAN = 'Loading the plan.';
 
 /** The note where the compare frame reaches past the sheet's map area: "edge of sheet 229". */

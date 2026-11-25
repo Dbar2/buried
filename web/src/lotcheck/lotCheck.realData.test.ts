@@ -21,6 +21,8 @@ describe('the lot check on the committed data', () => {
     }
     expect(c.compare.planSourceIds).toEqual(['fip_v3_1911_229', 'fip_v3_1935_229']);
     expect(c.title.text).toContain('2A');
+    const today = c.rows.find((r) => r.kind === 'today');
+    expect(today?.sentences.map((s) => s.text)).toEqual(['2A, 2B, 2C and 2D Percy St, 6 building outlines.']);
   });
 
   it('524 King St E: a machine shop', async () => {

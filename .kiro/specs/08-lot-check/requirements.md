@@ -48,7 +48,10 @@ in the Evidence Library). *Coverage area*: lots for which `buildReport` does not
     this lot “Coal & Wood Yard”."). The other uses are rows under "What the plans show".
 3.4 "What the plans show" SHALL have one row per plan covering the lot and one for today. A plan row
     shows its lettering crop and a line from the record. A plan that letters nothing here says what
-    that plan shows and states no finding.
+    that plan shows and states no finding. A use that matched the Industrial list says "Counts as
+    industrial use (matched: <entry>)". The row for today names the addresses on the lot and the
+    number of City building outlines ("2A, 2B, 2C and 2D Percy St, 6 building outlines."). A
+    lettering crop is at most 200 px wide, and at most 60 per cent of the column under 720 px.
 3.5 "What this does not tell you" SHALL use the Report's `cannotTell` and `beforeYouDig` text and
     link, and begin with "Buried screens; it doesn't certify."
 3.6 THE actions SHALL be "Download the one-page record" (the Report for this lot; the one primary

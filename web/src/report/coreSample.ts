@@ -61,6 +61,8 @@ export type Band = {
   cropLabel: string;
   /** The label for a picture cut from a source nobody has reviewed here ("From the plate, not yet reviewed"), or null. */
   unreviewed: string | null;
+  /** The Today band only: how many present-day building outlines meet the lot. */
+  buildingCount?: number;
 };
 
 export type CoreSampleInput = {
@@ -159,6 +161,7 @@ function todayBand(input: CoreSampleInput, era: Era): Band {
     crop: vectorCrop(input),
     cropLabel: "Today's map of this lot, drawn from the City of Toronto's outlines",
     unreviewed: null,
+    buildingCount: count,
   };
 }
 

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { checkSentence, findBannedWords } from '../evidence';
+import { checkSentence, findBannedWords, INDUSTRIAL_ENTRIES } from '../evidence';
 import type { SourceRegistry } from '../evidence';
 import { makeSource, P1911, P1935 } from '../evidence/testing/fixtures';
-import { ALL_FIXED_COPY, coverageSentences, coverageText, plansSlot } from './copy';
+import { ALL_FIXED_COPY, countsAsIndustrial, coverageSentences, coverageText, plansSlot } from './copy';
 
 describe('lot check copy', () => {
   it('has no banned word in any fixed string', () => {
@@ -21,6 +21,11 @@ describe('lot check copy', () => {
     };
     expect(coverageText(registry)).toBe('Covered so far: one block of Toronto. Plans of 1911-14 and 1931-35.');
     for (const s of coverageSentences(registry)) expect(checkSentence(s.text, s.pack)).toEqual({ ok: true });
+  });
+
+  it('says what a matched use counts as, in words a visitor understands', () => {
+    expect(countsAsIndustrial('coal')).toBe('Counts as industrial use (matched: coal)');
+    for (const entry of INDUSTRIAL_ENTRIES) expect(findBannedWords(countsAsIndustrial(entry)), entry).toEqual([]);
   });
 
   it('names plans by their plain years, once each', () => {

@@ -81,7 +81,7 @@ function UseItem({ line, showCrop }: { line: UseLine; showCrop: boolean }) {
       <p>
         <span className={line.quotable ? 'lc-lettering' : undefined}>{line.text.text}</span>
         <span className="lc-relation">{line.relationText.text}</span>
-        {line.matched ? <span className="lc-match">Industrial list: {line.matched}</span> : null}
+        {line.matched ? <span className="lc-match">{copy.countsAsIndustrial(line.matched)}</span> : null}
       </p>
     </div>
   );

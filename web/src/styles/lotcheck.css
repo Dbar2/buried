@@ -616,7 +616,7 @@
   align-items: start;
   column-gap: var(--space-3);
   display: grid;
-  grid-template-columns: minmax(0, 10rem) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 200px) minmax(0, 1fr);
 }
 
 .lc-use + .lc-use {
@@ -628,7 +628,7 @@
   border: 1px solid var(--rule);
   display: block;
   height: auto;
-  max-width: 100%;
+  max-width: 200px;
   width: 100%;
 }
 
@@ -893,7 +893,7 @@
 
   .lc-use .lc-crop,
   .lc-use .lc-crop-missing {
-    max-width: 16rem;
+    max-width: 60%;
   }
 
   .lc-actions .lc-button {
