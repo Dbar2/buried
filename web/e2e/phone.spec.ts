@@ -14,6 +14,10 @@ import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { lotWithTheBuilding } from './support/lot';
 
+// Spec 08 (session 052): this is the 390 px pass of the old landing and place page, which are no longer routed.
+// The lot check's own 390 px and 320 px pass is in lotcheck.spec.ts.
+test.skip(() => true, 'Retired by spec 08: the landing and place page it tests are no longer routed (see lotcheck.spec.ts for 390 px).');
+
 const OUTPUT = join(fileURLToPath(new URL('..', import.meta.url)), 'e2e', 'output');
 const BANK = 'bld_fip_v3_1911_229_0001';
 const placeUrl = (era: string): string => `/place?lot=${encodeURIComponent(lotWithTheBuilding())}&era=${era}`;

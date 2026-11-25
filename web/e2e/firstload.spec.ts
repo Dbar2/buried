@@ -18,6 +18,10 @@ import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import type { Browser } from '@playwright/test';
 
+// Spec 08 (session 052): this measures the old landing (a field over the 3D scene), which is no longer routed.
+// The lot check's weights are measured in lotcheck.spec.ts.
+test.skip(() => true, 'Retired by spec 08: the landing it measures is no longer routed (see lotcheck.spec.ts for page weight).');
+
 const OUTPUT = join(fileURLToPath(new URL('..', import.meta.url)), 'e2e', 'output');
 
 type Times = { field: number | null; examples: number | null; scene: number | null; sceneState: string | null };

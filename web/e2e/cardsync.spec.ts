@@ -14,6 +14,9 @@ import type { Page } from '@playwright/test';
 import { PNG } from 'pngjs';
 import { lotWithTheBuilding } from './support/lot';
 
+// Spec 08 (session 052): this tests the old place page (report column, gauge, card), which is no longer routed.
+test.skip(() => true, 'Retired by spec 08: the place page it tests is no longer routed (/place?lot= is the lot check Result).');
+
 const OUTPUT = join(fileURLToPath(new URL('..', import.meta.url)), 'e2e', 'output');
 const BANK = 'bld_fip_v3_1911_229_0001';
 const ERA_IDS = ['today', '1947', '1935', '1911'] as const;

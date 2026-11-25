@@ -14,9 +14,13 @@ import { lotWithTheBuilding } from './support/lot';
 
 const OUTPUT = join(fileURLToPath(new URL('..', import.meta.url)), 'e2e', 'output');
 
+/** Spec 08 (session 052): the old landing and place page are no longer routed; `/sources` still is. */
+const RETIRED = 'Retired by spec 08: the old landing and place page are no longer routed (see lotcheck.spec.ts).';
+
 test.beforeAll(() => mkdirSync(OUTPUT, { recursive: true }));
 
 test('the landing: wordmark, tagline, field, "Try" and the coverage line', async ({ page }) => {
+  test.skip(true, RETIRED);
   test.setTimeout(240_000);
   await page.goto('/place');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Buried');
@@ -37,6 +41,7 @@ test('the landing: wordmark, tagline, field, "Try" and the coverage line', async
 });
 
 test('the place page: the address as the heading, a summary, and the record\'s own status line', async ({ page }) => {
+  test.skip(true, RETIRED);
   test.setTimeout(240_000);
   const lot = lotWithTheBuilding();
   await page.goto(`/place?lot=${encodeURIComponent(lot)}&era=1911`);

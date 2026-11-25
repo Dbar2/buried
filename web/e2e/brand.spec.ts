@@ -80,7 +80,11 @@ async function fontFamily(page: Page, selector: string): Promise<string> {
 
 test.beforeAll(() => mkdirSync(OUTPUT, { recursive: true }));
 
+/** Spec 08 (session 052): the old landing and place page are no longer routed; `/report` still is. */
+const RETIRED = 'Retired by spec 08: the old landing and place page are no longer routed (see lotcheck.spec.ts).';
+
 test('the landing: the scene, the wordmark, one field and three real examples; nothing leaves the origin', async ({ page }) => {
+  test.skip(true, RETIRED);
   test.setTimeout(240_000);
   const requested: string[] = [];
   page.on('request', (r) => requested.push(r.url()));
@@ -121,6 +125,7 @@ test('the landing: the scene, the wordmark, one field and three real examples; n
 });
 
 test('an example address opens the place page for its lot', async ({ page }) => {
+  test.skip(true, RETIRED);
   await page.goto('/place');
   const first = page.getByTestId('landing-examples').locator('a').first();
   await expect(first).toBeVisible({ timeout: 60_000 });
@@ -132,6 +137,7 @@ test('an example address opens the place page for its lot', async ({ page }) => 
 });
 
 test('the place page dug to 1911: scene left, report right, four bands in order, keys reach everything', async ({ page }) => {
+  test.skip(true, RETIRED);
   test.setTimeout(300_000);
   await page.setViewportSize({ width: 1280, height: 800 });
   const lot = lotWithABuilding();
@@ -215,6 +221,7 @@ test('the place page dug to 1911: scene left, report right, four bands in order,
 });
 
 test('the place page on a narrow screen: the report sits below the scene', async ({ page }) => {
+  test.skip(true, RETIRED);
   test.setTimeout(240_000);
   await page.setViewportSize({ width: 390, height: 844 });
   const lot = lotWithABuilding();

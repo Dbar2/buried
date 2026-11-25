@@ -18,6 +18,9 @@ import { mismatch } from './support/lens';
 import { sceneOnlyPng as canvasPng, shoot } from './support/scene';
 import { lotWithTheBuilding } from './support/lot';
 
+// Spec 08 (session 052): this tests the old place page's Lantern control and card, which is no longer routed.
+test.skip(() => true, 'Retired by spec 08: the place page it tests is no longer routed (/place?lot= is the lot check Result).');
+
 const WEB = fileURLToPath(new URL('..', import.meta.url));
 const OUTPUT = join(WEB, 'e2e', 'output');
 const BANK = 'bld_fip_v3_1911_229_0001';

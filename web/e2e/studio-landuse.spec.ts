@@ -19,6 +19,9 @@ import type { P } from './support/areaPixels';
 import { project as projectPoint } from './support/drapeMath';
 import { flyDebugCamera, frameTimes, sceneOnlyPng, settleCamera } from './support/scene';
 
+// Spec 08 (session 052): its second half reads the traced area on the old place page, which is no longer routed.
+test.skip(() => true, 'Retired by spec 08: the place page it reads the traced area on is no longer routed.');
+
 const PLATE = 'fip_v3_1911_229';
 const WEB = fileURLToPath(new URL('..', import.meta.url));
 const DATA = join(WEB, '..', 'data');
