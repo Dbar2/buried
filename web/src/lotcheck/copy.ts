@@ -33,6 +33,13 @@ export const countsAsIndustrial = (matched: string): string => `Counts as indust
 
 export const LOADING_PLAN = 'Loading the plan.';
 
+/**
+ * The three lines under "What this does not tell you" (session 052). The longer text stays in the one-page record
+ * (the Report's `cannotTell` and `beforeYouDig`), word for word. The link follows `NOT_A_LOCATE_LEAD` and a full stop.
+ */
+export const CANNOT_TELL_SOIL = 'It does not say what is in the soil, water or structures today.';
+export const NOT_A_LOCATE_LEAD = 'It is not a utility locate. Before you dig, request locates through';
+
 /** The note where the compare frame reaches past the sheet's map area: "edge of sheet 229". */
 export const edgeOfSheet = (sheet: string): string => `edge of sheet ${sheet}`;
 
@@ -67,6 +74,8 @@ export const ALL_FIXED_COPY: readonly string[] = [
   COULD_NOT_PRODUCE,
   WORDING_NOT_REPRODUCED,
   LOADING_PLAN,
+  CANNOT_TELL_SOIL,
+  NOT_A_LOCATE_LEAD,
   ...Object.values(SECTION),
   ...Object.values(ACTIONS),
   ...Object.values(LANDING),

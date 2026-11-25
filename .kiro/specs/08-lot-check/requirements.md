@@ -52,8 +52,11 @@ in the Evidence Library). *Coverage area*: lots for which `buildReport` does not
     industrial use (matched: <entry>)". The row for today names the addresses on the lot and the
     number of City building outlines ("2A, 2B, 2C and 2D Percy St, 6 building outlines."). A
     lettering crop is at most 200 px wide, and at most 60 per cent of the column under 720 px.
-3.5 "What this does not tell you" SHALL use the Report's `cannotTell` and `beforeYouDig` text and
-    link, and begin with "Buried screens; it doesn't certify."
+3.5 "What this does not tell you" SHALL show three lines (session 052), begin with "Buried screens;
+    it doesn't certify.", then "It does not say what is in the soil, water or structures today.",
+    then "It is not a utility locate. Before you dig, request locates through Ontario Dig
+    Authority." with the link of the Report's `beforeYouDigLink`. The Report's longer `cannotTell`
+    and `beforeYouDig` lines stay in the one-page record, word for word.
 3.6 THE actions SHALL be "Download the one-page record" (the Report for this lot; the one primary
     button), "Share this check" (copies `/lot/<id>`, with the data version as spec 05 does) and
     "See this block in 3D" (to `/block`; removed by task 10 if the Player is too large).

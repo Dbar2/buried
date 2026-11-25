@@ -94,8 +94,7 @@ export type LotCheck =
       title: Sentence;
       verdict: { tag: LotTag; tagText: string; triggers: Trigger[]; sentences: Sentence[]; notClearance: string | null };
       rows: Array<PlanRow | TodayRow>;
-      cannotTell: { screens: Sentence; items: Sentence[]; link: { text: string; url: string } | null };
-      dig: { sentences: Sentence[]; link: { text: string; url: string } };
+      cannotTell: { screens: Sentence; soil: Sentence; locate: { lead: Sentence; link: { text: string; url: string } } };
       provenance: { attribution: string[]; position: Sentence | null; traced: Sentence[]; review: Sentence[] };
       compare: { planSourceIds: string[] };
       links: { print: string; share: string };
@@ -412,8 +411,11 @@ function build(report: Report, input: LotCheckInput): LotCheck {
     title: report.place.heading,
     verdict: { tag, tagText: copy.TAG_TEXT[tag], triggers, sentences, notClearance },
     rows: [...planRows, todayRow],
-    cannotTell: { screens: report.screensLine, items: report.cannotTell, link: report.cannotTellLink },
-    dig: { sentences: report.beforeYouDig, link: report.beforeYouDigLink },
+    cannotTell: {
+      screens: report.screensLine,
+      soil: fixed(copy.CANNOT_TELL_SOIL),
+      locate: { lead: fixed(copy.NOT_A_LOCATE_LEAD), link: report.beforeYouDigLink },
+    },
     provenance: { attribution, position: positionLine, traced, review },
     compare: { planSourceIds: plateIds.filter((id) => tiles.some((t) => t.source === id)) },
     links: {
@@ -439,8 +441,8 @@ export function allSentences(check: Extract<LotCheck, { kind: 'check' }>): Sente
     ...check.verdict.sentences,
     ...check.rows.flatMap((r) => (r.kind === 'today' ? r.sentences : [...r.sentences, ...r.lines.flatMap((l) => [l.text, l.relationText])])),
     check.cannotTell.screens,
-    ...check.cannotTell.items,
-    ...check.dig.sentences,
+    check.cannotTell.soil,
+    check.cannotTell.locate.lead,
     ...(check.provenance.position ? [check.provenance.position] : []),
     ...check.provenance.traced,
     ...check.provenance.review,

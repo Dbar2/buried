@@ -154,10 +154,14 @@ describe('buildLotCheck: the tag', () => {
   });
 
   it('the cannot-tell block begins with the screens line and carries the dig pointer', () => {
-    const { result } = run([plateCollection(P1911, [])]);
+    const { result, model } = run([plateCollection(P1911, [])]);
     const c = checked(result);
     expect(c.cannotTell.screens.text).toBe("Buried screens; it doesn't certify.");
-    expect(c.dig.link.url).toBe('https://ontariodigauthority.ca/');
+    expect(c.cannotTell.soil.text).toBe('It does not say what is in the soil, water or structures today.');
+    expect(c.cannotTell.locate.lead.text).toBe('It is not a utility locate. Before you dig, request locates through');
+    expect(c.cannotTell.locate.link).toEqual({ text: 'Ontario Dig Authority', url: 'https://ontariodigauthority.ca/' });
+    // The longer lines stay in the one-page record, word for word.
+    expect(model.kind === 'report' ? model.cannotTell.length : 0).toBeGreaterThan(1);
     expect(addressesLayer().features.length).toBeGreaterThan(0);
   });
 });

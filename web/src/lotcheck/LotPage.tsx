@@ -183,18 +183,9 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
             <p>
               <strong>{check.cannotTell.screens.text}</strong>
             </p>
-            {check.cannotTell.items.map((s, i) => (
-              <p key={i} className="lc-small">
-                {s.text}
-              </p>
-            ))}
-            {check.cannotTell.link ? (
-              <p>
-                <a href={check.cannotTell.link.url}>{check.cannotTell.link.text}</a>
-              </p>
-            ) : null}
-            <p className="lc-small">
-              {text(check.dig.sentences)} <a href={check.dig.link.url}>{check.dig.link.text}</a>
+            <p>{check.cannotTell.soil.text}</p>
+            <p>
+              {check.cannotTell.locate.lead.text} <a href={check.cannotTell.locate.link.url}>{check.cannotTell.locate.link.text}</a>.
             </p>
           </section>
           <section className="lc-section lc-actions" aria-label="Actions">
