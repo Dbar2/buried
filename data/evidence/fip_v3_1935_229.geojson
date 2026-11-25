@@ -7560,6 +7560,189 @@
         "status": "published"
       },
       "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632457.219,
+              4834864.735
+            ],
+            [
+              632500.379,
+              4834877.0
+            ],
+            [
+              632570.94,
+              4834904.489
+            ],
+            [
+              632530.756,
+              4834956.392
+            ],
+            [
+              632486.544,
+              4834941.255
+            ],
+            [
+              632491.808,
+              4834920.458
+            ],
+            [
+              632445.375,
+              4834906.575
+            ],
+            [
+              632457.219,
+              4834864.735
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "use_fip_v3_1935_229_0002",
+      "properties": {
+        "attributes": {
+          "use": "Department of Street Cleaning, Eastern Division, City of Toronto (as lettered on the plate)"
+        },
+        "confidence": "documented",
+        "confidence_reason": "Area traced by hand around the yard and its sheds as drawn on the plate; use read from the plate lettering.",
+        "kind": "land_use",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "attribute_reads": [
+            {
+              "attribute": "use",
+              "confirmed_at": "2026-11-25T15:46:36Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 185,
+                "width": 680,
+                "x": 1227,
+                "y": 2345
+              },
+              "read_by": "person"
+            }
+          ],
+          "confirmed_at": "2026-11-25T15:46:36Z",
+          "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+          "crop_px": {
+            "height": 580,
+            "width": 1035,
+            "x": 1157,
+            "y": 2085
+          },
+          "digitising_error_m": 1.0,
+          "origin_source": "fip_v3_1935_229",
+          "review": {
+            "state": "draft_hand"
+          }
+        },
+        "status": "published"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632485.252,
+              4834922.972
+            ],
+            [
+              632512.631,
+              4834956.725
+            ],
+            [
+              632493.332,
+              4834983.169
+            ],
+            [
+              632462.587,
+              4834950.327
+            ],
+            [
+              632485.252,
+              4834922.972
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "bld_fip_v3_1935_229_0069",
+      "properties": {
+        "attributes": {
+          "storeys": 3,
+          "use": "Knitting Mill; Joseph Simpson & Sons (as lettered on the plate)"
+        },
+        "confidence": "documented",
+        "confidence_reason": "Footprint traced by hand from the plate outline as one block; use and storeys (3) read from the plate lettering.",
+        "kind": "building",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1935_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 3.3,
+        "provenance": {
+          "alignment_error_m": 3.1,
+          "attribute_reads": [
+            {
+              "attribute": "use",
+              "confirmed_at": "2026-11-25T15:46:36Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 230,
+                "width": 275,
+                "x": 1517,
+                "y": 1885
+              },
+              "read_by": "person"
+            },
+            {
+              "attribute": "storeys",
+              "confirmed_at": "2026-11-25T15:46:36Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 230,
+                "width": 275,
+                "x": 1517,
+                "y": 1885
+              },
+              "read_by": "person"
+            }
+          ],
+          "confirmed_at": "2026-11-25T15:46:36Z",
+          "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+          "crop_px": {
+            "height": 482,
+            "width": 447,
+            "x": 1395,
+            "y": 1788
+          },
+          "digitising_error_m": 1.0,
+          "origin_source": "fip_v3_1935_229",
+          "review": {
+            "state": "draft_hand"
+          }
+        },
+        "status": "published"
+      },
+      "type": "Feature"
     }
   ],
   "mapped_area": {

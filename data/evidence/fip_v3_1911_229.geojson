@@ -9350,6 +9350,93 @@
         "status": "published"
       },
       "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              632489.01,
+              4834875.685
+            ],
+            [
+              632570.524,
+              4834901.431
+            ],
+            [
+              632516.051,
+              4834960.681
+            ],
+            [
+              632507.934,
+              4834956.36
+            ],
+            [
+              632488.43,
+              4834933.502
+            ],
+            [
+              632476.524,
+              4834915.242
+            ],
+            [
+              632489.01,
+              4834875.685
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "use_fip_v3_1911_229_0002",
+      "properties": {
+        "attributes": {
+          "use": "Lumber Piles; R. Laidlaw & Co. Ltd. (as lettered on the plate)"
+        },
+        "confidence": "documented",
+        "confidence_reason": "Area traced by hand along the yard boundary drawn dashed on the plate and the street line; use read from the plate lettering.",
+        "kind": "land_use",
+        "observations": [
+          {
+            "method": "origin",
+            "present": true,
+            "source": "fip_v3_1911_229",
+            "visibility": "clear"
+          }
+        ],
+        "position_error_m": 4.5,
+        "provenance": {
+          "alignment_error_m": 4.3,
+          "attribute_reads": [
+            {
+              "attribute": "use",
+              "confirmed_at": "2026-11-25T15:46:36Z",
+              "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+              "crop_px": {
+                "height": 446,
+                "width": 1020,
+                "x": 2487,
+                "y": 4621
+              },
+              "read_by": "person"
+            }
+          ],
+          "confirmed_at": "2026-11-25T15:46:36Z",
+          "confirmed_by": "Buried maintainers (draft tracing by hand, not yet reviewed)",
+          "crop_px": {
+            "height": 1274,
+            "width": 1515,
+            "x": 2218,
+            "y": 3857
+          },
+          "digitising_error_m": 1.0,
+          "origin_source": "fip_v3_1911_229",
+          "review": {
+            "state": "draft_hand"
+          }
+        },
+        "status": "published"
+      },
+      "type": "Feature"
     }
   ],
   "mapped_area": {
