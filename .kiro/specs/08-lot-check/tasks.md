@@ -16,7 +16,7 @@ One builder session, in order. **(demo)** marks what the demo video needs. Recor
   `web/src/shell/pageTitle.ts`, `web/src/sources/SourcesPage.tsx`. Add `landing`, `lot`, `how`;
   remove `walk`; header "How it works" and "Sources"; the Studio linked from Sources only. A test
   that the new pages import no `explorer`, `bridge` or `walk` module. (1.1 to 1.3, 7.4)
-- [ ] 6. **(demo)** Landing: `web/src/lotcheck/LandingPage.tsx`, `web/src/styles/lotcheck.css`,
+- [x] 6. **(demo)** Landing: `web/src/lotcheck/LandingPage.tsx`, `web/src/styles/lotcheck.css`,
   `web/scripts/genLandingPlan.ts`, script `gen:landing-plan`, `web/public/lotcheck/*`. (2, 7.1)
 - [ ] 7. **(demo)** Result and compare view: `LotPage.tsx`, `CompareView.tsx`, `CompareView.test.tsx`
   (divider keys, clamp, plan switch announcement), CSS. "Download the one-page record" opens the

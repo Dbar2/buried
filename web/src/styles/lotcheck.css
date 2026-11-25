@@ -1,0 +1,861 @@
+/*
+ * The lot check pages (spec 08; design.md "The lot check pages"): the Landing, the Result and the How page.
+ * A paper page: parchment ground, ink text, one plan picture, hairlines between sections. Colours come from
+ * tokens.css only. Lantern is the one primary button and the lot outline (with its ink casing); copper is
+ * never text and never a needed outline on paper (3.0 against parchment); focus on paper is ink.
+ * Rectangles with a 2 px radius at most, no shadows, no gradients, no pills.
+ */
+.lotcheck-page {
+  background: var(--parchment);
+  color: var(--ink);
+}
+
+.lotcheck-scroll {
+  background: var(--parchment);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.55;
+  position: relative;
+}
+
+.lotcheck-scroll a {
+  color: var(--ink);
+}
+
+.lotcheck-scroll :focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.lotcheck-scroll :where(h1, h2, h3) {
+  color: var(--ink);
+  font-family: var(--font-heading);
+  font-weight: 400;
+  margin: 0;
+}
+
+.lotcheck-scroll :where(p) {
+  margin: 0;
+}
+
+.lotcheck-scroll .mono {
+  font-family: var(--font-mono);
+}
+
+/* Small capitals with wide tracking. */
+.lc-kicker,
+.lc-section-heading,
+.lc-tag {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* A registration cross in each corner: two hairlines. */
+.lc-cross {
+  height: 15px;
+  pointer-events: none;
+  position: absolute;
+  width: 15px;
+}
+
+.lc-cross::before,
+.lc-cross::after {
+  background: var(--rule);
+  content: '';
+  position: absolute;
+}
+
+.lc-cross::before {
+  height: 1px;
+  left: 0;
+  right: 0;
+  top: 7px;
+}
+
+.lc-cross::after {
+  bottom: 0;
+  left: 7px;
+  top: 0;
+  width: 1px;
+}
+
+.lc-cross-tl {
+  left: 18px;
+  top: 18px;
+}
+
+.lc-cross-tr {
+  right: 18px;
+  top: 18px;
+}
+
+.lc-cross-bl {
+  bottom: 18px;
+  left: 18px;
+}
+
+.lc-cross-br {
+  bottom: 18px;
+  right: 18px;
+}
+
+/* ---------- controls ---------- */
+
+.lc-form {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.lc-field {
+  background: var(--parchment);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  color: var(--ink);
+  flex: 1 1 auto;
+  font: inherit;
+  height: 48px;
+  min-width: 0;
+  padding: 0 var(--space-3);
+}
+
+.lc-field:focus {
+  border-color: var(--ink);
+}
+
+.lc-field::placeholder {
+  color: var(--ink-soft);
+  opacity: 1;
+}
+
+.lc-button {
+  align-items: center;
+  background: var(--lantern);
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  flex: none;
+  font: inherit;
+  font-weight: 600;
+  height: 48px;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  text-decoration: none;
+}
+
+.lc-linkbutton {
+  background: none;
+  border: 0;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lc-status {
+  margin-top: var(--space-3);
+}
+
+/* ---------- Landing ---------- */
+
+.lc-landing {
+  column-gap: var(--space-5);
+  display: grid;
+  grid-template-columns: minmax(0, 11fr) minmax(0, 10fr);
+  grid-template-rows: 1fr auto;
+  margin: 0 auto;
+  max-width: 1280px;
+  min-height: 100%;
+  padding: 56px 56px 20px;
+  position: relative;
+}
+
+.lc-landing-text {
+  align-self: center;
+  max-width: 40rem;
+  padding: var(--space-3) 0;
+}
+
+.lc-landing .lc-kicker {
+  color: var(--ink);
+  margin-bottom: var(--space-4);
+}
+
+.lc-headline {
+  font-size: 3rem;
+  line-height: 1.12;
+}
+
+.lc-lede {
+  font-size: 1.25rem;
+  line-height: 1.5;
+  margin: var(--space-4) 0 var(--space-4);
+}
+
+.lc-hits {
+  display: grid;
+  gap: var(--space-1);
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+}
+
+.lc-hits .lc-linkbutton {
+  min-height: 32px;
+}
+
+.lc-try {
+  align-items: baseline;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-soft);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-4);
+  padding-bottom: var(--space-4);
+}
+
+.lc-try a {
+  color: var(--ink);
+  display: inline-flex;
+  min-height: 24px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lc-fact {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-style: italic;
+  line-height: 1.45;
+  margin-top: var(--space-4);
+}
+
+.lc-plate {
+  align-self: center;
+  margin: 0;
+  min-width: 0;
+}
+
+.lc-plate-frame {
+  aspect-ratio: 1.1;
+  border: 1px solid var(--ink);
+  position: relative;
+}
+
+.lc-plate-frame svg {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.lc-outline-casing {
+  fill: none;
+  stroke: var(--ink);
+  stroke-linejoin: round;
+  stroke-width: 5px;
+  vector-effect: non-scaling-stroke;
+}
+
+.lc-outline {
+  fill: none;
+  stroke: var(--lantern);
+  stroke-linejoin: round;
+  stroke-width: 3px;
+  vector-effect: non-scaling-stroke;
+}
+
+.lc-leader {
+  stroke: var(--ink);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.lc-leader-dot {
+  fill: var(--ink);
+}
+
+.lc-plate-label {
+  background: var(--parchment);
+  border: 1px solid var(--ink);
+  font-size: 0.875rem;
+  padding: 2px var(--space-2);
+  position: absolute;
+  right: 4%;
+  top: 6%;
+  transform: translate(0, -50%);
+}
+
+.lc-sheet {
+  background: var(--parchment);
+  bottom: 0;
+  font-size: 0.8125rem;
+  padding: 1px var(--space-2);
+  position: absolute;
+  right: 0;
+}
+
+.lc-coverage {
+  border-top: 1px solid var(--rule);
+  color: var(--ink);
+  font-size: 0.9375rem;
+  grid-column: 1 / -1;
+  margin-top: var(--space-4);
+  min-height: 2.25rem;
+  padding-top: var(--space-2);
+  text-align: center;
+}
+
+/* ---------- Result ---------- */
+
+.lc-result {
+  margin: 0 auto;
+  max-width: 1180px;
+  padding: 28px 40px 48px;
+  position: relative;
+}
+
+.lc-result-head .lc-kicker {
+  color: var(--ink);
+  margin-bottom: var(--space-2);
+}
+
+.lc-title {
+  font-size: 2.75rem;
+  line-height: 1.15;
+}
+
+.lc-title-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
+
+.lc-tag {
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  color: var(--ink);
+  display: inline-block;
+  font-size: 0.875rem;
+  padding: 6px var(--space-3);
+}
+
+.lc-sentence {
+  font-family: var(--font-heading);
+  font-size: 1.375rem;
+  line-height: 1.45;
+  margin-top: var(--space-3);
+  max-width: 52rem;
+}
+
+.lc-sentence + .lc-sentence {
+  margin-top: var(--space-2);
+}
+
+.lc-not-clearance {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  margin-top: var(--space-3);
+}
+
+.lc-result-head {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: var(--space-4);
+}
+
+.lc-result-grid {
+  column-gap: var(--space-5);
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  margin-top: var(--space-4);
+}
+
+.lc-main,
+.lc-side {
+  min-width: 0;
+}
+
+.lc-side {
+  border-left: 1px solid var(--rule);
+  padding-left: var(--space-4);
+}
+
+.lc-section {
+  padding: var(--space-3) 0;
+}
+
+.lc-section + .lc-section {
+  border-top: 1px solid var(--rule);
+}
+
+.lc-section-heading {
+  margin-bottom: var(--space-2);
+}
+
+/* ---------- compare view ---------- */
+
+.lc-switch {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.lc-switch button {
+  background: none;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  min-height: 44px;
+  min-width: 88px;
+  padding: 0 var(--space-3);
+}
+
+.lc-switch button[aria-pressed='true'] {
+  border-bottom: 4px solid var(--ink);
+  border-color: var(--ink);
+  font-weight: 600;
+}
+
+.lc-frame {
+  aspect-ratio: 4 / 3;
+  background: var(--parchment);
+  border: 1px solid var(--ink);
+  overflow: hidden;
+  position: relative;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.lc-layer {
+  display: block;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.lc-layer-today {
+  background: var(--parchment);
+}
+
+.lc-today-building {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.lc-today-lot {
+  fill: none;
+  stroke: var(--rule);
+  stroke-dasharray: 5 4;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.lc-divider {
+  background: var(--ink);
+  bottom: 0;
+  cursor: ew-resize;
+  margin-left: -1px;
+  position: absolute;
+  top: 0;
+  touch-action: none;
+  width: 2px;
+}
+
+/* A wide hit area around the 2 px line, so a finger finds it. */
+.lc-divider::before {
+  bottom: 0;
+  content: '';
+  left: -22px;
+  position: absolute;
+  right: -22px;
+  top: 0;
+}
+
+.lc-grip {
+  align-items: center;
+  background: var(--copper);
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  color: var(--ink);
+  display: flex;
+  font-size: 0.75rem;
+  height: 36px;
+  justify-content: center;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+}
+
+.lc-divider:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.lc-chip {
+  background: var(--parchment);
+  border: 1px solid var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  padding: 1px var(--space-2);
+  pointer-events: none;
+  position: absolute;
+  top: 8px;
+}
+
+.lc-chip-left {
+  left: 8px;
+}
+
+.lc-chip-right {
+  right: 8px;
+}
+
+.lc-loading {
+  background: var(--parchment);
+  border: 1px solid var(--rule);
+  font-size: 0.9375rem;
+  left: 50%;
+  padding: 2px var(--space-3);
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.lc-compare-note {
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+  margin-top: var(--space-2);
+}
+
+/* ---------- what the plans show ---------- */
+
+.lc-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lc-row {
+  align-items: start;
+  border-top: 1px solid var(--rule);
+  column-gap: var(--space-3);
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  padding: var(--space-3) 0;
+}
+
+.lc-row:first-child {
+  border-top: 0;
+}
+
+.lc-year {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  padding-top: 2px;
+}
+
+.lc-row-body {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.lc-use {
+  align-items: start;
+  column-gap: var(--space-3);
+  display: grid;
+  grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
+}
+
+.lc-use + .lc-use {
+  margin-top: var(--space-2);
+}
+
+.lc-crop {
+  background: var(--parchment);
+  border: 1px solid var(--rule);
+  display: block;
+  height: auto;
+  max-width: 100%;
+}
+
+.lc-crop-missing {
+  border: 1px dashed var(--rule);
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+  padding: var(--space-2);
+}
+
+.lc-lettering {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.lc-relation {
+  color: var(--ink-soft);
+  display: block;
+  font-size: 0.9375rem;
+  margin-top: 2px;
+}
+
+.lc-match {
+  color: var(--ink-soft);
+  display: block;
+  font-size: 0.875rem;
+}
+
+/* ---------- actions and provenance ---------- */
+
+.lc-actions {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.lc-actions a.lc-linkbutton,
+.lc-actions .lc-linkbutton {
+  align-items: center;
+  display: inline-flex;
+  min-height: 44px;
+}
+
+.lc-small {
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+}
+
+.lc-provenance {
+  border-top: 1px solid var(--rule);
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+}
+
+.lc-provenance ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lc-provenance li + li::before {
+  content: '\2192';
+  margin-right: var(--space-3);
+}
+
+.lc-provenance .mono {
+  color: var(--ink);
+}
+
+.lc-notice {
+  padding: var(--space-5) var(--space-4);
+}
+
+/* ---------- How it works ---------- */
+
+.lc-how {
+  margin: 0 auto;
+  max-width: 760px;
+  padding: 40px 24px 64px;
+  position: relative;
+}
+
+.lc-how h1 {
+  font-size: 2.5rem;
+  line-height: 1.15;
+  margin: var(--space-2) 0 var(--space-5);
+}
+
+.lc-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lc-step {
+  border-top: 1px solid var(--rule);
+  column-gap: var(--space-4);
+  display: grid;
+  grid-template-columns: 1fr;
+  padding: var(--space-4) 0;
+}
+
+.lc-step-picture {
+  border: 1px solid var(--ink);
+  display: block;
+  height: auto;
+  margin-top: var(--space-3);
+  max-width: 100%;
+}
+
+.lc-step h2 {
+  font-size: 1.375rem;
+}
+
+.lc-step-number {
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+
+.lc-kiro {
+  border-top: 1px solid var(--rule);
+  padding-top: var(--space-4);
+}
+
+.lc-kiro h2 {
+  font-size: 1.5rem;
+  margin-bottom: var(--space-3);
+}
+
+.lc-kiro p + p {
+  margin-top: var(--space-2);
+}
+
+/* ---------- phone ---------- */
+
+@media (max-width: 899px) {
+  .lc-landing {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    padding: 40px 24px 16px;
+  }
+
+  .lc-landing-text {
+    max-width: none;
+  }
+
+  .lc-plate {
+    margin-top: var(--space-4);
+  }
+
+  .lc-result {
+    padding: 24px 24px 40px;
+  }
+
+  .lc-result-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lc-side {
+    border-left: 0;
+    margin-top: var(--space-3);
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 719px) {
+  .lc-cross {
+    display: none;
+  }
+
+  .lc-landing {
+    padding: 28px 16px 12px;
+  }
+
+  .lc-headline {
+    font-size: 2.25rem;
+  }
+
+  .lc-lede {
+    font-size: 1.125rem;
+  }
+
+  .lc-form {
+    flex-direction: column;
+  }
+
+  .lc-button {
+    width: 100%;
+  }
+
+  .lc-fact {
+    font-size: 1.25rem;
+  }
+
+  .lc-result {
+    padding: 20px 0 32px;
+  }
+
+  .lc-result-head,
+  .lc-side,
+  .lc-provenance,
+  .lc-switch,
+  .lc-compare-note,
+  .lc-main > .lc-section:not(.lc-compare-section) {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .lc-compare-section {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .lc-compare-section .lc-section-heading,
+  .lc-compare-section .lc-switch,
+  .lc-compare-section .lc-compare-note {
+    margin-left: 16px;
+    margin-right: 16px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .lc-frame {
+    aspect-ratio: 1;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .lc-title {
+    font-size: 2.25rem;
+  }
+
+  .lc-sentence {
+    font-size: 1.1875rem;
+  }
+
+  .lc-tag {
+    font-size: 0.8125rem;
+  }
+
+  .lc-row {
+    grid-template-columns: 3.75rem minmax(0, 1fr);
+  }
+
+  .lc-use {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-1);
+  }
+
+  .lc-actions .lc-button {
+    width: 100%;
+  }
+
+  .lc-how h1 {
+    font-size: 2rem;
+  }
+}

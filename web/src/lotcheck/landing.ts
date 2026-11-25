@@ -35,7 +35,7 @@ export type LandingFact = {
   /** The distinct addresses inside the shrunk areas, sorted. */
   addresses: string[];
   /** The areas the fact counts in, unshrunk, as the evidence draws them. */
-  areas: Array<{ featureId: string; sourceId: string; geometry: PolygonalGeometry }>;
+  areas: Array<{ featureId: string; sourceId: string; /** The use as lettered, without the business name. */ head: string; geometry: PolygonalGeometry }>;
 };
 
 const byString = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
@@ -108,7 +108,12 @@ export function landingFact(collections: readonly FeatureCollection[], addresses
     count,
     key: best.key,
     addresses: best.found,
-    areas: best.features.map((f) => ({ featureId: f.id, sourceId: f.properties.provenance.origin_source, geometry: f.geometry as PolygonalGeometry })),
+    areas: best.features.map((f) => ({
+      featureId: f.id,
+      sourceId: f.properties.provenance.origin_source,
+      head: useParts(f.properties.attributes.use ?? '').head,
+      geometry: f.geometry as PolygonalGeometry,
+    })),
   };
 }
 

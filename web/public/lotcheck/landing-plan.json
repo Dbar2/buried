@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "source": "fip_v3_1911_229",
+  "image": "landing-plan.jpg",
+  "width_px": 960,
+  "height_px": 873,
+  "corners": {
+    "top_left": [
+      632355.954,
+      4834949.059
+    ],
+    "top_right": [
+      632454.353,
+      4834980.138
+    ],
+    "bottom_right": [
+      632483.142,
+      4834888.934
+    ],
+    "bottom_left": [
+      632384.743,
+      4834857.854
+    ]
+  },
+  "attribution_line": "Digitized and georeferenced by the University of Toronto Map & Data Library."
+}
