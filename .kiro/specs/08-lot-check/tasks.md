@@ -18,7 +18,7 @@ One builder session, in order. **(demo)** marks what the demo video needs. Recor
   that the new pages import no `explorer`, `bridge` or `walk` module. (1.1 to 1.3, 7.4)
 - [x] 6. **(demo)** Landing: `web/src/lotcheck/LandingPage.tsx`, `web/src/styles/lotcheck.css`,
   `web/scripts/genLandingPlan.ts`, script `gen:landing-plan`, `web/public/lotcheck/*`. (2, 7.1)
-- [ ] 7. **(demo)** Result and compare view: `LotPage.tsx`, `CompareView.tsx`, `CompareView.test.tsx`
+- [x] 7. **(demo)** Result and compare view: `LotPage.tsx`, `CompareView.tsx`, `CompareView.test.tsx`
   (divider keys, clamp, plan switch announcement), CSS. "Download the one-page record" opens the
   Report for the lot; if the Report has no print entry, add at most a `print=1` query that calls
   `window.print()`, and say so. Extend the spec 06 W1 contrast test with design.md's pairs; fail on

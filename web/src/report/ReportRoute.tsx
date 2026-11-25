@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PRESENT_SOURCES } from './buildReport';
 import { parseReportLink } from './links';
 import { ReportView } from './ReportView';
@@ -22,6 +22,23 @@ export function ReportRoute() {
   const [noLot, setNoLot] = useState(false);
 
   const model = useReportModel(loaded, lotId, eraId, initial.version);
+
+  // "Download the one-page record" (spec 08 task 7) opens `/report?lot=<id>&print=1`: once the Report is built and
+  // the fonts are in, the browser's print dialog opens. Nothing else about the Report changes.
+  const wantsPrint = useMemo(() => new URLSearchParams(window.location.search).get('print') === '1', []);
+  useEffect(() => {
+    if (!wantsPrint || model?.kind !== 'report') return;
+    let timer = 0;
+    let cancelled = false;
+    void document.fonts.ready.then(() => {
+      // A moment for the lettering crops, which draw after their images load.
+      if (!cancelled) timer = window.setTimeout(() => window.print(), 800);
+    });
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [wantsPrint, model?.kind]);
 
   const hits = useMemo(() => (loaded.status === 'ready' ? searchAddresses(loaded.data.presentLayers.get(PRESENT_SOURCES.addresses), query) : []), [loaded, query]);
 

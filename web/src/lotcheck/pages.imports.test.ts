@@ -49,6 +49,17 @@ describe('the lot check pages', () => {
     });
   }
 
+  it('the Result reaches the verdict and the Report model, and the Landing reaches the fact', () => {
+    const lot = reach('lotcheck/LotPage.tsx');
+    for (const f of ['lotcheck/lotCheck.ts', 'lotcheck/CompareView.tsx', 'report/buildReport.ts']) expect(lot.has(f), f).toBe(true);
+    expect(reach('lotcheck/LandingPage.tsx').has('lotcheck/landing.ts')).toBe(true);
+    // The pages read data/ only: no Studio service client, no workspace store.
+    for (const page of PAGES) {
+      const bad = [...reach(page)].filter((f) => /^(studio|workspace)\//.test(f));
+      expect(bad, page).toEqual([]);
+    }
+  });
+
   it('the Explorer, the bridge and the walk are reached from App.tsx only through lazy imports', () => {
     const app = readFileSync(resolve(SRC, 'App.tsx'), 'utf8');
     expect(app).not.toMatch(/^import .* from '\.\/(explorer|bridge|walk)\//m);

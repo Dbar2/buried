@@ -374,13 +374,20 @@
 .lc-result-grid {
   column-gap: var(--space-5);
   display: grid;
-  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   margin-top: var(--space-4);
 }
 
 .lc-main,
 .lc-side {
   min-width: 0;
+}
+
+/* The compare view stays in sight while the rows scroll past it. */
+.lc-main {
+  align-self: start;
+  position: sticky;
+  top: var(--space-3);
 }
 
 .lc-side {
@@ -555,9 +562,9 @@
 .lc-row {
   align-items: start;
   border-top: 1px solid var(--rule);
-  column-gap: var(--space-3);
   display: grid;
-  grid-template-columns: 4.5rem minmax(0, 1fr);
+  gap: var(--space-2);
+  grid-template-columns: minmax(0, 1fr);
   padding: var(--space-3) 0;
 }
 
@@ -568,7 +575,7 @@
 .lc-year {
   font-family: var(--font-mono);
   font-size: 1rem;
-  padding-top: 2px;
+  font-weight: 600;
 }
 
 .lc-row-body {
@@ -581,7 +588,7 @@
   align-items: start;
   column-gap: var(--space-3);
   display: grid;
-  grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 10rem) minmax(0, 1fr);
 }
 
 .lc-use + .lc-use {
@@ -594,6 +601,7 @@
   display: block;
   height: auto;
   max-width: 100%;
+  width: 100%;
 }
 
 .lc-crop-missing {
@@ -760,6 +768,10 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .lc-main {
+    position: static;
+  }
+
   .lc-side {
     border-left: 0;
     margin-top: var(--space-3);
@@ -843,7 +855,7 @@
   }
 
   .lc-row {
-    grid-template-columns: 3.75rem minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .lc-use {

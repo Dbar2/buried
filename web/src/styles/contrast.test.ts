@@ -37,6 +37,7 @@ const PAIRS: ReadonlyArray<readonly [string, string, number, number, string]> = 
   ['ink-soft', 'parchment', 4.5, 5.7, 'card secondary text'],
   ['ink', 'lantern', 4.5, 7.1, "the primary button's label"],
   ['lantern', 'soot', 3, 8.1, 'focus rings and selected tag outline on soot'],
+  ['lantern', 'ink', 3, 7.1, "the lot outline's stroke against its ink casing"],
   ['rule', 'parchment', 3, 3.5, 'control outlines on the card'],
   ['copper', 'soot', 3, 4.4, 'hairlines and marks only'],
 ];
@@ -55,5 +56,36 @@ describe('palette contrast (design.md "Contrast pairs")', () => {
   it('the two pairs design.md forbids really do fail, so nobody relies on them', () => {
     expect(ratio(token('lantern'), token('parchment'))).toBeLessThan(3);
     expect(ratio(token('copper'), token('parchment'))).toBeLessThan(3.1);
+  });
+});
+
+describe('the lot check styles use no pair design.md forbids (spec 08 task 7)', () => {
+  const lotcheck = readFileSync(fileURLToPath(new URL('./lotcheck.css', import.meta.url)), 'utf8');
+  const noComments = lotcheck.replace(/\/\*[\s\S]*?\*\//g, '');
+
+  it('never sets text in --lantern or --copper', () => {
+    // `color:` only: borders, backgrounds, strokes and fills are not text.
+    const bad = [...noComments.matchAll(/(?:^|[;{\s])color:\s*var\(--(lantern|copper)\)/g)].map((m) => m[0].trim());
+    expect(bad).toEqual([]);
+  });
+
+  it('draws the lot outline as a 3 px lantern stroke inside a 5 px ink casing', () => {
+    expect(noComments).toMatch(/\.lc-outline-casing\s*\{[^}]*stroke:\s*var\(--ink\)[^}]*stroke-width:\s*5px/);
+    expect(noComments).toMatch(/\.lc-outline\s*\{[^}]*stroke:\s*var\(--lantern\)[^}]*stroke-width:\s*3px/);
+  });
+
+  it('uses lantern only for the primary button and the outline, and copper only for the divider grip', () => {
+    const rules = [...noComments.matchAll(/([^{}]+)\{([^}]*)\}/g)].map((m) => ({ selector: (m[1] as string).trim(), body: m[2] as string }));
+    const uses = (token: string) => rules.filter((r) => r.body.includes(`var(--${token})`)).map((r) => r.selector);
+    expect(uses('lantern').sort()).toEqual(['.lc-button', '.lc-outline']);
+    expect(uses('copper')).toEqual(['.lc-grip']);
+  });
+
+  it('puts the focus ring on paper in ink, not lantern', () => {
+    expect(noComments).toMatch(/\.lotcheck-scroll :focus-visible\s*\{[^}]*outline:\s*2px solid var\(--ink\)/);
+  });
+
+  it('has no raw hex colour', () => {
+    expect(noComments).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
   });
 });

@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { makeSheetTransform, worldToPixel } from '../block/sheetTransform';
+import { makeSheetTransform, pixelToWorld, worldToPixel } from '../block/sheetTransform';
 import type { Pt, TileCorners } from '../block/sheetTransform';
 import { compareModel, frameFor } from './compare';
 import type { WorldPolygon } from './compare';
@@ -45,16 +45,33 @@ describe('compareModel', () => {
   });
 
   it('frames the lot plus 40 m on each side, at the asked aspect', () => {
+    // A lot in the middle of the tile, so no edge moves the frame.
+    const mid = box(632500, 4834960, 8, 24);
     for (const aspect of [4 / 3, 1]) {
-      const m = compareModel({ lot, tile: TILE, buildings: [], lots: [], aspect });
+      const m = compareModel({ lot: mid, tile: TILE, buildings: [], lots: [], aspect });
       expect(m.viewBox.width / m.viewBox.height).toBeCloseTo(aspect, 2);
-      for (const c of [[632450 - 40, 4835000 - 40], [632458 + 40, 4835000 - 40], [632458 + 40, 4835024 + 40], [632450 - 40, 4835024 + 40]] as Pt[]) {
+      for (const c of [[632500 - 40, 4834960 - 40], [632508 + 40, 4834960 - 40], [632508 + 40, 4834984 + 40], [632500 - 40, 4834984 + 40]] as Pt[]) {
         const [x, y] = worldToPixel(t, c);
         expect(x).toBeGreaterThanOrEqual(m.viewBox.x - 0.1);
         expect(x).toBeLessThanOrEqual(m.viewBox.x + m.viewBox.width + 0.1);
         expect(y).toBeGreaterThanOrEqual(m.viewBox.y - 0.1);
         expect(y).toBeLessThanOrEqual(m.viewBox.y + m.viewBox.height + 0.1);
       }
+    }
+  });
+
+  it('slides the frame back onto the tile at an edge, but keeps the lot in the middle of the frame', () => {
+    const [ee, nn] = pixelToWorld(t, [150, 2000]); // 150 px from the tile's left edge
+    const edge = box(ee, nn, 10, 20);
+    const m = compareModel({ lot: edge, tile: TILE, buildings: [], lots: [], aspect: 4 / 3 });
+    const xs = parsePath(m.lotPath).map((p) => p[0]);
+    const centre = (Math.min(...xs) + Math.max(...xs)) / 2;
+    const at = (centre - m.viewBox.x) / m.viewBox.width;
+    expect(at).toBeGreaterThanOrEqual(0.34);
+    expect(at).toBeLessThanOrEqual(0.66);
+    for (const x of xs) {
+      expect(x).toBeGreaterThan(m.viewBox.x);
+      expect(x).toBeLessThan(m.viewBox.x + m.viewBox.width);
     }
   });
 

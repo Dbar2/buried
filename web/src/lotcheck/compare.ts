@@ -55,7 +55,11 @@ function bounds(points: readonly Pt[]): { minX: number; minY: number; maxX: numb
   return { minX, minY, maxX, maxY };
 }
 
-/** Pixel-space viewBox of the lot's bounding box grown by `marginM`, padded to `aspect` about its centre. */
+/**
+ * Pixel-space viewBox of the lot's bounding box grown by `marginM`, padded to `aspect` about its centre. The frame
+ * is then slid back onto the tile where it hangs over an edge (a plate's margin shows nothing), but never so far
+ * that the lot itself leaves it.
+ */
 export function frameFor(lot: WorldPolygon, tile: CompareTile, marginM: number, aspect: number): ViewBox {
   const t = makeSheetTransform(tile.corners, tile.widthPx, tile.heightPx);
   const world = bounds(lot.flat());
@@ -66,14 +70,34 @@ export function frameFor(lot: WorldPolygon, tile: CompareTile, marginM: number, 
     [world.minX - marginM, world.maxY + marginM],
   ];
   const px = bounds(corners.map((c) => worldToPixel(t, c)));
+  const lotPx = bounds(lot.flat().map((p) => worldToPixel(t, p)));
   let width = px.maxX - px.minX;
   let height = px.maxY - px.minY;
   const cx = (px.minX + px.maxX) / 2;
   const cy = (px.minY + px.maxY) / 2;
   if (width / height < aspect) width = height * aspect;
   else height = width / aspect;
-  return { x: cx - width / 2, y: cy - height / 2, width, height };
+  const slide = (start: number, size: number, limit: number, lotMin: number, lotMax: number): number => {
+    let s = size <= limit ? Math.min(Math.max(start, 0), limit - size) : start;
+    // The lot stays in the middle band of the frame, so the divider at its start still crosses it.
+    const lotCentre = (lotMin + lotMax) / 2;
+    s = Math.min(s, lotCentre - BAND_LOW * size);
+    s = Math.max(s, lotCentre - BAND_HIGH * size);
+    s = Math.min(s, lotMin - LOT_PAD_PX);
+    s = Math.max(s, lotMax + LOT_PAD_PX - size);
+    return s;
+  };
+  return {
+    x: slide(cx - width / 2, width, tile.widthPx, lotPx.minX, lotPx.maxX),
+    y: slide(cy - height / 2, height, tile.heightPx, lotPx.minY, lotPx.maxY),
+    width,
+    height,
+  };
 }
+
+const LOT_PAD_PX = 12;
+const BAND_LOW = 0.35;
+const BAND_HIGH = 0.65;
 
 const round1 = (v: number): number => Math.round(v * 10) / 10;
 
