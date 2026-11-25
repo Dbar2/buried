@@ -38,8 +38,11 @@ in the Evidence Library). *Coverage area*: lots for which `buildReport` does not
 
 ## Requirement 3: The Result
 
-3.1 THE Result SHALL show, in order: title, tag, sentence, compare view, "What the plans show",
-    "What this does not tell you", actions, provenance strip.
+3.1 THE Result SHALL show, in order: title, tag, sentence, compare view, provenance strip, "What the
+    plans show", "What this does not tell you", actions. On a desktop the compare view and the
+    provenance strip are the left column and the rest the right. Under 900 px the order is the
+    compare view, actions, "What the plans show", "What this does not tell you", the provenance
+    strip, so the button is reached without passing the lettering crops (session 052).
 3.2 THE title SHALL be `Report.place.heading`. THE tag SHALL be one of the five in 4.2 to 4.7, decided by
     `buildLotCheck` (requirement 4).
 3.3 THE page SHALL print one sentence under the tag (session 052), about the use that covers the most

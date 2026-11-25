@@ -164,9 +164,27 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
             <CompareView plans={plans} lot={lot} buildings={buildings} lots={lotLines} loadPlan={afterPaint} aspect={phone ? 1 : 4 / 3} />
             <p className="lc-compare-note">The plan is the untouched scan. The outline marks this lot on both sides.</p>
           </section>
+          <section className="lc-provenance" aria-label={copy.SECTION.provenance} data-testid="lc-provenance">
+            <ul>
+              {check.provenance.attribution.map((a) => (
+                <li key={a}>{a}</li>
+              ))}
+              {check.provenance.position ? (
+                <li className="mono" data-testid="lc-position">
+                  {check.provenance.position.text}
+                </li>
+              ) : null}
+              {check.provenance.traced.map((s) => (
+                <li key={s.text}>{s.text}</li>
+              ))}
+              {check.provenance.review.map((s) => (
+                <li key={s.text}>{s.text}</li>
+              ))}
+            </ul>
+          </section>
         </div>
         <div className="lc-side">
-          <section className="lc-section" aria-labelledby="lc-plans-heading">
+          <section className="lc-section lc-plans" aria-labelledby="lc-plans-heading">
             <h2 id="lc-plans-heading" className="lc-section-heading">
               {copy.SECTION.plans}
             </h2>
@@ -176,7 +194,7 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
               ))}
             </ul>
           </section>
-          <section className="lc-section" aria-labelledby="lc-cannot-heading">
+          <section className="lc-section lc-cannot" aria-labelledby="lc-cannot-heading">
             <h2 id="lc-cannot-heading" className="lc-section-heading">
               {copy.SECTION.cannotTell}
             </h2>
@@ -208,24 +226,6 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
           </section>
         </div>
       </div>
-      <footer className="lc-provenance" aria-label={copy.SECTION.provenance} data-testid="lc-provenance">
-        <ul>
-          {check.provenance.attribution.map((a) => (
-            <li key={a}>{a}</li>
-          ))}
-          {check.provenance.position ? (
-            <li className="mono" data-testid="lc-position">
-              {check.provenance.position.text}
-            </li>
-          ) : null}
-          {check.provenance.traced.map((s) => (
-            <li key={s.text}>{s.text}</li>
-          ))}
-          {check.provenance.review.map((s) => (
-            <li key={s.text}>{s.text}</li>
-          ))}
-        </ul>
-      </footer>
     </>
   );
 }

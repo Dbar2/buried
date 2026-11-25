@@ -684,7 +684,7 @@
   border-top: 1px solid var(--rule);
   color: var(--ink-soft);
   font-size: 0.9375rem;
-  margin-top: var(--space-4);
+  margin-top: var(--space-3);
   padding-top: var(--space-3);
 }
 
@@ -793,17 +793,41 @@
   }
 
   .lc-result-grid {
-    grid-template-columns: minmax(0, 1fr);
+    display: flex;
+    flex-direction: column;
   }
 
-  .lc-main {
+  /* One column, in the order a phone reader needs: the plan, the button, the rows, the limits, where it comes from. */
+  .lc-main,
+  .lc-side {
+    display: contents;
     position: static;
   }
 
-  .lc-side {
-    border-left: 0;
-    margin-top: var(--space-3);
-    padding-left: 0;
+  .lc-actions,
+  .lc-plans,
+  .lc-cannot {
+    border-top: 1px solid var(--rule);
+  }
+
+  .lc-compare-section {
+    order: 1;
+  }
+
+  .lc-actions {
+    order: 2;
+  }
+
+  .lc-plans {
+    order: 3;
+  }
+
+  .lc-cannot {
+    order: 4;
+  }
+
+  .lc-provenance {
+    order: 5;
   }
 }
 
@@ -841,11 +865,12 @@
   }
 
   .lc-result-head,
-  .lc-side,
+  .lc-plans,
+  .lc-cannot,
+  .lc-actions,
   .lc-provenance,
   .lc-switch,
-  .lc-compare-note,
-  .lc-main > .lc-section:not(.lc-compare-section) {
+  .lc-compare-note {
     padding-left: 16px;
     padding-right: 16px;
   }

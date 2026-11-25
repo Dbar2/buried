@@ -191,6 +191,48 @@ test('the divider works by keyboard and by drag, and never moves the outline', a
   await page.screenshot({ path: `${OUT}/lotcheck-result-dragged.png` });
 });
 
+test('desktop: the provenance strip sits directly under the compare view, in its column', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await page.goto(`/lot/${PERCY_LOT}`);
+  await expect(page.getByTestId('lc-frame')).toHaveAttribute('data-ready', 'true');
+  const frame = (await page.getByTestId('lc-frame').boundingBox())!;
+  const strip = (await page.getByTestId('lc-provenance').boundingBox())!;
+  const side = (await page.getByRole('heading', { name: 'What the plans show' }).boundingBox())!;
+  expect(strip.y).toBeGreaterThanOrEqual(frame.y + frame.height);
+  expect(strip.y - (frame.y + frame.height)).toBeLessThan(120);
+  expect(strip.x + strip.width).toBeLessThanOrEqual(side.x);
+  // It is on the first screen of a 1100 px tall window, beside the first rows.
+  expect(strip.y + strip.height).toBeLessThan(1100);
+  await expect(page.getByTestId('lc-provenance')).toContainText('Positioned within about');
+  await expect(page.getByTestId('lc-provenance')).toContainText('Digitized and georeferenced');
+});
+
+test('"What this does not tell you" is three lines, the last with the Ontario Dig Authority link', async ({ page }) => {
+  await page.goto(`/lot/${PERCY_LOT}`);
+  const section = page.locator('.lc-cannot');
+  await expect(section.locator('p')).toHaveText([
+    "Buried screens; it doesn't certify.",
+    'It does not say what is in the soil, water or structures today.',
+    'It is not a utility locate. Before you dig, request locates through Ontario Dig Authority.',
+  ]);
+  await expect(section.getByRole('link', { name: 'Ontario Dig Authority' })).toHaveAttribute('href', 'https://ontariodigauthority.ca/');
+});
+
+test('phone: the one-page record button comes right after the compare view, before the rows', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 900 }, deviceScaleFactor: 1, hasTouch: true });
+  const page = await context.newPage();
+  await page.goto(`/lot/${PERCY_LOT}`);
+  await expect(page.getByTestId('lc-frame')).toHaveAttribute('data-ready', 'true');
+  const top = async (selector: string) => (await page.locator(selector).first().boundingBox())!.y;
+  const frame = (await page.getByTestId('lc-frame').boundingBox())!;
+  const button = (await page.getByTestId('lc-download').boundingBox())!;
+  const order = [await top('.lc-tag'), await top('[data-testid="lc-sentence"]'), frame.y, button.y, await top('.lc-plans'), await top('.lc-cannot')];
+  expect(order, 'title, tag, sentence, compare, button, rows, limits').toEqual([...order].sort((a, b) => a - b));
+  // The button is at most one screen below the frame, and no crop stands between them.
+  expect(button.y - (frame.y + frame.height)).toBeLessThan(200);
+  await context.close();
+});
+
 test('the plan switch changes the tile and the label, and is announced', async ({ page }) => {
   await page.goto(`/lot/${PERCY_LOT}`);
   const frame = page.getByTestId('lc-frame');
