@@ -13,8 +13,8 @@ type Checked = Extract<LotCheck, { kind: 'check' }>;
 const COAL_1911 = 'Coal & Wood Yard; J. W. Corson & Co. (as lettered on the plate)';
 const COAL_1935 = 'Coal & Wood Yard; Northern Fuels Co. (as lettered on the plate)';
 
-function useFeature(origin: string, use: string | undefined, at: [number, number], seq = 1, errorM = 4.5): Feature {
-  const f = makeFeature(origin, [obs(origin, true, 'clear', 'origin')], { seq, kind: 'land_use', at, size: [10, 10], positionErrorM: errorM });
+function useFeature(origin: string, use: string | undefined, at: [number, number], seq = 1, errorM = 4.5, size: [number, number] = [10, 10], kind: 'land_use' | 'building' = 'land_use'): Feature {
+  const f = makeFeature(origin, [obs(origin, true, 'clear', 'origin')], { seq, kind, at, size, positionErrorM: errorM });
   f.properties.attributes = use === undefined ? {} : { use };
   return f;
 }
@@ -65,6 +65,31 @@ describe('buildLotCheck: the tag', () => {
     expect(t.relation.kind).toBe('near');
     const within = (t.relation as { withinM: number }).withinM;
     expect(c.verdict.sentences[0]?.text).toBe(`The 1911 plan letters “Coal Shed” near this lot (within ${within} m).`);
+  });
+
+  it('one sentence at the top: the use that covers the most of the lot, whatever the plan order', () => {
+    // A small shed lettered "Lumber" on the 1911 plan and a large yard lettered "Coal Yard" on the 1931-35 plan, both on the lot.
+    const { result } = run([
+      plateCollection(P1911, [useFeature(P1911, 'Lumber', [E0 + 8, N0 + 8], 1, 4.5, [3, 3])]),
+      plateCollection(P1935, [useFeature(P1935, 'Coal Yard', [E0 + 2, N0 + 2], 1, 4.5, [15, 20])]),
+    ]);
+    const c = checked(result);
+    expect(c.verdict.sentences.map((s) => s.text)).toEqual(['The 1931-35 plan letters this lot “Coal Yard”.']);
+    // The other use is still a trigger and still a row line.
+    expect(c.verdict.triggers).toHaveLength(2);
+    const first = c.rows[0] as Extract<Checked['rows'][number], { kind: 'plan' }>;
+    expect(first.lines.map((l) => l.text.text)).toEqual(['Lumber']);
+  });
+
+  it('on equal cover an area comes before a building inside it, then the earlier plan', () => {
+    const building = useFeature(P1911, 'Coal Shed', [E0 + 2, N0 + 2], 1, 4.5, [10, 10], 'building');
+    const area = useFeature(P1935, 'Coal Yard', [E0 + 2, N0 + 2], 1, 4.5, [10, 10], 'land_use');
+    const { result } = run([plateCollection(P1911, [building]), plateCollection(P1935, [area])]);
+    expect(checked(result).verdict.sentences.map((s) => s.text)).toEqual(['The 1931-35 plan letters this lot “Coal Yard”.']);
+    const first = useFeature(P1911, 'Lumber', [E0 + 2, N0 + 2], 1, 4.5, [10, 10]);
+    const second = useFeature(P1935, 'Coal Yard', [E0 + 2, N0 + 2], 1, 4.5, [10, 10]);
+    const tie = run([plateCollection(P1911, [first]), plateCollection(P1935, [second])]);
+    expect(checked(tie.result).verdict.sentences.map((s) => s.text)).toEqual(['The 1911 plan letters this lot “Lumber”.']);
   });
 
   it('on wins over near', () => {
@@ -182,8 +207,11 @@ describe('buildLotCheck: properties', () => {
             }
           }
           expect(v.triggers.every((t) => (v.tag === 'past_industrial' ? t.relation.kind === 'on' : t.relation.kind === 'near'))).toBe(true);
+          // One sentence at the top, never one per use (session 052).
+          expect(v.sentences).toHaveLength(1);
         } else {
           expect(v.triggers).toEqual([]);
+          if (v.tag === 'past_use') expect(v.sentences).toHaveLength(1);
         }
       }),
       { numRuns: 150 },

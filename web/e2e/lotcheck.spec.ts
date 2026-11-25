@@ -91,6 +91,7 @@ test('landing to example to result: the tag, the sentence and the lettering are 
   await page.getByTestId('lc-examples').locator('a').first().click();
   await expect(page).toHaveURL(/\/lot\/5451729$/);
   await expect(page.getByTestId('lc-tag')).toHaveText('Past industrial use recorded');
+  await expect(page.getByTestId('lc-sentence')).toHaveCount(1);
   await expect(page.getByTestId('lc-sentence').first()).toContainText('letter this lot “Coal & Wood Yard”.');
   await expect(page.getByTestId('lc-use').filter({ hasText: 'Coal & Wood Yard, J. W. Corson & Co.' })).toBeVisible();
   await expect(page.getByTestId('lc-provenance')).toContainText('Positioned within about');

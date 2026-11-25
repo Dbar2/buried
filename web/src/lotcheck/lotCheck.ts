@@ -20,6 +20,7 @@ import type { Report, ReportModel } from '../report/buildReport';
 import { BUILDING_OUTLINES_SOURCE } from '../report/coreSample';
 import type { Band } from '../report/coreSample';
 import { versionPrefix } from '../report/links';
+import { offsetOf, toJts } from '../report/geom';
 import { LOT_POSITION_ERROR_M } from '../report/lotError';
 import { STRUCTURE_RADIUS_M } from '../report/radii';
 import { statusSentences } from '../report/reviewStatus';
@@ -124,12 +125,58 @@ function byRelationThenId(a: Item, b: Item): number {
 const quoted = (text: string): Slot => ({ text: `“${text}”`, verbatim: [text] });
 const verbatimSlot = (text: string): Slot => ({ text, verbatim: [text] });
 
+/** The key two uses share when the page would say they are one: the same lettering, or (for a use it does not print) the same plan. */
+function useKey(item: Item): string {
+  return item.quotable ? normaliseLettering(item.whole) : `~${item.sourceId}`;
+}
+
+const isArea = (item: Item): boolean => item.feature.id.startsWith('use_');
+
+/** Overlap, in square metres, of a feature with the lot. Pure geometry in EPSG:26917, no model. */
+function overlapM2(feature: Feature, lot: PolygonalGeometry): number {
+  try {
+    const offset = offsetOf(lot);
+    const a = toJts(feature.geometry as { type: string; coordinates: unknown }, offset);
+    const b = toJts(lot, offset);
+    return a.intersection(b).getArea();
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * The one use the top sentence is about (session 052): the one that covers the most of the lot, an area before a
+ * building when they cover the same, then the earlier plan, then the feature id. A use that is only near the
+ * lot covers none of it, so the nearer one goes first before the same tie-breaks.
+ */
+function leadUse(items: readonly Item[], lot: PolygonalGeometry): Item | null {
+  if (items.length === 0) return null;
+  const keyed = items.map((item) => ({ item, overlap: Math.round(overlapM2(item.feature, lot) * 10) / 10 }));
+  keyed.sort(
+    (a, b) =>
+      b.overlap - a.overlap ||
+      withinOf(a.item.relation) - withinOf(b.item.relation) ||
+      Number(isArea(b.item)) - Number(isArea(a.item)) ||
+      yearOf(a.item) - yearOf(b.item) ||
+      byString(a.item.feature.id, b.item.feature.id),
+  );
+  return (keyed[0] as { item: Item }).item;
+}
+
+/** The sentence for the lead use, naming every plan that letters it in those words. */
+function leadSentences(items: readonly Item[], lot: PolygonalGeometry): Sentence[] {
+  const lead = leadUse(items, lot);
+  if (!lead) return [];
+  const key = useKey(lead);
+  return useSentences(items.filter((i) => useKey(i) === key));
+}
+
 /** One sentence per lettered use that triggered the tag (or, for the fifth tag, sat on the lot). */
 function useSentences(items: readonly Item[]): Sentence[] {
   const groups = new Map<string, Item[]>();
   for (const item of items) {
     // A use this site does not print is grouped by its plan, so two different hidden uses are never said to be one.
-    const key = item.quotable ? normaliseLettering(item.whole) : `~${item.sourceId}`;
+    const key = useKey(item);
     groups.set(key, [...(groups.get(key) ?? []), item]);
   }
   const ordered = [...groups.entries()]
@@ -264,15 +311,15 @@ function build(report: Report, input: LotCheckInput): LotCheck {
   if (onTriggers.length > 0) {
     tag = 'past_industrial';
     recordItems = onTriggers;
-    sentences = useSentences(onTriggers);
+    sentences = leadSentences(onTriggers, lot);
   } else if (nearTriggers.length > 0) {
     tag = 'industrial_next';
     recordItems = nearTriggers;
-    sentences = useSentences(nearTriggers);
+    sentences = leadSentences(nearTriggers, lot);
   } else if (onOther.length > 0) {
     tag = 'past_use';
     recordItems = onOther;
-    sentences = useSentences(onOther);
+    sentences = leadSentences(onOther, lot);
   } else if (reviewedPlateIds.length > 0) {
     tag = 'no_industrial';
     recordItems = [];

@@ -42,8 +42,10 @@ in the Evidence Library). *Coverage area*: lots for which `buildReport` does not
     "What this does not tell you", actions, provenance strip.
 3.2 THE title SHALL be `Report.place.heading`. THE tag SHALL be one of the five in 4.2 to 4.7, decided by
     `buildLotCheck` (requirement 4).
-3.3 THE sentence SHALL quote the triggers' lettering with the plans it is on ("The 1911 and 1931-35
-    plans letter this lot “Coal & Wood Yard”.").
+3.3 THE page SHALL print one sentence under the tag (session 052), about the use that covers the most
+    of the lot (an area before a building when they cover the same; then the earlier plan), quoting
+    its lettering with every plan that letters it in those words ("The 1911 and 1931-35 plans letter
+    this lot “Coal & Wood Yard”."). The other uses are rows under "What the plans show".
 3.4 "What the plans show" SHALL have one row per plan covering the lot and one for today. A plan row
     shows its lettering crop and a line from the record. A plan that letters nothing here says what
     that plan shows and states no finding.

@@ -12,6 +12,7 @@ describe('the lot check on the committed data', () => {
     expect(c.kind).toBe('check');
     if (c.kind !== 'check') return;
     expect(c.verdict.tag).toBe('past_industrial');
+    expect(c.verdict.sentences).toHaveLength(1);
     expect(c.verdict.sentences[0]?.text).toBe('The 1911 and 1931-35 plans letter this lot “Coal & Wood Yard”.');
     expect(c.verdict.triggers.length).toBeGreaterThanOrEqual(2);
     for (const t of c.verdict.triggers) {

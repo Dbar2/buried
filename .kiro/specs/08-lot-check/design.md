@@ -84,6 +84,8 @@ tile; the builder reports its size, and above 1.5 MB the maintainer decides on p
 
 - P1 [PBT] Tag 4.2 or 4.3 always has at least one trigger; each trigger's lettering contains its
   `matched` entry as a whole word; `matched` is in the list. The tags 4.4, 4.5 and 4.7 have none.
+  Tags 4.2, 4.3 and 4.7 have exactly one sentence, about the use that covers the most of the lot
+  (3.3).
 - P2 [PBT] A string with no entry at word boundaries gives `null`; one with an entry does not.
 - P3 [PBT] For generated lettering (banned words included), every sentence from `buildLotCheck`,
   `landingFact` and the how copy, and the rendered text, has no `findBannedWords` hit.
