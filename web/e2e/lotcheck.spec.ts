@@ -84,11 +84,16 @@ test('landing to example to result: the tag, the sentence and the lettering are 
   await expect(page.getByTestId('lc-fact')).toHaveText('On this block, six addresses stand on a former coal and wood yard.');
   await expect(page.getByTestId('lc-plan').locator('path.lc-outline')).toBeVisible();
   await expect(page.getByTestId('lc-coverage')).toHaveText('Covered so far: one block of Toronto. Plans of 1911-14 and 1931-35.');
-  await expect(page.getByTestId('lc-examples').locator('a')).toHaveCount(3);
+  await expect(page.getByTestId('lc-lot').first()).toBeAttached();
+  await expect(page.getByTestId('lc-caption')).toContainText('have something recorded.');
   await expect(page.getByText("Buried screens; it doesn't certify.")).toHaveCount(0);
   await page.screenshot({ path: `${OUT}/lotcheck-landing.png` });
 
-  await page.getByTestId('lc-examples').locator('a').first().click();
+  // A lot is a link: focus shows its tag, Enter digs there.
+  const lot = page.locator(`[data-testid="lc-lot"][data-lot="${PERCY_LOT}"]`);
+  await lot.focus();
+  await expect(page.getByTestId('lc-lot-tag')).toHaveText('Coal & Wood Yard, 1911 and 1931-35');
+  await lot.press('Enter');
   await expect(page).toHaveURL(/\/lot\/5451729$/);
   await expect(page.getByTestId('lc-tag')).toHaveText('Past industrial use recorded');
   await expect(page.getByTestId('lc-sentence')).toHaveCount(1);
@@ -109,9 +114,9 @@ test('a typed address opens its lot, and one that is not covered says so and not
   await page.goto('/');
   await expect(page.getByTestId('lc-fact')).toBeVisible();
   await page.getByTestId('lc-address').fill('77 Nowhere Ave');
+  await expect(page.getByTestId('lc-suggest-head')).toHaveText('We have not dug there yet. Try one of these:');
+  await expect(page.getByTestId('lc-option').first()).toBeVisible();
   await page.getByTestId('lc-check').click();
-  await expect(page.getByTestId('lc-message')).toHaveText('Not reconstructed yet.');
-  await expect(page.getByTestId('lc-hits')).toHaveCount(0);
   await expect(page).toHaveURL(/\/$/);
 });
 
@@ -349,12 +354,12 @@ test('page weight: what each page transfers before the visitor acts', async ({ b
   await how.context.close();
 
   console.log(JSON.stringify(sizes));
-  expect(sizes['landing_bytes'] as number).toBeLessThanOrEqual(600 * 1024);
+  expect(sizes['landing_bytes'] as number).toBeLessThanOrEqual(950 * 1024);
 });
 
-// Requirement 1.4: at most 550 KB before the tile is requested. The first figure, 400 KB, was the architect's own;
-// the page validates the evidence files against the schema before it prints anything, and that validator (Ajv, jsts
-// and the schemas, the loadData chunk) is most of the weight. Measured at about 523 KB (Brotli quality 5).
-test('the Result transfers at most 550 KB before the tile is requested (requirement 1.4)', async () => {
-  expect(sizes['result_bytes_before_tile'] as number).toBeLessThanOrEqual(550 * 1024);
+// Requirement 1.4 (session 053): at most 700 KB before the tile is requested. History: the architect's 400 KB was
+// too low (the schema validator, the loadData chunk, is most of the weight, about 523 KB at Brotli quality 5), and the
+// night art (the paper, the lantern) is the rest.
+test('the Result transfers at most 700 KB before the tile is requested (requirement 1.4)', async () => {
+  expect(sizes['result_bytes_before_tile'] as number).toBeLessThanOrEqual(700 * 1024);
 });

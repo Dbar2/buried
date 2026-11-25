@@ -16,7 +16,7 @@ describe('LandingPage before the data has loaded', () => {
 
   it('has no fact, caption or coverage line until the records are read (they are computed, never typed)', () => {
     expect(html).not.toContain('data-testid="lc-fact"');
-    expect(html).not.toContain('data-testid="lc-caption"');
+    expect(html).toContain('data-testid="lc-caption"></figcaption>');
     expect(html).not.toContain('Covered so far');
   });
 

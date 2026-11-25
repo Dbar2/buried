@@ -1,0 +1,513 @@
+/*
+ * The night dig (session 053; design.md "The lot check pages: the night dig"). The lot check pages are night:
+ * --soot ground, --haze fog, text on it --parchment. The record is a parchment sheet with --ink text lying in the
+ * dark. Colours come from tokens.css only. Only transform and opacity animate (the stamp's filter is applied once,
+ * and the compare divider's sweep is the one exception, in CompareView). Every animated element's own style is its
+ * END state, so under prefers-reduced-motion (animation: none) the page shows the finished picture.
+ * Loaded after lotcheck.css, which keeps the paper components (compare view, rows, hairlines).
+ */
+
+/* ---------- the page is night ---------- */
+
+.lotcheck-page,
+.lotcheck-scroll {
+  background: var(--soot);
+  color: var(--parchment);
+}
+
+.lotcheck-scroll {
+  overflow-x: hidden;
+}
+
+.lotcheck-scroll a {
+  color: var(--parchment);
+}
+
+.lotcheck-scroll :where(h1, h2, h3) {
+  color: var(--parchment);
+}
+
+.lotcheck-scroll :focus-visible {
+  outline: 2px solid var(--lantern);
+  outline-offset: 2px;
+  transition: outline-offset 150ms;
+}
+
+/* What lies on paper keeps ink text and an ink focus ring (lantern on parchment is 1.6). */
+.lc-on-paper,
+.lc-suggest {
+  color: var(--ink);
+}
+
+.lc-on-paper a {
+  color: var(--ink);
+}
+
+.lc-on-paper :focus-visible,
+.lc-suggest :focus-visible {
+  outline-color: var(--ink);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* The mark glows faintly on the night pages. A static filter, not an animation. */
+.lotcheck-page .wordmark .mark {
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--lantern) 55%, transparent));
+  stroke: var(--lantern);
+}
+
+.lotcheck-scroll .lc-cross::before,
+.lotcheck-scroll .lc-cross::after {
+  background: var(--copper);
+}
+
+/* ---------- decoration ---------- */
+
+.lc-skyline {
+  animation: lc-art-in 1.6s ease-out backwards;
+  filter: brightness(0.55) saturate(0.75);
+  height: 190px;
+  left: 0;
+  max-width: none;
+  object-fit: cover;
+  object-position: center bottom;
+  opacity: 0.6;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 0;
+}
+
+.lc-fog {
+  bottom: 0;
+  height: 45%;
+  left: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  z-index: 0;
+}
+
+.lc-fog-a,
+.lc-fog-b {
+  inset: 0 -12%;
+  position: absolute;
+}
+
+.lc-fog-a {
+  animation: lc-drift 70s ease-in-out infinite alternate;
+  background:
+    radial-gradient(ellipse at 22% 100%, color-mix(in srgb, var(--parchment-dim) 20%, transparent), transparent 58%),
+    radial-gradient(ellipse at 74% 96%, color-mix(in srgb, var(--parchment-dim) 15%, transparent), transparent 52%);
+}
+
+.lc-fog-b {
+  animation: lc-drift 95s ease-in-out infinite alternate-reverse;
+  background: radial-gradient(ellipse at 50% 108%, color-mix(in srgb, var(--haze) 90%, transparent), transparent 62%);
+}
+
+.lc-spade {
+  animation: lc-art-in 1.6s ease-out backwards;
+  bottom: 40px;
+  height: auto;
+  opacity: 0.85;
+  pointer-events: none;
+  position: absolute;
+  right: 4px;
+  transform: rotate(7deg);
+  width: 66px;
+  z-index: 2;
+}
+
+.lc-lantern {
+  height: auto;
+  pointer-events: none;
+  position: absolute;
+  z-index: 3;
+}
+
+/* ---------- the Landing ---------- */
+
+.lc-landing {
+  grid-template-columns: minmax(0, 9fr) minmax(0, 11fr);
+  padding: 150px 56px 20px;
+  position: static;
+}
+
+.lc-landing-text,
+.lc-map,
+.lc-coverage {
+  position: relative;
+  z-index: 1;
+}
+
+.lc-landing .lc-kicker {
+  color: var(--parchment);
+}
+
+.lc-landing .lc-headline {
+  font-size: 3rem;
+}
+
+.lc-landing .lc-lede {
+  color: var(--parchment);
+}
+
+.lc-landing .lc-linkbutton,
+.lc-landing .lc-random {
+  color: var(--parchment);
+}
+
+.lc-field:focus {
+  border-color: var(--lantern);
+}
+
+.lc-status-night {
+  color: var(--parchment);
+}
+
+/* The Dig button: the label goes down 1 px, like a spade going in. */
+.lc-dig-label {
+  display: inline-block;
+  transition: transform 150ms;
+}
+
+.lc-dig-button:hover .lc-dig-label,
+.lc-dig-button:focus-visible .lc-dig-label {
+  transform: translateY(1px);
+}
+
+.lc-landing .lc-fact {
+  color: var(--parchment);
+}
+
+.lc-landing .lc-coverage {
+  border-top: 1px solid var(--rule);
+  color: var(--parchment-dim);
+  text-align: left;
+}
+
+/* The map: the real plan crop on paper, lit by the lantern at its corner. */
+.lc-map {
+  align-self: center;
+  margin: 0;
+  min-width: 0;
+}
+
+.lc-paper {
+  background: url('/lotcheck/art/paper.webp') center / 100% 100% no-repeat;
+  padding: 8% 10% 8%;
+}
+
+.lc-plan-box {
+  --lx: 96%;
+  --ly: 3%;
+  aspect-ratio: 860 / 782;
+  overflow: hidden;
+  position: relative;
+}
+
+.lc-plan-svg {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.lc-plan-empty {
+  background: var(--parchment);
+  height: 100%;
+  width: 100%;
+}
+
+/* Lit by the lantern: the dark falls away from its corner. The scan underneath is not changed. */
+.lc-plan-dim {
+  background: radial-gradient(circle at var(--lx) var(--ly), transparent 0, color-mix(in srgb, var(--soot) 22%, transparent) 38%, color-mix(in srgb, var(--soot) 62%, transparent) 100%);
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* The entrance: the plan starts dark and the lantern's light spreads over it. */
+.lc-plan-night {
+  animation: lc-night-off 1.1s 0.4s ease-out backwards;
+  background: var(--soot);
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.lc-light {
+  animation: lc-spread 1.2s 0.35s ease-out backwards;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, color-mix(in srgb, var(--lantern) 42%, transparent) 0, color-mix(in srgb, var(--lantern) 14%, transparent) 30%, transparent 56%);
+  left: calc(var(--lx) - 110%);
+  pointer-events: none;
+  position: absolute;
+  top: calc(var(--ly) - 110%);
+  width: 220%;
+}
+
+.lc-pool {
+  aspect-ratio: 1;
+  background: radial-gradient(circle, color-mix(in srgb, var(--lantern) 30%, transparent), transparent 70%);
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  transition: opacity 300ms;
+  width: 190px;
+  will-change: transform;
+}
+
+.lc-lantern-landing {
+  animation:
+    lc-ignite 0.9s ease-out backwards,
+    lc-flame 4.2s 1.5s ease-in-out infinite;
+  right: -5%;
+  top: -22%;
+  width: 21%;
+}
+
+.lc-sheet-no {
+  background: var(--parchment);
+  bottom: 0;
+  color: var(--ink);
+  font-size: 0.8125rem;
+  margin: 0;
+  padding: 1px var(--space-2);
+  position: absolute;
+  right: 0;
+}
+
+.lc-map-caption {
+  color: var(--parchment-dim);
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-style: italic;
+  margin-top: var(--space-3);
+  min-height: 1.6em;
+}
+
+/* The lots with something recorded: faint lantern outlines that pulse slowly, one after another on entry. */
+.lc-lot-in {
+  animation: lc-lot-in 0.6s calc(0.9s + var(--i, 0) * 80ms) ease-out backwards;
+}
+
+.lc-lot {
+  cursor: pointer;
+  outline: none;
+}
+
+.lc-lot-fill {
+  fill: var(--lantern);
+  fill-opacity: 0.1;
+  stroke: none;
+  transition: fill-opacity 150ms;
+}
+
+.lc-lot-casing {
+  fill: none;
+  pointer-events: none;
+  stroke: var(--ink);
+  stroke-opacity: 0.55;
+  stroke-width: 4px;
+  vector-effect: non-scaling-stroke;
+}
+
+.lc-lot-line {
+  animation: lc-pulse 3.2s calc(2.2s + var(--i, 0) * 120ms) ease-in-out infinite;
+  fill: none;
+  pointer-events: none;
+  stroke: var(--lantern);
+  stroke-width: 2px;
+  vector-effect: non-scaling-stroke;
+}
+
+.lc-lot:hover .lc-lot-fill,
+.lc-lot:focus-visible .lc-lot-fill,
+.lc-lot[data-active='true'] .lc-lot-fill {
+  fill-opacity: 0.4;
+}
+
+.lc-lot:focus-visible .lc-lot-line,
+.lc-lot:hover .lc-lot-line {
+  animation: none;
+  stroke-width: 4px;
+}
+
+.lc-lot-tag {
+  background: var(--parchment);
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  font-family: var(--font-heading);
+  font-size: 0.9375rem;
+  margin: 0;
+  padding: 3px 10px;
+  pointer-events: none;
+  position: absolute;
+  transform: translate(-50%, -140%);
+  white-space: nowrap;
+  z-index: 4;
+}
+
+/* The combobox list sits above the fog and the map. */
+.lc-suggest {
+  z-index: 6;
+}
+
+/* ---------- keyframes ---------- */
+
+@keyframes lc-art-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes lc-drift {
+  from {
+    transform: translateX(-6%);
+  }
+
+  to {
+    transform: translateX(6%);
+  }
+}
+
+@keyframes lc-night-off {
+  from {
+    opacity: 0.94;
+  }
+}
+
+@keyframes lc-spread {
+  from {
+    opacity: 0;
+    transform: scale(0.12);
+  }
+}
+
+@keyframes lc-ignite {
+  0% {
+    opacity: 0;
+  }
+
+  18% {
+    opacity: 0.9;
+  }
+
+  30% {
+    opacity: 0.2;
+  }
+
+  48% {
+    opacity: 1;
+  }
+
+  62% {
+    opacity: 0.55;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes lc-flame {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  22% {
+    opacity: 0.93;
+  }
+
+  41% {
+    opacity: 0.99;
+  }
+
+  63% {
+    opacity: 0.9;
+  }
+
+  80% {
+    opacity: 1;
+  }
+}
+
+@keyframes lc-lot-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes lc-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* ---------- phone and narrow windows ---------- */
+
+@media (max-width: 1099px) {
+  .lc-spade {
+    display: none;
+  }
+}
+
+@media (max-width: 899px) {
+  .lc-landing {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 130px 24px 16px;
+  }
+
+  .lc-lantern-landing {
+    right: -2%;
+    top: -12%;
+    width: 15%;
+  }
+
+  .lc-map {
+    margin-top: var(--space-5);
+  }
+}
+
+@media (max-width: 719px) {
+  .lc-landing {
+    padding: 110px 16px 12px;
+  }
+
+  .lc-skyline {
+    height: 150px;
+  }
+
+  .lc-landing .lc-headline {
+    font-size: 2.25rem;
+  }
+}
+
+/* ---------- reduced motion: the end state, at once ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .lotcheck-scroll *,
+  .lotcheck-scroll *::before,
+  .lotcheck-scroll *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .lc-pool {
+    display: none;
+  }
+}

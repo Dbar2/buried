@@ -5,7 +5,7 @@ import type { Feature, FeatureCollection, PresentLayer } from '../evidence';
 import { E0, makeCollection, makeFeature, makeSource, N0, obs, P1911, P1935 } from '../evidence/testing/fixtures';
 import { rect } from '../evidence/testing/fixtures';
 import { addressesLayer, registry } from '../report/testing/fixtures';
-import { industrialLots, landingFact, normaliseLettering, pickExamples } from './landing';
+import { industrialLots, landingFact, normaliseLettering, pickExamples, recordedCaption } from './landing';
 
 function area(origin: string, seq: number, at: [number, number], size: [number, number], use: string, errorM: number): Feature {
   const f = makeFeature(origin, [obs(origin, true, 'clear', 'origin')], { seq, kind: 'land_use', at, size, positionErrorM: errorM });
@@ -133,7 +133,7 @@ describe('industrialLots and pickExamples', () => {
     ]);
     const collections = [makeCollection(P1911, [area(P1911, 1, [E0 + 2, N0 + 2], [10, 10], 'Coal Yard; A', 2), area(P1911, 2, [E0 + 200, N0 + 2], [10, 10], 'Baptist Mission Hall', 2)])];
     const reg = { ...registry(), sources: [...registry().sources, makeSource('fip_v3_1999_999', 1999, 1999)] };
-    expect(industrialLots(collections, lots, addresses, reg)).toEqual([{ lotId: 'lot_x', addresses: ['2A Test St', '2B Test St'], key: 'coal yard', head: 'Coal Yard', sourceId: P1911 }]);
+    expect(industrialLots(collections, lots, addresses, reg)).toEqual([{ lotId: 'lot_x', addresses: ['2A Test St', '2B Test St'], key: 'coal yard', head: 'Coal Yard', sourceIds: [P1911] }]);
   });
 
   it('picks up to three distinct lots, distinct lettering first, shown in address order', () => {
@@ -149,5 +149,24 @@ describe('industrialLots and pickExamples', () => {
     expect(new Set(picked.map((p) => p.lotId)).size).toBe(3);
     expect(pickExamples(tagged.slice(0, 2)).map((p) => p.address)).toEqual(['1 A St', '2 B St']);
     expect(pickExamples([])).toEqual([]);
+  });
+});
+
+describe('recordedCaption', () => {
+  it('says what the plan shows, from the counts, and passes the sentence check', () => {
+    expect(recordedCaption(11).text).toBe('11 lots on this block have something recorded. Click one.');
+    expect(recordedCaption(1).text).toBe('1 lot on this block has something recorded. Click it.');
+    expect(recordedCaption(11, 6).text).toBe('11 lots on this block have something recorded. 6 of them are on this plan. Click one.');
+    expect(recordedCaption(11, 1).text).toBe('11 lots on this block have something recorded. 1 of them is on this plan. Click it.');
+  });
+
+  it('every count gives a sentence that passes checkSentence and has no banned word', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 400 }), fc.integer({ min: 1, max: 400 }), (total, shown) => {
+        const s = recordedCaption(total, Math.min(shown, total));
+        expect(checkSentence(s.text, s.pack).ok).toBe(true);
+        expect(findBannedWords(s.text)).toEqual([]);
+      }),
+    );
   });
 });

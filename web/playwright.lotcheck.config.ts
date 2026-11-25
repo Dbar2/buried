@@ -10,7 +10,7 @@ const ORIGIN = `http://127.0.0.1:${PORT}`;
 
 export default defineConfig({
   ...base,
-  testMatch: ['**/lotcheck.spec.ts'],
+  testMatch: ['**/lotcheck.spec.ts', '**/night.spec.ts'],
   use: { ...base.use, baseURL: ORIGIN, launchOptions: { args: ['--disable-gpu', '--disable-3d-apis', '--disable-webgl'] } },
   webServer: {
     command: `npx vite preview --host 127.0.0.1 --port ${PORT} --strictPort`,
