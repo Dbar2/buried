@@ -37,7 +37,7 @@ function fake(rows: PlanRow[], tag: CheckOf['verdict']['tag'] = 'past_industrial
     kind: 'check',
     lotId: 'lot',
     title: fixed('2A Percy St'),
-    verdict: { tag, tagText: copy.TAG_TEXT[tag], triggers: [], sentences: [fixed('The plans letter this lot.')], notClearance: null },
+    verdict: { tag, tagText: copy.TAG_TEXT[tag], triggers: [], sentences: [fixed('The plans letter this lot.')], notClearance: null, inscription: { lead: 'HERE STOOD', name: fixed('Coal'), foot: fixed('recorded on the plan of 1911') } },
     rows: [...rows, { kind: 'today', yearLabel: 'Today', sentences: [fixed('Six building outlines.')] }],
     cannotTell: { screens: fixed('s'), soil: fixed('t'), locate: { lead: fixed('l'), link: { text: 'x', url: 'https://example.org/' } } },
     provenance: { attribution: [], position: null, traced: [], review: [] },

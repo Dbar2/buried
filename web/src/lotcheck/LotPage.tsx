@@ -164,7 +164,8 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
       </header>
       <div className="lc-result-grid">
         <div className="lc-main">
-          <img className="lc-lantern lc-lantern-result" src={ART.lantern} alt="" width={311} height={640} decoding="async" />
+          {/* The lantern is fetched once the text is on screen, with the plan: it is not in the 700 KB before the tile (requirement 1.4). */}
+          {afterPaint ? <img className="lc-lantern lc-lantern-result" src={ART.lantern} alt="" width={311} height={640} decoding="async" /> : null}
           <div className="lc-record lc-on-paper" data-testid="lc-record">
             <Stamp text={v.tagText} />
             <InscriptionBlock inscription={v.inscription} />

@@ -424,8 +424,8 @@
     transparent 0,
     transparent 8%,
     color-mix(in srgb, var(--soot) 38%, transparent) 14%,
-    color-mix(in srgb, var(--soot) 66%, transparent) 26%,
-    color-mix(in srgb, var(--soot) 66%, transparent) 100%
+    color-mix(in srgb, var(--soot) 52%, transparent) 26%,
+    color-mix(in srgb, var(--soot) 52%, transparent) 100%
   );
   left: 0;
   position: absolute;

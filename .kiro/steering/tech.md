@@ -162,6 +162,11 @@ invent commands; when one is added, record it here.
     writes the Landing's plan crop and its corners to `public/lotcheck/landing-plan.jpg` and `.json`; `npm run gen:how-pictures` writes the four
     How page pictures `public/lotcheck/how-*.jpg`. Both cut from the committed tiles and evidence; commit the files they write.
     `/report?lot=<id>&print=1` opens the browser's print dialog once the Report is built (the "Download the one-page record" target).
+    Session 053 (the night dig): the same config also runs `e2e/night.spec.ts`, which writes `e2e/output/night-*.png` (the Landing after its
+    entrance, the suggestion list, the dig held at its second mark, the Result after the stamp; 1440 by 900 and 390 by 844). `e2e/lotcheck.spec.ts`
+    runs under reduced motion (no dig, no sweep). Test hook: `window.__buriedDigHold = <mark index>` (set with `addInitScript`) freezes the dig
+    inside that mark's pause. Limits (spec 08 1.4): Landing 950 KB, Result 700 KB before the tile. The skyline, the spade and the earth
+    cross-section load once the Landing is idle; the Result's lantern loads after its text.
   - Block page, the first visit (spec 06, sessions 042 to 045), from `web/` after `npm run build`:
     `npx playwright test -c playwright.blockflat.config.ts` (no WebGL; port 4175; no Unity build
     needed) and `npx playwright test -c playwright.block.config.ts` (the `@unity` specs, against

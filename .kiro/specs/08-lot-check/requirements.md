@@ -26,13 +26,16 @@ in the Evidence Library). *Coverage area*: lots for which `buildReport` does not
 ## Requirement 2: The Landing
 
 2.1 THE Landing SHALL show, in order: header, kicker, headline, one sentence, the address field and
-    "Check this address", "Try:" with examples, the computed fact, the coverage line and the plan
-    picture, with the texts in product.md.
+    "Dig", "or dig somewhere at random", the computed fact, the coverage line and the lit plan
+    picture, with the texts in product.md (session 053 changed the headline, the sentence and the
+    button; the "Try:" examples are replaced by the suggestions of requirement 8).
 2.2 WHEN the address typed matches an address point inside the coverage area, THE Landing SHALL
     open that lot's Result. WHEN it matches none, THE Landing SHALL say "Not reconstructed yet." and
     nothing else. It SHALL reuse the existing address search.
-2.3 THE examples SHALL come from `pickExamples`: up to three distinct lots whose tag is "Past
-    industrial use recorded", preferring distinct lettering, ordered by address text.
+2.3 THE plan picture SHALL outline each lot that has something recorded (the lots `industrialLots`
+    finds, as the tag "Past industrial use recorded" decides), show its lettering on hover or focus,
+    and dig there on a click. Its caption says how many lots on the block have something recorded.
+    (`pickExamples` stays in `landing.ts`, no longer used by the page.)
 2.4 THE fact SHALL come from `landingFact`, built with the sentence builder and checked. WHEN its
     count is 0 THE Landing SHALL omit it. [PBT: the count equals the address points inside areas
     lettered with that use]

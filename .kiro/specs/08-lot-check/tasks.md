@@ -37,8 +37,8 @@ One builder session, in order. **(demo)** marks what the demo video needs. Recor
 ## Session 053: the night dig
 
 - [x] 12. Write it down: steering design and product, requirements 8 to 10, P7 to P10. (0)
-- [ ] 13. Suggestions: `suggest.ts`, `AddressCombobox.tsx`, tests. (8, P7)
-- [ ] 14. The Landing at night: art, lit lots, lantern, entrance, fog. (2, 1.4)
-- [ ] 15. The dig: `digTimeline.ts`, `DigOverlay.tsx`, tests. (9, P8, P9)
-- [ ] 16. The reveal: inscription, stamp, sheet, sweep, "Dig another address". (10, P10)
-- [ ] 17. Small things, How page, Sources "Illustrations", weights, browser spec, notes.
+- [x] 13. Suggestions: `suggest.ts`, `AddressCombobox.tsx`, tests. (8, P7)
+- [x] 14. The Landing at night: art, lit lots, lantern, entrance, fog. (2, 1.4)
+- [x] 15. The dig: `digTimeline.ts`, `DigOverlay.tsx`, tests. (9, P8, P9)
+- [x] 16. The reveal: inscription, stamp, sheet, sweep, "Dig another address". (10, P10)
+- [x] 17. Small things, How page, Sources "Illustrations", weights, browser spec, notes.

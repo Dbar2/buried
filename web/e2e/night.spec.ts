@@ -206,6 +206,7 @@ test.describe('the reveal', () => {
     await expect(page.getByTestId('lc-inscription').locator('img')).toBeVisible();
     await expect(page.getByTestId('lc-tag')).toHaveText('Not covered yet');
     await expect(page.getByTestId('lc-coverage')).toContainText('Covered so far');
+    await finite(page);
     await page.screenshot({ path: `${OUT}/night-notdug.png` });
   });
 });

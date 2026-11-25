@@ -44,7 +44,7 @@ test('each route sets its title and description; the static page carries the Ope
 
   await page.goto('/');
   await expect(page).toHaveTitle('Buried: what was on this land?');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('What was on this land?');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('What is buried under your address?');
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', 'https://buried.pages.dev/social-card.png');
   await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /^Before you buy, dig or plant\b/);
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Buried: what was on this land?');

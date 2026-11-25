@@ -200,7 +200,8 @@ test('the divider works by keyboard and by drag, and never moves the outline', a
 });
 
 test('desktop: the provenance strip sits directly under the compare view, in its column', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 1100 });
+  // The record sheet now opens with its inscription, so a window that holds the whole left column is taller than before (1100 px).
+  await page.setViewportSize({ width: 1440, height: 1400 });
   await page.goto(`/lot/${PERCY_LOT}`);
   await expect(page.getByTestId('lc-frame')).toHaveAttribute('data-ready', 'true');
   const frame = (await page.getByTestId('lc-frame').boundingBox())!;
@@ -209,8 +210,8 @@ test('desktop: the provenance strip sits directly under the compare view, in its
   expect(strip.y).toBeGreaterThanOrEqual(frame.y + frame.height);
   expect(strip.y - (frame.y + frame.height)).toBeLessThan(120);
   expect(strip.x + strip.width).toBeLessThanOrEqual(side.x);
-  // It is on the first screen of a 1100 px tall window, beside the first rows.
-  expect(strip.y + strip.height).toBeLessThan(1100);
+  // It is on the first screen of a 1400 px tall window, beside the first rows.
+  expect(strip.y + strip.height).toBeLessThan(1400);
   await expect(page.getByTestId('lc-provenance')).toContainText('Positioned within about');
   await expect(page.getByTestId('lc-provenance')).toContainText('Digitized and georeferenced');
 });
