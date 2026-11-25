@@ -44,35 +44,51 @@ describe('compareModel', () => {
     });
   });
 
-  it('frames the lot plus 40 m on each side, at the asked aspect', () => {
-    // A lot in the middle of the tile, so no edge moves the frame.
+  it('frames the lot plus 15 m on each side, at the asked aspect', () => {
+    // A lot in the middle of the tile, so no edge is near. The margin is measured on the sheet, along its own axes.
     const mid = box(632500, 4834960, 8, 24);
+    const pxPerM = TILE.widthPx / Math.hypot(CORNERS.top_right[0] - CORNERS.top_left[0], CORNERS.top_right[1] - CORNERS.top_left[1]);
+    const lotPx = (mid[0] as readonly Pt[]).map((p) => worldToPixel(t, p));
+    const xs = lotPx.map((p) => p[0]);
+    const ys = lotPx.map((p) => p[1]);
     for (const aspect of [4 / 3, 1]) {
       const m = compareModel({ lot: mid, tile: TILE, buildings: [], lots: [], aspect });
       expect(m.viewBox.width / m.viewBox.height).toBeCloseTo(aspect, 2);
-      for (const c of [[632500 - 40, 4834960 - 40], [632508 + 40, 4834960 - 40], [632508 + 40, 4834984 + 40], [632500 - 40, 4834984 + 40]] as Pt[]) {
-        const [x, y] = worldToPixel(t, c);
-        expect(x).toBeGreaterThanOrEqual(m.viewBox.x - 0.1);
-        expect(x).toBeLessThanOrEqual(m.viewBox.x + m.viewBox.width + 0.1);
-        expect(y).toBeGreaterThanOrEqual(m.viewBox.y - 0.1);
-        expect(y).toBeLessThanOrEqual(m.viewBox.y + m.viewBox.height + 0.1);
-      }
+      expect(m.viewBox.x).toBeLessThanOrEqual(Math.min(...xs) - 15 * pxPerM + 0.2);
+      expect(m.viewBox.x + m.viewBox.width).toBeGreaterThanOrEqual(Math.max(...xs) + 15 * pxPerM - 0.2);
+      expect(m.viewBox.y).toBeLessThanOrEqual(Math.min(...ys) - 15 * pxPerM + 0.2);
+      expect(m.viewBox.y + m.viewBox.height).toBeGreaterThanOrEqual(Math.max(...ys) + 15 * pxPerM - 0.2);
     }
   });
 
-  it('slides the frame back onto the tile at an edge, but keeps the lot in the middle of the frame', () => {
+  it('keeps the lot centred at a sheet edge and reports the part of the frame the sheet does not cover', () => {
     const [ee, nn] = pixelToWorld(t, [150, 2000]); // 150 px from the tile's left edge
     const edge = box(ee, nn, 10, 20);
     const m = compareModel({ lot: edge, tile: TILE, buildings: [], lots: [], aspect: 4 / 3 });
     const xs = parsePath(m.lotPath).map((p) => p[0]);
     const centre = (Math.min(...xs) + Math.max(...xs)) / 2;
-    const at = (centre - m.viewBox.x) / m.viewBox.width;
-    expect(at).toBeGreaterThanOrEqual(0.24);
-    expect(at).toBeLessThanOrEqual(0.76);
-    for (const x of xs) {
-      expect(x).toBeGreaterThan(m.viewBox.x);
-      expect(x).toBeLessThan(m.viewBox.x + m.viewBox.width);
-    }
+    expect((centre - m.viewBox.x) / m.viewBox.width).toBeCloseTo(0.5, 1);
+    expect(m.uncovered).not.toBeNull();
+    expect(m.uncovered?.atX).toBeLessThan(50);
+    // Mid-tile there is nothing to report.
+    const mid = compareModel({ lot: box(632500, 4834960, 8, 24), tile: TILE, buildings: [], lots: [] });
+    expect(mid.uncovered).toBeNull();
+    expect(mid.mapAreaPath).toBeNull();
+  });
+
+  it('tests the frame against the map area when the sidecar has one', () => {
+    // A map area that is the left half of the tile only.
+    const topMid = pixelToWorld(t, [1813, 0]);
+    const botMid = pixelToWorld(t, [1813, 4096]);
+    const bl = CORNERS.bottom_left as Pt;
+    const tl = CORNERS.top_left as Pt;
+    const left: WorldPolygon = [[tl, topMid, botMid, bl, tl]];
+    const [ee, nn] = pixelToWorld(t, [1813, 2000]);
+    const m = compareModel({ lot: box(ee, nn, 10, 20), tile: { ...TILE, mapArea: left }, buildings: [], lots: [] });
+    expect(m.mapAreaPath).toContain('M');
+    expect(m.uncovered?.atX).toBeGreaterThan(50);
+    expect(m.uncovered?.share).toBeGreaterThan(0.3);
+    expect(m.uncovered?.share).toBeLessThan(0.7);
   });
 
   it("draws only the buildings and lot lines that meet the frame, with the same transform", () => {
@@ -102,7 +118,7 @@ describe('compareModel', () => {
           // The divider is not an input of the model: any divider position leaves the model equal to a fresh build.
           void dividerPercent;
           expect(compareModel({ lot: l, tile: TILE, buildings: [], lots: [], aspect })).toEqual(m);
-          const f = frameFor(l, TILE, 40, aspect);
+          const f = frameFor(l, TILE, 15, aspect);
           expect(f.width / f.height).toBeCloseTo(aspect, 6);
           for (const p of parsePath(m.lotPath)) {
             expect(p[0]).toBeGreaterThan(m.viewBox.x);

@@ -375,7 +375,7 @@
 .lc-result-grid {
   column-gap: var(--space-5);
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   margin-top: var(--space-4);
 }
 
@@ -512,8 +512,34 @@
 }
 
 .lc-divider:focus-visible {
+  outline: none;
+}
+
+/* The focus ring goes round the handle, so the divider stays one line. */
+.lc-divider:focus-visible .lc-grip {
   outline: 2px solid var(--ink);
-  outline-offset: 3px;
+  outline-offset: 2px;
+}
+
+.lc-frame .lc-outline-casing {
+  stroke-width: 6px;
+}
+
+.lc-frame .lc-outline {
+  stroke-width: 4px;
+}
+
+.lc-edge-note {
+  background: var(--parchment);
+  border: 1px solid var(--rule);
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 1px var(--space-2);
+  pointer-events: none;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
 }
 
 .lc-chip {

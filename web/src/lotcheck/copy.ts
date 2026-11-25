@@ -30,6 +30,9 @@ export const WORDING_NOT_REPRODUCED = 'Its wording is not reproduced here. The c
 
 export const LOADING_PLAN = 'Loading the plan.';
 
+/** The note where the compare frame reaches past the sheet's map area: "edge of sheet 229". */
+export const edgeOfSheet = (sheet: string): string => `edge of sheet ${sheet}`;
+
 export const SECTION = {
   plans: 'What the plans show',
   cannotTell: 'What this does not tell you',

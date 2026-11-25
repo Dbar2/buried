@@ -86,12 +86,17 @@ in the Evidence Library). *Coverage area*: lots for which `buildReport` does not
     outlines and lot lines right of it, in one viewBox from one `SheetTransform`.
 5.2 THE lot outline SHALL be the same on both sides, and the divider position SHALL NOT change the
     outline, the viewBox or which lot is outlined. [PBT]
-5.3 THE view SHALL frame the lot's bounding box plus 40 m on each side, and SHALL NOT draw evidence
-    footprints on the scan.
+5.3 THE view SHALL frame the lot's bounding box plus 15 m on each side, with the lot centred, and
+    SHALL NOT draw evidence footprints on the scan. WHERE the frame reaches past the sheet's map
+    area, THE view SHALL show parchment there and the note "edge of sheet <number>", not white.
 5.4 THE plan switch SHALL list each plan covering the lot, earliest first. Choosing one changes the
     tile and the label only, and is announced to screen readers.
 5.5 THE divider SHALL work by pointer, touch and keyboard, start at 50 per cent and clamp to 0..100.
     WHILE the tile loads, THE view SHALL show the frame, today's side and "Loading the plan."
+5.6 THE divider SHALL be one line with one round handle, and the lot outline SHALL be a 4 px
+    `--lantern` stroke inside a 6 px `--ink` casing, the same on both sides. EACH corner label
+    ("1911 plan", "Today") SHALL stay on its own side of the divider and SHALL be hidden when the
+    divider leaves it no room, so no label touches the divider or the other label.
 
 ## Requirement 6: How it works
 

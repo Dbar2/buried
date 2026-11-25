@@ -31,6 +31,16 @@ export function dividerForPointer(clientX: number, left: number, width: number):
   return clampPercent(((clientX - left) / width) * 100);
 }
 
+/**
+ * Which corner labels fit on their side of the divider. A label sits `edge` px from the frame's side and keeps `gap`
+ * px from the divider, so it never overlaps the divider or the other label. An unknown width (0) shows both.
+ */
+export function chipsFit(frameWidth: number, dividerPercent: number, leftWidth: number, rightWidth: number, edge = 8, gap = 8): { left: boolean; right: boolean } {
+  if (!(frameWidth > 0)) return { left: true, right: true };
+  const x = (frameWidth * clampPercent(dividerPercent)) / 100;
+  return { left: edge + leftWidth + gap <= x, right: edge + rightWidth + gap <= frameWidth - x };
+}
+
 /** The announcement when the plan changes: "Now showing the 1911 plan". */
 export const planAnnouncement = (planName: string): string => `Now showing ${planName}`;
 

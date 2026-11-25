@@ -6,7 +6,7 @@ import { findBannedWords } from '../evidence';
 import { CompareView } from './CompareView';
 import type { ComparePlan } from './CompareView';
 import type { WorldPolygon } from './compare';
-import { clampPercent, DIVIDER_START, dividerForKey, dividerForPointer, dividerLabel, planAnnouncement } from './divider';
+import { chipsFit, clampPercent, DIVIDER_START, dividerForKey, dividerForPointer, dividerLabel, planAnnouncement } from './divider';
 
 const CORNERS: TileCorners = {
   top_left: [632312.268258896, 4835087.454831159],
@@ -55,6 +55,24 @@ describe('the divider arithmetic', () => {
     expect(dividerForPointer(300, 100, 400)).toBe(50);
     expect(dividerForPointer(10, 100, 400)).toBe(0);
     expect(dividerForPointer(900, 100, 400)).toBe(100);
+  });
+
+  it('keeps each corner label on its side of the divider', () => {
+    expect(chipsFit(600, 50, 90, 60)).toEqual({ left: true, right: true });
+    expect(chipsFit(600, 5, 90, 60)).toEqual({ left: false, right: true });
+    expect(chipsFit(600, 95, 90, 60)).toEqual({ left: true, right: false });
+    expect(chipsFit(0, 5, 90, 60)).toEqual({ left: true, right: true });
+    fc.assert(
+      fc.property(fc.integer({ min: 200, max: 1200 }), fc.integer({ min: 0, max: 100 }), fc.integer({ min: 40, max: 120 }), fc.integer({ min: 40, max: 120 }), (w, d, l, r) => {
+        const fit = chipsFit(w, d, l, r);
+        const x = (w * d) / 100;
+        // A label that is shown ends at least 8 px before the divider (left) or starts at least 8 px after it (right).
+        if (fit.left) expect(8 + l).toBeLessThanOrEqual(x - 8 + 1e-9);
+        if (fit.right) expect(w - 8 - r).toBeGreaterThanOrEqual(x + 8 - 1e-9);
+        // So two shown labels never touch each other.
+        if (fit.left && fit.right) expect(8 + l).toBeLessThan(w - 8 - r);
+      }),
+    );
   });
 
   it('words the announcement and the slider name from the plan', () => {

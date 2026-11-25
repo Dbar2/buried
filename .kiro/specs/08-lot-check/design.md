@@ -61,14 +61,17 @@ address each (first by text), one per distinct key first, then fills by address 
 
 ## Compare view
 
-`compareModel({ lot, tile, present, marginM = 40 })` returns `{ viewBox, lotPath, presentPaths,
-lotLinePaths }`. It uses `makeSheetTransform(tile.corners, w, h)`, maps the lot's bounding box plus
-`marginM` through `worldToPixel` to a viewBox padded to the frame, and draws every path with
-`ringsToPath` from that transform, so both sides align by construction. The divider is not an input.
+`compareModel({ lot, tile, present, marginM = 15 })` returns `{ viewBox, lotPath, presentPaths,
+lotLinePaths, mapAreaPath, uncovered }`. It uses `makeSheetTransform(tile.corners, w, h)`, maps the lot's bounding box plus
+`marginM` through `worldToPixel` to a viewBox padded to the frame and centred on the lot (session 052: the
+frame is not slid back onto the sheet), and draws every path with
+`ringsToPath` from that transform, so both sides align by construction. The scan is clipped to the sidecar's
+`map_area`, so what lies outside it is parchment, and `uncovered` says how much of the frame that is and where
+(the page prints "edge of sheet 229" there). The divider is not an input.
 `CompareView` stacks two SVGs with that viewBox: the tile (untoned, no footprints) and today's lines
 (`canon.buildings`, `canon.lots` filtered to the viewBox); the right one is clipped by
-`clip-path: inset(0 0 0 X%)`. The lot path string is drawn on both, a 5 px `--ink` casing under a
-3 px `--lantern` stroke. Tiles load as the Flat sheet loads them (`/data/tiles/<id>.jpg` and sidecar).
+`clip-path: inset(0 0 0 X%)`. The lot path string is drawn on both, a 6 px `--ink` casing under a
+4 px `--lantern` stroke. Tiles load as the Flat sheet loads them (`/data/tiles/<id>.jpg` and sidecar).
 
 ## Load weight
 

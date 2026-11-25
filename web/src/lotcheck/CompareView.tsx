@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, KeyboardEvent, PointerEvent } from 'react';
 import { compareModel } from './compare';
 import type { CompareTile, WorldPolygon } from './compare';
-import { clampPercent, DIVIDER_START, dividerForKey, dividerForPointer, dividerLabel, planAnnouncement } from './divider';
+import { chipsFit, clampPercent, DIVIDER_START, dividerForKey, dividerForPointer, dividerLabel, planAnnouncement } from './divider';
 import * as copy from './copy';
 
 export type ComparePlan = {
@@ -30,6 +30,10 @@ export type CompareViewProps = {
 
 const OUTLINE_CASING = 'lc-outline-casing';
 const OUTLINE = 'lc-outline';
+/** A frame that is less than this share past the sheet's map area gets no "edge of sheet" note. */
+const EDGE_NOTE_MIN_SHARE = 0.02;
+const clampTo = (v: number, low: number, high: number): number => Math.min(high, Math.max(low, v));
+const edgeNote = (sourceId: string): string => copy.edgeOfSheet(sourceId.split('_').pop() ?? '');
 
 /**
  * The compare view (spec 08 requirement 5): one frame, the selected plan's untouched tile left of the divider
@@ -42,7 +46,10 @@ export function CompareView({ plans, lot, buildings, lots, loadPlan, aspect = 4 
   const [divider, setDivider] = useState(clampPercent(initialDivider));
   const [announcement, setAnnouncement] = useState('');
   const [loaded, setLoaded] = useState<string | null>(null);
+  const [fit, setFit] = useState({ left: true, right: true });
   const frame = useRef<HTMLDivElement>(null);
+  const leftChip = useRef<HTMLSpanElement>(null);
+  const rightChip = useRef<HTMLSpanElement>(null);
   const dragging = useRef(false);
 
   const plan = plans[planIndex];
@@ -64,6 +71,19 @@ export function CompareView({ plans, lot, buildings, lots, loadPlan, aspect = 4 
       cancelled = true;
     };
   }, [loadPlan, plan]);
+
+  // Each corner label stays on its side of the divider: it is hidden when the divider leaves it no room.
+  useEffect(() => {
+    const measure = () => {
+      const next = chipsFit(frame.current?.clientWidth ?? 0, divider, leftChip.current?.offsetWidth ?? 0, rightChip.current?.offsetWidth ?? 0);
+      setFit((old) => (old.left === next.left && old.right === next.right ? old : next));
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined' || !frame.current) return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(frame.current);
+    return () => observer.disconnect();
+  }, [divider, planIndex]);
 
   if (!plan || !model) return <p className="lc-compare-note">No plan picture is loaded for this lot.</p>;
 
@@ -107,7 +127,21 @@ export function CompareView({ plans, lot, buildings, lots, loadPlan, aspect = 4 
         data-ready={ready}
       >
         <svg className="lc-layer lc-layer-plan" viewBox={model.viewBoxText} role="img" aria-label={`${plan.label}, the untouched scan, with this lot outlined`} data-testid="lc-layer-plan">
-          {ready ? <image href={plan.tile.src} width={plan.tile.widthPx} height={plan.tile.heightPx} /> : null}
+          {model.mapAreaPath ? (
+            <defs>
+              <clipPath id={`lc-sheet-${plan.sourceId}`}>
+                <path d={model.mapAreaPath} fillRule="evenodd" />
+              </clipPath>
+            </defs>
+          ) : null}
+          {ready ? (
+            <image
+              href={plan.tile.src}
+              width={plan.tile.widthPx}
+              height={plan.tile.heightPx}
+              clipPath={model.mapAreaPath ? `url(#lc-sheet-${plan.sourceId})` : undefined}
+            />
+          ) : null}
           <path d={model.lotPath} className={OUTLINE_CASING} fillRule="evenodd" />
           <path d={model.lotPath} className={OUTLINE} fillRule="evenodd" data-testid="lc-outline-plan" />
         </svg>
@@ -128,8 +162,21 @@ export function CompareView({ plans, lot, buildings, lots, loadPlan, aspect = 4 
           <path d={model.lotPath} className={OUTLINE_CASING} fillRule="evenodd" />
           <path d={model.lotPath} className={OUTLINE} fillRule="evenodd" data-testid="lc-outline-today" />
         </svg>
-        <span className="lc-chip lc-chip-left">{plan.label}</span>
-        <span className="lc-chip lc-chip-right">Today</span>
+        {model.uncovered && model.uncovered.share > EDGE_NOTE_MIN_SHARE ? (
+          <span
+            className="lc-edge-note"
+            style={{ left: `${clampTo(model.uncovered.atX, 14, 86)}%`, top: `${clampTo(model.uncovered.atY, 10, 90)}%`, visibility: clampTo(model.uncovered.atX, 14, 86) + 12 < divider ? 'visible' : 'hidden' }}
+            data-testid="lc-edge-note"
+          >
+            {edgeNote(plan.sourceId)}
+          </span>
+        ) : null}
+        <span ref={leftChip} className="lc-chip lc-chip-left" style={{ visibility: fit.left ? 'visible' : 'hidden' }} data-testid="lc-chip-left">
+          {plan.label}
+        </span>
+        <span ref={rightChip} className="lc-chip lc-chip-right" style={{ visibility: fit.right ? 'visible' : 'hidden' }} data-testid="lc-chip-right">
+          Today
+        </span>
         <div
           className="lc-divider"
           style={{ left: 'var(--divider)' }}

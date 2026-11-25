@@ -124,6 +124,27 @@ test('/place?lot= shows the same Result, and a lot outside the coverage says "No
   await expect(page.getByTestId('lc-frame')).toHaveCount(0);
 });
 
+test('first paint: the divider is in the middle and the lot outline fills a good part of the frame', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1500 });
+  await page.goto(`/lot/${PERCY_LOT}`);
+  const frame = page.getByTestId('lc-frame');
+  await expect(frame).toHaveAttribute('data-ready', 'true');
+  const box = (await frame.boundingBox())!;
+  const grip = (await page.getByTestId('lc-divider').boundingBox())!;
+  const at = ((grip.x + grip.width / 2 - box.x) / box.width) * 100;
+  expect(Math.abs(at - 50)).toBeLessThanOrEqual(2);
+  const outline = (await page.getByTestId('lc-outline-plan').boundingBox())!;
+  expect(Math.max(outline.width / box.width, outline.height / box.height)).toBeGreaterThanOrEqual(0.35);
+  // The frame is about 4:3 and the two labels are on their own sides of the divider.
+  expect(box.width / box.height).toBeGreaterThan(1.25);
+  expect(box.width / box.height).toBeLessThan(1.42);
+  const left = (await page.getByTestId('lc-chip-left').boundingBox())!;
+  const right = (await page.getByTestId('lc-chip-right').boundingBox())!;
+  expect(left.x + left.width).toBeLessThan(grip.x + grip.width / 2);
+  expect(right.x).toBeGreaterThan(grip.x + grip.width / 2);
+  await page.screenshot({ path: `${OUT}/lotcheck-result.png` });
+});
+
 test('the divider works by keyboard and by drag, and never moves the outline', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1500 });
   await page.goto(`/lot/${PERCY_LOT}`);
@@ -166,7 +187,7 @@ test('the divider works by keyboard and by drag, and never moves the outline', a
   expect(dragged).toBeLessThan(30);
   expect(await outline()).toBe(before);
   expect(await page.getByTestId('lc-outline-today').getAttribute('d')).toBe(before);
-  await page.screenshot({ path: `${OUT}/lotcheck-result.png` });
+  await page.screenshot({ path: `${OUT}/lotcheck-result-dragged.png` });
 });
 
 test('the plan switch changes the tile and the label, and is announced', async ({ page }) => {

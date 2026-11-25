@@ -119,7 +119,7 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
     const source = data.loaded.sources.get(id);
     if (!tile || !source) return [];
     const years = plainYears(source);
-    return [{ sourceId: id, planName: `the ${years} plan`, label: `${years} plan`, tile: { src: `/data/tiles/${tile.image}`, widthPx: tile.width_px, heightPx: tile.height_px, corners: tile.corners } }];
+    return [{ sourceId: id, planName: `the ${years} plan`, label: `${years} plan`, tile: { src: `/data/tiles/${tile.image}`, widthPx: tile.width_px, heightPx: tile.height_px, corners: tile.corners, mapArea: tile.map_area?.coordinates as WorldPolygon | undefined } }];
   });
 
   const share = async () => {
