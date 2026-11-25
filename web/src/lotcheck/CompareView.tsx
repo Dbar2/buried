@@ -19,6 +19,10 @@ export type CompareViewProps = {
   lot: WorldPolygon;
   buildings: readonly WorldPolygon[];
   lots: readonly WorldPolygon[];
+  /** The outlines of the lettered uses on the lot, drawn faint and dashed on today's side ("where it stood"). */
+  stood?: readonly WorldPolygon[];
+  /** Play the one sweep of the divider, from the right edge to the middle, once the plan is in (session 053). Never under reduced motion. */
+  intro?: boolean;
   /** False until the page's text is on screen: the plan is requested only after that (requirement 1.4). */
   loadPlan: boolean;
   /** Frame width over height. Wide screens 4 to 3, phones 1 (design.md "Compare view"). */
@@ -41,9 +45,18 @@ const edgeNote = (sourceId: string): string => copy.edgeOfSheet(sourceId.split('
  * this component alone: it sets a clip on the today layer and nothing else, so the outline and the viewBox
  * cannot move with it.
  */
-export function CompareView({ plans, lot, buildings, lots, loadPlan, aspect = 4 / 3, initialDivider = DIVIDER_START, initialPlan = 0 }: CompareViewProps) {
+/** The sweep waits for the sheet to settle (rise 0.6 s, stamp at 1.0 s) and takes 1.1 s. Starts after the plan is in, or after 4 s whatever happens. */
+const SWEEP_AT_MS = 1300;
+const SWEEP_MS = 1100;
+const SWEEP_GIVE_UP_MS = 4000;
+
+const prefersReducedMotion = (): boolean => typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+export function CompareView({ plans, lot, buildings, lots, stood = [], intro = false, loadPlan, aspect = 4 / 3, initialDivider = DIVIDER_START, initialPlan = 0 }: CompareViewProps) {
   const [planIndex, setPlanIndex] = useState(Math.min(Math.max(initialPlan, 0), Math.max(plans.length - 1, 0)));
-  const [divider, setDivider] = useState(clampPercent(initialDivider));
+  // The sweep: the divider starts at the right edge and moves once to the middle. Reduced motion, or no `intro`, starts at the middle.
+  const [sweep, setSweep] = useState<'pending' | 'running' | 'done'>(() => (intro && !prefersReducedMotion() ? 'pending' : 'done'));
+  const [divider, setDivider] = useState(sweep === 'pending' ? 100 : clampPercent(initialDivider));
   const [announcement, setAnnouncement] = useState('');
   const [loaded, setLoaded] = useState<string | null>(null);
   const [fit, setFit] = useState({ left: true, right: true });
@@ -54,8 +67,8 @@ export function CompareView({ plans, lot, buildings, lots, loadPlan, aspect = 4 
 
   const plan = plans[planIndex];
   const model = useMemo(
-    () => (plan ? compareModel({ lot, tile: plan.tile, buildings, lots, aspect }) : null),
-    [plan, lot, buildings, lots, aspect],
+    () => (plan ? compareModel({ lot, tile: plan.tile, buildings, lots, stood, aspect }) : null),
+    [plan, lot, buildings, lots, stood, aspect],
   );
 
   // The plan is requested once the text is up. The browser keeps the tile, so the lettering crops share the request.
@@ -71,6 +84,42 @@ export function CompareView({ plans, lot, buildings, lots, loadPlan, aspect = 4 
       cancelled = true;
     };
   }, [loadPlan, plan]);
+
+  // The one sweep, from the right edge to the middle. The visitor's own hand ends it at once.
+  const mountedAt = useRef(typeof performance !== 'undefined' ? performance.now() : 0);
+  const swept = useRef(false);
+  const started = useRef(false);
+  const rafId = useRef(0);
+  const ready0 = plan !== undefined && loaded === plan.sourceId;
+  useEffect(() => {
+    if (sweep !== 'pending' || started.current) return;
+    const run = () => {
+      if (swept.current || started.current) return;
+      started.current = true;
+      setSweep('running');
+      const t0 = performance.now();
+      const step = (now: number) => {
+        if (swept.current) return;
+        const p = Math.min(1, (now - t0) / SWEEP_MS);
+        const eased = p * p * (3 - 2 * p);
+        setDivider(100 + (DIVIDER_START - 100) * eased);
+        if (p < 1) rafId.current = requestAnimationFrame(step);
+        else setSweep('done');
+      };
+      rafId.current = requestAnimationFrame(step);
+    };
+    const waited = performance.now() - mountedAt.current;
+    const wait = ready0 ? Math.max(0, SWEEP_AT_MS - waited) : Math.max(0, SWEEP_GIVE_UP_MS - waited);
+    const timer = window.setTimeout(run, wait);
+    return () => window.clearTimeout(timer);
+  }, [sweep, ready0]);
+  useEffect(() => () => cancelAnimationFrame(rafId.current), []);
+
+  const stopSweep = () => {
+    if (sweep === 'done') return;
+    swept.current = true;
+    setSweep('done');
+  };
 
   // Each corner label stays on its side of the divider: it is hidden when the divider leaves it no room.
   useEffect(() => {
@@ -97,6 +146,7 @@ export function CompareView({ plans, lot, buildings, lots, loadPlan, aspect = 4 
     const next = dividerForKey(event.key, divider);
     if (next === null) return;
     event.preventDefault();
+    stopSweep();
     setDivider(next);
   };
 
@@ -125,6 +175,7 @@ export function CompareView({ plans, lot, buildings, lots, loadPlan, aspect = 4 
         data-testid="lc-frame"
         data-plan={plan.sourceId}
         data-ready={ready}
+        data-sweep={sweep}
       >
         <svg className="lc-layer lc-layer-plan" viewBox={model.viewBoxText} role="img" aria-label={`${plan.label}, the untouched scan, with this lot outlined`} data-testid="lc-layer-plan">
           {model.mapAreaPath ? (
@@ -159,6 +210,9 @@ export function CompareView({ plans, lot, buildings, lots, loadPlan, aspect = 4 
           {model.presentPaths.map((d, i) => (
             <path key={`b${i}`} d={d} className="lc-today-building" fillRule="evenodd" />
           ))}
+          {model.stoodPaths.map((d, i) => (
+            <path key={`s${i}`} d={d} className="lc-stood" fillRule="evenodd" data-testid="lc-stood" />
+          ))}
           <path d={model.lotPath} className={OUTLINE_CASING} fillRule="evenodd" />
           <path d={model.lotPath} className={OUTLINE} fillRule="evenodd" data-testid="lc-outline-today" />
         </svg>
@@ -189,6 +243,7 @@ export function CompareView({ plans, lot, buildings, lots, loadPlan, aspect = 4 
           aria-valuetext={`${Math.round(divider)} per cent plan, the rest today`}
           onKeyDown={onKey}
           onPointerDown={(e) => {
+            stopSweep();
             dragging.current = true;
             e.currentTarget.setPointerCapture(e.pointerId);
             move(e);

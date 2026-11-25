@@ -23,6 +23,8 @@ export type CompareInput = {
   buildings: readonly WorldPolygon[];
   /** Today's lot lines. */
   lots: readonly WorldPolygon[];
+  /** The outlines of the lettered uses on the lot, from the evidence (session 053). */
+  stood?: readonly WorldPolygon[];
   /** Metres added on each side of the lot's bounding box. Requirement 5.3: 15. */
   marginM?: number;
   /** Frame width over height: 4/3 on a desktop, 1 on a phone. */
@@ -41,6 +43,8 @@ export type CompareModel = {
   lotPath: string;
   presentPaths: string[];
   lotLinePaths: string[];
+  /** The outlines of the lettered uses on the lot ("where it stood"), drawn on today's side. */
+  stoodPaths: string[];
   /** The map area as a pixel path, to clip the scan to, or null when the sidecar has none. */
   mapAreaPath: string | null;
   /** Where the frame reaches past the sheet's map area, or null when the sheet covers all of it. */
@@ -146,6 +150,7 @@ export function compareModel(input: CompareInput): CompareModel {
     lotPath: ringsToPath(t, input.lot),
     presentPaths: draw(input.buildings),
     lotLinePaths: draw(input.lots),
+    stoodPaths: draw(input.stood ?? []),
     mapAreaPath: area ? ringsToPath(t, area) : null,
     uncovered: uncoveredBy(viewBox, areaPx, input.tile.widthPx, input.tile.heightPx),
   };

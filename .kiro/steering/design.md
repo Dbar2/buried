@@ -193,7 +193,7 @@ carry a claim. Weights: the Landing may transfer 950 KB and the Result 700 KB be
   carrying small chevrons. The lot outline is a 4 px `--lantern` stroke inside a 6 px `--ink`
   casing, identical on both sides. Today's outlines are 1 px `--ink`; lot lines 1 px `--rule`
   dashed. On the Today side each lettered use on the lot is also drawn as a faint dashed
-  `--parchment` line that breathes ("where it stood"). Plan switch above the frame: two text buttons,
+  `--ink-soft` line that breathes ("where it stood"; parchment would vanish on the parchment ground). Plan switch above the frame: two text buttons,
   the active one with a heavier underline. Corner labels "1911 plan" and "Today" in mono on parchment chips.
 - **What the plans show.** A table without a grid: each row has the lettering crop in a hairline
   frame (never recoloured), the year in mono, one line of text. Rows are separated by hairlines.

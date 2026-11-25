@@ -14,6 +14,9 @@ mkdirSync(OUT, { recursive: true });
 
 const PERCY_LOT = '5451729';
 
+// The functional tests run under reduced motion: no dig, no sweep, everything at its end state. The night dig has its own spec (night.spec.ts).
+test.use({ reducedMotion: 'reduce' });
+
 /** Records every WebGL request and the moment the tag first shows, before the page's own script runs. */
 async function watch(page: Page): Promise<{ unity: string[] }> {
   const seen = { unity: [] as string[] };

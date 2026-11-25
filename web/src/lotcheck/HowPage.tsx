@@ -1,6 +1,6 @@
 import { INDUSTRIAL_ENTRIES } from '../evidence';
 import { HOW_KICKER, HOW_STEPS, HOW_TITLE, KIRO_HEADING, KIRO_LINES, LIST_NOTE } from './howCopy';
-import { RegistrationCrosses } from './LandingPage';
+import { RegistrationCrosses } from './night';
 import '../styles/lotcheck.css';
 
 /** How it works (spec 08 requirement 6): four steps with a picture each, then what Kiro did. */

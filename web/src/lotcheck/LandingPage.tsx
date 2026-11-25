@@ -13,6 +13,7 @@ import { computeLotCheck } from './computeLotCheck';
 import * as copy from './copy';
 import { DigOverlay } from './DigOverlay';
 import { industrialLots, landingFact, recordedCaption } from './landing';
+import { ART, Fog } from './night';
 import { addressBook, defaultSuggestions, randomRecorded } from './suggest';
 import type { Suggestion } from './suggest';
 import { preloadImage, useIdle } from './useIdle';
@@ -22,14 +23,7 @@ import '../styles/night.css';
 
 type PlanPicture = { source: string; image: string; width_px: number; height_px: number; corners: TileCorners };
 
-/** The art (web/public/lotcheck/art/). Decoration only: it never carries a claim. */
-export const ART = {
-  lantern: '/lotcheck/art/lantern.webp',
-  paper: '/lotcheck/art/paper.webp',
-  skyline: '/lotcheck/art/skyline.webp',
-  spade: '/lotcheck/art/spade.webp',
-  strata: '/lotcheck/art/strata.webp',
-} as const;
+type PlanLot = { lotId: string; address: string; d: string; cx: number; cy: number; label: string };
 
 function usePlanPicture(): PlanPicture | null {
   const [plan, setPlan] = useState<PlanPicture | null>(null);
@@ -47,18 +41,6 @@ function usePlanPicture(): PlanPicture | null {
   }, []);
   return plan;
 }
-
-/** Two layers of fog at the foot of the page. They drift sideways (transform only) and stop under reduced motion. */
-export function Fog() {
-  return (
-    <div className="lc-fog" aria-hidden="true">
-      <div className="lc-fog-a" />
-      <div className="lc-fog-b" />
-    </div>
-  );
-}
-
-type PlanLot = { lotId: string; address: string; d: string; cx: number; cy: number; label: string };
 
 /** The Landing (spec 08 requirement 2): the question, the address field, the computed fact and the lit plan. */
 export function LandingPage() {
@@ -269,17 +251,6 @@ export function LandingPage() {
       </p>
     </main>
       {dig !== null && data ? <DigOverlay build={buildDig} onFinish={finishDig} art={ART} /> : null}
-    </>
-  );
-}
-
-/** Kept for the pages that still draw the four registration crosses (the How page). */
-export function RegistrationCrosses() {
-  return (
-    <>
-      {(['tl', 'tr', 'bl', 'br'] as const).map((corner) => (
-        <span key={corner} className={`lc-cross lc-cross-${corner}`} aria-hidden="true" />
-      ))}
     </>
   );
 }

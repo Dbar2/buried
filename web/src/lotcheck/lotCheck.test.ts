@@ -267,3 +267,76 @@ describe('buildLotCheck: properties', () => {
     );
   });
 });
+
+describe('buildLotCheck: the inscription (session 053, requirement 10.1)', () => {
+  const rowBuilding = () => makeFeature(P1911, [obs(P1911, true, 'clear', 'origin')], { seq: 1, at: [E0 + 6, N0 + 10], size: [8, 8] });
+
+  it('HERE STOOD, the lettering as the plans quote it, and every plan that letters it', () => {
+    const { result } = run([
+      plateCollection(P1911, [useFeature(P1911, COAL_1911, [E0 + 2, N0 + 2])]),
+      plateCollection(P1935, [useFeature(P1935, COAL_1935, [E0 + 2, N0 + 2])]),
+    ]);
+    const i = checked(result).verdict.inscription;
+    expect(i.lead).toBe('HERE STOOD');
+    expect(i.name?.text).toBe('Coal & Wood Yard');
+    expect(i.foot?.text).toBe('recorded on the plans of 1911 and 1931-35');
+  });
+
+  it('one plan: "plan of"', () => {
+    const { result } = run([plateCollection(P1911, [useFeature(P1911, COAL_1911, [E0 + 2, N0 + 2])])]);
+    expect(checked(result).verdict.inscription.foot?.text).toBe('recorded on the plan of 1911');
+  });
+
+  it('NEXT DOOR STOOD with within N m', () => {
+    const { result } = run([plateCollection(P1911, [useFeature(P1911, 'Coal Shed (as lettered on the plate)', [E0 + 40, N0 + 2])])]);
+    const c = checked(result);
+    const within = (c.verdict.triggers[0]!.relation as { withinM: number }).withinM;
+    expect(c.verdict.inscription.lead).toBe('NEXT DOOR STOOD');
+    expect(c.verdict.inscription.name?.text).toBe('Coal Shed');
+    expect(c.verdict.inscription.foot?.text).toBe(`within ${within} m, on the plan of 1911`);
+  });
+
+  it('NOTHING LETTERED HERE when the plans cover the lot and letter no use, and the clearance line stays', () => {
+    const { result } = run([plateCollection(P1911, [rowBuilding()])]);
+    const c = checked(result);
+    expect(c.verdict.inscription).toMatchObject({ lead: 'NOTHING LETTERED HERE', name: null });
+    expect(c.verdict.inscription.foot?.text).toBe('on the plan of 1911');
+    expect(c.verdict.notClearance).toBe(copy.NOT_A_CLEARANCE);
+  });
+
+  it('NOT DUG YET when the lot is not covered', () => {
+    const { result } = run([mappedOnly(P1911, [])]);
+    const c = checked(result);
+    expect(c.verdict.tag).toBe('not_covered');
+    expect(c.verdict.inscription).toEqual({ lead: 'NOT DUG YET', name: null, foot: null });
+  });
+
+  it('a lettering with a banned word is not quoted in the inscription', () => {
+    const { result } = run([plateCollection(P1911, [useFeature(P1911, 'Clean Coal Yard (as lettered on the plate)', [E0 + 2, N0 + 2])])]);
+    const c = checked(result);
+    expect(c.verdict.inscription.lead).toBe('HERE STOOD');
+    expect(c.verdict.inscription.name).toBeNull();
+  });
+
+  it('P10: the inscription is consistent with the verdict, and no inscription text has a banned word', () => {
+    const useArb = fc.constantFrom('Coal Yard', 'Lumber', 'Machine Shop', 'Baptist Mission Hall', 'Dwelling', 'Foundry; Smith & Co.', 'Clean Coal Yard');
+    fc.assert(
+      fc.property(fc.option(useArb, { nil: undefined }), fc.option(useArb, { nil: undefined }), fc.integer({ min: 0, max: 60 }), (a, b, dx) => {
+        const features1911 = a === undefined ? [rowBuilding()] : [useFeature(P1911, a, [E0 + dx, N0 + 2])];
+        const collections = [plateCollection(P1911, features1911), ...(b === undefined ? [] : [plateCollection(P1935, [useFeature(P1935, b, [E0 + 2, N0 + 2])])])];
+        const c = checked(run(collections).result);
+        const i = c.verdict.inscription;
+        const onlyNotDug = c.verdict.tag === 'not_covered';
+        expect(i.lead === 'NOT DUG YET').toBe(onlyNotDug);
+        expect(i.lead === 'NOTHING LETTERED HERE').toBe(c.verdict.tag === 'no_industrial');
+        expect(i.lead === 'NEXT DOOR STOOD').toBe(c.verdict.tag === 'industrial_next');
+        if (i.name) {
+          // The name is the lettering of a use the verdict's sentence quotes.
+          expect(c.verdict.sentences.some((s) => s.text.includes(i.name!.text))).toBe(true);
+        }
+        for (const s of [i.name, i.foot]) if (s) expect(findBannedWords(s.text)).toEqual([]);
+      }),
+      { numRuns: 120 },
+    );
+  });
+});

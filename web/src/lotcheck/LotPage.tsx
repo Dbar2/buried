@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { plainYears } from '../evidence';
 import type { PolygonalGeometry, PresentLayer } from '../evidence';
 import type { LoadedData } from '../data/loadData';
@@ -14,9 +15,11 @@ import { computeLotCheck } from './computeLotCheck';
 import * as copy from './copy';
 import type { LotCheck, PlanRow, TodayRow, UseLine } from './lotCheck';
 import { LetteringCrop } from './LetteringCrop';
-import { RegistrationCrosses } from './LandingPage';
+import { ART, Fog, RegistrationCrosses } from './night';
+import { InscriptionBlock, Stamp } from './RecordSheet';
 import { useLotData, useBuildings } from './useLotData';
 import '../styles/lotcheck.css';
+import '../styles/night.css';
 
 /**
  * "See this block in 3D" (spec 08 requirement 3.6). Session 051 decision 3: the Unity Player is about 81 MB
@@ -87,9 +90,10 @@ function UseItem({ line, showCrop }: { line: UseLine; showCrop: boolean }) {
   );
 }
 
-function Row({ row, showCrop, todayPending }: { row: PlanRow | TodayRow; showCrop: boolean; todayPending: boolean }) {
+/** One row of "What the plans show". The rows arrive one after another (`--r` is the row's place in the order). */
+function Row({ row, index, showCrop, todayPending }: { row: PlanRow | TodayRow; index: number; showCrop: boolean; todayPending: boolean }) {
   return (
-    <li className="lc-row" data-testid="lc-row">
+    <li className="lc-row" data-testid="lc-row" style={{ ['--r' as string]: index } as CSSProperties}>
       <span className="lc-year">{row.yearLabel}</span>
       <div className="lc-row-body">
         {row.kind === 'today' && todayPending ? (
@@ -109,10 +113,28 @@ type Prepared = { loaded: LoadedData; lots: Layer; buildings: Layer; addresses: 
 function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'check' }>; data: Prepared; afterPaint: boolean }) {
   const phone = usePhone();
   const [copied, setCopied] = useState(false);
+  const title = useRef<HTMLHeadingElement>(null);
   const lotGeometry = data.lots?.features.find((f) => f.id === check.lotId)?.geometry as PolygonalGeometry;
   const lot = useMemo(() => ringsOf(lotGeometry), [lotGeometry]);
   const buildings = useMemo(() => polygonsOf(data.buildings), [data.buildings]);
   const lotLines = useMemo(() => polygonsOf(data.lots), [data.lots]);
+
+  // Where it stood: the outline of each lettered use on the lot, from the evidence, drawn faint on today's side.
+  const stood = useMemo(() => {
+    const ids = new Set(check.rows.flatMap((r) => (r.kind === 'plan' ? r.lines.filter((l) => l.relation.kind === 'on').map((l) => l.featureId) : [])));
+    const out: WorldPolygon[] = [];
+    for (const c of data.loaded.evidence) {
+      for (const f of c.features) {
+        if (ids.has(f.id) && (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon')) out.push(ringsOf(f.geometry as PolygonalGeometry));
+      }
+    }
+    return out;
+  }, [check, data.loaded.evidence]);
+
+  // Focus lands on the title once the check is on screen.
+  useEffect(() => {
+    title.current?.focus({ preventScroll: true });
+  }, []);
 
   const plans: ComparePlan[] = check.compare.planSourceIds.flatMap((id) => {
     const tile = data.loaded.tiles.find((t) => t.source === id);
@@ -136,34 +158,34 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
     <>
       <header className="lc-result-head">
         <p className="lc-kicker">Lot check</p>
-        <div className="lc-title-row">
-          <h1 className="lc-title" data-testid="lc-title">
-            {check.title.text}
-          </h1>
-          <p className="lc-tag" data-testid="lc-tag">
-            {v.tagText}
-          </p>
-        </div>
-        {v.sentences.map((s, i) => (
-          <p key={i} className="lc-sentence" data-testid="lc-sentence">
-            {s.text}
-          </p>
-        ))}
-        {v.notClearance ? (
-          <p className="lc-not-clearance" data-testid="lc-not-clearance">
-            {v.notClearance}
-          </p>
-        ) : null}
+        <h1 className="lc-title" data-testid="lc-title" tabIndex={-1} ref={title}>
+          {check.title.text}
+        </h1>
       </header>
       <div className="lc-result-grid">
         <div className="lc-main">
-          <section className="lc-section lc-compare-section" aria-labelledby="lc-compare-heading">
-            <h2 id="lc-compare-heading" className="visually-hidden">
-              The plan and today
-            </h2>
-            <CompareView plans={plans} lot={lot} buildings={buildings} lots={lotLines} loadPlan={afterPaint} aspect={phone ? 1 : 4 / 3} />
-            <p className="lc-compare-note">The plan is the untouched scan. The outline marks this lot on both sides.</p>
-          </section>
+          <img className="lc-lantern lc-lantern-result" src={ART.lantern} alt="" width={311} height={640} decoding="async" />
+          <div className="lc-record lc-on-paper" data-testid="lc-record">
+            <Stamp text={v.tagText} />
+            <InscriptionBlock inscription={v.inscription} />
+            {v.sentences.map((s, i) => (
+              <p key={i} className="lc-sentence" data-testid="lc-sentence">
+                {s.text}
+              </p>
+            ))}
+            {v.notClearance ? (
+              <p className="lc-not-clearance" data-testid="lc-not-clearance">
+                {v.notClearance}
+              </p>
+            ) : null}
+            <section className="lc-section lc-compare-section" aria-labelledby="lc-compare-heading">
+              <h2 id="lc-compare-heading" className="visually-hidden">
+                The plan and today
+              </h2>
+              <CompareView plans={plans} lot={lot} buildings={buildings} lots={lotLines} stood={stood} intro loadPlan={afterPaint} aspect={phone ? 1 : 4 / 3} />
+              <p className="lc-compare-note">The plan is the untouched scan. The outline marks this lot on both sides.</p>
+            </section>
+          </div>
           <section className="lc-provenance" aria-label={copy.SECTION.provenance} data-testid="lc-provenance">
             <ul>
               {check.provenance.attribution.map((a) => (
@@ -189,8 +211,8 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
               {copy.SECTION.plans}
             </h2>
             <ul className="lc-rows">
-              {check.rows.map((row) => (
-                <Row key={row.kind === 'plan' ? row.sourceId : 'today'} row={row} showCrop={afterPaint} todayPending={data.buildings === undefined} />
+              {check.rows.map((row, i) => (
+                <Row key={row.kind === 'plan' ? row.sourceId : 'today'} row={row} index={i} showCrop={afterPaint} todayPending={data.buildings === undefined} />
               ))}
             </ul>
           </section>
@@ -213,6 +235,9 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
             <button type="button" className="lc-linkbutton" onClick={share} data-testid="lc-share">
               {copy.ACTIONS.share}
             </button>
+            <a className="lc-linkbutton" href="/#dig" data-testid="lc-another">
+              {copy.ACTIONS.another}
+            </a>
             {copied ? (
               <p role="status" className="lc-small">
                 {copy.ACTIONS.copied}
@@ -226,11 +251,14 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
           </section>
         </div>
       </div>
+      <p className="visually-hidden" role="status" aria-live="polite" data-testid="lc-verdict-live">
+        {text(v.sentences)}
+      </p>
     </>
   );
 }
 
-/** The Result (spec 08 requirement 3): the tag and the sentence, the compare view, the rows, the limits, the actions. */
+/** The Result (spec 08 requirement 3): the record sheet with its inscription and stamp, the compare view, the rows, the limits, the actions. */
 export function LotPage() {
   const lotId = useMemo(() => lotIdFor(window.location.pathname, window.location.search), []);
   const raw = useLotData('result');
@@ -256,6 +284,7 @@ export function LotPage() {
     <main className="lc-result" data-testid="lc-result">
       <SetPageTitle page="lot" address={address} />
       <RegistrationCrosses />
+      <Fog />
       {lotId === null ? <NotCovered tag={copy.TAG_TEXT.not_covered} sentence={copy.NOT_RECONSTRUCTED} coverage={prepared ? copy.coverageText(prepared.loaded.registry) : ''} /> : null}
       {lotId !== null && raw.status === 'loading' ? (
         <p className="lc-notice" role="status">
@@ -280,19 +309,19 @@ export function LotPage() {
   );
 }
 
+/** A lot outside the coverage area: "NOT DUG YET", the spade, the sentence and the coverage line. */
 function NotCovered({ tag, sentence, coverage }: { tag: string; sentence: string; coverage: string }) {
   return (
-    <header className="lc-result-head" data-testid="lc-not-covered">
+    <section className="lc-result-head lc-not-covered" data-testid="lc-not-covered">
       <p className="lc-kicker">Lot check</p>
-      <div className="lc-title-row">
-        <p className="lc-tag" data-testid="lc-tag">
-          {tag}
+      <div className="lc-record lc-on-paper lc-record-solo">
+        <Stamp text={tag} />
+        <InscriptionBlock inscription={{ lead: copy.INSCRIPTION.notDug, name: null, foot: null }} />
+        <p className="lc-sentence">{sentence}</p>
+        <p className="lc-small" data-testid="lc-coverage">
+          {coverage}
         </p>
       </div>
-      <p className="lc-sentence">{sentence}</p>
-      <p className="lc-small" data-testid="lc-coverage">
-        {coverage}
-      </p>
-    </header>
+    </section>
   );
 }

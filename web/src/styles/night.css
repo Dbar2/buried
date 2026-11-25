@@ -645,6 +645,259 @@
   }
 }
 
+/* ---------- the Result: the record lying on the table (spec 08 requirement 10) ---------- */
+
+.lc-result {
+  max-width: 1180px;
+  padding: 28px 40px 56px;
+  position: static;
+}
+
+.lc-result > * {
+  position: relative;
+  z-index: 1;
+}
+
+.lc-result > .lc-fog,
+.lc-result > .lc-cross {
+  position: absolute;
+  z-index: 0;
+}
+
+.lc-result-head {
+  border-bottom: 1px solid var(--rule);
+}
+
+.lc-result-head .lc-kicker {
+  color: var(--parchment-dim);
+}
+
+.lc-title {
+  font-size: 2.5rem;
+}
+
+.lc-title:focus {
+  outline: none;
+}
+
+/* The compare column no longer sticks: the record is taller than a short window. */
+.lc-main {
+  position: relative;
+  top: auto;
+}
+
+.lc-lantern-result {
+  animation:
+    lc-ignite 0.9s 0.2s ease-out backwards,
+    lc-flame 4.2s 1.6s ease-in-out infinite;
+  left: -66px;
+  top: 10px;
+  width: 96px;
+}
+
+.lc-record {
+  animation:
+    lc-rise 0.6s ease-out backwards,
+    lc-nudge 0.14s 1.12s ease-out;
+  background: url('/lotcheck/art/paper.webp') center / 100% 100% no-repeat;
+  padding: 7% 8% 7%;
+  position: relative;
+}
+
+.lc-record .lc-sentence {
+  font-size: 1.25rem;
+  margin-top: var(--space-3);
+  text-align: center;
+}
+
+.lc-record .lc-not-clearance {
+  text-align: center;
+}
+
+.lc-record .lc-section {
+  border-top: 0;
+  padding: var(--space-3) 0 0;
+}
+
+.lc-record .lc-frame {
+  border-left: 1px solid var(--ink);
+  border-right: 1px solid var(--ink);
+}
+
+.lc-record .lc-compare-note {
+  font-size: 0.875rem;
+}
+
+.lc-record .lc-small {
+  color: var(--ink-soft);
+}
+
+.lc-record-solo {
+  margin-top: var(--space-3);
+  max-width: 640px;
+}
+
+/* The inscription is set like a grave marker: a thin rule, a second rule within it, corner ornaments, centred. */
+.lc-inscription {
+  border: 1px solid var(--ink);
+  margin-top: 34px;
+  padding: 22px 28px 20px;
+  position: relative;
+  text-align: center;
+}
+
+.lc-inscription::after {
+  border: 1px solid var(--ink);
+  content: '';
+  inset: 4px;
+  opacity: 0.5;
+  pointer-events: none;
+  position: absolute;
+}
+
+.lc-orn {
+  background: var(--ink);
+  height: 9px;
+  position: absolute;
+  transform: rotate(45deg);
+  width: 9px;
+}
+
+.lc-orn-tl {
+  left: -5px;
+  top: -5px;
+}
+
+.lc-orn-tr {
+  right: -5px;
+  top: -5px;
+}
+
+.lc-orn-bl {
+  bottom: -5px;
+  left: -5px;
+}
+
+.lc-orn-br {
+  bottom: -5px;
+  right: -5px;
+}
+
+.lc-ins-lead {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  letter-spacing: 0.3em;
+  margin: 0;
+}
+
+.lc-ins-name {
+  font-family: var(--font-heading);
+  font-size: 2.4rem;
+  font-style: italic;
+  line-height: 1.15;
+  margin: 6px 0;
+}
+
+.lc-ins-foot {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  margin: 0;
+}
+
+.lc-ins-spade {
+  display: block;
+  height: 120px;
+  margin: 14px auto 0;
+  width: auto;
+}
+
+/* The verdict tag as a rubber stamp: --stamp ink, a double border, about -6 degrees, roughened once by the SVG filter. */
+.lc-filters {
+  height: 0;
+  position: absolute;
+  width: 0;
+}
+
+.lc-stamp {
+  animation: lc-stamp-in 0.32s 1s cubic-bezier(0.2, 1.55, 0.4, 1) backwards;
+  background: none;
+  border: 3px double var(--stamp);
+  border-radius: 0;
+  color: var(--stamp);
+  filter: url('#lc-stamp-rough');
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  line-height: 1.25;
+  margin: 0;
+  max-width: 210px;
+  padding: 4px 10px;
+  position: absolute;
+  right: 5%;
+  text-align: center;
+  top: 3.5%;
+  transform: rotate(-6deg);
+  z-index: 2;
+}
+
+.lc-stamp-text {
+  display: block;
+}
+
+/* Where it stood: each lettered use on the lot, faint and dashed on today's side, breathing slowly. Ink-soft, because
+   the ground there is parchment. */
+.lc-stood {
+  animation: lc-breathe 4s ease-in-out infinite;
+  fill: none;
+  opacity: 0.8;
+  stroke: var(--ink-soft);
+  stroke-dasharray: 8 5;
+  stroke-width: 2px;
+  vector-effect: non-scaling-stroke;
+}
+
+.lc-side {
+  border-left: 1px solid var(--rule);
+}
+
+.lc-side .lc-section {
+  border-top: 1px solid var(--rule);
+}
+
+.lc-side .lc-section:first-child {
+  border-top: 0;
+}
+
+.lc-year {
+  color: var(--parchment);
+}
+
+.lc-relation,
+.lc-match,
+.lc-small {
+  color: var(--parchment-dim);
+}
+
+.lc-row {
+  animation: lc-row-in 0.5s calc(1.3s + var(--r, 0) * 120ms) ease-out backwards;
+}
+
+.lc-actions .lc-linkbutton {
+  color: var(--parchment);
+}
+
+.lc-provenance {
+  border-top: 1px solid var(--rule);
+  color: var(--parchment-dim);
+}
+
+.lc-provenance .mono {
+  color: var(--parchment);
+}
+
+.lc-notice {
+  color: var(--parchment);
+}
+
 /* ---------- keyframes ---------- */
 
 @keyframes lc-art-in {
@@ -742,6 +995,44 @@
   }
 }
 
+@keyframes lc-rise {
+  from {
+    opacity: 0;
+    transform: translateY(36px);
+  }
+}
+
+@keyframes lc-nudge {
+  50% {
+    transform: translateY(1px);
+  }
+}
+
+@keyframes lc-stamp-in {
+  from {
+    opacity: 0;
+    transform: rotate(-6deg) scale(1.5);
+  }
+}
+
+@keyframes lc-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes lc-breathe {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 0.9;
+  }
+}
+
 /* ---------- phone and narrow windows ---------- */
 
 @media (max-width: 1099px) {
@@ -751,6 +1042,14 @@
 }
 
 @media (max-width: 899px) {
+  .lc-lantern-result {
+    display: none;
+  }
+
+  .lc-record {
+    order: 1;
+  }
+
   .lc-landing {
     grid-template-columns: minmax(0, 1fr);
     padding: 130px 24px 16px;
@@ -770,6 +1069,44 @@
 @media (max-width: 719px) {
   .lc-landing {
     padding: 110px 16px 12px;
+  }
+
+  .lc-result {
+    padding: 20px 0 32px;
+  }
+
+  .lc-record {
+    margin: var(--space-3) 8px 0;
+    padding: 9% 6% 7%;
+  }
+
+  .lc-stamp {
+    font-size: 0.75rem;
+    max-width: 150px;
+    right: 3%;
+    top: 1.5%;
+  }
+
+  .lc-inscription {
+    margin-top: 40px;
+    padding: 16px 12px 14px;
+  }
+
+  .lc-ins-name {
+    font-size: 1.75rem;
+  }
+
+  .lc-record .lc-compare-section .lc-switch,
+  .lc-record .lc-compare-section .lc-compare-note,
+  .lc-record .lc-compare-section .lc-section-heading {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .lc-record .lc-switch,
+  .lc-record .lc-compare-note {
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .lc-skyline {

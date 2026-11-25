@@ -62,32 +62,59 @@ describe('palette contrast (design.md "Contrast pairs")', () => {
 
 describe('the lot check styles use no pair design.md forbids (spec 08 task 7)', () => {
   const lotcheck = readFileSync(fileURLToPath(new URL('./lotcheck.css', import.meta.url)), 'utf8');
-  const noComments = lotcheck.replace(/\/\*[\s\S]*?\*\//g, '');
+  const night = readFileSync(fileURLToPath(new URL('./night.css', import.meta.url)), 'utf8');
+  const strip = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const noComments = strip(lotcheck);
+  const nightNoComments = strip(night);
+  const rulesOf = (css: string) => [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)].map((m) => ({ selector: (m[1] as string).trim().replace(/\s+/g, ' '), body: m[2] as string }));
+  const allRules = [...rulesOf(noComments), ...rulesOf(nightNoComments)];
+  const uses = (token: string) => allRules.filter((r) => r.body.includes(`var(--${token})`)).map((r) => r.selector);
 
   it('never sets text in --lantern or --copper', () => {
     // `color:` only: borders, backgrounds, strokes and fills are not text.
-    const bad = [...noComments.matchAll(/(?:^|[;{\s])color:\s*var\(--(lantern|copper)\)/g)].map((m) => m[0].trim());
-    expect(bad).toEqual([]);
+    for (const css of [noComments, nightNoComments]) {
+      const bad = [...css.matchAll(/(?:^|[;{\s])color:\s*var\(--(lantern|copper|stamp)\)/g)].map((m) => m[0].trim());
+      // --stamp is text on the stamp, on parchment only.
+      expect(bad.filter((b) => !b.includes('--stamp'))).toEqual([]);
+    }
   });
 
-  it('draws the lot outline as a 3 px lantern stroke inside a 5 px ink casing', () => {
+  it('draws the lot outline as a 3 px lantern stroke inside a 5 px ink casing (4 px inside 6 px in the compare frame)', () => {
     expect(noComments).toMatch(/\.lc-outline-casing\s*\{[^}]*stroke:\s*var\(--ink\)[^}]*stroke-width:\s*5px/);
     expect(noComments).toMatch(/\.lc-outline\s*\{[^}]*stroke:\s*var\(--lantern\)[^}]*stroke-width:\s*3px/);
+    expect(noComments).toMatch(/\.lc-frame \.lc-outline-casing\s*\{[^}]*stroke-width:\s*6px/);
+    expect(noComments).toMatch(/\.lc-frame \.lc-outline\s*\{[^}]*stroke-width:\s*4px/);
   });
 
-  it('uses lantern only for the primary button and the outline, and copper only for the divider grip', () => {
-    const rules = [...noComments.matchAll(/([^{}]+)\{([^}]*)\}/g)].map((m) => ({ selector: (m[1] as string).trim(), body: m[2] as string }));
-    const uses = (token: string) => rules.filter((r) => r.body.includes(`var(--${token})`)).map((r) => r.selector);
-    // Session 053: the suggestion list's dot ("something recorded") is lantern-coloured too (spec 08 requirement 8.2).
-    expect(uses('lantern').sort()).toEqual(['.lc-button', '.lc-dot', '.lc-outline']);
-    expect(uses('copper')).toEqual(['.lc-grip']);
+  it('uses lantern only where design.md lists it, and copper only for the divider grip and the registration crosses', () => {
+    // Session 053: the lit lots, the light and the pool on the Landing, the lantern's glow, the focus ring and the field's focus border on soot, the mark.
+    expect([...new Set(uses('lantern'))].sort()).toEqual(
+      ['.dg-brand .mark', '.dg-glow', '.lc-button', '.lc-dot', '.lc-field:focus', '.lc-light', '.lc-lot-fill', '.lc-lot-line', '.lc-outline', '.lc-pool', '.lotcheck-page .wordmark .mark', '.lotcheck-scroll :focus-visible'].sort(),
+    );
+    expect(uses('copper').sort()).toEqual(['.lc-grip', '.lotcheck-scroll .lc-cross::before, .lotcheck-scroll .lc-cross::after']);
   });
 
-  it('puts the focus ring on paper in ink, not lantern', () => {
+  it('uses --stamp for the rubber stamp and nothing else', () => {
+    expect(uses('stamp')).toEqual(['.lc-stamp']);
+  });
+
+  it('puts the focus ring on soot in lantern and on paper in ink', () => {
+    expect(nightNoComments).toMatch(/\.lotcheck-scroll :focus-visible\s*\{[^}]*outline:\s*2px solid var\(--lantern\)/);
+    expect(nightNoComments).toMatch(/\.lc-on-paper :focus-visible,\s*\.lc-suggest :focus-visible\s*\{[^}]*outline-color:\s*var\(--ink\)/);
     expect(noComments).toMatch(/\.lotcheck-scroll :focus-visible\s*\{[^}]*outline:\s*2px solid var\(--ink\)/);
   });
 
   it('has no raw hex colour', () => {
     expect(noComments).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
+    expect(nightNoComments).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
+  });
+
+  it('animates only transform and opacity (the keyframes name no other property)', () => {
+    const frames = [...nightNoComments.matchAll(/@keyframes\s+[\w-]+\s*\{((?:[^{}]*\{[^}]*\})*)\s*\}/g)].map((m) => m[1] as string);
+    expect(frames.length).toBeGreaterThan(8);
+    for (const body of frames) {
+      const props = [...body.matchAll(/([a-z-]+)\s*:/g)].map((m) => m[1] as string);
+      for (const p of props) expect(['opacity', 'transform'], p).toContain(p);
+    }
   });
 });

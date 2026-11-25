@@ -146,3 +146,20 @@ describe('CompareView markup', () => {
     expect(new Set(wide.match(/viewBox="([^"]+)"/g)).size).toBe(1);
   });
 });
+
+describe('where it stood and the sweep (session 053)', () => {
+  it('draws each lettered use on the lot as a dashed outline on today\'s side only', () => {
+    const html = render({ stood: [box(632503, 4834963, 6, 8), box(632505, 4834970, 4, 4)] });
+    expect(html.match(/data-testid="lc-stood"/g)).toHaveLength(2);
+    const planLayer = html.slice(html.indexOf('data-testid="lc-layer-plan"'), html.indexOf('data-testid="lc-layer-today"'));
+    expect(planLayer).not.toContain('lc-stood');
+  });
+
+  it('starts at the middle without an intro, and at the right edge with one (the sweep moves it once)', () => {
+    expect(render()).toContain('data-sweep="done"');
+    expect(render()).toContain('aria-valuenow="50"');
+    const html = render({ intro: true });
+    expect(html).toContain('data-sweep="pending"');
+    expect(html).toContain('aria-valuenow="100"');
+  });
+});

@@ -25,7 +25,7 @@ import { offsetOf, toJts } from '../report/geom';
 import { LOT_POSITION_ERROR_M } from '../report/lotError';
 import { STRUCTURE_RADIUS_M } from '../report/radii';
 import { statusSentences } from '../report/reviewStatus';
-import { fixed, joined, num, plan, position, sentence, words } from '../report/sentence';
+import { fixed, joined, listOf, num, plan, position, sentence, words } from '../report/sentence';
 import type { Sentence, Slot } from '../report/sentence';
 import * as copy from './copy';
 import type { LotTag } from './copy';
@@ -85,6 +85,13 @@ export type PlanRow = {
 
 export type TodayRow = { kind: 'today'; yearLabel: 'Today'; sentences: Sentence[] };
 
+/**
+ * The inscription at the top of the record sheet (session 053), set like a grave marker: a fixed lead ("HERE STOOD"),
+ * the lettered name as the plan quotes it, and one line of years. Built from the same facts as the verdict sentence.
+ * `name` is null when the plan's wording is not printed here (a banned word) or when nothing was lettered.
+ */
+export type Inscription = { lead: string; name: Sentence | null; foot: Sentence | null };
+
 export type LotCheck =
   | { kind: 'not_covered'; tag: 'not_covered'; tagText: string; sentence: Sentence }
   | { kind: 'failed'; text: typeof copy.COULD_NOT_PRODUCE; reason: string }
@@ -92,7 +99,7 @@ export type LotCheck =
       kind: 'check';
       lotId: string;
       title: Sentence;
-      verdict: { tag: LotTag; tagText: string; triggers: Trigger[]; sentences: Sentence[]; notClearance: string | null };
+      verdict: { tag: LotTag; tagText: string; triggers: Trigger[]; sentences: Sentence[]; notClearance: string | null; inscription: Inscription };
       rows: Array<PlanRow | TodayRow>;
       cannotTell: { screens: Sentence; soil: Sentence; locate: { lead: Sentence; link: { text: string; url: string } } };
       provenance: { attribution: string[]; position: Sentence | null; traced: Sentence[]; review: Sentence[] };
@@ -210,6 +217,39 @@ function useSentences(items: readonly Item[]): Sentence[] {
   });
 }
 
+/** The plans a list of sources stand for, by their plain years, earliest first, each once. */
+function planYears(sources: readonly Source[]): { words: string; list: Slot } {
+  const ordered = [...sources].sort((a, b) => (a.year_from ?? 0) - (b.year_from ?? 0) || byString(a.id, b.id));
+  const seen: string[] = [];
+  for (const s of ordered) {
+    const y = plainYears(s);
+    if (!seen.includes(y)) seen.push(y);
+  }
+  return { words: seen.length > 1 ? 'plans' : 'plan', list: listOf(seen.map((y): Slot => ({ text: y, numbers: y.match(/\d+/g) ?? [] }))) };
+}
+
+/**
+ * The inscription for a verdict (requirement 10.1). `found` is the use the verdict's sentence is about, with every use
+ * that letters the same words; `reviewed` are the plans that cover the lot when no use is lettered.
+ */
+function inscriptionFor(tag: LotTag, found: { lead: Item; group: Item[] } | null, reviewed: readonly Source[]): Inscription {
+  const name = (item: Item): Sentence | null => (item.quotable ? sentence`${verbatimSlot(item.head)}` : null);
+  if ((tag === 'past_industrial' || tag === 'past_use') && found) {
+    const plans = planYears(found.group.flatMap((i) => (i.source ? [i.source] : [])));
+    return { lead: copy.INSCRIPTION.here, name: name(found.lead), foot: sentence`recorded on the ${words(plans.words)} of ${plans.list}` };
+  }
+  if (tag === 'industrial_next' && found) {
+    const plans = planYears(found.group.flatMap((i) => (i.source ? [i.source] : [])));
+    const widest = Math.max(...found.group.map((i) => withinOf(i.relation)));
+    return { lead: copy.INSCRIPTION.next, name: name(found.lead), foot: sentence`within ${num(widest)} m, on the ${words(plans.words)} of ${plans.list}` };
+  }
+  if (tag === 'no_industrial') {
+    const plans = planYears(reviewed);
+    return { lead: copy.INSCRIPTION.nothing, name: null, foot: sentence`on the ${words(plans.words)} of ${plans.list}` };
+  }
+  return { lead: copy.INSCRIPTION.notDug, name: null, foot: null };
+}
+
 function lineOf(item: Item, planSource: Source | undefined): UseLine {
   const text = item.quotable
     ? sentence`${joined([verbatimSlot(item.head), ...(item.rest ? [words(', '), verbatimSlot(item.rest)] : [])], '')}`
@@ -321,22 +361,31 @@ function build(report: Report, input: LotCheckInput): LotCheck {
   let recordItems: Item[];
   let sentences: Sentence[];
   let notClearance: string | null = null;
+  const foundIn = (list: Item[]): { lead: Item; group: Item[] } | null => {
+    const lead = leadUse(list, lot);
+    return lead ? { lead, group: list.filter((i) => useKey(i) === useKey(lead)) } : null;
+  };
+  let found: { lead: Item; group: Item[] } | null = null;
+  let reviewedSources: Source[] = [];
   if (onTriggers.length > 0) {
     tag = 'past_industrial';
     recordItems = onTriggers;
     sentences = leadSentences(onTriggers, lot);
+    found = foundIn(onTriggers);
   } else if (nearTriggers.length > 0) {
     tag = 'industrial_next';
     recordItems = nearTriggers;
     sentences = leadSentences(nearTriggers, lot);
+    found = foundIn(nearTriggers);
   } else if (onOther.length > 0) {
     tag = 'past_use';
     recordItems = onOther;
     sentences = leadSentences(onOther, lot);
+    found = foundIn(onOther);
   } else if (reviewedPlateIds.length > 0) {
     tag = 'no_industrial';
     recordItems = [];
-    const reviewedSources = reviewedPlateIds.flatMap((id) => {
+    reviewedSources = reviewedPlateIds.flatMap((id) => {
       const s = sources.get(id);
       return s ? [s] : [];
     });
@@ -409,7 +458,7 @@ function build(report: Report, input: LotCheckInput): LotCheck {
     kind: 'check',
     lotId,
     title: report.place.heading,
-    verdict: { tag, tagText: copy.TAG_TEXT[tag], triggers, sentences, notClearance },
+    verdict: { tag, tagText: copy.TAG_TEXT[tag], triggers, sentences, notClearance, inscription: inscriptionFor(tag, found, reviewedSources) },
     rows: [...planRows, todayRow],
     cannotTell: {
       screens: report.screensLine,
@@ -439,6 +488,8 @@ export function allSentences(check: Extract<LotCheck, { kind: 'check' }>): Sente
   return [
     check.title,
     ...check.verdict.sentences,
+    ...(check.verdict.inscription.name ? [check.verdict.inscription.name] : []),
+    ...(check.verdict.inscription.foot ? [check.verdict.inscription.foot] : []),
     ...check.rows.flatMap((r) => (r.kind === 'today' ? r.sentences : [...r.sentences, ...r.lines.flatMap((l) => [l.text, l.relationText])])),
     check.cannotTell.screens,
     check.cannotTell.soil,
