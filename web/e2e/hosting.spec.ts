@@ -25,19 +25,17 @@ test('the folder to deploy holds the host files', () => {
   expect(existsSync(join(DIST, 'data', 'index.json'))).toBe(true);
 });
 
-test('a place page link loads directly, as the first request, with its report', async ({ page }) => {
+test('a lot link loads directly, as the first request, with its tag', async ({ page }) => {
   test.setTimeout(120_000);
   const lot = lotWithTheBuilding();
-  const response = await page.goto(`/place?lot=${encodeURIComponent(lot)}&era=1911`);
-  expect(response?.status()).toBe(200);
-  await expect(page.getByTestId('place')).toBeVisible();
-  const report = page.getByTestId('report');
-  await expect(report).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByTestId('screens-line')).toHaveText("Buried screens; it doesn't certify.");
-  // The address is the heading; the lot id is in the sources block only.
-  await expect(page.locator('.report h1')).not.toHaveText(/documented history/i);
-  await expect(page.getByTestId('report-lot')).toContainText(lot);
-  await expect(page.getByTestId('report-summary')).toContainText('fire insurance plan');
+  // Spec 08: /place?lot= shows the lot check Result, and so does /lot/<id>.
+  for (const path of [`/place?lot=${encodeURIComponent(lot)}&era=1911`, `/lot/${encodeURIComponent(lot)}`]) {
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(200);
+    await expect(page.getByTestId('lc-result')).toBeVisible();
+    await expect(page.getByTestId('lc-tag')).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId('lc-title')).not.toHaveText('');
+  }
 });
 
 test('each route sets its title and description; the static page carries the Open Graph tags', async ({ page }) => {
@@ -45,26 +43,28 @@ test('each route sets its title and description; the static page carries the Ope
   const lot = lotWithTheBuilding();
 
   await page.goto('/');
-  await expect(page).toHaveTitle('Buried: something used to stand here');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Something used to stand here.');
+  await expect(page).toHaveTitle('Buried: what was on this land?');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('What was on this land?');
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', 'https://buried.pages.dev/social-card.png');
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /^Raise the past over one Toronto block, then click any ghost\b/);
-  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Buried: something used to stand here');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /^Before you buy, dig or plant\b/);
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Buried: what was on this land?');
 
-  // The address search is at /place, and a find's path opens the Block page as a first request.
+  // /place without a lot is the landing; /block and a find's path open the Block page as first requests.
   const search = await page.goto('/place');
   expect(search?.status()).toBe(200);
-  await expect(page).toHaveTitle('Buried · What was here?');
-  await expect(page.getByTestId('landing')).toBeVisible();
+  await expect(page).toHaveTitle('Buried: what was on this land?');
+  const block = await page.goto('/block');
+  expect(block?.status()).toBe(200);
+  await expect(page.getByTestId('block-page')).toBeVisible();
   const find = await page.goto('/find/overall-factory');
   expect(find?.status()).toBe(200);
   await expect(page.getByTestId('block-page')).toBeVisible();
+  await page.goto('/how');
+  await expect(page).toHaveTitle('How it works · Buried');
 
-  await page.goto(`/place?lot=${encodeURIComponent(lot)}&era=1911`);
+  await page.goto(`/lot/${encodeURIComponent(lot)}`);
   await expect(page).toHaveTitle(/ · Buried$/, { timeout: 60_000 });
-  await expect(page).not.toHaveTitle('The place · Buried');
-  const title = await page.title();
-  await expect(page.getByTestId('header-address')).toHaveText(title.replace(/ · Buried$/, ''));
+  await expect(page).not.toHaveTitle('Lot check · Buried');
   await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /^The documented history of .+\. Buried screens; it doesn't certify\.$/);
 
   await page.goto('/sources');

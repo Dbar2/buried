@@ -45,7 +45,7 @@ for (const viewport of [
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
 
     // Landing (requirement 1): the headline, the button and the line, the sheet, one line saying why it is flat.
-    await page.goto('/');
+    await page.goto('/block');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Something used to stand here.');
     await expect(page.getByTestId('raise-button')).toHaveText('Raise the past');
     await expect(page.locator('.block-line')).toHaveText('Every ghost comes with the map that proves it.');

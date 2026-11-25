@@ -15,7 +15,7 @@ import { buildLotCheck } from './lotCheck';
 import type { LotCheck, PlanRow, TodayRow, UseLine } from './lotCheck';
 import { LetteringCrop } from './LetteringCrop';
 import { RegistrationCrosses } from './LandingPage';
-import { useLotData } from './useLotData';
+import { useLotData, useBuildings } from './useLotData';
 import '../styles/lotcheck.css';
 
 /**
@@ -87,12 +87,18 @@ function UseItem({ line, showCrop }: { line: UseLine; showCrop: boolean }) {
   );
 }
 
-function Row({ row, showCrop }: { row: PlanRow | TodayRow; showCrop: boolean }) {
+function Row({ row, showCrop, todayPending }: { row: PlanRow | TodayRow; showCrop: boolean; todayPending: boolean }) {
   return (
     <li className="lc-row" data-testid="lc-row">
       <span className="lc-year">{row.yearLabel}</span>
       <div className="lc-row-body">
-        {row.kind === 'plan' && row.lines.length > 0 ? row.lines.map((line) => <UseItem key={line.featureId} line={line} showCrop={showCrop} />) : <p>{text(row.sentences)}</p>}
+        {row.kind === 'today' && todayPending ? (
+          <p className="lc-small">Loading today's outlines.</p>
+        ) : row.kind === 'plan' && row.lines.length > 0 ? (
+          row.lines.map((line) => <UseItem key={line.featureId} line={line} showCrop={showCrop} />)
+        ) : (
+          <p>{text(row.sentences)}</p>
+        )}
       </div>
     </li>
   );
@@ -166,7 +172,7 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
             </h2>
             <ul className="lc-rows">
               {check.rows.map((row) => (
-                <Row key={row.kind === 'plan' ? row.sourceId : 'today'} row={row} showCrop={afterPaint} />
+                <Row key={row.kind === 'plan' ? row.sourceId : 'today'} row={row} showCrop={afterPaint} todayPending={data.buildings === undefined} />
               ))}
             </ul>
           </section>
@@ -236,17 +242,22 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
 /** The Result (spec 08 requirement 3): the tag and the sentence, the compare view, the rows, the limits, the actions. */
 export function LotPage() {
   const lotId = useMemo(() => lotIdFor(window.location.pathname, window.location.search), []);
-  const raw = useLotData();
+  const raw = useLotData('result');
   const ready = raw.status === 'ready' ? raw.data : null;
 
   const prepared = useMemo(() => {
     if (!ready) return null;
-    return { loaded: ready, lots: ready.presentLayers.get(PRESENT_SOURCES.lots), buildings: ready.presentLayers.get(PRESENT_SOURCES.buildings), addresses: ready.presentLayers.get(PRESENT_SOURCES.addresses) };
+    return { loaded: ready, lots: ready.presentLayers.get(PRESENT_SOURCES.lots), addresses: ready.presentLayers.get(PRESENT_SOURCES.addresses) };
   }, [ready]);
+
+  // The text is built and painted first; the plan, the lettering crops and today's building outlines follow it.
+  const afterPaint = useAfterPaint(prepared !== null);
+  const buildingsLayer = useBuildings(afterPaint);
 
   const check: LotCheck | null = useMemo(() => {
     if (!prepared || lotId === null) return null;
-    const { loaded, lots, buildings, addresses } = prepared;
+    const { loaded, lots, addresses } = prepared;
+    const buildings = buildingsLayer;
     const model = buildReport({
       lotId,
       eraId: null,
@@ -264,9 +275,8 @@ export function LotPage() {
       sources: loaded.sources,
       siteOrigin: window.location.origin,
     });
-  }, [prepared, lotId]);
+  }, [prepared, lotId, buildingsLayer]);
 
-  const afterPaint = useAfterPaint(check !== null);
   const address = check?.kind === 'check' ? (check.title.text === 'This lot' ? null : check.title.text) : null;
 
   return (
@@ -291,7 +301,7 @@ export function LotPage() {
         </p>
       ) : null}
       {check?.kind === 'check' && prepared ? (
-        <Body check={check} data={prepared} afterPaint={afterPaint} />
+        <Body check={check} data={{ ...prepared, buildings: buildingsLayer }} afterPaint={afterPaint} />
       ) : null}
     </main>
   );

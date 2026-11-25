@@ -43,7 +43,7 @@ export function RegistrationCrosses() {
 
 /** The Landing (spec 08 requirement 2): the question, the address field, the computed fact and the plan. */
 export function LandingPage() {
-  const loaded = useLotData();
+  const loaded = useLotData('landing');
   const picture = usePlanPicture();
   const [query, setQuery] = useState('');
   const [message, setMessage] = useState<string | null>(null);

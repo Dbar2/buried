@@ -2,8 +2,8 @@
   "schema_version": "1.0.0",
   "source": "fip_v3_1911_229",
   "image": "landing-plan.jpg",
-  "width_px": 960,
-  "height_px": 873,
+  "width_px": 860,
+  "height_px": 782,
   "corners": {
     "top_left": [
       632355.954,

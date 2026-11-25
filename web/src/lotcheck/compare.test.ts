@@ -67,8 +67,8 @@ describe('compareModel', () => {
     const xs = parsePath(m.lotPath).map((p) => p[0]);
     const centre = (Math.min(...xs) + Math.max(...xs)) / 2;
     const at = (centre - m.viewBox.x) / m.viewBox.width;
-    expect(at).toBeGreaterThanOrEqual(0.34);
-    expect(at).toBeLessThanOrEqual(0.66);
+    expect(at).toBeGreaterThanOrEqual(0.24);
+    expect(at).toBeLessThanOrEqual(0.76);
     for (const x of xs) {
       expect(x).toBeGreaterThan(m.viewBox.x);
       expect(x).toBeLessThan(m.viewBox.x + m.viewBox.width);

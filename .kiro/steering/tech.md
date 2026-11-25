@@ -156,6 +156,12 @@ invent commands; when one is added, record it here.
     copies `web/public/unity/` into `dist/`, so run `npm run build` after every Unity build, and
     only once `web/public/unity/Build/` has stopped changing (the Unity build was seen to finish
     writing its data file after the command returned).
+  - Lot check pages (spec 08, session 051; `/`, `/lot/<lot id>`, `/place?lot=`, `/how`; `/block` and `/find/<slug>` are the Block page, `/walk` is not routed):
+    from `web/`, after `npm run build`: `npx playwright test -c playwright.lotcheck.config.ts` (a Chromium with no WebGL; own `vite preview`
+    on port 4178; writes `e2e/output/lotcheck-*.png` and `lotcheck-sizes.json`, the Brotli-compressed bytes each page transfers). `npm run gen:landing-plan`
+    writes the Landing's plan crop and its corners to `public/lotcheck/landing-plan.jpg` and `.json`; `npm run gen:how-pictures` writes the four
+    How page pictures `public/lotcheck/how-*.jpg`. Both cut from the committed tiles and evidence; commit the files they write.
+    `/report?lot=<id>&print=1` opens the browser's print dialog once the Report is built (the "Download the one-page record" target).
   - Block page, the first visit (spec 06, sessions 042 to 045), from `web/` after `npm run build`:
     `npx playwright test -c playwright.blockflat.config.ts` (no WebGL; port 4175; no Unity build
     needed) and `npx playwright test -c playwright.block.config.ts` (the `@unity` specs, against

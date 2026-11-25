@@ -99,7 +99,14 @@ function describe(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-export async function loadData(fetchText: FetchText): Promise<LoadedData> {
+export type LoadOptions = {
+  /** Present-day files to read, by file name (`<source id>.geojson`). Default: every file in the index. */
+  present?: readonly string[];
+  /** Read the control point files. Default true; the lot check pages do not need them. */
+  controls?: boolean;
+};
+
+export async function loadData(fetchText: FetchText, options: LoadOptions = {}): Promise<LoadedData> {
   const project = parseProject(await fetchText('project.json'), 'data/project.json');
   const registry = parseSourceRegistry(await fetchText('sources.json'), 'data/sources.json');
   const sources = indexSources(registry);
@@ -122,7 +129,7 @@ export async function loadData(fetchText: FetchText): Promise<LoadedData> {
   }
 
   const presentLayers = new Map<string, PresentLayer>();
-  for (const name of index.present.filter((n) => n.endsWith('.geojson'))) {
+  for (const name of index.present.filter((n) => n.endsWith('.geojson') && (options.present === undefined || options.present.includes(n)))) {
     const path = `present/${name}`;
     try {
       const layer = parseContract('presentLayer', await fetchText(path), path);
@@ -148,7 +155,7 @@ export async function loadData(fetchText: FetchText): Promise<LoadedData> {
   }
 
   const controls = new Map<string, ControlPoints>();
-  for (const name of index.control.filter((n) => n.endsWith('.json'))) {
+  for (const name of (options.controls === false ? [] : index.control).filter((n) => n.endsWith('.json'))) {
     const path = `control/${name}`;
     try {
       const control = parseContract('controlPoints', await fetchText(path), path);

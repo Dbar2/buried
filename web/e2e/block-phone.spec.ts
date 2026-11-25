@@ -22,7 +22,7 @@ test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true
 test.describe('@unity the Block page on a phone', { tag: '@unity' }, () => {
   test('the tall Still, the raise, the sheet that peeks and opens, tags in one scrolling row, no leader line', async ({ page }) => {
     test.setTimeout(PLAYER_TIMEOUT + 60_000);
-    await page.goto('/');
+    await page.goto('/block');
     await expect(page.getByTestId('still')).toHaveAttribute('data-kind', 'tall');
     await stillLoaded(page);
     await expect(page.getByTestId('raise-button')).toBeVisible();

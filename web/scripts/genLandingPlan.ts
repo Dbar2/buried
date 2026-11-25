@@ -20,8 +20,8 @@ const OUT_DIR = join(WEB, 'public', 'lotcheck');
 const SOURCE = 'fip_v3_1911_229';
 const MARGIN_M = 28;
 const ASPECT = 1.1;
-const LONG_EDGE_PX = 960;
-const MAX_BYTES = 200_000;
+const LONG_EDGE_PX = 860;
+const MAX_BYTES = 100_000;
 
 const data = await loadData(diskFetch(REPOSITORY_DATA));
 const fact = landingFact(data.evidence, data.presentLayers.get(PRESENT_SOURCES.addresses), data.registry);

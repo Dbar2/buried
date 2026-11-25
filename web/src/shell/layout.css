@@ -36,6 +36,7 @@
   gap: var(--space-2);
   letter-spacing: 0.01em;
   line-height: 1;
+  min-height: 44px;
   text-decoration: none;
 }
 
@@ -80,10 +81,13 @@
 /* The active item carries the `lantern` underline (design.md "Identity"); the text weight changes
    too, so the mark is never colour alone. */
 .site-nav a {
+  align-items: center;
   border-bottom: 2px solid transparent;
   color: var(--parchment-dim);
+  display: inline-flex;
   font-family: var(--font-body);
   font-size: 1rem;
+  min-height: 44px;
   padding: var(--space-1) 0;
   text-decoration: none;
 }

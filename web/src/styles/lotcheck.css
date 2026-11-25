@@ -208,7 +208,7 @@
 }
 
 .lc-hits .lc-linkbutton {
-  min-height: 32px;
+  min-height: 44px;
 }
 
 .lc-try {
@@ -223,9 +223,10 @@
 }
 
 .lc-try a {
+  align-items: center;
   color: var(--ink);
   display: inline-flex;
-  min-height: 24px;
+  min-height: 44px;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -472,24 +473,25 @@
 }
 
 .lc-divider {
-  background: var(--ink);
+  background: transparent;
   bottom: 0;
   cursor: ew-resize;
-  margin-left: -1px;
+  margin-left: -22px;
   position: absolute;
   top: 0;
   touch-action: none;
-  width: 2px;
+  width: 44px;
 }
 
-/* A wide hit area around the 2 px line, so a finger finds it. */
-.lc-divider::before {
+/* The line itself is 2 px; the element around it is 44 px wide, so a finger finds it. */
+.lc-divider::after {
+  background: var(--ink);
   bottom: 0;
   content: '';
-  left: -22px;
+  left: 21px;
   position: absolute;
-  right: -22px;
   top: 0;
+  width: 2px;
 }
 
 .lc-grip {
@@ -861,6 +863,11 @@
   .lc-use {
     grid-template-columns: minmax(0, 1fr);
     row-gap: var(--space-1);
+  }
+
+  .lc-use .lc-crop,
+  .lc-use .lc-crop-missing {
+    max-width: 16rem;
   }
 
   .lc-actions .lc-button {

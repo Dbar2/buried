@@ -96,8 +96,8 @@ export function frameFor(lot: WorldPolygon, tile: CompareTile, marginM: number, 
 }
 
 const LOT_PAD_PX = 12;
-const BAND_LOW = 0.35;
-const BAND_HIGH = 0.65;
+const BAND_LOW = 0.25;
+const BAND_HIGH = 0.75;
 
 const round1 = (v: number): number => Math.round(v * 10) / 10;
 

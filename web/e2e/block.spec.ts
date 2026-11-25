@@ -32,7 +32,7 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
   test('the Still and the button are there at once; pressing Raise raises the past and opens the first find', async ({ page }) => {
     test.setTimeout(PLAYER_TIMEOUT + 60_000);
     const started = Date.now();
-    await page.goto('/');
+    await page.goto('/block');
     const button = page.getByTestId('raise-button');
     await expect(button).toBeEnabled();
     expect(Date.now() - started, 'the button is usable within 2 s of first paint (requirement 2.1)').toBeLessThan(2000);
@@ -66,7 +66,7 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
       await new Promise((resolve) => setTimeout(resolve, 3000));
       await route.continue();
     });
-    await page.goto('/');
+    await page.goto('/block');
     const still = page.getByTestId('still');
     await expect(still).toBeVisible({ timeout: 1500 });
     await expect(still).toHaveAttribute('data-faded', 'false');
@@ -89,7 +89,7 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
       };
       new MutationObserver(check).observe(document, { subtree: true, attributes: true, childList: true });
     });
-    await page.goto('/');
+    await page.goto('/block');
     await expect(page.getByTestId('still')).toHaveAttribute('data-faded', 'true', { timeout: PLAYER_TIMEOUT });
     await expect(page.getByTestId('block-page')).toHaveAttribute('data-held-loaded', 'true');
     expect(await page.evaluate(() => (window as unknown as { __stillEarly: number }).__stillEarly)).toBe(0);
@@ -98,7 +98,7 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
 
   test('after the raise an unselected find is a small marker: its text shows on hover and on focus, and it selects the find', async ({ page }) => {
     test.setTimeout(PLAYER_TIMEOUT + 60_000);
-    await page.goto('/');
+    await page.goto('/block');
     await page.getByTestId('raise-button').click();
     await raised(page);
     await expect(page.getByTestId('tag-layer')).toHaveCount(0);
@@ -129,7 +129,7 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
 
   test('the ruler moves the era, and 1935 adds the one line about the 1931-35 plan', async ({ page }) => {
     test.setTimeout(PLAYER_TIMEOUT + 60_000);
-    await page.goto('/');
+    await page.goto('/block');
     await page.getByTestId('raise-button').click();
     await raised(page);
     await page.getByTestId('ruler-1935').click();
@@ -142,7 +142,7 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
   test('selecting another find, "Show the original sheet" and "Share this find"', async ({ page, context }) => {
     test.setTimeout(PLAYER_TIMEOUT + 60_000);
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-    await page.goto('/');
+    await page.goto('/block');
     await page.getByTestId('raise-button').click();
     await raised(page);
     await page.getByTestId('tag-coal-yard').click();
@@ -159,7 +159,7 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
 
   test('the scene hint shows once after the first raise, for five seconds or until any input, and not again in this session', async ({ page }) => {
     test.setTimeout(PLAYER_TIMEOUT + 60_000);
-    await page.goto('/');
+    await page.goto('/block');
     await page.getByTestId('raise-button').click();
     await raised(page);
     const hint = page.getByTestId('block-hint');
@@ -175,7 +175,7 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
 
   test('the scene hint ends by itself after five seconds', async ({ page }) => {
     test.setTimeout(PLAYER_TIMEOUT + 60_000);
-    await page.goto('/');
+    await page.goto('/block');
     await page.getByTestId('raise-button').click();
     await raised(page);
     const hint = page.getByTestId('block-hint');
@@ -187,7 +187,7 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
   test('with reduced motion the scene hint has no fade', async ({ page }) => {
     test.setTimeout(PLAYER_TIMEOUT + 60_000);
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('/');
+    await page.goto('/block');
     await page.getByTestId('raise-button').click();
     await raised(page);
     const hint = page.getByTestId('block-hint');
@@ -197,7 +197,7 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
 
   test('the Lantern: the L key and the control toggle the ring, Escape turns it off', async ({ page }) => {
     test.setTimeout(PLAYER_TIMEOUT + 60_000);
-    await page.goto('/');
+    await page.goto('/block');
     await page.getByTestId('raise-button').click();
     await raised(page);
     await expect(page.getByTestId('lens-ring')).toHaveCount(0);
@@ -244,7 +244,7 @@ test.describe('@unity the Block page', { tag: '@unity' }, () => {
 
   test('"List" opens the accessible list, and "Look up an address" goes to /place', async ({ page }) => {
     test.setTimeout(PLAYER_TIMEOUT + 60_000);
-    await page.goto('/');
+    await page.goto('/block');
     await page.getByTestId('raise-button').click();
     await raised(page);
     await page.getByTestId('feature-list-toggle').click();
