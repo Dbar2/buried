@@ -2,11 +2,11 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { BLOCK_DESCRIPTION, BLOCK_TITLE, descriptionFor, findDescriptionFor, findTitleFor, SITE_DESCRIPTION, titleFor } from './pageTitle';
+import { BLOCK_DESCRIPTION, BLOCK_TITLE, descriptionFor, findDescriptionFor, findTitleFor, LANDING_DESCRIPTION, LANDING_TITLE, SITE_DESCRIPTION, titleFor } from './pageTitle';
 import type { PageName } from './pageTitle';
 
 const BANNED = /\b(contaminated|unsafe|safe|safer|safest|clean|cleaner|cleanest)\b|will flood/i;
-const PAGES: PageName[] = ['block', 'landing', 'place', 'report', 'studio', 'sources', 'explorer'];
+const PAGES: PageName[] = ['block', 'landing', 'lot', 'how', 'place', 'report', 'studio', 'sources', 'explorer'];
 
 describe('page titles', () => {
   it('names a place by its address, then the site', () => {
@@ -20,7 +20,10 @@ describe('page titles', () => {
     expect(titleFor('studio')).toBe('Studio · Buried');
     expect(titleFor('sources')).toBe('Sources · Buried');
     expect(titleFor('explorer')).toBe('Explorer · Buried');
-    expect(titleFor('landing')).toBe('Buried · What was here?');
+    expect(titleFor('landing')).toBe('Buried: what was on this land?');
+    expect(titleFor('lot')).toBe('Lot check · Buried');
+    expect(titleFor('lot', '2A Percy St')).toBe('2A Percy St · Buried');
+    expect(titleFor('how')).toBe('How it works · Buried');
     expect(titleFor('block')).toBe('Buried: something used to stand here');
   });
 
@@ -39,8 +42,10 @@ describe('page titles', () => {
     expect(descriptionFor('place', '541 and 543 Queen St E')).toBe(
       "The documented history of 541 and 543 Queen St E, Toronto, from archival fire insurance plans. Buried screens; it doesn't certify.",
     );
-    expect(descriptionFor('landing')).toBe(SITE_DESCRIPTION);
+    expect(descriptionFor('landing')).toBe(LANDING_DESCRIPTION);
     expect(descriptionFor('block')).toBe(BLOCK_DESCRIPTION);
+    expect(LANDING_DESCRIPTION).not.toMatch(BANNED);
+    expect(SITE_DESCRIPTION).toContain('Buried');
   });
 
   it('describes `/` in one sentence of what a visitor does, with no finding and no claim of a date', () => {
@@ -55,10 +60,10 @@ describe('index.html', () => {
   const html = readFileSync(fileURLToPath(new URL('../../index.html', import.meta.url)), 'utf8');
 
   it('carries a title, a description and the Open Graph tags a crawler reads without running the script', () => {
-    expect(html).toContain(`<title>${BLOCK_TITLE}</title>`);
-    expect(html).toContain(`<meta name="description" content="${BLOCK_DESCRIPTION}" />`);
-    expect(html).toContain(`<meta property="og:title" content="${BLOCK_TITLE}" />`);
-    expect(html).toContain(`<meta property="og:description" content="${BLOCK_DESCRIPTION}" />`);
+    expect(html).toContain(`<title>${LANDING_TITLE}</title>`);
+    expect(html).toContain(`<meta name="description" content="${LANDING_DESCRIPTION}" />`);
+    expect(html).toContain(`<meta property="og:title" content="${LANDING_TITLE}" />`);
+    expect(html).toContain(`<meta property="og:description" content="${LANDING_DESCRIPTION}" />`);
     for (const property of ['og:title', 'og:description', 'og:type', 'og:site_name', 'og:image', 'og:image:width', 'og:image:height', 'og:image:alt']) {
       expect(html, property).toContain(`property="${property}"`);
     }

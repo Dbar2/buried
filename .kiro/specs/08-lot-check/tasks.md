@@ -12,7 +12,7 @@ One builder session, in order. **(demo)** marks what the demo video needs. Recor
   committed data; report the count and the addresses. (2.3, 2.4)
 - [x] 4. **(demo)** Compare model: `web/src/lotcheck/compare.ts`, test. P5; lot corners land where
   `worldToPixel` puts them. (5.1 to 5.3)
-- [ ] 5. Routes: `web/src/place/placeLink.ts` and test, `web/src/App.tsx`, `web/src/shell/Header.tsx`,
+- [x] 5. Routes: `web/src/place/placeLink.ts` and test, `web/src/App.tsx`, `web/src/shell/Header.tsx`,
   `web/src/shell/pageTitle.ts`, `web/src/sources/SourcesPage.tsx`. Add `landing`, `lot`, `how`;
   remove `walk`; header "How it works" and "Sources"; the Studio linked from Sources only. A test
   that the new pages import no `explorer`, `bridge` or `walk` module. (1.1 to 1.3, 7.4)

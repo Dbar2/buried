@@ -5,25 +5,31 @@ import { describe, expect, it } from 'vitest';
 import { Header } from './Header';
 
 describe('Header', () => {
-  it('holds the mark, the wordmark (a link to /) and "Sources", and no other link', () => {
+  it('holds the mark, the wordmark (a link to /), "How it works" and "Sources", and no other link', () => {
     const html = renderToStaticMarkup(<Header current="block" />);
     expect(html).toContain('data-testid="mark"');
     expect(html).toContain('<span>Buried</span>');
     expect(html).toMatch(/<a class="wordmark" href="\/"/);
+    expect(html).toContain('href="/how"');
+    expect(html).toContain('>How it works</a>');
     expect(html).toContain('href="/sources"');
     expect(html).toContain('>Sources</a>');
-    expect(html.match(/<a /g)).toHaveLength(2);
+    expect(html.match(/<a /g)).toHaveLength(3);
     expect(html).not.toContain('href="/studio"');
     expect(html).not.toContain('href="/explorer"');
+    expect(html).not.toContain('href="/walk"');
     expect(html).not.toContain('>Studio</a>');
     expect(html).not.toContain('>Explorer</a>');
   });
 
-  it('marks Sources when it is the current page, and nothing on any other page', () => {
+  it('marks Sources or How it works when it is the current page, and nothing on any other page', () => {
     const sources = renderToStaticMarkup(<Header current="sources" />);
     expect(sources.match(/aria-current="page"/g)).toHaveLength(1);
     expect(sources).toMatch(/aria-current="page"[^>]*data-testid="nav-sources"/);
-    for (const page of ['block', 'search', 'place', 'report', 'studio', 'explorer'] as const) {
+    const how = renderToStaticMarkup(<Header current="how" />);
+    expect(how.match(/aria-current="page"/g)).toHaveLength(1);
+    expect(how).toMatch(/aria-current="page"[^>]*data-testid="nav-how"/);
+    for (const page of ['landing', 'lot', 'block', 'search', 'place', 'report', 'studio', 'explorer'] as const) {
       expect(renderToStaticMarkup(<Header current={page} />), page).not.toContain('aria-current');
     }
   });

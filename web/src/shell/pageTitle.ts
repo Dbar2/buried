@@ -7,15 +7,20 @@ export const SITE_NAME = 'Buried';
 export const SITE_DESCRIPTION =
   "Forgotten maps, rebuilt with proof. Type an address in the part of Toronto Buried covers and read what archival fire insurance plans show stood there. Buried screens; it doesn't certify.";
 
-/** The title and the description of `/`, the first-visit page. A crawler reads them from `index.html`, which carries the same text. */
+/** The title and the description of `/block`, the raised 3D block. A crawler reads the landing's from `index.html`. */
 export const BLOCK_TITLE = 'Buried: something used to stand here';
 export const BLOCK_DESCRIPTION = 'Raise the past over one Toronto block, then click any ghost to see the fire insurance plan that shows it and the lettering it was read from.';
 
-export type PageName = 'block' | 'landing' | 'place' | 'report' | 'studio' | 'sources' | 'explorer';
+/** The title and the description of `/`, the lot check landing. A crawler reads them from `index.html`, which carries the same text. */
+export const LANDING_TITLE = 'Buried: what was on this land?';
+export const LANDING_DESCRIPTION = 'Before you buy, dig or plant, see what the old fire insurance plans recorded on your lot. A lot check for one block of Toronto.';
 
-/** The text before " · Buried" for each page; a place or a report is named by its address when it has one.
- *  `landing` is the address search at `/place`; `block` is the first-visit page at `/`. */
-const LABELS: Record<Exclude<PageName, 'block' | 'landing' | 'place' | 'report'>, string> = {
+export type PageName = 'block' | 'landing' | 'lot' | 'how' | 'place' | 'report' | 'studio' | 'sources' | 'explorer';
+
+/** The text before " · Buried" for each page; a lot or a report is named by its address when it has one.
+ *  `landing` is the lot check's front page at `/`; `block` is the raised 3D block at `/block`. */
+const LABELS: Record<Exclude<PageName, 'block' | 'landing' | 'lot' | 'place' | 'report'>, string> = {
+  how: 'How it works',
   studio: 'Studio',
   sources: 'Sources',
   explorer: 'Explorer',
@@ -30,7 +35,9 @@ export function titleFor(page: PageName, address: string | null = null): string 
     case 'block':
       return BLOCK_TITLE;
     case 'landing':
-      return `${SITE_NAME} · What was here?`;
+      return LANDING_TITLE;
+    case 'lot':
+      return address ? `${address} · ${SITE_NAME}` : `Lot check · ${SITE_NAME}`;
     case 'place':
       return address ? `${address} · ${SITE_NAME}` : `The place · ${SITE_NAME}`;
     case 'report':
@@ -72,6 +79,11 @@ export function descriptionFor(page: PageName, address: string | null = null): s
   switch (page) {
     case 'block':
       return BLOCK_DESCRIPTION;
+    case 'landing':
+      return LANDING_DESCRIPTION;
+    case 'how':
+      return 'How Buried reads an old fire insurance plan: four steps from the scan to a lot check, and what Kiro did to build it.';
+    case 'lot':
     case 'place':
     case 'report':
       return address

@@ -1,14 +1,14 @@
 import { Mark } from './Mark';
 
 /**
- * The Shell's header (design.md "Identity", "The raised scene and the card"; spec 06 requirement
- * 1.3): the core-sample mark and the wordmark "Buried" in Libre Baskerville at the left, a link to
- * `/`, then the address of the place on screen when there is one, then "Sources". Nothing else: the
- * Studio and the Explorer have no link here (the Sources page links the workshop). No router
- * library: a link is a full page load. `current` says which page is on screen; only Sources is a nav
- * item, so only it can be marked.
+ * The Shell's header (design.md "Identity", "The lot check pages"; spec 08): the core-sample mark and
+ * the wordmark "Buried" in Libre Baskerville at the left, a link to `/`, then the address of the place
+ * on screen when there is one, then "How it works" and "Sources". Nothing else: the Studio and the
+ * Explorer have no link here (the Sources page links the workshop). No router library: a link is a
+ * full page load. `current` says which page is on screen; only How it works and Sources are nav items,
+ * so only they can be marked.
  */
-export type HeaderPage = 'block' | 'search' | 'explorer' | 'studio' | 'report' | 'place' | 'sources';
+export type HeaderPage = 'landing' | 'lot' | 'how' | 'block' | 'search' | 'explorer' | 'studio' | 'report' | 'place' | 'sources';
 
 export function Header({ current, address, era }: { current: HeaderPage; address?: string | null; era?: string | null }) {
   return (
@@ -28,6 +28,9 @@ export function Header({ current, address, era }: { current: HeaderPage; address
         </p>
       ) : null}
       <nav className="site-nav" aria-label="Pages">
+        <a href="/how" aria-current={current === 'how' ? 'page' : undefined} data-testid="nav-how">
+          How it works
+        </a>
         <a href="/sources" aria-current={current === 'sources' ? 'page' : undefined} data-testid="nav-sources">
           Sources
         </a>

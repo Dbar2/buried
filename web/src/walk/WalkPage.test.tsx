@@ -5,10 +5,10 @@ import { routeFor } from '../place/placeLink';
 import { NO_WEBGL_SENTENCE, NoWebGl, WALK_KICKER, WALK_LINE, WALK_TITLE, WalkIntro } from './WalkPage';
 
 describe('the /walk route', () => {
-  it('is its own page, reached only by its address', () => {
-    expect(routeFor('/walk', '')).toBe('walk');
-    expect(routeFor('/walk/', '?debug=1')).toBe('walk');
-    expect(routeFor('/', '')).toBe('block');
+  it('is no longer routed (session 050 parked it): /walk opens the landing', () => {
+    expect(routeFor('/walk', '')).toBe('landing');
+    expect(routeFor('/walk/', '?debug=1')).toBe('explorer');
+    expect(routeFor('/', '')).toBe('landing');
   });
 });
 
