@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { PointerEvent } from 'react';
 import { makeSheetTransform, ringsToPath, worldToPixel } from '../block/sheetTransform';
 import type { TileCorners } from '../block/sheetTransform';
@@ -9,7 +9,9 @@ import { ringsOf } from '../report/cropPlan';
 import { listOf } from '../report/sentence';
 import { lotForPoint } from '../report/search';
 import { AddressCombobox } from './AddressCombobox';
+import { computeLotCheck } from './computeLotCheck';
 import * as copy from './copy';
+import { DigOverlay } from './DigOverlay';
 import { industrialLots, landingFact, recordedCaption } from './landing';
 import { addressBook, defaultSuggestions, randomRecorded } from './suggest';
 import type { Suggestion } from './suggest';
@@ -64,6 +66,7 @@ export function LandingPage() {
   const picture = usePlanPicture();
   const idle = useIdle();
   const [message, setMessage] = useState<string | null>(null);
+  const [dig, setDig] = useState<string | null>(null);
   const [hover, setHover] = useState<{ lotId: string; x: number; y: number } | null>(null);
   const field = useRef<HTMLInputElement>(null);
   const svg = useRef<SVGSVGElement>(null);
@@ -90,9 +93,29 @@ export function LandingPage() {
 
   const open = (choice: Suggestion) => {
     const id = choice.lotId ?? lotForPoint(lots, choice.point);
-    if (id === null) setMessage(copy.NOT_RECONSTRUCTED);
-    else window.location.assign(lotLink(id));
+    if (id === null) {
+      setMessage(copy.NOT_RECONSTRUCTED);
+      return;
+    }
+    // Under reduced motion there is no dig: the Result opens at once.
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) window.location.assign(lotLink(id));
+    else setDig(id);
   };
+
+  // The dig is built from the same function the Result uses, with the records the Landing already holds.
+  const buildDig = useCallback(() => (data && dig ? computeLotCheck(data, dig, undefined, window.location.origin) : null), [data, dig]);
+  const finishDig = useCallback(() => {
+    if (dig) window.location.assign(lotLink(dig));
+  }, [dig]);
+
+  // Back from the Result by the browser's button: the page comes back from the cache with no dig playing.
+  useEffect(() => {
+    const onShow = (event: PageTransitionEvent) => {
+      if (event.persisted) setDig(null);
+    };
+    window.addEventListener('pageshow', onShow);
+    return () => window.removeEventListener('pageshow', onShow);
+  }, []);
 
   const random = () => {
     const pick = book ? randomRecorded(book, Math.random) : null;
@@ -159,7 +182,8 @@ export function LandingPage() {
   const sheetOf = picture ? sheetNumber(picture.source) : '';
 
   return (
-    <main className="lc-landing" data-testid="lc-landing">
+    <>
+    <main className="lc-landing" data-testid="lc-landing" aria-hidden={dig !== null ? true : undefined} {...(dig !== null ? ({ inert: '' } as object) : {})}>
       {idle ? <img className="lc-skyline" src={ART.skyline} alt="" width={1800} height={600} decoding="async" /> : null}
       <Fog />
       <div className="lc-landing-text">
@@ -244,6 +268,8 @@ export function LandingPage() {
         {data ? copy.coverageText(data.registry) : ''}
       </p>
     </main>
+      {dig !== null && data ? <DigOverlay build={buildDig} onFinish={finishDig} art={ART} /> : null}
+    </>
   );
 }
 

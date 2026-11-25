@@ -3,15 +3,15 @@ import { plainYears } from '../evidence';
 import type { PolygonalGeometry, PresentLayer } from '../evidence';
 import type { LoadedData } from '../data/loadData';
 import { lotIdFor } from '../place/placeLink';
-import { buildReport, PRESENT_SOURCES, withMappedAreas } from '../report/buildReport';
+import { PRESENT_SOURCES } from '../report/buildReport';
 import { ringsOf } from '../report/cropPlan';
 import type { Sentence } from '../report/sentence';
 import { SetPageTitle } from '../shell/SetPageTitle';
 import { CompareView } from './CompareView';
 import type { ComparePlan } from './CompareView';
 import type { WorldPolygon } from './compare';
+import { computeLotCheck } from './computeLotCheck';
 import * as copy from './copy';
-import { buildLotCheck } from './lotCheck';
 import type { LotCheck, PlanRow, TodayRow, UseLine } from './lotCheck';
 import { LetteringCrop } from './LetteringCrop';
 import { RegistrationCrosses } from './LandingPage';
@@ -246,27 +246,9 @@ export function LotPage() {
   const buildingsLayer = useBuildings(afterPaint);
 
   const check: LotCheck | null = useMemo(() => {
-    if (!prepared || lotId === null) return null;
-    const { loaded, lots, addresses } = prepared;
-    const buildings = buildingsLayer;
-    const model = buildReport({
-      lotId,
-      eraId: null,
-      canon: { collections: loaded.evidence, registry: loaded.registry, project: loaded.project, sidecars: loaded.tiles, lots, addresses, buildings },
-      workspace: null,
-      dataVersion: '',
-      linkDataVersion: null,
-      siteOrigin: window.location.origin,
-    });
-    const geometry = lots?.features.find((f) => f.id === lotId)?.geometry;
-    return buildLotCheck(model, {
-      lot: geometry as PolygonalGeometry,
-      collections: withMappedAreas(loaded.evidence, loaded.tiles),
-      tiles: loaded.tiles,
-      sources: loaded.sources,
-      siteOrigin: window.location.origin,
-    });
-  }, [prepared, lotId, buildingsLayer]);
+    if (!ready || lotId === null) return null;
+    return computeLotCheck(ready, lotId, buildingsLayer, window.location.origin);
+  }, [ready, lotId, buildingsLayer]);
 
   const address = check?.kind === 'check' ? (check.title.text === 'This lot' ? null : check.title.text) : null;
 
