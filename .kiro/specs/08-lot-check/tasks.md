@@ -23,7 +23,7 @@ One builder session, in order. **(demo)** marks what the demo video needs. Recor
   Report for the lot; if the Report has no print entry, add at most a `print=1` query that calls
   `window.print()`, and say so. Extend the spec 06 W1 contrast test with design.md's pairs; fail on
   `--lantern` text or `--copper` text on parchment. No token values change. (3, 5, 7.2)
-- [ ] 8. How page: `HowPage.tsx`, copy, four small crops under `web/public/lotcheck/`. (6)
+- [x] 8. How page: `HowPage.tsx`, copy, four small crops under `web/public/lotcheck/`. (6)
 - [ ] 9. Block link: measure the Brotli size of `web/public/unity/Build/*`. Over 30 MB total (this
   spec's figure; the maintainer may change it), remove "See this block in 3D" and the `/block` and
   `/find/<slug>` routes and say so; otherwise keep both. (3.6)

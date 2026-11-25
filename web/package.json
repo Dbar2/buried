@@ -22,7 +22,8 @@
     "gen:bridge-samples": "tsx scripts/genBridgeSamples.ts",
     "gen:still-scene": "tsx scripts/genStillScene.ts",
     "gen:social-card": "tsx scripts/renderSocialCard.ts",
-    "gen:landing-plan": "tsx scripts/genLandingPlan.ts"
+    "gen:landing-plan": "tsx scripts/genLandingPlan.ts",
+    "gen:how-pictures": "tsx scripts/genHowPictures.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",
