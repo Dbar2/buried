@@ -10,7 +10,7 @@ One builder session, in order. **(demo)** marks what the demo video needs. Recor
   P1, P3, P6. (3.2 to 3.8, 4)
 - [x] 3. **(demo)** Landing fact and examples: `web/src/lotcheck/landing.ts`, test. P4. Run on the
   committed data; report the count and the addresses. (2.3, 2.4)
-- [ ] 4. **(demo)** Compare model: `web/src/lotcheck/compare.ts`, test. P5; lot corners land where
+- [x] 4. **(demo)** Compare model: `web/src/lotcheck/compare.ts`, test. P5; lot corners land where
   `worldToPixel` puts them. (5.1 to 5.3)
 - [ ] 5. Routes: `web/src/place/placeLink.ts` and test, `web/src/App.tsx`, `web/src/shell/Header.tsx`,
   `web/src/shell/pageTitle.ts`, `web/src/sources/SourcesPage.tsx`. Add `landing`, `lot`, `how`;
