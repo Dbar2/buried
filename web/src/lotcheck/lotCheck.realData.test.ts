@@ -3,47 +3,12 @@
  * maintainer named, and that every trigger of a tag 4.2 or 4.3 comes with its lettering and its crop.
  */
 import { describe, expect, it } from 'vitest';
-import { loadData } from '../data/loadData';
-import { diskFetch, REPOSITORY_DATA } from '../explorer/testing/diskFetch';
-import type { PolygonalGeometry } from '../evidence';
-import { buildReport, PRESENT_SOURCES, withMappedAreas } from '../report/buildReport';
-import { buildLotCheck } from './lotCheck';
-import type { LotCheck } from './lotCheck';
-
-async function world() {
-  const data = await loadData(diskFetch(REPOSITORY_DATA));
-  return { data, lots: data.presentLayers.get(PRESENT_SOURCES.lots)! };
-}
-
-type World = Awaited<ReturnType<typeof world>>;
-
-function check(w: World, lotId: string): LotCheck {
-  const { data } = w;
-  const model = buildReport({
-    lotId,
-    eraId: null,
-    canon: {
-      collections: data.evidence,
-      registry: data.registry,
-      project: data.project,
-      sidecars: data.tiles,
-      lots: w.lots,
-      addresses: data.presentLayers.get(PRESENT_SOURCES.addresses),
-      buildings: data.presentLayers.get(PRESENT_SOURCES.buildings),
-    },
-    workspace: null,
-    dataVersion: '0123456789abcdef'.repeat(4),
-    linkDataVersion: null,
-    siteOrigin: 'https://buried.example',
-  });
-  const lot = w.lots.features.find((f) => f.id === lotId)?.geometry as PolygonalGeometry;
-  return buildLotCheck(model, { lot, collections: withMappedAreas(data.evidence, data.tiles), tiles: data.tiles, sources: data.sources, siteOrigin: 'https://buried.example' });
-}
+import { checkLot, realWorld } from './testing/realWorld';
 
 describe('the lot check on the committed data', () => {
   it('2A Percy St: a coal and wood yard on both plans, with the lettering and a crop for each', async () => {
-    const w = await world();
-    const c = check(w, '5451729');
+    const w = await realWorld();
+    const c = checkLot(w, '5451729');
     expect(c.kind).toBe('check');
     if (c.kind !== 'check') return;
     expect(c.verdict.tag).toBe('past_industrial');
@@ -58,7 +23,7 @@ describe('the lot check on the committed data', () => {
   });
 
   it('524 King St E: a machine shop', async () => {
-    const c = check(await world(), '5448428');
+    const c = checkLot(await realWorld(), '5448428');
     expect(c.kind).toBe('check');
     if (c.kind !== 'check') return;
     expect(c.verdict.tag).toBe('past_industrial');
@@ -67,7 +32,7 @@ describe('the lot check on the committed data', () => {
   });
 
   it('535 Queen St E: an overall factory', async () => {
-    const c = check(await world(), '5447060');
+    const c = checkLot(await realWorld(), '5447060');
     expect(c.kind).toBe('check');
     if (c.kind !== 'check') return;
     expect(c.verdict.tag).toBe('past_industrial');
@@ -75,10 +40,10 @@ describe('the lot check on the committed data', () => {
   });
 
   it('every lot in the coverage area gets a check, never a failure, and a tag 4.2 or 4.3 always has a crop', async () => {
-    const w = await world();
+    const w = await realWorld();
     const counts: Record<string, number> = {};
     for (const lot of w.lots.features) {
-      const c = check(w, lot.id);
+      const c = checkLot(w, lot.id);
       if (c.kind === 'failed') throw new Error(`${lot.id}: ${c.reason}`);
       if (c.kind !== 'check') continue;
       counts[c.verdict.tag] = (counts[c.verdict.tag] ?? 0) + 1;

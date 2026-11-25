@@ -15,7 +15,7 @@ export type { EraFeature, EraFeatureList, EraRange } from './eras';
 export { drawnMember, featuresForEra, isDrawnInEra } from './eras';
 export { linkedSets } from './links';
 export type { LinkedSet } from './links';
-export { LotInputError, lotRelation } from './lot';
+export { LotInputError, lotRelation, bufferScale } from './lot';
 export type { Lot, LotFeature, LotRelation } from './lot';
 export {
   checkedRecordsText,
