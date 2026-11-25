@@ -55,6 +55,11 @@ describe('the Sources page on the committed data', async () => {
     expect(html).toMatch(/<a href="\/studio"[^>]*>\s*The workshop \(runs on a maintainer's machine\)\s*<\/a>/);
   });
 
+  it('says the night illustrations were made with an image model and are decoration, not evidence', () => {
+    expect(html).toContain('<h2 id="sources-illustrations">Illustrations</h2>');
+    expect(html).toContain('The lantern, the earth cross-section, the paper, the skyline and the spade are illustrations made with an image model. They are decoration, not evidence.');
+  });
+
   it('credits the three typefaces with their licence', () => {
     expect(html).toContain('<h2 id="sources-typefaces">Typefaces</h2>');
     expect(html).toContain('Libre Baskerville');

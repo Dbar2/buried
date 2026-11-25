@@ -900,6 +900,54 @@
 
 /* ---------- keyframes ---------- */
 
+/* ---------- the How page, at night ---------- */
+
+.lc-how {
+  position: static;
+}
+
+.lc-how > * {
+  position: relative;
+  z-index: 1;
+}
+
+.lc-how > .lc-fog,
+.lc-how > .lc-cross,
+.lc-how > .lc-lantern {
+  position: absolute;
+  z-index: 0;
+}
+
+.lc-lantern-how {
+  animation:
+    lc-ignite 0.9s ease-out backwards,
+    lc-flame 4.2s 1.5s ease-in-out infinite;
+  opacity: 0.9;
+  right: max(16px, calc(50% - 560px));
+  top: 40px;
+  width: 84px;
+}
+
+.lc-how .lc-kicker {
+  color: var(--parchment-dim);
+}
+
+.lc-step-number {
+  color: var(--parchment-dim);
+}
+
+.lc-step-picture {
+  border-color: var(--rule);
+}
+
+.lc-dig-note {
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-heading);
+  font-style: italic;
+  margin: 0 0 var(--space-4);
+  padding-top: var(--space-4);
+}
+
 @keyframes lc-art-in {
   from {
     opacity: 0;

@@ -15,7 +15,13 @@
     <meta property="og:image:alt" content="The Buried mark, the wordmark and the tagline: Forgotten maps, rebuilt with proof." />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  </head>
+    <!-- The night ground (--soot in src/styles/tokens.css) before the stylesheet arrives, so a page change never flashes white. -->
+    <style>
+      html,
+      body {
+        background: #121715;
+      }
+    </style>  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

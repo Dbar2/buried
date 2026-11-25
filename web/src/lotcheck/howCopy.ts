@@ -36,6 +36,9 @@ export const HOW_STEPS: readonly HowStep[] = [
 
 export const LIST_NOTE = 'The maintainer reviews this list. It has not been signed off yet.';
 
+/** The one line about the dig (product.md rule 17): it is presentation. */
+export const DIG_NOTE = 'The dig is an animation. The lookup itself is instant.';
+
 export const KIRO_HEADING = 'Built with Kiro';
 export const KIRO_LINES: readonly string[] = [
   'Kiro agents propose work, and a person confirms every outline before it is published.',
@@ -44,4 +47,4 @@ export const KIRO_LINES: readonly string[] = [
   'A read-only server answers what the records show at an address from the evidence files, and works out no dates.',
 ];
 
-export const HOW_PAGE_TEXT: readonly string[] = [HOW_KICKER, HOW_TITLE, ...HOW_STEPS.flatMap((s) => [s.heading, s.body, s.alt]), LIST_NOTE, KIRO_HEADING, ...KIRO_LINES];
+export const HOW_PAGE_TEXT: readonly string[] = [HOW_KICKER, HOW_TITLE, ...HOW_STEPS.flatMap((s) => [s.heading, s.body, s.alt]), LIST_NOTE, DIG_NOTE, KIRO_HEADING, ...KIRO_LINES];

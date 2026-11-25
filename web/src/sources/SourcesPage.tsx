@@ -59,6 +59,10 @@ export function fullImageAlt(source: Pick<Source, 'id' | 'title'>): string {
 export const TYPEFACES_LINE =
   'Set in Libre Baskerville, Source Sans 3 and IBM Plex Mono, each served from this site under the SIL Open Font License 1.1.';
 
+/** The night art on the lot check pages (session 053). Decoration, not evidence. */
+export const ILLUSTRATIONS_LINE =
+  'The lantern, the earth cross-section, the paper, the skyline and the spade are illustrations made with an image model. They are decoration, not evidence.';
+
 function SourceEntry({ source, tile }: { source: Source; tile: TileSidecar | undefined }) {
   const archival = isArchival(source);
   const years = archival && source.year_from !== null ? sourceYearsText(source) : yearsText(source);
@@ -129,6 +133,10 @@ export function SourcesView({ data }: { data: SourcesData }) {
       <section aria-labelledby="sources-typefaces" data-testid="sources-typefaces">
         <h2 id="sources-typefaces">Typefaces</h2>
         <p>{TYPEFACES_LINE}</p>
+      </section>
+      <section aria-labelledby="sources-illustrations" data-testid="sources-illustrations">
+        <h2 id="sources-illustrations">Illustrations</h2>
+        <p>{ILLUSTRATIONS_LINE}</p>
       </section>
     </>
   );

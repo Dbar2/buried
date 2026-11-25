@@ -24,6 +24,10 @@ describe('the How page', () => {
     expect(KIRO_LINES.join(' ').match(/[.!?](\s|$)/g)?.length ?? 0).toBeLessThanOrEqual(5);
   });
 
+  it('says in one line that the dig is an animation and the lookup is instant', () => {
+    expect(html).toContain('The dig is an animation. The lookup itself is instant.');
+  });
+
   it('shows the whole Industrial list, from the list itself', () => {
     for (const entry of INDUSTRIAL_ENTRIES) expect(html).toContain(entry);
   });
