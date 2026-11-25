@@ -5,7 +5,7 @@ One builder session, in order. **(demo)** marks what the demo video needs. Recor
 
 - [x] 1. **(demo)** Industrial list: `web/src/evidence/industrialUse.ts` and test, exported from the
   Evidence Library index. P2; list sorted, unique, lowercase, no banned words. (4.1)
-- [ ] 2. **(demo)** Verdict: `web/src/lotcheck/lotCheck.ts`, `copy.ts`, test. Fixtures: the Percy
+- [x] 2. **(demo)** Verdict: `web/src/lotcheck/lotCheck.ts`, `copy.ts`, test. Fixtures: the Percy
   Street lot (on), one beside it (near), a covered lot with no match, a lot outside coverage.
   P1, P3, P6. (3.2 to 3.8, 4)
 - [ ] 3. **(demo)** Landing fact and examples: `web/src/lotcheck/landing.ts`, test. P4. Run on the

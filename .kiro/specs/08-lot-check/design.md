@@ -80,11 +80,12 @@ tile; the builder reports its size, and above 1.5 MB the maintainer decides on p
 ## Properties (fast-check, no network)
 
 - P1 [PBT] Tag 4.2 or 4.3 always has at least one trigger; each trigger's lettering contains its
-  `matched` entry as a whole word; `matched` is in the list.
+  `matched` entry as a whole word; `matched` is in the list. The tags 4.4, 4.5 and 4.7 have none.
 - P2 [PBT] A string with no entry at word boundaries gives `null`; one with an entry does not.
 - P3 [PBT] For generated lettering (banned words included), every sentence from `buildLotCheck`,
   `landingFact` and the how copy, and the rendered text, has no `findBannedWords` hit.
 - P4 [PBT] `landingFact`'s count equals an independent count of points inside generated rectangles
   shrunk by their errors.
 - P5 [PBT] For any divider in [0, 1], `compareModel` output and the rendered outline path are equal.
-- P6 [PBT] "No industrial use" appears only with tag 4.4 and always with its not-a-clearance line.
+- P6 [PBT] "No industrial use" appears only with tag 4.4 and always with its not-a-clearance line;
+  the fifth tag ("A past use is lettered on these plans") never carries that line.

@@ -40,8 +40,8 @@ in the Evidence Library). *Coverage area*: lots for which `buildReport` does not
 
 3.1 THE Result SHALL show, in order: title, tag, sentence, compare view, "What the plans show",
     "What this does not tell you", actions, provenance strip.
-3.2 THE title SHALL be `Report.place.heading`. THE tag SHALL be one of the four in product.md,
-    decided by `buildLotCheck` (requirement 4).
+3.2 THE title SHALL be `Report.place.heading`. THE tag SHALL be one of the five in 4.2 to 4.7, decided by
+    `buildLotCheck` (requirement 4).
 3.3 THE sentence SHALL quote the triggers' lettering with the plans it is on ("The 1911 and 1931-35
     plans letter this lot “Coal & Wood Yard”.").
 3.4 "What the plans show" SHALL have one row per plan covering the lot and one for today. A plan row
@@ -66,14 +66,19 @@ in the Evidence Library). *Coverage area*: lots for which `buildReport` does not
 4.2 WHEN a trigger's relation is "on", THE tag SHALL be "Past industrial use recorded".
 4.3 WHEN no trigger is on the lot and one is near it, THE tag SHALL be "Industrial use recorded next
     to this lot" and the sentence SHALL give "within X m" from the relation.
-4.4 WHEN at least one plan is reviewed for the lot and no trigger exists, THE tag SHALL be "No
-    industrial use lettered on these plans", with "This is not a clearance. It says nothing about the
-    land today." beside it.
-4.5 WHEN no plan is reviewed for the lot, THE tag SHALL be "Not covered yet" with the Report's
-    coverage sentence.
+4.4 WHEN at least one plan is reviewed for the lot, no trigger exists and no use is lettered on the
+    lot (4.7), THE tag SHALL be "No industrial use lettered on these plans", with "This is not a
+    clearance. It says nothing about the land today." beside it.
+4.5 WHEN no plan is reviewed for the lot (and 4.2, 4.3 and 4.7 do not apply), THE tag SHALL be "Not
+    covered yet" with the Report's coverage sentence.
 4.6 THE tags in 4.2 and 4.3 SHALL NOT appear without at least one trigger shown with its lettering
     and crop. WHEN the lettering has a banned word, THE page SHALL show the crop and name the plan,
     and not quote the words. [PBT]
+4.7 (session 051, decision 1) WHEN no trigger exists and a use is lettered on the lot that matches no
+    entry of the Industrial list, THE tag SHALL be "A past use is lettered on these plans" and the
+    sentence SHALL quote that lettering. "Street cleaning" is not on the list, so a City works yard
+    gets this tag and not 4.2. THE rows under "What the plans show" SHALL list every lettered use on
+    or near the lot (within the Report's 30 m use radius), matched or not.
 
 ## Requirement 5: The compare view
 
