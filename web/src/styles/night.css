@@ -926,6 +926,26 @@
   vector-effect: non-scaling-stroke;
 }
 
+/* On a photograph (session 055) the dashed line is parchment with an ink casing under it, so it reads on dark and light ground. */
+.lc-stood-casing {
+  display: none;
+}
+
+.lc-frame[data-now='photo'] .lc-stood-casing {
+  animation: lc-breathe 4s ease-in-out infinite;
+  display: inline;
+  fill: none;
+  opacity: 0.8;
+  stroke: var(--ink);
+  stroke-dasharray: 8 5;
+  stroke-width: 4px;
+  vector-effect: non-scaling-stroke;
+}
+
+.lc-frame[data-now='photo'] .lc-stood {
+  stroke: var(--parchment);
+}
+
 .lc-side {
   border-left: 1px solid var(--rule);
 }

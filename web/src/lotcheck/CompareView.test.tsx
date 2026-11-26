@@ -7,6 +7,8 @@ import { CompareView } from './CompareView';
 import type { ComparePlan } from './CompareView';
 import type { WorldPolygon } from './compare';
 import { chipsFit, clampPercent, DIVIDER_START, dividerForKey, dividerForPointer, dividerLabel, planAnnouncement } from './divider';
+import type { ImaginedView, Photo } from './photos';
+import type { Pictures } from './usePictures';
 
 const CORNERS: TileCorners = {
   top_left: [632312.268258896, 4835087.454831159],
@@ -91,8 +93,10 @@ describe('CompareView markup', () => {
     expect(html).toContain('aria-valuemin="0"');
     expect(html).toContain('aria-valuemax="100"');
     expect(html.indexOf('lc-switch')).toBeLessThan(html.indexOf('lc-frame'));
-    expect(html).toMatch(/aria-pressed="true"[^>]*data-testid="lc-plan-fip_v3_1911_229"/);
-    expect(html).toMatch(/aria-pressed="false"[^>]*data-testid="lc-plan-fip_v3_1935_229"/);
+    // The plans are a radio group named "Then" (session 055): the selected one is checked.
+    expect(html).toContain('role="radiogroup" aria-label="Then"');
+    expect(html).toMatch(/<input type="radio"[^>]*data-testid="lc-plan-fip_v3_1911_229" checked=""/);
+    expect(html).toMatch(/<input type="radio"[^>]*data-testid="lc-plan-fip_v3_1935_229"\/>/);
     expect(html).toContain('Loading the plan.');
     expect(html).toContain('aria-live="polite"');
   });
@@ -161,5 +165,73 @@ describe('where it stood and the sweep (session 053)', () => {
     const html = render({ intro: true });
     expect(html).toContain('data-sweep="pending"');
     expect(html).toContain('aria-valuenow="100"');
+  });
+});
+
+describe('photographs and imagined views (session 055)', () => {
+  const photo = (id: string, year: number, approximate: boolean): Photo => ({
+    id,
+    src: `/lotcheck/aerial/${id}.jpg`,
+    year,
+    label: `${year} aerial photograph, City of Toronto`,
+    bounds: [632295, 4834745, 632715, 4835185],
+    widthPx: 1680,
+    heightPx: 1760,
+    approximate,
+    licence: '',
+    attribution: '',
+    dataset: '',
+    note: '',
+    sourceUrl: '',
+    fetched: '',
+    metresPerPixel: 0.25,
+  });
+  const READY: Pictures = { status: 'ready', photos: [photo('aerial-1939', 1939, true), photo('today-2025', 2025, false)], views: [], how: '' };
+  const VIEW: ImaginedView = {
+    slug: 'coal-yard',
+    featureIds: ['use_a'],
+    planSource: 'fip_v3_1911_229',
+    planName: 'the 1911 plan',
+    about: 'about 1911',
+    topdown: { src: '/lotcheck/imagined/coal-yard-topdown.jpg', bounds: [632450, 4834900, 632560, 4835020], widthPx: 1100, heightPx: 989 },
+    street: null,
+    note: null,
+  };
+
+  it('offers the 1939 photo, the imagined view and both Now choices, with the plan and today\'s photograph as the defaults', () => {
+    const html = render({ pictures: READY, imagined: [VIEW] });
+    expect(html).toMatch(/aria-label="Then"[\s\S]*1911 plan[\s\S]*1931-35 plan[\s\S]*1939 photo[\s\S]*Imagined, about 1911/);
+    expect(html).toMatch(/aria-label="Now"[\s\S]*Today, photo[\s\S]*Today, outlines/);
+    expect(html).toMatch(/<input type="radio"[^>]*data-testid="lc-plan-fip_v3_1911_229" checked=""/);
+    expect(html).toMatch(/<input type="radio"[^>]*data-testid="lc-now-photo" checked=""/);
+    // Nothing is loaded yet: the Now side shows the outlines and the caption says so.
+    expect(html).toContain('data-now="outlines"');
+    expect(html).toContain('Left: the 1911 plan, as digitized. Right: today&#x27;s building outlines');
+  });
+
+  it('offers no imagined choice unless it is given a view for a use on the lot, and never a picture before the plan has loaded', () => {
+    expect(render({ pictures: READY, imagined: [] })).not.toContain('Imagined,');
+    const html = render({ pictures: READY, imagined: [VIEW], loadPlan: false });
+    expect(html).not.toContain('<image');
+    expect(html).not.toContain('today-2025.jpg');
+    expect(html).not.toContain('coal-yard-topdown.jpg');
+  });
+
+  it('holds the Now photograph\'s place while the index is on its way, and hides the controls when there is only one plan and no photograph', () => {
+    const pending = render({ pictures: { status: 'pending', photos: [], views: [], how: '' } });
+    expect(pending).toMatch(/disabled=""[^>]*data-testid="lc-now-photo"/);
+    const none = render({ plans: [PLANS[0] as ComparePlan], pictures: { status: 'ready', photos: [], views: [], how: '' } });
+    expect(none).not.toContain('lc-switch');
+  });
+
+  it('keeps the lot outline last in both layers, so it is on top of every picture', () => {
+    const html = render({ pictures: READY, imagined: [VIEW] });
+    for (const layer of ['lc-layer-plan', 'lc-layer-today']) {
+      const start = html.indexOf(`data-testid="${layer}"`);
+      const end = html.indexOf('</svg>', start);
+      const svg = html.slice(start, end);
+      expect(svg.lastIndexOf('class="lc-outline"')).toBeGreaterThan(svg.lastIndexOf('class="lc-outline-casing"'));
+      expect(svg.lastIndexOf('class="lc-outline"')).toBeGreaterThan(svg.lastIndexOf('<image'));
+    }
   });
 });

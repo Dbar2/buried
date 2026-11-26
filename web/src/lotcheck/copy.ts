@@ -32,6 +32,17 @@ export const WORDING_NOT_REPRODUCED = 'Its wording is not reproduced here. The c
 export const countsAsIndustrial = (matched: string): string => `Counts as industrial use (matched: ${matched})`;
 
 export const LOADING_PLAN = 'Loading the plan.';
+export const LOADING_PICTURE = 'Loading the picture.';
+
+/** Pictures (session 055). The caption of an imagined picture is built in photos.ts from the plan's name. */
+export const PICTURES = {
+  heading: 'As it may have looked',
+  open: 'Open the picture larger',
+  close: 'Close',
+  imagined: 'imagined',
+  /** The Landing's line under the map caption: what a dig shows. */
+  landing: 'Each dig shows the old plan, a 1939 aerial photograph, and a photograph of what stands there today.',
+} as const;
 
 /**
  * The three lines under "What this does not tell you" (session 052). The longer text stays in the one-page record
@@ -105,6 +116,8 @@ export const ALL_FIXED_COPY: readonly string[] = [
   COULD_NOT_PRODUCE,
   WORDING_NOT_REPRODUCED,
   LOADING_PLAN,
+  LOADING_PICTURE,
+  ...Object.values(PICTURES),
   CANNOT_TELL_SOIL,
   NOT_A_LOCATE_LEAD,
   ...Object.values(SECTION),

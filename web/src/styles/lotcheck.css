@@ -472,11 +472,9 @@
   min-width: 0;
 }
 
-/* The compare view stays in sight while the rows scroll past it. */
+/* The record is taller than a window once it holds pictures, so the column scrolls with the page (session 055). */
 .lc-main {
   align-self: start;
-  position: sticky;
-  top: var(--space-3);
 }
 
 .lc-side {
@@ -500,26 +498,71 @@
 
 .lc-switch {
   display: flex;
-  gap: var(--space-3);
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
   margin-top: var(--space-3);
 }
 
-.lc-switch button {
+/* Two radio groups, Then and Now (session 055). The input fills its label, so the whole label is the target. */
+.lc-layer-group {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.lc-layer-legend {
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  min-width: 2.75rem;
+}
+
+.lc-radio {
+  display: inline-flex;
+  position: relative;
+}
+
+.lc-radio input {
+  cursor: pointer;
+  height: 100%;
+  left: 0;
+  margin: 0;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.lc-radio span {
+  align-items: center;
   background: none;
   border: 1px solid var(--rule);
   border-radius: 2px;
   color: var(--ink);
-  cursor: pointer;
-  font: inherit;
+  display: inline-flex;
   min-height: 44px;
-  min-width: 88px;
   padding: 0 var(--space-3);
 }
 
-.lc-switch button[aria-pressed='true'] {
+.lc-radio input:checked + span {
   border-bottom: 4px solid var(--ink);
   border-color: var(--ink);
   font-weight: 600;
+}
+
+.lc-radio input:focus-visible + span {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.lc-radio input:disabled {
+  cursor: default;
+}
+
+.lc-radio input:disabled + span {
+  color: var(--ink-soft);
+  opacity: 0.6;
 }
 
 .lc-frame {
@@ -546,9 +589,53 @@
   background: var(--parchment);
 }
 
-/* The scan lies on the paper: white becomes the paper, the ink stays ink. The scan's pixels are not changed. */
-.lc-layer-plan image {
+/* The scan lies on the paper: white becomes the paper, the ink stays ink. The scan's pixels are not changed.
+   A photograph or an imagined picture is drawn as it is (`.lc-photo`), never blended. */
+.lc-layer-plan .lc-scan {
   mix-blend-mode: multiply;
+}
+
+/* Today's photograph fades in over the outlines once the divider's sweep is over (0.6 s, opacity only). */
+.lc-now-photo {
+  opacity: 0;
+  transition: opacity 0.6s ease-out;
+}
+
+.lc-now-photo[data-on='true'] {
+  opacity: 1;
+}
+
+.lc-now-outlines {
+  opacity: 1;
+  transition: opacity 0.6s ease-out;
+}
+
+.lc-now-outlines[data-off='true'] {
+  opacity: 0;
+}
+
+/* The words that belong to the left side are clipped at the divider, so they never run over to today's side. */
+.lc-left-clip {
+  bottom: 0;
+  clip-path: inset(0 calc(100% - var(--divider)) 0 0);
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.lc-photo-note {
+  background: var(--parchment);
+  border: 1px solid var(--ink);
+  bottom: 8px;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  left: 8px;
+  max-width: calc(var(--divider) - 16px);
+  padding: 1px var(--space-2);
+  position: absolute;
 }
 
 .lc-today-building {

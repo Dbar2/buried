@@ -17,6 +17,9 @@ import type { LotCheck, PlanRow, TodayRow, UseLine } from './lotCheck';
 import { LetteringCrop } from './LetteringCrop';
 import { ART, Fog, RegistrationCrosses } from './night';
 import { InscriptionBlock, Stamp } from './RecordSheet';
+import { onLotFeatureIds, viewsOnLot } from './photos';
+import { usePictures } from './usePictures';
+import type { Pictures } from './usePictures';
 import { useLotData, useBuildings } from './useLotData';
 import '../styles/lotcheck.css';
 import '../styles/night.css';
@@ -109,8 +112,9 @@ function Row({ row, index, showCrop, todayPending }: { row: PlanRow | TodayRow; 
 }
 
 type Prepared = { loaded: LoadedData; lots: Layer; buildings: Layer; addresses: Layer };
+type BodyData = Prepared & { pictures: Pictures };
 
-function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'check' }>; data: Prepared; afterPaint: boolean }) {
+function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'check' }>; data: BodyData; afterPaint: boolean }) {
   const phone = usePhone();
   const [copied, setCopied] = useState(false);
   const title = useRef<HTMLHeadingElement>(null);
@@ -118,6 +122,8 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
   const lot = useMemo(() => ringsOf(lotGeometry), [lotGeometry]);
   const buildings = useMemo(() => polygonsOf(data.buildings), [data.buildings]);
   const lotLines = useMemo(() => polygonsOf(data.lots), [data.lots]);
+  // Imagined views are offered only for a lettered use ON the lot (product.md "Pictures" rule 4), from the view model's rows.
+  const imagined = useMemo(() => viewsOnLot(onLotFeatureIds(check.rows), data.pictures.views), [check, data.pictures.views]);
 
   // Where it stood: the outline of each lettered use on the lot, from the evidence, drawn faint on today's side.
   const stood = useMemo(() => {
@@ -141,7 +147,7 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
     const source = data.loaded.sources.get(id);
     if (!tile || !source) return [];
     const years = plainYears(source);
-    return [{ sourceId: id, planName: `the ${years} plan`, label: `${years} plan`, tile: { src: `/data/tiles/${tile.image}`, widthPx: tile.width_px, heightPx: tile.height_px, corners: tile.corners, mapArea: tile.map_area?.coordinates as WorldPolygon | undefined } }];
+    return [{ sourceId: id, planName: `the ${years} plan`, label: `${years} plan`, years, tile: { src: `/data/tiles/${tile.image}`, widthPx: tile.width_px, heightPx: tile.height_px, corners: tile.corners, mapArea: tile.map_area?.coordinates as WorldPolygon | undefined } }];
   });
 
   const share = async () => {
@@ -183,8 +189,18 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
               <h2 id="lc-compare-heading" className="visually-hidden">
                 The plan and today
               </h2>
-              <CompareView plans={plans} lot={lot} buildings={buildings} lots={lotLines} stood={stood} intro loadPlan={afterPaint} aspect={phone ? 1 : 4 / 3} />
-              <p className="lc-compare-note">The plan is the scan as digitized, laid on paper.</p>
+              <CompareView
+                plans={plans}
+                lot={lot}
+                buildings={buildings}
+                lots={lotLines}
+                stood={stood}
+                intro
+                loadPlan={afterPaint}
+                aspect={phone ? 1 : 4 / 3}
+                pictures={data.pictures}
+                imagined={imagined}
+              />
             </section>
           </div>
           <section className="lc-provenance" aria-label={copy.SECTION.provenance} data-testid="lc-provenance">
@@ -273,6 +289,8 @@ export function LotPage() {
   // The text is built and painted first; the plan, the lettering crops and today's building outlines follow it.
   const afterPaint = useAfterPaint(prepared !== null);
   const buildingsLayer = useBuildings(afterPaint);
+  // The two small picture indexes (a few KB). The pictures themselves are requested by the compare view after the plan tile.
+  const pictures = usePictures(true);
 
   const check: LotCheck | null = useMemo(() => {
     if (!ready || lotId === null) return null;
@@ -304,7 +322,7 @@ export function LotPage() {
         </p>
       ) : null}
       {check?.kind === 'check' && prepared ? (
-        <Body check={check} data={{ ...prepared, buildings: buildingsLayer }} afterPaint={afterPaint} />
+        <Body check={check} data={{ ...prepared, buildings: buildingsLayer, pictures }} afterPaint={afterPaint} />
       ) : null}
     </main>
   );

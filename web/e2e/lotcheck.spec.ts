@@ -248,12 +248,13 @@ test('the plan switch changes the tile and the label, and is announced', async (
   await expect(frame).toHaveAttribute('data-plan', 'fip_v3_1911_229');
   await expect(frame).toHaveAttribute('data-ready', 'true');
   const outline = await page.getByTestId('lc-outline-plan').getAttribute('d');
-  const buttons = page.getByRole('group', { name: 'Plan' }).getByRole('button');
-  await expect(buttons).toHaveText(['1911 plan', '1931-35 plan']);
-  await buttons.nth(1).click();
+  const buttons = page.getByRole('radiogroup', { name: 'Then' }).getByRole('radio');
+  await expect(buttons).toHaveCount(4);
+  await expect(page.getByRole('radiogroup', { name: 'Then' }).locator('label')).toHaveText(['1911 plan', '1931-35 plan', '1939 photo', 'Imagined, about 1911']);
+  await buttons.nth(1).check();
   await expect(frame).toHaveAttribute('data-plan', 'fip_v3_1935_229');
-  await expect(buttons.nth(1)).toHaveAttribute('aria-pressed', 'true');
-  await expect(buttons.nth(0)).toHaveAttribute('aria-pressed', 'false');
+  await expect(buttons.nth(1)).toBeChecked();
+  await expect(buttons.nth(0)).not.toBeChecked();
   await expect(page.getByTestId('lc-announce')).toHaveText('Now showing the 1931-35 plan');
   await expect(page.getByTestId('lc-divider')).toHaveAttribute('aria-label', 'Divider between the 1931-35 plan and today');
   // The lot is outlined in the same place on the other plan: the two tiles share one frame by construction here.
@@ -296,7 +297,7 @@ for (const width of [390, 320]) {
       });
       expect(overflow, `${path} at ${width}`).toEqual({ scroller: 0, doc: 0 });
       const small = await page.evaluate(() =>
-        [...document.querySelectorAll<HTMLElement>('.site-header a, .lotcheck-scroll button, .lotcheck-scroll input, .lotcheck-scroll [role="slider"], .lc-button, .lc-switch button, .lc-try a')]
+        [...document.querySelectorAll<HTMLElement>('.site-header a, .lotcheck-scroll button, .lotcheck-scroll input, .lotcheck-scroll [role="slider"], .lc-button, .lc-radio span, .lc-try a')]
           .map((el) => ({ what: el.getAttribute('data-testid') ?? (el.textContent ?? '').slice(0, 30), h: el.getBoundingClientRect().height, w: el.getBoundingClientRect().width }))
           .filter((b) => b.h > 0 && (b.h < 44 || b.w < 44)),
       );

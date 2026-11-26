@@ -29,6 +29,8 @@ export type CompareInput = {
   marginM?: number;
   /** Frame width over height: 4/3 on a desktop, 1 on a phone. */
   aspect?: number;
+  /** World bounds of a picture that must be inside the frame whole (an imagined view is never cropped). */
+  include?: readonly [number, number, number, number];
 };
 
 export type ViewBox = { x: number; y: number; width: number; height: number };
@@ -130,6 +132,33 @@ export function uncoveredBy(box: ViewBox, areaPx: ReadonlyArray<ReadonlyArray<Pt
 
 const round1 = (v: number): number => Math.round(v * 10) / 10;
 
+/** Share of the picture's size added on each side when a frame is widened to hold it. */
+const HOLD_PAD = 0.02;
+
+/**
+ * The frame widened so that a whole picture with world `bounds` (an imagined view, which is never cropped) is inside
+ * it, padded to `aspect` about the middle of what it holds. The lot stays inside it, so the frame never gets smaller.
+ */
+export function frameHolding(frame: ViewBox, include: readonly [number, number, number, number], t: ReturnType<typeof makeSheetTransform>, aspect: number): ViewBox {
+  const pts = [
+    worldToPixel(t, [include[0], include[1]]),
+    worldToPixel(t, [include[2], include[1]]),
+    worldToPixel(t, [include[2], include[3]]),
+    worldToPixel(t, [include[0], include[3]]),
+  ];
+  const minX = Math.min(frame.x, ...pts.map((p) => p[0]));
+  const minY = Math.min(frame.y, ...pts.map((p) => p[1]));
+  const maxX = Math.max(frame.x + frame.width, ...pts.map((p) => p[0]));
+  const maxY = Math.max(frame.y + frame.height, ...pts.map((p) => p[1]));
+  let width = (maxX - minX) * (1 + 2 * HOLD_PAD);
+  let height = (maxY - minY) * (1 + 2 * HOLD_PAD);
+  if (width / height < aspect) width = height * aspect;
+  else height = width / aspect;
+  const cx = (minX + maxX) / 2;
+  const cy = (minY + maxY) / 2;
+  return { x: cx - width / 2, y: cy - height / 2, width, height };
+}
+
 function meets(box: ViewBox, polygon: WorldPolygon, t: ReturnType<typeof makeSheetTransform>): boolean {
   const b = bounds(polygon.flat().map((p) => worldToPixel(t, p)));
   return b.minX < box.x + box.width && b.maxX > box.x && b.minY < box.y + box.height && b.maxY > box.y;
@@ -139,7 +168,7 @@ export function compareModel(input: CompareInput): CompareModel {
   const marginM = input.marginM ?? COMPARE_MARGIN_M;
   const aspect = input.aspect ?? 4 / 3;
   const t = makeSheetTransform(input.tile.corners, input.tile.widthPx, input.tile.heightPx);
-  const raw = frameFor(input.lot, input.tile, marginM, aspect);
+  const raw = input.include ? frameHolding(frameFor(input.lot, input.tile, marginM, aspect), input.include, t, aspect) : frameFor(input.lot, input.tile, marginM, aspect);
   const viewBox: ViewBox = { x: round1(raw.x), y: round1(raw.y), width: round1(raw.width), height: round1(raw.height) };
   const draw = (list: readonly WorldPolygon[]): string[] => list.filter((p) => meets(viewBox, p, t)).map((p) => ringsToPath(t, p));
   const area = input.tile.mapArea;

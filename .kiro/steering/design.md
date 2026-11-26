@@ -76,8 +76,8 @@ anywhere.
   plan, the lantern's own glow and focus on soot. Never body decoration, never a second button. The primary
   button also has a 1 px `--ink` border, because lantern on parchment is 1.6.
 - `--stamp` is used for the rubber stamp and nothing else, and only on parchment.
-- Selection and state are never colour alone: the tag is words, the selected plan switch is
-  `aria-pressed` with a heavier rule, the outline has a casing.
+- Selection and state are never colour alone: the tag is words, the selected layer in the compare view is a
+  checked radio with a heavier rule (session 055; it was `aria-pressed` buttons), the outline has a casing.
 - The Report theme keeps its near-monochrome tokens: `--report-paper` `#FBFAF7`, `--report-ink`
   `#1A1A18`, `--report-ink-soft` `#4D4C48`, `--report-rule` `#8E8D88`. No `--lantern`, `--water`,
   `--copper` or `--haze`; focus rings on paper use `--report-ink`.
