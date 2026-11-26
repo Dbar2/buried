@@ -756,13 +756,13 @@
     lc-rise 0.6s ease-out backwards,
     lc-nudge 0.14s 1.12s ease-out;
   background: url('/lotcheck/art/paper.webp') center / 100% 100% no-repeat;
-  padding: 7% 8% 7%;
+  padding: 5.5% 8% 6%;
   position: relative;
 }
 
 .lc-record .lc-sentence {
-  font-size: 1.25rem;
-  margin-top: var(--space-3);
+  font-size: 1rem;
+  margin-top: var(--space-2);
   text-align: center;
 }
 
@@ -796,8 +796,8 @@
 /* The inscription is set like a grave marker: a thin rule, a second rule within it, corner ornaments, centred. */
 .lc-inscription {
   border: 1px solid var(--ink);
-  margin-top: 34px;
-  padding: 22px 28px 20px;
+  margin-top: 52px;
+  padding: 14px 24px 12px;
   position: relative;
   text-align: center;
 }
@@ -848,10 +848,10 @@
 
 .lc-ins-name {
   font-family: var(--font-heading);
-  font-size: 2.4rem;
+  font-size: 2rem;
   font-style: italic;
   line-height: 1.15;
-  margin: 6px 0;
+  margin: 2px 0 4px;
 }
 
 .lc-ins-foot {
@@ -877,20 +877,22 @@
 .lc-stamp {
   animation: lc-stamp-in 0.32s 1s cubic-bezier(0.2, 1.55, 0.4, 1) backwards;
   background: none;
-  border: 3px double var(--stamp);
+  border: 5px double var(--stamp);
   border-radius: 0;
   color: var(--stamp);
   filter: url('#lc-stamp-rough');
-  font-size: 0.875rem;
+  font-size: 1.1875rem;
+  font-weight: 700;
   letter-spacing: 0.1em;
   line-height: 1.25;
   margin: 0;
-  max-width: 210px;
-  padding: 4px 10px;
+  max-width: 284px;
+  opacity: 0.9;
+  padding: 5px 14px;
   position: absolute;
   right: 5%;
   text-align: center;
-  top: 3.5%;
+  top: 2%;
   transform: rotate(-6deg);
   z-index: 2;
 }
@@ -1195,14 +1197,14 @@
   }
 
   .lc-stamp {
-    font-size: 0.75rem;
-    max-width: 150px;
+    font-size: 1rem;
+    max-width: 200px;
     right: 3%;
     top: 1.5%;
   }
 
   .lc-inscription {
-    margin-top: 40px;
+    margin-top: 64px;
     padding: 16px 12px 14px;
   }
 

@@ -192,6 +192,25 @@ test.describe('the reveal', () => {
     for (let i = 1; i < timing.rows.length; i++) expect(timing.rows[i]).toBeGreaterThan(timing.rows[i - 1] as number);
   });
 
+  test('at 1440 by 900 at least the top third of the compare map is on screen without scrolling, and the stamp reads', async ({ page }) => {
+    await page.goto('/lot/5451729');
+    await expect(page.getByTestId('lc-frame')).toHaveAttribute('data-ready', 'true');
+    await finite(page);
+    const box = await page.getByTestId('lc-frame').boundingBox();
+    expect(box).not.toBeNull();
+    const b = box as { y: number; height: number };
+    expect(b.y + b.height / 3, 'the top third of the map ends inside the window').toBeLessThanOrEqual(900);
+    const stamp = await page.getByTestId('lc-tag').evaluate((el) => {
+      const s = getComputedStyle(el);
+      return { opacity: Number(s.opacity), size: parseFloat(s.fontSize), border: parseFloat(s.borderTopWidth) };
+    });
+    expect(stamp.opacity).toBeGreaterThanOrEqual(0.85);
+    expect(stamp.size).toBeGreaterThanOrEqual(18);
+    expect(stamp.border).toBeGreaterThanOrEqual(5);
+    const sentence = await page.getByTestId('lc-sentence').first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+    expect(sentence).toBeLessThanOrEqual(16);
+  });
+
   test('"Dig another address" goes back to the Landing with the field focused', async ({ page }) => {
     await page.goto('/lot/5451729');
     await page.getByTestId('lc-another').click();
