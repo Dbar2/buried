@@ -20,7 +20,7 @@ describe('page titles', () => {
     expect(titleFor('studio')).toBe('Studio · Buried');
     expect(titleFor('sources')).toBe('Sources · Buried');
     expect(titleFor('explorer')).toBe('Explorer · Buried');
-    expect(titleFor('landing')).toBe('Buried: what was on this land?');
+    expect(titleFor('landing')).toBe('Buried: what is buried under your address?');
     expect(titleFor('lot')).toBe('Lot check · Buried');
     expect(titleFor('lot', '2A Percy St')).toBe('2A Percy St · Buried');
     expect(titleFor('how')).toBe('How it works · Buried');

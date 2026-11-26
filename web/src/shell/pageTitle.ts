@@ -12,8 +12,8 @@ export const BLOCK_TITLE = 'Buried: something used to stand here';
 export const BLOCK_DESCRIPTION = 'Raise the past over one Toronto block, then click any ghost to see the fire insurance plan that shows it and the lettering it was read from.';
 
 /** The title and the description of `/`, the lot check landing. A crawler reads them from `index.html`, which carries the same text. */
-export const LANDING_TITLE = 'Buried: what was on this land?';
-export const LANDING_DESCRIPTION = 'Before you buy, dig or plant, see what the old fire insurance plans recorded on your lot. A lot check for one block of Toronto.';
+export const LANDING_TITLE = 'Buried: what is buried under your address?';
+export const LANDING_DESCRIPTION = 'Type an address and dig down through old fire-insurance plans to see what stood on that land. A lot check for one block of Toronto, built with Kiro.';
 
 export type PageName = 'block' | 'landing' | 'lot' | 'how' | 'place' | 'report' | 'studio' | 'sources' | 'explorer';
 

@@ -43,16 +43,16 @@ test('each route sets its title and description; the static page carries the Ope
   const lot = lotWithTheBuilding();
 
   await page.goto('/');
-  await expect(page).toHaveTitle('Buried: what was on this land?');
+  await expect(page).toHaveTitle('Buried: what is buried under your address?');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('What is buried under your address?');
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', 'https://buried.pages.dev/social-card.png');
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /^Before you buy, dig or plant\b/);
-  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Buried: what was on this land?');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /^Type an address and dig down through old fire-insurance plans\b/);
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Buried: what is buried under your address?');
 
   // /place without a lot is the landing; /block and a find's path open the Block page as first requests.
   const search = await page.goto('/place');
   expect(search?.status()).toBe(200);
-  await expect(page).toHaveTitle('Buried: what was on this land?');
+  await expect(page).toHaveTitle('Buried: what is buried under your address?');
   const block = await page.goto('/block');
   expect(block?.status()).toBe(200);
   await expect(page.getByTestId('block-page')).toBeVisible();
