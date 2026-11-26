@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Buried demo: motion graphics</title>
+<style>
+@font-face { font-family: 'LB'; src: url('../node_modules/@fontsource/libre-baskerville/files/libre-baskerville-latin-400-normal.woff2') format('woff2'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'LB'; src: url('../node_modules/@fontsource/libre-baskerville/files/libre-baskerville-latin-400-italic.woff2') format('woff2'); font-weight: 400; font-style: italic; }
+@font-face { font-family: 'LB'; src: url('../node_modules/@fontsource/libre-baskerville/files/libre-baskerville-latin-600-normal.woff2') format('woff2'); font-weight: 600; font-style: normal; }
+@font-face { font-family: 'SS'; src: url('../node_modules/@fontsource/source-sans-3/files/source-sans-3-latin-400-normal.woff2') format('woff2'); font-weight: 400; }
+@font-face { font-family: 'SS'; src: url('../node_modules/@fontsource/source-sans-3/files/source-sans-3-latin-600-normal.woff2') format('woff2'); font-weight: 600; }
+@font-face { font-family: 'PM'; src: url('../node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2') format('woff2'); font-weight: 400; }
+:root { --soot: #121715; --haze: #1F2622; --parchment: #E8DCC1; --ink: #23221F; --copper: #6D8376; --lantern: #DCA34B; --stamp: #8E3B2E; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--soot); color: var(--parchment); font-family: 'SS', sans-serif; }
+#stage { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; }
+.abs { position: absolute; }
+.serif { font-family: 'LB', serif; }
+.mono { font-family: 'PM', monospace; }
+.kicker { font: 600 24px/1 'SS'; letter-spacing: .22em; text-transform: uppercase; color: var(--lantern); }
+.vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 45%, rgba(0,0,0,.62) 100%); pointer-events: none; }
+.fog { position: absolute; left: -400px; width: 2720px; height: 420px; bottom: -60px; background: radial-gradient(ellipse at 30% 100%, rgba(120,140,128,.20), rgba(0,0,0,0) 62%), radial-gradient(ellipse at 72% 100%, rgba(120,140,128,.16), rgba(0,0,0,0) 58%); filter: blur(12px); }
+/* Scene A */
+#A-world { position: absolute; left: 0; top: 0; width: 1920px; }
+#A-world img.strata { width: 1920px; display: block; }
+#A-dark { position: absolute; inset: 0; }
+.phrase { position: absolute; left: 0; width: 1920px; text-align: center; font-family: 'LB', serif; font-size: 84px; line-height: 1.15; color: var(--parchment); text-shadow: 0 4px 30px rgba(0,0,0,.95), 0 0 80px rgba(0,0,0,.9); }
+.paper { position: absolute; background: url('../../web/public/lotcheck/art/paper.webp') center / 100% 100% no-repeat; }
+.paper .plan { position: absolute; inset: 7.5% 7%; background: url('assets/plan.jpg') center / cover no-repeat; mix-blend-mode: multiply; }
+/* Scene G */
+.G-head { position: absolute; left: 120px; top: 150px; width: 820px; font-family: 'LB', serif; font-size: 66px; line-height: 1.14; }
+.G-sub { position: absolute; left: 120px; width: 800px; font: 400 34px/1.35 'SS'; color: #d9ceb4; }
+.card { position: absolute; background: var(--parchment); color: var(--ink); box-shadow: 0 30px 80px rgba(0,0,0,.55); }
+.card .tab { position: absolute; left: 0; top: -44px; height: 44px; padding: 0 20px; background: #cfc2a3; color: var(--ink); font: 400 21px/44px 'PM'; }
+.card .body { padding: 34px 38px; font: 400 25px/1.5 'PM'; white-space: pre-wrap; }
+.hl { background: rgba(220,163,75,.42); box-shadow: 0 0 0 4px rgba(220,163,75,.42); }
+.dir { position: absolute; left: 120px; width: 780px; height: 108px; border: 2px solid rgba(232,220,193,.5); padding: 0 30px; display: flex; align-items: center; gap: 26px; font-family: 'LB', serif; font-size: 36px; }
+.dir .n { font: 600 26px/1 'SS'; letter-spacing: .1em; color: var(--copper); width: 130px; }
+.dir .strike { position: absolute; left: 22px; top: 54px; height: 3px; background: var(--parchment); }
+.rail { position: absolute; left: 120px; top: 964px; width: 1680px; height: 60px; }
+.rail .line { position: absolute; left: 0; top: 14px; height: 2px; background: rgba(232,220,193,.35); }
+.node { position: absolute; top: 0; width: 280px; text-align: left; font: 600 21px/1 'SS'; letter-spacing: .14em; text-transform: uppercase; color: rgba(232,220,193,.55); padding-top: 34px; }
+.node::before { content: ''; position: absolute; left: 0; top: 4px; width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(232,220,193,.6); background: var(--soot); }
+.node.on { color: var(--lantern); }
+.node.on::before { background: var(--lantern); border-color: var(--lantern); box-shadow: 0 0 22px rgba(220,163,75,.8); }
+.stampbox { position: absolute; border: 6px double var(--stamp); color: var(--stamp); font: 600 30px/1.25 'SS'; letter-spacing: .14em; text-transform: uppercase; padding: 14px 24px; text-align: center; background: rgba(232,220,193,.06); }
+.chip { position: absolute; width: 400px; height: 170px; border: 2px solid rgba(232,220,193,.45); padding: 20px 24px; }
+.chip .nm { font: 400 34px/1 'LB'; margin-bottom: 14px; }
+.chip .may { font: 400 25px/1.35 'SS'; color: #cfe0d4; }
+.chip .not { font: 400 25px/1.35 'SS'; color: #e0b9a8; }
+.tool { position: absolute; left: 0; height: 58px; padding: 0 22px; border: 2px solid rgba(232,220,193,.45); font: 400 27px/54px 'PM'; }
+.count { position: absolute; top: 420px; width: 280px; text-align: center; }
+.count .v { font-family: 'LB', serif; font-size: 96px; line-height: 1; color: var(--parchment); }
+.count .l { margin-top: 18px; font: 600 22px/1.2 'SS'; letter-spacing: .16em; text-transform: uppercase; color: var(--lantern); }
+/* Scene H */
+.url { position: absolute; border: 2px solid var(--lantern); color: var(--lantern); font: 400 50px/1 'PM'; padding: 26px 44px; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+const C = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const E = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const R = (t, a, b) => E(C((t - a) / (b - a)));
+const Wn = (t, a, b, fi = 0.45, fo = 0.35) => Math.min(R(t, a, a + fi), 1 - R(t, b - fo, b));
+const lerp = (a, b, k) => a + (b - a) * k;
+const flick = (t) => 0.9 + 0.07 * Math.sin(t * 9.1) + 0.04 * Math.sin(t * 23.7 + 1.3);
+const stage = document.getElementById('stage');
+const el = (html) => { const d = document.createElement('div'); d.innerHTML = html.trim(); const n = d.firstChild; stage.appendChild(n); return n; };
+const S = (n, o) => Object.assign(n.style, o);
+const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const ART = '../../web/public/lotcheck/art/';
+const scene = new URLSearchParams(location.search).get('scene') || 'A';
+const D = window.DATA || {};
+let render = () => {};
+let duration = 1;
+
+function lanternEl(w) { return el(`<img class="abs" src="${ART}lantern.webp" style="width:${w}px">`); }
+function glowEl(size) { return el(`<div class="abs" style="width:${size}px;height:${size}px;border-radius:50%;background:radial-gradient(circle, rgba(220,163,75,.50) 0%, rgba(220,163,75,.20) 30%, rgba(220,163,75,0) 68%);mix-blend-mode:screen"></div>`); }
+
+/* ---------------------------------------------------------------- Scene A: the question */
+function sceneA() {
+  duration = 13.2;
+  const world = el(`<div id="A-world"><img class="strata" src="${ART}strata.webp"><img class="abs" src="${ART}skyline.webp" style="left:0;top:-250px;width:1920px;opacity:.8"></div>`);
+  const dark = el(`<div id="A-dark"></div>`);
+  const rope = el(`<div class="abs" style="left:1498px;top:0;width:3px;background:repeating-linear-gradient(#b9a67a 0 6px,#6f6146 6px 12px)"></div>`);
+  const glow = glowEl(900);
+  const lan = lanternEl(150);
+  const P = [
+    ['You’re about to buy a house.', 1.15, 3.05],
+    ['Or dig a garden.', 3.2, 4.3],
+    ['On land far older than<br>anything standing on it.', 4.42, 7.65],
+    ['<i>What was there first?</i>', 7.8, 9.25],
+    ['Nobody tells you.', 9.38, 10.42],
+  ].map(([h, a, b]) => ({ n: el(`<div class="phrase" style="top:430px">${h}</div>`), a, b }));
+  const last = el(`<div class="phrase" style="top:96px">But somebody wrote it down.</div>`);
+  const paper = el(`<div class="paper" style="left:480px;width:960px;height:640px"><div class="plan"></div></div>`);
+  const pglow = glowEl(1300);
+  const fog = el(`<div class="fog"></div>`);
+  const vig = el(`<div class="vignette"></div>`);
+  render = (t) => {
+    const pan = R(t, 4.1, 10.2);
+    const y = lerp(0, -1330, pan);
+    S(world, { transform: `translateY(${y}px)`, opacity: String(lerp(1, 0.22, R(t, 10.2, 11.2)) * R(t, 0, 1.0)) });
+    const down = R(t, 3.7, 5.2);
+    const ly = lerp(-220, 270, down) + 6 * Math.sin(t * 1.7);
+    const lx = 1650 + 8 * Math.sin(t * 1.1);
+    const out = 1 - R(t, 10.0, 10.9);
+    S(lan, { left: lx + 'px', top: ly + 'px', opacity: String(out), transform: `rotate(${1.5 * Math.sin(t * 1.1)}deg)` });
+    S(rope, { left: (lx + 74) + 'px', height: Math.max(0, ly + 14) + 'px', opacity: String(out) });
+    const f = flick(t);
+    S(glow, { left: (lx + 75 - 450) + 'px', top: (ly + 190 - 450) + 'px', opacity: String(down * out * f) });
+    const cx = lx + 75, cy = ly + 190;
+    const base = lerp(0.50, 0.80, pan);
+    S(dark, { background: `radial-gradient(circle at ${cx}px ${cy}px, rgba(10,13,12,${(base * (1 - 0.75 * down * out)).toFixed(3)}) 0px, rgba(10,13,12,${base.toFixed(3)}) ${lerp(300, 620, down)}px)` });
+    for (const p of P) S(p.n, { opacity: String(Wn(t, p.a, p.b)), transform: `translateY(${lerp(18, 0, R(t, p.a, p.a + 0.7))}px)` });
+    const rise = R(t, 10.25, 11.7);
+    S(paper, { top: lerp(1120, 300, rise) + 'px', transform: `rotate(${lerp(-3, -1.2, rise)}deg)` });
+    S(pglow, { left: (960 - 650) + 'px', top: (lerp(1120, 300, rise) + 300 - 650) + 'px', opacity: String(rise * 0.75 * f) });
+    S(last, { opacity: String(R(t, 10.45, 11.2)) });
+    S(fog, { transform: `translateX(${-80 + t * 9}px)`, opacity: '0.9' });
+    S(stage, { opacity: String(1 - R(t, duration - 0.35, duration)) });
+  };
+}
+
+/* ---------------------------------------------------------------- Scene G: built with Kiro */
+function sceneG() {
+  duration = 51.8;
+  const o = 1.0; // narration offset inside the scene
+  const T = { g1: 0 + o, g2: 5.14 + o, g3: 8.36 + o, g4: 12.1 + o, g5: 16.48 + o, g5b: 19.2 + o, g6: 23.8 + o, g6b: 27.38 + o, g7: 31.16 + o, g8: 33.48 + o, g9: 37.6 + o, g9b: 39.34 + o, g10: 43.38 + o, end: 47.55 + o };
+  el(`<div class="abs" style="inset:0;background:radial-gradient(ellipse at 14% 8%, rgba(220,163,75,.13), rgba(0,0,0,0) 46%), linear-gradient(#121715,#171d1a)"></div>`);
+  const fog = el(`<div class="fog"></div>`);
+  const lan = lanternEl(120); S(lan, { left: '1740px', top: '34px' });
+  const lglow = glowEl(620); S(lglow, { left: (1800 - 310) + 'px', top: (170 - 310) + 'px' });
+  const kick = el(`<div class="abs kicker" style="left:120px;top:92px">Built with Kiro</div>`);
+  const heads = {}; const subs = {};
+  const head = (k, html) => (heads[k] = el(`<div class="G-head">${html}</div>`));
+  const sub = (k, html, top) => (subs[k] = el(`<div class="G-sub" style="top:${top}px">${html}</div>`));
+  head('g1', 'Three directions<br>in two weeks.');
+  head('g2', 'What kept that affordable:<br>the way we worked.');
+  head('g3', 'Steering first.'); sub('g3', 'Honesty rules that every session reads.', 250);
+  head('g4', 'Then a short spec.'); sub('g4', 'Requirements. Properties. Tasks.', 250);
+  head('g5', 'Properties<br>before pages.'); sub('g5', '“The stamp never appears without the lettering that triggered it.”', 330);
+  head('g6', 'Hooks guard<br>the rules.'); sub('g6', 'Validation on every save.<br>A block on any write that touches the held-out plate.', 330);
+  head('g7', 'Six agents,<br>narrow permissions.');
+  head('g8', 'Our own MCP server.'); sub('g8', 'So agents can question the evidence.', 250);
+  head('g9', 'And Kiro surprised us.'); sub('g9', 'It rejected a colour pairing we asked for, because it failed contrast.', 250);
+  head('g10', 'It flagged a label that would have claimed too much.');
+  // g1: three directions
+  const dirs = [['Spec 06', 'A raised 3D block'], ['Spec 07', 'A street you could walk'], ['Spec 08', 'The lot check']].map(([n, tx], i) => el(`<div class="dir" style="top:${420 + i * 132}px"><span class="n">${n}</span><span>${tx}</span><div class="strike"></div></div>`));
+  const sess = el(`<div class="abs" style="left:1040px;top:430px;width:700px"><div class="serif" style="font-size:150px;line-height:1">56</div><div class="kicker" style="margin-top:18px;color:#d9ceb4">logged Kiro sessions</div><div style="margin-top:26px;font:400 30px/1.4 'SS';color:#d9ceb4">Every brief and every builder’s notes are in the repository.</div></div>`);
+  // rail
+  const rail = el(`<div class="rail"><div class="line"></div></div>`);
+  const names = ['Steering', 'Spec', 'Properties', 'Hooks', 'Agents', 'MCP'];
+  const nodes = names.map((nm, i) => { const n = document.createElement('div'); n.className = 'node'; n.textContent = nm; n.style.left = (i * 280) + 'px'; rail.appendChild(n); return n; });
+  const railLine = rail.querySelector('.line');
+  // cards
+  const card = (file, body, x, y, w) => el(`<div class="card" style="left:${x}px;top:${y}px;width:${w}px"><div class="tab">${file}</div><div class="body">${body}</div></div>`);
+  const steer = card('.kiro/steering/product.md', D.steering || '', 980, 250, 820);
+  const req = card('08-lot-check/requirements.md', D.req || '', 980, 220, 820);
+  const des = card('08-lot-check/design.md', D.design || '', 1010, 478, 800);
+  const tasks = card('08-lot-check/tasks.md', D.tasks || '', 1040, 716, 760);
+  // g5 visual
+  const g5 = el(`<div class="abs" style="left:980px;top:250px;width:820px;height:640px"></div>`);
+  g5.innerHTML = `<div class="abs" style="left:0;top:0;width:820px;height:300px;background:url('${ART}paper.webp') center/100% 100% no-repeat"></div>
+    <div class="stampbox" style="left:150px;top:90px;transform:rotate(-5deg)">Past industrial use<br>recorded</div>
+    <div class="abs" id="g5line" style="left:408px;top:300px;width:4px;background:var(--lantern)"></div>
+    <div class="abs" id="g5crop" style="left:52px;top:400px;width:714px;height:240px;background:#fff url('assets/lettering.jpg') center/cover;border:3px solid var(--lantern)"></div>
+    <div class="abs kicker" id="g5cap" style="left:52px;top:660px;color:#d9ceb4">the lettering it was read from</div>`;
+  const tests = el(`<div class="abs" style="left:120px;top:560px"><span class="serif" id="tcount" style="font-size:120px;line-height:1">0</span><div class="kicker" style="margin-top:14px">tests passing</div></div>`);
+  // g6 visual
+  const hooks = el(`<div class="abs" style="left:980px;top:230px;width:820px"></div>`);
+  hooks.innerHTML = (D.hooks || []).map((h, i) => `<div class="tool" data-i="${i}" style="top:${i * 70}px;width:420px">${h}</div>`).join('') +
+    `<div class="abs" id="hk-write" style="left:470px;top:206px;width:350px;font:400 26px/1.3 'PM';color:#d9ceb4">write → extraction params<br>mentions <span style="color:var(--lantern)">plate 232</span></div>
+     <div class="abs" id="hk-x" style="left:470px;top:330px;font:600 40px/1 'SS';letter-spacing:.08em;color:#e0806a">REFUSED · exit 2</div>`;
+  const hookcard = card('.kiro/hooks/held-out.json', D.hookdesc || '', 980, 790, 820);
+  // g7 chips
+  const agents = [['architect', 'writes steering and specs', 'cannot run commands'], ['builder', 'writes code, runs tests', 'cannot push or delete'], ['coder', 'writes files', 'cannot run commands'], ['mechanic', 'edits documents', 'cannot run commands'], ['archivist', 'reads through MCP', 'cannot write data'], ['plate-qa', 'reads through MCP', 'cannot publish']];
+  const chips = agents.map(([n, a, b], i) => el(`<div class="chip" style="left:${980 + (i % 2) * 420}px;top:${250 + Math.floor(i / 2) * 196}px"><div class="nm">${n}</div><div class="may">may: ${a}</div><div class="not">may not: ${b.replace('cannot ', '')}</div></div>`));
+  // g8 mcp
+  const mcp = el(`<div class="abs" style="left:980px;top:250px;width:820px"><div class="serif" style="font-size:54px">buried-evidence</div><div class="kicker" style="margin:14px 0 30px;color:#d9ceb4">read-only · local · over the committed files</div></div>`);
+  const tools = (D.tools || []).map((tname, i) => { const n = document.createElement('div'); n.className = 'tool'; n.textContent = tname + '()'; n.style.top = (150 + i * 74) + 'px'; mcp.appendChild(n); return n; });
+  // g9 contrast
+  const g9 = el(`<div class="abs" style="left:980px;top:250px;width:820px;height:600px"></div>`);
+  g9.innerHTML = `<div class="abs" style="left:0;top:0;width:820px;height:250px;background:var(--parchment)"></div>
+    <svg class="abs" style="left:0;top:0" width="820" height="250"><path d="M60 190 L250 60 L520 110 L760 50" fill="none" stroke="#DCA34B" stroke-width="7"/></svg>
+    <div class="abs mono" style="left:30px;top:262px;font-size:30px;color:#e0806a" id="g9bad">lantern on parchment · 1.6 : 1 · fails</div>
+    <div class="abs" id="g9b" style="left:0;top:340px;width:820px;height:250px;background:var(--parchment)">
+      <svg width="820" height="250"><path d="M60 190 L250 60 L520 110 L760 50" fill="none" stroke="#23221F" stroke-width="13"/><path d="M60 190 L250 60 L520 110 L760 50" fill="none" stroke="#DCA34B" stroke-width="7"/></svg></div>
+    <div class="abs mono" style="left:30px;top:602px;font-size:30px;color:#cfe0d4" id="g9ok">lantern in an ink casing · the fix it specified</div>`;
+  // g10 label
+  const g10 = el(`<div class="abs" style="left:980px;top:300px;width:820px"></div>`);
+  g10.innerHTML = `<div class="stampbox" style="position:relative;display:inline-block;color:var(--parchment);border-color:var(--parchment)">No industrial use lettered<br>on these plans</div>
+    <div class="mono" style="margin-top:44px;font-size:28px;line-height:1.5;color:#d9ceb4">builder, session 051:<br>“would claim a little more than the review attests”</div>
+    <div class="serif" style="margin-top:44px;font-size:44px">It appears on <span style="color:var(--lantern)">0 of 168</span> lots.</div>`;
+  // end counters
+  const counts = [['8', 'specs'], ['7', 'hooks'], ['6', 'agents'], ['1', 'MCP server'], ['56', 'sessions'], ['1,258', 'tests']].map(([v, l], i) => el(`<div class="count" style="left:${120 + i * 280}px"><div class="v">${v}</div><div class="l">${l}</div></div>`));
+  const vig = el(`<div class="vignette"></div>`);
+  const order = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9', 'g10'];
+  const span = (k) => { const i = order.indexOf(k); return [T[k], i + 1 < order.length ? T[order[i + 1]] : T.end]; };
+  const show = (n, t, a, b, dy = 16) => { const w = Wn(t, a, b, 0.4, 0.3); S(n, { opacity: String(w), transform: `translateY(${lerp(dy, 0, R(t, a, a + 0.6))}px)`, visibility: w < 0.004 ? 'hidden' : 'visible' }); return w; };
+  render = (t) => {
+    const f = flick(t);
+    S(lglow, { opacity: String(0.8 * f) });
+    S(fog, { transform: `translateX(${-120 + t * 6}px)`, opacity: '0.7' });
+    S(kick, { opacity: String(R(t, 0.2, 0.9) * (1 - R(t, T.end, T.end + 0.4)) + R(t, T.end + 0.3, T.end + 0.8)) });
+    for (const k of order) { const [a, b] = span(k); show(heads[k], t, a - 0.15, b - 0.05); if (subs[k]) show(subs[k], t, (k === 'g5' ? T.g5b : k === 'g9' ? T.g9b : a + 0.9) - 0.1, b - 0.05); }
+    // g1
+    dirs.forEach((d, i) => { const a = T.g1 + 0.7 + i * 0.75; const w = show(d, t, a, T.g2 - 0.05, 22); const st = d.querySelector('.strike'); const k = i < 2 ? R(t, T.g1 + 3.1 + i * 0.35, T.g1 + 3.6 + i * 0.35) : 0; S(st, { width: (736 * k) + 'px' }); S(d, { borderColor: i === 2 && t > T.g1 + 3.9 ? 'var(--lantern)' : 'rgba(232,220,193,.5)', color: i < 2 && k > 0.5 ? 'rgba(232,220,193,.45)' : 'var(--parchment)', boxShadow: i === 2 && t > T.g1 + 3.9 ? '0 0 40px rgba(220,163,75,.35)' : 'none' }); });
+    show(sess, t, T.g1 + 1.6, T.g2 - 0.05);
+    // rail
+    const railIn = R(t, T.g2 + 0.3, T.g2 + 1.3);
+    S(rail, { opacity: String(railIn * (1 - R(t, T.end, T.end + 0.4))), top: lerp(560, 964, R(t, T.g3 - 0.5, T.g3 + 0.3)) + 'px' });
+    S(railLine, { width: (1420 * R(t, T.g2 + 0.4, T.g2 + 2.2)) + 'px' });
+    const onAt = [T.g3, T.g4, T.g5, T.g6, T.g7, T.g8];
+    nodes.forEach((n, i) => { n.className = 'node' + (t >= onAt[i] - 0.1 ? ' on' : ''); S(n, { opacity: String(R(t, T.g2 + 0.5 + i * 0.28, T.g2 + 1.0 + i * 0.28)) }); });
+    // g3
+    show(steer, t, T.g3 + 0.5, T.g4 - 0.05, 30);
+    // g4
+    show(req, t, T.g4 + 0.4, T.g5 - 0.05, 30); show(des, t, T.g4 + 1.2, T.g5 - 0.05, 30); show(tasks, t, T.g4 + 2.0, T.g5 - 0.05, 30);
+    // g5
+    const w5 = show(g5, t, T.g5 + 0.5, T.g6 - 0.05, 30);
+    const link = R(t, T.g5b + 1.2, T.g5b + 2.4);
+    S(g5.querySelector('#g5line'), { height: (100 * link) + 'px' }); S(g5.querySelector('#g5crop'), { opacity: String(R(t, T.g5b + 1.9, T.g5b + 2.7)) }); S(g5.querySelector('#g5cap'), { opacity: String(R(t, T.g5b + 2.3, T.g5b + 3.0)) });
+    show(tests, t, T.g5 + 0.9, T.g6 - 0.05);
+    document.getElementById('tcount').textContent = Math.round(1258 * R(t, T.g5 + 1.0, T.g5 + 3.4)).toLocaleString('en-US');
+    // g6
+    const w6 = show(hooks, t, T.g6 + 0.4, T.g7 - 0.05, 30);
+    hooks.querySelectorAll('.tool').forEach((n) => { const i = +n.dataset.i; S(n, { opacity: String(R(t, T.g6 + 0.5 + i * 0.12, T.g6 + 0.9 + i * 0.12)), borderColor: (D.hooks || [])[i] === 'held-out.json' && t > T.g6b ? 'var(--lantern)' : 'rgba(232,220,193,.45)', color: (D.hooks || [])[i] === 'held-out.json' && t > T.g6b ? 'var(--lantern)' : 'var(--parchment)' }); });
+    S(hooks.querySelector('#hk-write'), { opacity: String(R(t, T.g6b + 0.3, T.g6b + 0.9)), transform: `translateX(${lerp(60, 0, R(t, T.g6b + 0.3, T.g6b + 1.0))}px)` });
+    const hit = R(t, T.g6b + 1.5, T.g6b + 1.8);
+    S(hooks.querySelector('#hk-x'), { opacity: String(hit), transform: `scale(${lerp(1.5, 1, hit)}) rotate(-3deg)` });
+    show(hookcard, t, T.g6b + 0.2, T.g7 - 0.05, 30);
+    // g7
+    chips.forEach((c, i) => show(c, t, T.g7 + 0.3 + i * 0.12, T.g8 - 0.05, 20));
+    // g8
+    show(mcp, t, T.g8 + 0.3, T.g9 - 0.05, 30);
+    tools.forEach((n, i) => S(n, { opacity: String(R(t, T.g8 + 0.9 + i * 0.22, T.g8 + 1.3 + i * 0.22)), transform: `translateX(${lerp(30, 0, R(t, T.g8 + 0.9 + i * 0.22, T.g8 + 1.5 + i * 0.22))}px)` }));
+    // g9
+    show(g9, t, T.g9b - 0.3, T.g10 - 0.05, 30);
+    S(g9.querySelector('#g9bad'), { opacity: String(R(t, T.g9b + 0.6, T.g9b + 1.1)) });
+    S(g9.querySelector('#g9b'), { opacity: String(R(t, T.g9b + 2.2, T.g9b + 2.9)) }); S(g9.querySelector('#g9ok'), { opacity: String(R(t, T.g9b + 2.6, T.g9b + 3.2)) });
+    // g10
+    show(g10, t, T.g10 + 0.9, T.end, 30);
+    // end
+    counts.forEach((c, i) => S(c, { opacity: String(R(t, T.end + 0.25 + i * 0.1, T.end + 0.7 + i * 0.1)), transform: `translateY(${lerp(24, 0, R(t, T.end + 0.25 + i * 0.1, T.end + 0.9 + i * 0.1))}px)` }));
+    S(stage, { opacity: String(R(t, 0, 0.4) * (1 - R(t, duration - 0.35, duration))) });
+  };
+}
+
+/* ---------------------------------------------------------------- Scene H: end card */
+function sceneH() {
+  duration = 10.6;
+  el(`<div class="abs" style="inset:0;background:linear-gradient(#0f1412,#151b18)"></div>`);
+  const sky = el(`<img class="abs" src="${ART}skyline.webp" style="left:0;top:560px;width:1920px;opacity:.5">`);
+  el(`<div class="abs" style="left:0;top:1196px;width:1920px;height:0"></div>`);
+  const ground = el(`<div class="abs" style="left:0;top:1070px;width:1920px;height:10px;background:#0c100e"></div>`);
+  const glow = glowEl(1100); const lan = lanternEl(190); S(lan, { left: '865px', top: '46px' }); S(glow, { left: (960 - 550) + 'px', top: (270 - 550) + 'px' });
+  const word = el(`<div class="abs serif" style="left:0;top:470px;width:1920px;text-align:center;font-size:150px;line-height:1;letter-spacing:.01em">Buried</div>`);
+  const tag = el(`<div class="abs serif" style="left:0;top:650px;width:1920px;text-align:center;font-size:46px;font-style:italic;color:#d9ceb4">Forgotten maps, rebuilt with proof.</div>`);
+  const url = el(`<div class="url" style="left:960px;top:760px;transform:translateX(-50%)">buried.pages.dev</div>`);
+  const kiro = el(`<div class="abs kicker" style="left:0;top:896px;width:1920px;text-align:center">Built with Kiro · Kiroween 2026</div>`);
+  const cred = el(`<div class="abs" style="left:160px;top:968px;width:1600px;text-align:center;font:400 21px/1.5 'SS';color:rgba(232,220,193,.62)">Plans: University of Toronto Map &amp; Data Library; Library and Archives Canada. Aerial photographs and present-day layers: City of Toronto, Open Government Licence – Toronto.<br>Illustrations and imagined views made with an image model. Narration and music made with ElevenLabs.</div>`);
+  const fog = el(`<div class="fog"></div>`);
+  const vig = el(`<div class="vignette"></div>`);
+  render = (t) => {
+    const f = flick(t);
+    S(glow, { opacity: String(R(t, 0, 1.0) * f) }); S(lan, { opacity: String(R(t, 0, 0.8)), transform: `rotate(${1.2 * Math.sin(t * 1.2)}deg)` });
+    S(word, { opacity: String(R(t, 0.3, 1.3)), transform: `translateY(${lerp(20, 0, R(t, 0.3, 1.4))}px)` });
+    S(tag, { opacity: String(R(t, 1.5, 2.5)) });
+    S(url, { opacity: String(R(t, 4.3, 5.0)), boxShadow: `0 0 ${40 * R(t, 4.6, 5.4)}px rgba(220,163,75,.45)` });
+    S(kiro, { opacity: String(R(t, 5.2, 6.0)) }); S(cred, { opacity: String(R(t, 5.8, 6.8)) });
+    S(fog, { transform: `translateX(${-100 + t * 8}px)` });
+    S(stage, { opacity: String(R(t, 0, 0.4) * (1 - R(t, duration - 0.5, duration))) });
+  };
+}
+
+({ A: sceneA, G: sceneG, H: sceneH })[scene]();
+window.duration = duration;
+window.renderAt = (t) => render(t);
+render(0);
+</script>
+</body>
+</html>

@@ -1,5 +1,7 @@
 # Demo script (target 2:45, limit 3:00)
 
+> This was the plan before recording. The video as made (2:25) follows `video/README.md`, which has the final narration and scene list. It drops the phone shot and the random dig, and shows the Kiro proofs as motion graphics drawn from the same files.
+
 For the lot check, recorded on the live site, `https://buried.pages.dev`, except the Kiro proofs in the editor and terminal. Anything the files do not settle is marked "(to confirm)"; check each on the first dry run. Facts are from sessions 050 to 055 and `.kiro/specs/08-lot-check/`.
 
 ## Before recording
