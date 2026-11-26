@@ -200,6 +200,45 @@ test.describe('the reveal', () => {
     await expect(page.getByTestId('lc-suggest-head')).toHaveText('Try one of these');
   });
 
+  test('choosing by keyboard never skips the dig (suggestion plus Enter)', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('lc-fact')).toBeVisible();
+    await page.getByTestId('lc-address').fill('2a p');
+    await expect(page.getByTestId('lc-option').first()).toHaveText(/2A Percy St/);
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
+    await expect(page.getByTestId('dig')).toBeVisible();
+    // The key that chose the address is long gone; the dig is still playing and the Result has not opened.
+    await page.waitForTimeout(1500);
+    await expect(page.getByTestId('dig')).toBeVisible();
+    await expect(page).not.toHaveURL(/\/lot\//);
+    await page.waitForURL(/\/lot\/\d+$/, { timeout: 9000 });
+    await expect(page.getByTestId('lc-tag')).toBeVisible();
+  });
+
+  test('choosing by keyboard never skips the dig (typed address plus Enter on the form)', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('lc-fact')).toBeVisible();
+    await page.getByTestId('lc-address').fill('2A Percy St');
+    await page.keyboard.press('Enter');
+    await expect(page.getByTestId('dig')).toBeVisible();
+    await page.waitForTimeout(1500);
+    await expect(page.getByTestId('dig')).toBeVisible();
+    await expect(page).not.toHaveURL(/\/lot\//);
+    await page.waitForURL(/\/lot\/5451729$/, { timeout: 9000 });
+  });
+
+  test('a fresh Enter after 600 ms does skip the dig', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('lc-fact')).toBeVisible();
+    await page.getByTestId('lc-address').fill('2A Percy St');
+    await page.keyboard.press('Enter');
+    await expect(page.getByTestId('dig')).toBeVisible();
+    await page.waitForTimeout(800);
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/lot\/5451729$/);
+  });
+
   test('a lot outside the coverage reads NOT DUG YET, with the spade and the coverage line', async ({ page }) => {
     await page.goto('/lot/no_such_lot');
     await expect(page.getByTestId('lc-ins-lead')).toHaveText('NOT DUG YET');

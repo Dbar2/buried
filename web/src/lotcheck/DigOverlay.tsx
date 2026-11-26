@@ -22,6 +22,16 @@ const RULER_TOP = 0.2;
 const RULER_BOTTOM = 0.74;
 const LANTERN_FLAME = 0.55;
 
+/** A skip key counts only from a fresh press at least this long after the dig begins (the key that began it never skips it). */
+export const SKIP_KEY_DELAY_MS = 600;
+
+/** Whether this key press skips the dig. Pure, so it can be tested. */
+export function skipKeyCounts(event: { key: string; repeat: boolean }, startedAt: number, now: number): boolean {
+  if (event.key !== 'Escape' && event.key !== 'Enter') return false;
+  if (event.repeat) return false;
+  return now - startedAt >= SKIP_KEY_DELAY_MS;
+}
+
 /**
  * A test hook: `window.__buriedDigHold = <mark index>` freezes the clock inside that mark's pause, with its slip showing,
  * so a test can read the screen without a sleep. Unset, the dig runs as it does for a visitor.
@@ -85,10 +95,12 @@ export function DigOverlay({ build, onFinish, art }: DigOverlayProps) {
     root.current?.focus({ preventScroll: true });
   }, []);
 
-  // Skip: the button, Escape and Enter.
+  // Skip: the button, Escape and Enter. The Enter that chose the address is still travelling up to the window when this
+  // listener is added, so a key counts only if it is a fresh press (not a repeat) at least SKIP_KEY_DELAY_MS after the start.
   useEffect(() => {
+    const startedAt = performance.now();
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' || event.key === 'Enter') {
+      if (skipKeyCounts(event, startedAt, performance.now())) {
         event.preventDefault();
         finish();
       }

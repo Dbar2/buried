@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { findBannedWords } from '../evidence';
-import { DigOverlay } from './DigOverlay';
+import { DigOverlay, skipKeyCounts } from './DigOverlay';
 
 const art = { lantern: '/l.webp', strata: '/s.webp', skyline: '/k.webp' };
 
@@ -25,5 +25,22 @@ describe('DigOverlay before the lamp is lit (markup; the sequence is tested in t
 
   it('has no banned word', () => {
     expect(findBannedWords(text)).toEqual([]);
+  });
+});
+
+describe('skipKeyCounts (the Enter that chose the address must not skip the dig)', () => {
+  const press = (key: string, repeat = false) => ({ key, repeat });
+  it('ignores any key in the first 600 ms', () => {
+    expect(skipKeyCounts(press('Enter'), 1000, 1000)).toBe(false);
+    expect(skipKeyCounts(press('Enter'), 1000, 1599)).toBe(false);
+    expect(skipKeyCounts(press('Escape'), 1000, 1200)).toBe(false);
+  });
+  it('counts a fresh Enter or Escape from 600 ms on', () => {
+    expect(skipKeyCounts(press('Enter'), 1000, 1600)).toBe(true);
+    expect(skipKeyCounts(press('Escape'), 1000, 3000)).toBe(true);
+  });
+  it('never counts a held key (repeat) or another key', () => {
+    expect(skipKeyCounts(press('Enter', true), 1000, 3000)).toBe(false);
+    expect(skipKeyCounts(press('a'), 1000, 3000)).toBe(false);
   });
 });
