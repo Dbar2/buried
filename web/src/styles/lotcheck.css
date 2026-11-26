@@ -526,6 +526,7 @@
   aspect-ratio: 4 / 3;
   background: var(--parchment);
   border: 1px solid var(--ink);
+  isolation: isolate;
   overflow: hidden;
   position: relative;
   touch-action: pan-y;
@@ -543,6 +544,11 @@
 
 .lc-layer-today {
   background: var(--parchment);
+}
+
+/* The scan lies on the paper: white becomes the paper, the ink stays ink. The scan's pixels are not changed. */
+.lc-layer-plan image {
+  mix-blend-mode: multiply;
 }
 
 .lc-today-building {

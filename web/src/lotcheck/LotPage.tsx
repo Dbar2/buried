@@ -184,7 +184,7 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
                 The plan and today
               </h2>
               <CompareView plans={plans} lot={lot} buildings={buildings} lots={lotLines} stood={stood} intro loadPlan={afterPaint} aspect={phone ? 1 : 4 / 3} />
-              <p className="lc-compare-note">The plan is the untouched scan. The outline marks this lot on both sides.</p>
+              <p className="lc-compare-note">The plan is the scan as digitized, laid on paper.</p>
             </section>
           </div>
           <section className="lc-provenance" aria-label={copy.SECTION.provenance} data-testid="lc-provenance">

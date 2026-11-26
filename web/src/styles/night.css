@@ -200,7 +200,12 @@
 
 .lc-paper {
   background: url('/lotcheck/art/paper.webp') center / 100% 100% no-repeat;
+  isolation: isolate;
   padding: 8% 10% 8%;
+}
+
+.lc-plan-svg image {
+  mix-blend-mode: multiply;
 }
 
 .lc-plan-box {
