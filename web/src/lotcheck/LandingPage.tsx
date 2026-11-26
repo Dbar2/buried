@@ -247,6 +247,9 @@ export function LandingPage() {
         <figcaption className="lc-map-caption" data-testid="lc-caption">
           {caption}
         </figcaption>
+        <p className="lc-map-shows" data-testid="lc-shows">
+          {copy.PICTURES.landing}
+        </p>
       </figure>
       {idle ? <img className="lc-spade" src={ART.spade} alt="" width={400} height={800} decoding="async" /> : null}
       <p className="lc-coverage" data-testid="lc-coverage">
