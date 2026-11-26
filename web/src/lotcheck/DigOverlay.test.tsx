@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { findBannedWords } from '../evidence';
-import { DigOverlay, skipKeyCounts } from './DigOverlay';
+import { DigOverlay, holdFrom, skipKeyCounts } from './DigOverlay';
 
 const art = { lantern: '/l.webp', strata: '/s.webp', skyline: '/k.webp' };
 
@@ -25,6 +25,18 @@ describe('DigOverlay before the lamp is lit (markup; the sequence is tested in t
 
   it('has no banned word', () => {
     expect(findBannedWords(text)).toEqual([]);
+  });
+});
+
+describe('holdFrom (the test hook does nothing for a real visitor)', () => {
+  it('is honoured only when navigator.webdriver is true', () => {
+    expect(holdFrom(1, true)).toBe(1);
+    expect(holdFrom(0, true)).toBe(0);
+    expect(holdFrom(1, false)).toBeNull();
+    expect(holdFrom(0, false)).toBeNull();
+  });
+  it('ignores anything that is not a whole, non-negative number', () => {
+    for (const v of [undefined, null, '1', -1, 1.5, Number.NaN, {}]) expect(holdFrom(v, true)).toBeNull();
   });
 });
 

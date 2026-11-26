@@ -36,9 +36,15 @@ export function skipKeyCounts(event: { key: string; repeat: boolean }, startedAt
  * A test hook: `window.__buriedDigHold = <mark index>` freezes the clock inside that mark's pause, with its slip showing,
  * so a test can read the screen without a sleep. Unset, the dig runs as it does for a visitor.
  */
+export function holdFrom(value: unknown, webdriver: boolean): number | null {
+  if (!webdriver) return null;
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : null;
+}
+
+/** The hook is honoured only in an automated browser (`navigator.webdriver`); for a real visitor it does nothing. */
 function heldMark(): number | null {
   const v = (window as unknown as { __buriedDigHold?: unknown }).__buriedDigHold;
-  return typeof v === 'number' && Number.isInteger(v) && v >= 0 ? v : null;
+  return holdFrom(v, navigator.webdriver === true);
 }
 
 /**
