@@ -1,0 +1,49 @@
+{
+ "photos": [
+  {
+   "bounds": [
+    632295,
+    4834745,
+    632715,
+    4835185
+   ],
+   "crs": "EPSG:26917",
+   "licence": "Open Government Licence - Toronto",
+   "attribution": "Contains information licensed under the Open Government Licence - Toronto.",
+   "dataset": "City of Toronto Open Data, \"Web Map Services\" (https://open.toronto.ca/dataset/web-map-services/)",
+   "fetched": "2026-11-25",
+   "id": "today-2025",
+   "file": "today-2025.jpg",
+   "year": 2025,
+   "label": "2025 aerial photograph, City of Toronto",
+   "width_px": 1680,
+   "height_px": 1760,
+   "metres_per_pixel": 0.25,
+   "source_url": "https://gis.toronto.ca/arcgis/rest/services/basemap/cot_ortho_2025_color_8cm/MapServer",
+   "note": "Orthorectified aerial photography, 8 cm source resolution, resampled to 25 cm."
+  },
+  {
+   "bounds": [
+    632295,
+    4834745,
+    632715,
+    4835185
+   ],
+   "crs": "EPSG:26917",
+   "licence": "Open Government Licence - Toronto",
+   "attribution": "Contains information licensed under the Open Government Licence - Toronto.",
+   "dataset": "City of Toronto Open Data, \"Web Map Services\" (https://open.toronto.ca/dataset/web-map-services/)",
+   "fetched": "2026-11-25",
+   "id": "aerial-1939",
+   "file": "aerial-1939.jpg",
+   "year": 1939,
+   "label": "1939 aerial photograph, City of Toronto",
+   "width_px": 1400,
+   "height_px": 1467,
+   "metres_per_pixel": 0.3,
+   "source_url": "https://gis.toronto.ca/arcgis/rest/services/basemap/cot_historic_aerial_1939/MapServer",
+   "approximate": true,
+   "note": "Scanned black and white aerial photography at 40 cm. The City says the historic photographs were not orthorectified, that their spatial accuracy varies across the city, and that they are provided as is. Shown for looking, not for measuring."
+  }
+ ]
+}

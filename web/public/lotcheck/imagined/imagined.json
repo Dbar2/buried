@@ -1,0 +1,231 @@
+{
+ "made": "2026-11-25",
+ "how": "Made with an image model from the plan crop for each site and a period photograph for detail. Checked by eye against the plan outlines. Illustration, not evidence.",
+ "views": [
+  {
+   "slug": "coal-yard",
+   "feature_ids": [
+    "use_fip_v3_1911_229_0001",
+    "bld_fip_v3_1911_229_0103"
+   ],
+   "plan_source": "fip_v3_1911_229",
+   "plan_name": "the 1911 plan",
+   "about": "about 1911",
+   "topdown": {
+    "file": "coal-yard-topdown.jpg",
+    "bounds": [
+     632358.93,
+     4834869.16,
+     632462.12,
+     4834961.41
+    ],
+    "width_px": 1100,
+    "height_px": 989
+   },
+   "street": {
+    "file": "coal-yard-street.jpg",
+    "width_px": 1200,
+    "height_px": 800,
+    "caption": "The coal and wood yard of J. W. Corson & Co."
+   }
+  },
+  {
+   "slug": "lumber-yard",
+   "feature_ids": [
+    "use_fip_v3_1911_229_0002"
+   ],
+   "plan_source": "fip_v3_1911_229",
+   "plan_name": "the 1911 plan",
+   "about": "about 1911",
+   "topdown": {
+    "file": "lumber-yard-topdown.jpg",
+    "bounds": [
+     632450.52,
+     4834849.68,
+     632596.52,
+     4834986.68
+    ],
+    "width_px": 1100,
+    "height_px": 1032
+   },
+   "street": {
+    "file": "lumber-yard-street.jpg",
+    "width_px": 1200,
+    "height_px": 800,
+    "caption": "The lumber yard of R. Laidlaw & Co. Ltd."
+   }
+  },
+  {
+   "slug": "overall-factory",
+   "feature_ids": [
+    "bld_fip_v3_1911_229_0101"
+   ],
+   "plan_source": "fip_v3_1911_229",
+   "plan_name": "the 1911 plan",
+   "about": "about 1911",
+   "topdown": {
+    "file": "queen-river-corner-topdown.jpg",
+    "bounds": [
+     632455.88,
+     4835057.08,
+     632545.88,
+     4835147.08
+    ],
+    "width_px": 1100,
+    "height_px": 1100
+   },
+   "street": {
+    "file": "overall-factory-street.jpg",
+    "width_px": 1200,
+    "height_px": 800,
+    "caption": "The Glove & Overall Factory of Hamilton Carhartt Mfr. Ltd."
+   }
+  },
+  {
+   "slug": "bank",
+   "feature_ids": [
+    "bld_fip_v3_1911_229_0001"
+   ],
+   "plan_source": "fip_v3_1911_229",
+   "plan_name": "the 1911 plan",
+   "about": "about 1914",
+   "topdown": {
+    "file": "queen-river-corner-topdown.jpg",
+    "bounds": [
+     632455.88,
+     4835057.08,
+     632545.88,
+     4835147.08
+    ],
+    "width_px": 1100,
+    "height_px": 1100
+   },
+   "street": {
+    "file": "bank-street.jpg",
+    "width_px": 1200,
+    "height_px": 800,
+    "caption": "The Bank of Nova Scotia at Queen and River."
+   },
+   "note": "The City's heritage survey dates the bank to 1912; the plan is the 1911 edition revised to 1914."
+  },
+  {
+   "slug": "machine-shop",
+   "feature_ids": [
+    "bld_fip_v3_1911_229_0102"
+   ],
+   "plan_source": "fip_v3_1911_229",
+   "plan_name": "the 1911 plan",
+   "about": "about 1911",
+   "topdown": {
+    "file": "machine-shop-topdown.jpg",
+    "bounds": [
+     632444.15,
+     4835014.71,
+     632534.15,
+     4835106.18
+    ],
+    "width_px": 1082,
+    "height_px": 1100
+   },
+   "street": {
+    "file": "machine-shop-street.jpg",
+    "width_px": 1200,
+    "height_px": 800,
+    "caption": "The machine shop of Wm. R. Perrin & Co. Limited."
+   }
+  },
+  {
+   "slug": "cork-factory",
+   "feature_ids": [
+    "bld_fip_v3_1911_229_0104"
+   ],
+   "plan_source": "fip_v3_1911_229",
+   "plan_name": "the 1911 plan",
+   "about": "about 1911",
+   "topdown": {
+    "file": "cork-factory-topdown.jpg",
+    "bounds": [
+     632313.45,
+     4835012.27,
+     632407.34,
+     4835102.27
+    ],
+    "width_px": 1100,
+    "height_px": 1054
+   },
+   "street": {
+    "file": "cork-factory-street.jpg",
+    "width_px": 1200,
+    "height_px": 800,
+    "caption": "The cork factory of the Freyseng Cork Co. Ltd."
+   }
+  },
+  {
+   "slug": "mission-hall",
+   "feature_ids": [
+    "bld_fip_v3_1911_229_0105"
+   ],
+   "plan_source": "fip_v3_1911_229",
+   "plan_name": "the 1911 plan",
+   "about": "about 1911",
+   "topdown": {
+    "file": "mission-hall-topdown.jpg",
+    "bounds": [
+     632522.6,
+     4834803.04,
+     632612.6,
+     4834893.04
+    ],
+    "width_px": 1100,
+    "height_px": 1100
+   },
+   "street": {
+    "file": "mission-hall-street.jpg",
+    "width_px": 1200,
+    "height_px": 800,
+    "caption": "The Baptist Mission Hall."
+   }
+  },
+  {
+   "slug": "street-cleaning-yard",
+   "feature_ids": [
+    "use_fip_v3_1935_229_0002"
+   ],
+   "plan_source": "fip_v3_1935_229",
+   "plan_name": "the 1931-35 plan",
+   "about": "about 1935",
+   "topdown": {
+    "file": "street-cleaning-yard-topdown.jpg",
+    "bounds": [
+     632419.38,
+     4834838.74,
+     632596.94,
+     4834982.39
+    ],
+    "width_px": 1100,
+    "height_px": 889
+   },
+   "street": {
+    "file": "street-cleaning-yard-street.jpg",
+    "width_px": 1200,
+    "height_px": 800,
+    "caption": "The City of Toronto street-cleaning yard, Eastern Division."
+   }
+  },
+  {
+   "slug": "knitting-mill",
+   "feature_ids": [
+    "bld_fip_v3_1935_229_0069"
+   ],
+   "plan_source": "fip_v3_1935_229",
+   "plan_name": "the 1931-35 plan",
+   "about": "about 1935",
+   "street": {
+    "file": "knitting-mill-street.jpg",
+    "width_px": 1200,
+    "height_px": 800,
+    "caption": "The knitting mill of Joseph Simpson & Sons."
+   }
+  }
+ ]
+}
