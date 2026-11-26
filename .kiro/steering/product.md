@@ -63,6 +63,23 @@ The showcase for the demo: a coal and wood yard lettered behind Percy Street on 
 (J. W. Corson & Co.) and the 1931-35 plan (Northern Fuels Co.), with six present-day addresses on
 it (2A to 2D Percy St, 549 King St E, 37 Sumach St). The page computes this; nothing is scripted.
 
+### Pictures (session 055)
+
+The compare view can show real aerial photographs (today, 1939) and views imagined from the plans.
+Rules for every picture:
+
+1. A real photograph is labelled with its year and "aerial photograph, City of Toronto". An imagined
+   view is labelled "Imagined from the <plan> plan. Not a photograph." in the caption, every time it
+   is on screen, in addition to the mark set into the picture. An imagined picture is never cropped,
+   and its "IMAGINED" corner is never covered.
+2. No finding, tag, sentence or inscription is ever taken from a photograph or an imagined view. The
+   verdict comes from the plans' lettering.
+3. An imagined view is never the default. The plan is. A visitor chooses to see it.
+4. An imagined view is never shown for a place the plans do not letter (not for a lot that is only
+   next to a recorded site).
+5. The Sources page lists both kinds: the aerial photographs with their licence, and the imagined
+   views as "made with an image model from the plans; decoration and illustration, not evidence".
+
 ## Where the rest sits
 
 - **Block** (`/block`, and `/find/<slug>` links already shared). The raised 3D block with finds, the

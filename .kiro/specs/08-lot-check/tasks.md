@@ -42,3 +42,12 @@ One builder session, in order. **(demo)** marks what the demo video needs. Recor
 - [x] 15. The dig: `digTimeline.ts`, `DigOverlay.tsx`, tests. (9, P8, P9)
 - [x] 16. The reveal: inscription, stamp, sheet, sweep, "Dig another address". (10, P10)
 - [x] 17. Small things, How page, Sources "Illustrations", weights, browser spec, notes.
+
+## Session 055: photographs and imagined views
+
+- [x] 18. Write it down: product "Pictures", sources rows, requirements 11 and 12, P11 to P13. (0)
+- [ ] 19. Compare layers: `photos.ts`, `CompareView.tsx`, tests, browser spec. (11, P11, P12, P13)
+- [ ] 20. "As it may have looked" on the record sheet. (12.1, 12.2)
+- [ ] 21. Dig thumbnail, Landing line. (12.3, 12.4)
+- [ ] 22. Sources page sections. (12.5)
+- [ ] 23. Weight, final runs, notes. (11.4, 1.4)

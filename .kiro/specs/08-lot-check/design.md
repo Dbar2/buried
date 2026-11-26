@@ -100,6 +100,21 @@ tile; the builder reports its size, and above 1.5 MB the maintainer decides on p
   a row with no lines; reduced motion gives no steps.
 - P9 [PBT] Total time is between 2 and 7 s; skipping at any step ends at the Result.
 - P10 [PBT] Each inscription's lettering is the verdict's lettering; "NOT DUG YET" only for not covered.
+- P11 [PBT] An image's placement (`photoPlacement`) puts its four corners where `worldToPixel` puts the
+  four world points, within 1 px.
+- P12 [PBT] Every caption for an imagined layer contains "Imagined" and "Not a photograph"; no caption for a
+  photograph contains either; changing the layers never changes the verdict, inscription or any row.
+- P13 [PBT] An imagined view is offered only when one of its `feature_ids` is a lettered use ON the lot
+  (never "near"); the default layers are the first plan and today's photograph.
+
+## Photographs and imagined views (session 055)
+
+`photos.ts` (pure): reads the two indexes, `photoPlacement(bounds, frame)` (an affine `translate/scale` from
+a bounds box and the tile's `SheetTransform`), `layerChoices(lot, plans, photos, imagined)` (the Then and
+Now choices), `layerCaption(then, now)`. `CompareView` draws the chosen Then image under the plan's lot
+outline and the chosen Now image under today's. The lot outline and "where it stood" outline stay last in
+each layer, so they sit on top of any photograph. Photographs are requested only after the plan tile has
+loaded; until a picture has loaded its side shows the outlines.
 
 ## The night dig (session 053)
 

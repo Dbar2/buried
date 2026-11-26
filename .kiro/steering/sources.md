@@ -77,7 +77,7 @@ control points are read. No feature is published from an aerial until one is mea
 ## Present-day sources (City of Toronto Open Data)
 
 Checked on the City of Toronto Open Data portal (CKAN, `https://ckan0.cf.opendata.inter.prod-toronto.ca`)
-on 2026-11-12. All four are published under the Open Government Licence - Toronto.
+on 2026-11-12 (the last two rows, the aerial photographs, on 2026-11-25). All are published under the Open Government Licence - Toronto.
 
 | Source id | CKAN package id | Role | Format used | Status | Licence note | Attribution line | Rights checked |
 |---|---|---|---|---|---|---|---|
@@ -85,6 +85,20 @@ on 2026-11-12. All four are published under the Open Government Licence - Toront
 | `present_toronto_property_boundaries_2026` | `property-boundaries` | Lots for the Report and the pinned lot | GPKG | Confirmed available | Open Government Licence - Toronto | Contains information licensed under the Open Government Licence - Toronto. | 2026-11-12 |
 | `present_toronto_address_points_2026` | `address-points-municipal-toronto-one-address-repository` | Address search inside the coverage area | GPKG | Confirmed available | Open Government Licence - Toronto | Contains information licensed under the Open Government Licence - Toronto. | 2026-11-12 |
 | `present_toronto_intersections_2026` | `intersection-file-city-of-toronto` | Street-intersection control points | GPKG | Confirmed available | Open Government Licence - Toronto | Contains information licensed under the Open Government Licence - Toronto. | 2026-11-12 |
+| `present_toronto_orthophoto_2025` | "Web Map Services" (`web-map-services`), service `cot_ortho_2025_color_8cm` | Aerial photograph of today in the compare view (looking, not evidence) | JPEG, cut from the map service at 25 cm | Confirmed available | Open Government Licence - Toronto | Contains information licensed under the Open Government Licence - Toronto. | 2026-11-25 |
+| `aerial_toronto_1939` | "Web Map Services" (`web-map-services`), service `cot_historic_aerial_1939` | 1939 aerial photograph in the compare view (looking, not evidence) | JPEG, cut from the map service at 30 cm | Confirmed available, with the City's caveat below | Open Government Licence - Toronto | Contains information licensed under the Open Government Licence - Toronto. | 2026-11-25 |
+
+- **The 1939 caveat, the City's own words in substance:** the historic aerial photographs were not
+  orthorectified, their spatial accuracy varies across the city, and they are provided as is. So the
+  1939 photograph is shown for looking, never for measuring, and the lot outline over it carries
+  "The 1939 photograph is placed approximately." The two photographs are files under
+  `web/public/lotcheck/aerial/` with an index (`aerial.json`) that holds each one's bounds in
+  EPSG:26917, resolution, source URL and fetch date. They are not in `data/sources.json` and no
+  evidence cites them: no feature, tag or sentence is taken from either (product.md "Pictures").
+- **Imagined views are not sources.** The pictures in `web/public/lotcheck/imagined/` were made with an
+  image model from the plans' outlines and lettering (and, for detail, a period photograph). They are
+  decoration and illustration, not evidence. They have no row here, no source id, and no claim cites
+  them. The Sources page lists them under "Imagined views" and says so.
 
 - The id year is the retrieval year. In the registry, `year_from` is the year of the dataset's last
   refresh as the CKAN metadata states it at retrieval, and `year_to` is the retrieval year. A

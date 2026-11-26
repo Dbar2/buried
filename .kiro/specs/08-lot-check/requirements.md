@@ -172,3 +172,34 @@ in the Evidence Library). *Coverage area*: lots for which `buildReport` does not
      0.4 s later, the divider sweep once from the right edge to the middle, the rows arrive one by one.
      UNDER reduced motion all of it SHALL be at its end state at once.
 10.3 THE Result SHALL offer "Dig another address", back to the Landing with the field focused.
+
+## Requirement 11: Photographs in the compare view (session 055)
+
+11.1 THE compare view SHALL let the visitor choose each side. Then (left): each plan covering the lot
+     (the first is the default), "1939 photo", and, when an imagined top-down view covers the lot,
+     "Imagined, about 1911" (or 1935). Now (right): "Today, photo" (default) and "Today, outlines". The
+     choices SHALL be radio groups, keyboard reachable, 44 px on a phone, and announced politely.
+11.2 THE photographs and the imagined top-down views SHALL be placed by their `bounds` through the plan
+     tile's own transform, and the lot outline and the "where it stood" outline SHALL stay on top of every
+     layer with their dark casing. [PBT: P11]
+11.3 UNDER the view, one line SHALL name the layers: "Left: the 1911 plan, as digitized. Right: 2025 aerial
+     photograph, City of Toronto." The 1939 photograph adds "placed approximately"; an imagined view says
+     "Imagined from the 1911 plan. Not a photograph." [PBT: P12]
+11.4 NO photograph SHALL load before the Result's text is on screen and the plan tile has loaded, and none
+     SHALL load on the Landing. UNTIL a layer's picture has loaded, its side SHALL show the outlines.
+11.5 NO finding, tag, sentence or inscription SHALL be taken from a photograph or an imagined view.
+11.6 THE sweep of 10.2 SHALL be followed by the Now side fading from outlines to the photograph in about
+     0.6 s. UNDER reduced motion it SHALL show the photograph at once.
+
+## Requirement 12: Imagined views (session 055)
+
+12.1 AN imagined view SHALL be offered only when one of its `feature_ids` is a lettered use on the lot, and
+     SHALL never be the default. A lot that is only next to a recorded site SHALL get none. [PBT: P13]
+12.2 THE record sheet SHALL show, under the compare view, "As it may have looked": the street picture, the
+     index's caption and "Imagined from the <plan> plan. Not a photograph.". A click SHALL open it larger in
+     a dialog (Escape closes, focus returns). THE picture SHALL never be cropped.
+12.3 AT the layer where the plan letters a use on the lot, THE dig's slip SHALL carry a thumbnail of the
+     street view of about 96 px, labelled "imagined".
+12.4 THE Landing SHALL say what a dig shows (the plan, a 1939 aerial photograph, a photograph of today).
+12.5 THE Sources page SHALL list the aerial photographs (licence, attribution, the City's caveat for 1939)
+     and the imagined views (what they are, that they are not evidence, the sites that have one).
