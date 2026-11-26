@@ -46,6 +46,8 @@ export type DigSlip = {
   /** The words of a line of the lot check (the address, a lettering line), or `copy.DIG.nothing`. */
   text: string;
   muted: boolean;
+  /** The evidence feature the slip's line is about (a use on or near the lot), or null. Used only to find a thumbnail; it adds no words. */
+  featureId: string | null;
 };
 
 export type DigStep = { kind: 'ground' | 'lower' | 'pause' | 'bottom' | 'beat'; markIndex: number; startMs: number; endMs: number };
@@ -73,9 +75,9 @@ const byUseLine = (a: UseLine, b: UseLine): number =>
 /** The slip for a plan's row: its first lettered use as the Result words it, or "nothing lettered here". */
 export function slipForRow(row: PlanRow, markIndex: number): DigSlip {
   const line = [...row.lines].sort(byUseLine)[0];
-  if (!line) return { markIndex, kind: 'nothing', prefix: '', text: copy.DIG.nothing, muted: true };
+  if (!line) return { markIndex, kind: 'nothing', prefix: '', text: copy.DIG.nothing, muted: true, featureId: null };
   const near = line.relation.kind === 'near';
-  return { markIndex, kind: near ? 'near' : 'use', prefix: near ? copy.DIG.nextDoor : '', text: line.text.text, muted: false };
+  return { markIndex, kind: near ? 'near' : 'use', prefix: near ? copy.DIG.nextDoor : '', text: line.text.text, muted: false, featureId: line.featureId };
 }
 
 /** "Digging down to 1911…" with the year in the pack, or the plain line when no plan covers the lot. */
@@ -97,7 +99,7 @@ export function buildDigTimeline(check: CheckOf, reducedMotion: boolean): DigTim
     ...planRows.map((r, i): DigMark => ({ index: i + 1, label: r.yearLabel, kind: 'plan', sourceId: r.sourceId })),
   ];
   const slips: DigSlip[] = [
-    { markIndex: 0, kind: 'today', prefix: '', text: check.title.text, muted: false },
+    { markIndex: 0, kind: 'today', prefix: '', text: check.title.text, muted: false, featureId: null },
     ...planRows.map((r, i) => slipForRow(r, i + 1)),
   ];
   const oldest = planRows.length > 0 ? (planRows[planRows.length - 1] as PlanRow).yearLabel : null;

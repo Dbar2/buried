@@ -23,6 +23,7 @@ import {
   photoPlacement,
   placementText,
   streetCaption,
+  streetViewForSlip,
   viewsOnLot,
 } from './photos';
 import type { Bounds, ImaginedView, Photo, ThenShown } from './photos';
@@ -225,6 +226,18 @@ describe('which imagined views a lot may show (P13)', () => {
     const source = readFileSync(resolve(__dirname, 'photos.ts'), 'utf8');
     expect(source).not.toMatch(/from '\.\/(lotCheck|computeLotCheck|lettering)'/);
     expect(source).not.toMatch(/\.tag\b|tagText/);
+  });
+});
+
+describe('the dig slip\'s thumbnail (requirement 12.3)', () => {
+  const coal = view('coal-yard', ['use_a'], null);
+  it('goes only to a slip whose line is a use on the lot that a view is about', () => {
+    expect(streetViewForSlip({ kind: 'use', featureId: 'use_a' }, [coal])?.slug).toBe('coal-yard');
+    expect(streetViewForSlip({ kind: 'near', featureId: 'use_a' }, [coal])).toBeNull();
+    expect(streetViewForSlip({ kind: 'nothing', featureId: null }, [coal])).toBeNull();
+    expect(streetViewForSlip({ kind: 'today', featureId: null }, [coal])).toBeNull();
+    expect(streetViewForSlip({ kind: 'use', featureId: 'use_other' }, [coal])).toBeNull();
+    expect(streetViewForSlip({ kind: 'use', featureId: 'use_a' }, [{ ...coal, street: null }])).toBeNull();
   });
 });
 

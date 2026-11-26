@@ -229,6 +229,13 @@ export function viewsOnLot(onIds: ReadonlySet<string>, views: readonly ImaginedV
   return views.filter((v) => v.featureIds.some((id) => onIds.has(id)));
 }
 
+/** The imagined view whose street picture a dig slip may carry: the slip's line is a use ON the lot (never "near") that the view is about. */
+export function streetViewForSlip(slip: { kind: string; featureId: string | null }, views: readonly ImaginedView[]): ImaginedView | null {
+  if (slip.kind !== 'use' || slip.featureId === null) return null;
+  const id = slip.featureId;
+  return views.find((v) => v.street !== null && v.featureIds.includes(id)) ?? null;
+}
+
 // ---------- the choices ----------
 
 export type ThenLayer =

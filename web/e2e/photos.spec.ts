@@ -135,6 +135,7 @@ test('photographs are not asked for before the plan tile, and the Landing never 
   await expect(page.getByTestId('lc-fact')).toBeVisible();
   await page.waitForLoadState('networkidle');
   expect(seen.filter((r) => /\/lotcheck\/(aerial|imagined)\//.test(r.url)), 'the Landing asks for no picture, no index').toEqual([]);
+  await expect(page.getByTestId('lc-shows')).toHaveText('Each dig shows the old plan, a 1939 aerial photograph, and a photograph of what stands there today.');
   seen.length = 0;
   await open(page);
   await expect(frame(page)).toHaveAttribute('data-now', 'photo');
@@ -200,7 +201,10 @@ test('the postcard is not asked for before the plan tile, and it has no tilt und
   const t0 = Date.now();
   page.on('request', (r) => seen.push({ url: r.url(), t: Date.now() - t0 }));
   await open(page);
+  // The picture is lazy: it is asked for when the card comes into view, and never before the plan tile.
+  await page.getByTestId('lc-postcard').scrollIntoViewIfNeeded();
   await expect(page.getByTestId('lc-postcard-image')).toBeVisible();
+  await expect.poll(() => seen.some((r) => /coal-yard-street\.jpg$/.test(r.url))).toBe(true);
   const tile = seen.find((r) => /\/data\/tiles\/[^/]+\.jpg$/.test(r.url));
   const street = seen.find((r) => /coal-yard-street\.jpg$/.test(r.url));
   expect(street).toBeDefined();
@@ -251,6 +255,39 @@ test.describe('the sweep and the fade, with motion', () => {
       return el ? getComputedStyle(el).transitionDuration : null;
     });
     expect(t).toBe('0.6s');
+  });
+});
+
+test.describe('the dig carries a small imagined picture at the layer that letters the use', () => {
+  test.use({ reducedMotion: 'no-preference' });
+
+  test('the 1911 slip has a 96 px thumbnail labelled imagined; the others do not; the slip words are unchanged', async ({ page }) => {
+    const seen: string[] = [];
+    page.on('request', (r) => seen.push(r.url()));
+    await page.addInitScript(() => {
+      (window as unknown as { __buriedDigHold: number }).__buriedDigHold = 2;
+    });
+    await page.goto('/');
+    await expect(page.getByTestId('lc-fact')).toBeVisible();
+    await page.waitForLoadState('networkidle');
+    expect(seen.filter((u) => /\/lotcheck\/imagined\//.test(u)), 'nothing imagined is asked for before the visitor digs').toEqual([]);
+    await page.getByTestId('lc-address').fill('2A Percy St');
+    await page.getByTestId('lc-address').press('Enter');
+    const dig = page.getByTestId('dig');
+    await expect(dig).toHaveAttribute('data-held', 'true');
+    await expect(dig).toHaveAttribute('data-active-mark', '2');
+    const slips = page.getByTestId('dig-slip');
+    await expect(slips.nth(2)).toHaveText('Coal & Wood Yard, J. W. Corson & Co.');
+    const thumb = slips.nth(2).getByTestId('dig-thumb');
+    await expect(thumb).toHaveAttribute('data-label', 'imagined');
+    const img = thumb.locator('img');
+    await expect(img).toHaveAttribute('src', '/lotcheck/imagined/coal-yard-street.jpg');
+    await expect(img).toHaveAttribute('alt', /Imagined from the 1911 plan\. Not a photograph\.$/);
+    expect((await img.boundingBox())?.width).toBe(96);
+    await expect(slips.nth(1)).toHaveText('Coal & Wood Yard, Northern Fuels Co.');
+    await expect(slips.nth(0).getByTestId('dig-thumb')).toHaveCount(0);
+    await expect(slips.nth(1).getByTestId('dig-thumb')).toHaveCount(0);
+    await page.screenshot({ path: `${OUT}/photos-dig-thumb-desktop.png` });
   });
 });
 

@@ -4,6 +4,12 @@ import * as copy from './copy';
 import { buildDigTimeline, digPlays, holdTime, MAX_TOTAL_MS, skipTo, stateAt } from './digTimeline';
 import type { DigState, DigTimeline } from './digTimeline';
 import type { LotCheck } from './lotCheck';
+import { imaginedLine, streetCaption, streetViewForSlip } from './photos';
+import type { ImaginedView } from './photos';
+import { loadImagined } from './usePictures';
+
+/** The imagined thumbnail on a slip (requirement 12.3). */
+const THUMB_WIDTH_PX = 96;
 
 /** The art the dig draws (decoration only). */
 export type DigArt = { lantern: string; strata: string; skyline: string };
@@ -54,6 +60,7 @@ function heldMark(): number | null {
  */
 export function DigOverlay({ build, onFinish, art }: DigOverlayProps) {
   const [timeline, setTimeline] = useState<DigTimeline | null>(null);
+  const [views, setViews] = useState<readonly ImaginedView[]>([]);
   const [shown, setShown] = useState<number[]>([]);
   const [active, setActive] = useState<number | null>(null);
   const [announce, setAnnounce] = useState<string>(copy.DIG.announceStart);
@@ -86,6 +93,8 @@ export function DigOverlay({ build, onFinish, art }: DigOverlayProps) {
         return;
       }
       setTimeline(buildDigTimeline(check, false));
+      // The small index of imagined views is read now that the visitor has chosen a lot, never on the Landing before that.
+      void loadImagined().then((r) => setViews(r.views));
     }, 40);
     // Never longer than 7 s from the start, whatever happens (the test hook that holds the clock turns the cap off).
     const cap = window.setTimeout(() => {
@@ -231,21 +240,33 @@ export function DigOverlay({ build, onFinish, art }: DigOverlayProps) {
         ))}
       </ol>
       {timeline
-        ? timeline.slips.map((s) => (
-            <p
-              key={s.markIndex}
-              className="dg-slip"
-              style={{ ['--k' as string]: s.markIndex } as React.CSSProperties}
-              data-testid="dig-slip"
-              data-shown={shown.includes(s.markIndex)}
-              data-active={active === s.markIndex}
-              data-muted={s.muted}
-              data-mark={s.markIndex}
-            >
-              {s.prefix}
-              {s.text}
-            </p>
-          ))
+        ? timeline.slips.map((s) => {
+            // At the layer where the plan letters a use on the lot, the slip carries a small imagined picture (session 055).
+            const view = streetViewForSlip(s, views);
+            return (
+              <p
+                key={s.markIndex}
+                className="dg-slip"
+                style={{ ['--k' as string]: s.markIndex } as React.CSSProperties}
+                data-testid="dig-slip"
+                data-shown={shown.includes(s.markIndex)}
+                data-active={active === s.markIndex}
+                data-muted={s.muted}
+                data-mark={s.markIndex}
+                data-thumb={view !== null}
+              >
+                {view?.street ? (
+                  <span className="dg-thumb" data-label={copy.PICTURES.imagined} data-testid="dig-thumb">
+                    <img src={view.street.src} width={THUMB_WIDTH_PX} height={Math.round((THUMB_WIDTH_PX * view.street.heightPx) / view.street.widthPx)} alt={`${streetCaption(view)} ${imaginedLine(view.planName).text}`} decoding="async" />
+                  </span>
+                ) : null}
+                <span className="dg-slip-text">
+                  {s.prefix}
+                  {s.text}
+                </span>
+              </p>
+            );
+          })
         : null}
       <div className="dg-caption">
         {timeline ? (
