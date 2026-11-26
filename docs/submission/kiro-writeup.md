@@ -1,83 +1,87 @@
 # How we used Kiro to build Buried
 
+We built a lot check: type a Toronto address and see what the 1911-14 and 1931-35 fire-insurance plans lettered on that lot, with the scan it was read from. The product changed direction three times in two weeks (a raised 3D block, a walk-through test, then the lot check). The specs and steering made that affordable, because the evidence model and the honesty rules carried over each time.
+
 ## 1. Kiro IDE, CLI, Web, Crew
 
-We installed Kiro IDE 1.4.154 and Kiro CLI 3.1.0 on Nov 10. Every session ran through the CLI, non-interactively, with one written task brief. The briefs are in `docs/kiro-sessions/` (001 to 047), with `*-notes.md` files where a builder recorded findings. We did not use the IDE, Kiro Web or Crew for the build, so we have no measured comparison between surfaces. At the last check we had used 3,089 of 4,000 credits.
+Every session ran through Kiro CLI 3.1.0, non-interactively, from one written brief. The briefs are in `docs/kiro-sessions/` (001 to 056), with `*-notes.md` files where a builder recorded findings. We installed the IDE (1.4.154) but did not use it, Kiro Web or Crew for the build, so we have no comparison between surfaces. The hackathon credit pool (4,000) was used up on Nov 25. Later sessions ran on plan credits.
 
-A command outside an agent's allowlist is refused before it starts, so briefs name the command shapes that work. From session 023, parallel sessions ran in separate git worktrees. Before that, two builders shared one checkout, and one commit swept the other's staged files in under the wrong message (`015-notes.md`).
+A command outside an agent's allowlist is refused before it starts, so briefs name the command shapes that work. From session 023, parallel sessions ran in separate git worktrees, after one commit swept another builder's staged files in under the wrong message (`015-notes.md`).
 
 ## 2. Custom agents
 
-Six agents live in `.kiro/agents/`. None can write that folder, so we edit the files ourselves.
+Six agents in `.kiro/agents/`, each with narrow permissions:
 
-| Agent | Model | May | May not |
-|---|---|---|---|
-| architect | claude-sonnet-5.5 (001 to 012: claude-opus-5.5) | Write steering, specs, hooks, `docs/` | Run commands, write code |
-| builder | claude-sonnet-5.5 | Write files; run `uv`, `npm`, `npx`, `tools/unity.sh`, `git add/commit` | `git push/reset/checkout/clean`, `rm -rf`, `curl`, `sudo` |
-| coder | claude-sonnet-5.5 | Write files | Run any command |
-| mechanic | claude-haiku-5.5 | Edit `*.md`, specs, `docs/` | Run commands, make design calls |
-| archivist | claude-sonnet-5.5 | Read, fetch web pages, use MCP; write `docs/sources/` | Write `data/` or `.kiro/`; infer a licence |
-| plate-qa | claude-sonnet-5.5 | Use MCP; write `docs/qa/` | Write `data/` or `.kiro/`; accept, reject or publish |
+| Agent | May | May not |
+|---|---|---|
+| architect | Write steering, specs, hooks, `docs/` | Run commands, write code |
+| builder | Write files; run `uv`, `npm`, `npx`, `tools/unity.sh`, `git add/commit` | `git push/reset/checkout/clean`, `rm -rf`, `curl` |
+| coder, mechanic | Write files; mechanic edits `*.md` only | Run commands |
+| archivist, plate-qa | Read through the MCP server; write notes | Write `data/` or `.kiro/`; publish |
 
-The archivist has not been run yet, so `docs/sources/` does not exist.
-
-**architect.** In the first-visit redesign (session 037) it decided what the brief left open: Libre Baskerville and Source Sans 3 in place of Fraunces and Inter, a name and hex for every colour token with a rename table, and nine contrast pairs with floors. Two pairs fail (`--lantern` on `--parchment` at 1.6, `--copper` on `--parchment` at 3.0), so the steering bans them and says what to use instead. A test measures every pair.
-
-**builder, Unity lane.** A unit test cannot judge a scene's look. The builders rendered stills, looked at them and iterated against numbered visual targets. Session 043 fixed six named problems in six render rounds.
-
-**plate-qa.** Its first real run failed: `features_near` returned 163 features as 199 KB with no paging (session 030). We added paging and a compact mode.
+A unit test cannot judge a page's look. From the first visit onward, builders compared their screenshots with target pictures in `docs/brand/` and ended each notes file with what still looked wrong: "the 1939 photograph is very soft at close range" (session 055). The archivist has not been run.
 
 ## 3. Agent hooks
 
-Seven files in `.kiro/hooks/`, explained in its `README.md`. They validate evidence on save, check source rights, run the banned-word tests, regenerate and test the bridge, and untick a spec task whose suites fail. One guards the held-out plate.
+Seven files in `.kiro/hooks/`, explained in its `README.md`. They validate evidence on save, check source rights, run the banned-word tests, regenerate the bridge types, and untick a spec task whose suites fail. One refuses an agent write that puts plate 232 (1935, the held-out plate) in an extraction parameter file, a fixture or `data/control/map_area/`. We tested its script by hand: exit 2 with a refusal for a write naming plate 232, exit 0 otherwise. No agent has tripped it in a real session, so we cannot say it changed anything.
 
-The held-out guard runs before an agent write and exits 2 when the write targets extraction parameters, extraction fixtures or `data/control/map_area/` and names plate 232 (1935). A pytest guard covers files written by shell commands. We tested the script by hand: exit 2 with its refusal message for a write naming plate 232, exit 0 for an ordinary write. No agent has tripped it in a real session.
-
-Kiro refused the architect's writes under `.kiro/hooks/` (session 012) and the builder's write to `.kiro/settings/mcp.json` (session 025), though the permission rules allowed both. We moved those files in by hand.
+Kiro refused the architect's writes under `.kiro/hooks/` (session 012) and the builder's write to `.kiro/settings/mcp.json` (session 025), though the permission rules allowed both. We moved the files in by hand.
 
 ## 4. Spec-driven development
 
-Six specs: evidence model, pipeline, Explorer, Studio, Report, first visit. Each has numbered EARS requirements, a design with Correctness Properties, and tasks that name files and requirements. Property tasks are marked [PBT]. A task is ticked only when its tests pass.
+Eight specs: evidence model, pipeline, Explorer, Studio, Report, first visit, walk test, lot check. Each has numbered EARS requirements, a design with Correctness Properties, and tasks that name files and requirements. Property tasks are marked [PBT]. A task is ticked only when its tests pass.
 
-**The sixth spec.** An outside review of the live site and the maintainer's own verdict agreed: the journey was unclear, a search field with no reason to type. Session 037 rewrote `product.md` and `design.md` first, then wrote one short spec, 345 lines across three files. Its tasks split into three groups that touch different files: W (web), U (Unity and the bridge schema) and P (pipeline and data contract). We built them at the same time in three worktrees. One order rule held them together: the bridge and finds types land before the web tasks that read them. The web lane did not wait. Session 041 built the pure modules (tag layout, raise state, sheet transform, lens drag) and props-only components first, and session 042 wired them once the types existed.
+Spec 08 has 12 requirements, 13 properties and 23 tasks. Its task order is the point: tasks 1 to 4 are pure modules with their properties (the Industrial word list, the verdict, the landing fact, the compare model), and the pages come after. Session 051 built tasks 1 to 11 in one run, and 1,172 unit tests passed.
 
-**Catches before code.** A plate "revised to" a later year cannot have one year, so sources carry `year_from` and `year_to`. Absence is readable only inside a reviewed area that a person attests.
-
-**Misses.** Spec 02's matching rule shrank footprints by the plates' combined errors, which erased a typical 20 m² footprint, so the first real `buried match` sent every pair to review. The place page said "Checked by a person" for a record marked "gate draft, unreviewed" (session 027).
-
-We did not build both ways, so we cannot say whether specs were faster than vibe coding. They gave builders a stopping rule and gave us one place to settle questions. Sessions that read all of them wasted credits, so each brief since session 015 names the sections to read.
+The spec was wrong once in a way the builder caught. It said `buildLotCheck` takes the Report and the address points. The Report holds sentences, not geometry or crops, so the builder added the lot geometry, tile sidecars and source index and listed the departure in its notes. We did not build both ways, so we cannot say whether specs beat vibe coding. They gave builders a stopping rule. Each brief since session 015 names the sections to read, because sessions that read every spec wasted credits.
 
 ## 5. Steering docs
 
-Six files in `.kiro/steering/`: `product`, `tech`, `structure` and `sources` (always loaded), `evidence` (for `data/**`, `pipeline/**`) and `design` (for `web/**`, `unity/**`). Three choices mattered:
+Six files in `.kiro/steering/`: `product`, `tech`, `structure` and `sources` (always loaded), `evidence` (for `data/**`, `pipeline/**`) and `design` (for `web/**`, `unity/**`).
 
-- **Hard honesty rules.** `product.md` numbers twelve, including banned words, "on this lot" versus "near", no invented years, and that a find's name is the plate's lettering. Each has a test.
-- **One coordinate system.** EPSG:26917 for storage, maths and Unity, with one origin.
+- **Seventeen numbered honesty rules** in `product.md`: banned words, "on this lot" versus "near", no invented years, a find's name is the plate's lettering, "industrial" is decided by code from one list, the dig is presentation. The file says each is enforced in code and tests.
 - **"The spec that needs a decision makes it."** `tech.md` lists what is decided. The rest stays open.
 
-The redesign changed steering before code, and one change came from this document's own list of regrets. The first version said to put "who reviewed this" in the schema, because 162 of 163 buildings were accepted by rule and the page had no field to say so. Evidence schema 1.2.0 now has `provenance.review`: `reviewed` (a named person and a day), `draft_rule` or `draft_hand`. The card prints "Status: reviewed by NAME, DATE" or "Status: draft, not yet reviewed", and "Confirmed" for neither. Today 13 features are draft by hand, 162 are draft by rule, and none is reviewed.
+Steering changed before code each time. Session 053 wrote the night theme, its motion rules and a new colour token with its contrast pair into `design.md` first. Session 055 wrote five rules for photographs and imagined views into `product.md` first: an imagined view says "Not a photograph" every time it is on screen, and no finding is ever taken from a picture.
 
 ## 6. MCP
 
-`buried-evidence` is a local, read-only stdio server (`pipeline/buried_pipeline/mcp/`). Tools: `find_places`, `features_near`, `plate_features`, `list_sources`, `plate_alignment`, `plate_work`. Results are paged and under 20 KB. `find_places` now returns the finds in `data/finds.json`, each reading with its lettering, crop and the feature's review state as stored. The archivist and plate-qa agents use it. It never derives dates or "on this lot", because the date logic has one implementation, in TypeScript.
+`buried-evidence` is a local, read-only stdio server over the committed files. Tools: `find_places`, `features_near`, `plate_features`, `list_sources`, `plate_alignment`, `plate_work`. Results are paged and under 20 KB. It never derives dates or "on this lot", because the date logic has one implementation, in TypeScript. plate-qa's first real run failed: `features_near` returned 163 features as 199 KB with no paging (session 030). We added paging.
 
 ## 7. Property-based testing
 
-- **Alignment at UTM scale** (session 008). Hypothesis broke "leave-one-out error is never optimistic" at northings near 4.8e6 m, where residuals resolve only to about 1e-9 m against a fixed 1e-9 tolerance. We fit relative to a local origin and scaled the tolerance. The claim was not weakened.
-- **Triangulator** (E4, E15). A hole joined at the wrong copy of a repeated vertex made the ring cross itself. A cap triangle 13 m long and 3e-7 m high had a zero float32 normal and read as an inward wall. After the fix: 3264 polygons, 0 failures.
-- **False monotonicity in matching** (sessions 025, 026). "A larger error never gives more matches" was wrong. Footprints F = (0,0) to (7,7) and G = (0,4) to (7,11) went to review at a pairwise error of 1.0 m and became a clear absence at 2.5 m, because the larger shrink pulled F's core off G. We replaced the rule and kept the pair as a regression test.
-- **A land-use property whose generator was wrong** (session 038). "Published areas never reach outside the map area" failed on a 2 px area at (557, 10), well inside a map area that ends at 590. `publish` refused it, and the code was right: the test's helper attached a fixed 40 by 12 px lettering crop 4 px in from the corner, which reached x = 601 on a 600 px plate. We changed the generator to build a crop equal to the area and kept the counterexample as an `@example`. The property is unchanged.
-- **New for the first visit.** Tag layout never overlaps the card; a draft never prints "Confirmed"; the raise state never loses a press; a core-sample row for plan X names plan Y only inside "first drawn on"; every finds file the Validator accepts resolves each reading to a published feature with its crop inside the map area.
+- **Alignment at UTM scale** (session 008). Hypothesis broke "leave-one-out error is never optimistic" at northings near 4.8e6 m, where residuals resolve only to about 1e-9 m. We fit relative to a local origin and scaled the tolerance. The claim was not weakened.
+- **A generator that was wrong** (session 038). "Published areas never reach outside the map area" failed on a 2 px area. `publish` was right to refuse it: the test's helper attached a lettering crop that reached x = 601 on a 600 px plate. We fixed the generator and kept the counterexample as an `@example`.
+- **The lot check.** P4: the landing's count equals an independent count of address points inside the areas, each shrunk by its own error. P1: a "Past industrial use recorded" tag always has a trigger whose lettering holds a list word. P3: no generated sentence holds a banned word. P6: "No industrial use lettered" always carries its not-a-clearance line.
 
 ## 8. Kiro powers
 
 We used none.
 
-## What we would do differently
+## Where Kiro surprised us
 
-**What went wrong on Nov 13.** The first Unity render did not look like the concept pictures, and session 043 had to fix six problems. The Lantern never drew at a plan stop, because the Player ignores `scene/setLantern` above depth 0 (session 044). A test's workspace area used the id `use_fip_v3_1911_229_0001`, which the committed hand-traced coal yard now holds (session 038). After the merge, five older browser tests failed: three expected the old journey, one was the same land-use failure seen from the Studio suite, and one was real, because the confidence line patterns in the 3D scene no longer differed after the look pass. Session 045 fixed the land-use and card-sync tests. Session 046 is in progress.
+- **A contrast pair.** In the first-visit redesign (session 037) the architect measured nine colour pairs, found lantern on parchment at 1.6 to 1 and copper on parchment at 3.0, and banned both in steering. The lot outline is a lantern stroke inside an ink casing because of it.
+- **A count that held.** The landing says six addresses stand on a former coal and wood yard. The builder reran the count after shrinking each area by its own position error. It stayed six: 2A to 2D Percy St, 37 Sumach St and 549 King St E (session 051).
+- **A tag it flagged.** "No industrial use lettered on these plans" would claim a little more than the review attests, because the reviewed areas cover buildings only. The builder said so, and on the committed data the tag appears for none of the 168 lots. The stricter test is one condition, left for us to decide.
+- **A bug that was not a bug.** We read two vertical lines at the compare divider as a defect. The builder showed they were a focus ring on a 44 px element and reshaped the ring (session 052).
+
+One bug came from the maintainer using the live site. Pressing Enter on a suggestion chose the address and skipped the dig in the same key press, because the Enter was still travelling up to `window` when the overlay added its key listener (session 054). The fix ignores a key within 600 ms of the overlay mounting, with browser tests. The notes say the builder did not run them against the old code to see them fail.
+
+## Changing direction
+
+1. **First visit (spec 06, sessions 037 to 046).** A raised 3D block. Ten sessions, three parallel worktrees, a Unity Player of about 81 MB.
+2. **Walk test (spec 07, session 049).** A street-level walk through a Blender model. We parked it on Nov 25.
+3. **Lot check (spec 08, sessions 050 to 055).** One address, one answer, no WebGL. Six sessions from the decision to the live site.
+
+Carried over: the evidence model and date logic, the honesty rules and their tests, the sheet transform that places a plan under today's outlines, and `buildReport`. The 3D block and the Studio stay in the repository. Nothing links to the block and the Player is not deployed. We have no credit figure per product, only the session counts.
+
+The strategy: steering first, then one short spec whose task order puts pure modules and their properties before pages, then a builder that compares its own screenshots with target pictures and records every departure from the brief.
+
+## What we would do differently
 
 - Run real data through each pipeline stage before specifying the next.
 - Keep `tech.md` smaller. It loads every session and its command list grew with each one.
-- Name a visitor's first action before writing a spec. We built the pipeline and the Report before asking what a stranger would press.
+- Name a visitor's first action before writing a spec. We built the pipeline and the Report first and found the lot check on the third product.
+- Have a named person review the records before the demo. None of the 178 features is reviewed.
+- Run a new regression test against the old code to see it fail, and use the live site by hand after each deploy from the start.
 - Use worktrees from the first parallel session.

@@ -1,74 +1,129 @@
 # Buried
 
-Buried is a tool for turning archival fire insurance plans into a 3D model of a neighbourhood through
-time, where every building carries the evidence behind it. The first showcase is Eastern Avenue at the
-Don River, Toronto, built from Goad's Volume 3 plates (1911 and 1931, revised to 1935).
+Buried tells someone about to buy, dig or plant on an old Toronto lot what the fire-insurance plans of
+1911-14 and 1931-35 lettered on that land, and shows the plan that says so.
 
-Tagline: "Forgotten maps, rebuilt with proof." Entry for Kiroween 2026.
+Live site: <https://buried.pages.dev>. Tagline: "Forgotten maps, rebuilt with proof." Entry for
+Kiroween 2026.
 
-Live site: <https://buried.pages.dev>. Press "Raise the past" and the 1911 plan's buildings stand up
-on the block, each with the lettering it was read from.
+![The Buried landing page at night: the headline "What is buried under your address?", an address field with a "Dig" button, and an old plan lying on paper under a lantern with the recorded lots outlined](docs/progress/lot-check-landing.png)
 
-![The raised block at Queen and River: the 1911 sheet lit from the upper left, ghost buildings standing over today's outlines, the Glove & Overall Factory selected with its catalogue card at the right](docs/progress/first-visit-raised.png)
+*The landing. Type an address, pick a suggestion, or click a lit lot on the plan.*
 
-*The first visit after "Raise the past". The 1911 plan lies on a dark table, its buildings stand as
-ghosts, and the Glove & Overall Factory is selected: its lettering crop, the plan it was seen on,
-how closely it is placed, and a status line that says "draft, not yet reviewed".*
+![The dig: a lantern on a rope lowered through layers of earth, with a paper slip beside it showing what one plan letters on the lot](docs/progress/lot-check-dig.png)
+
+*The dig, about 4.5 seconds. At each plan's depth a paper slip shows what that plan letters on the lot.*
+
+![The record for 2A Percy St: a parchment sheet headed "HERE STOOD, Coal & Wood Yard", a red rubber stamp reading "Past industrial use recorded", and a compare view of the 1911 plan against a photograph of today](docs/progress/lot-check-result.png)
+
+*The record. The lettering as the plan prints it, the stamp, and the plan against today's photograph.*
+
+## Try it
+
+1. Open the live site, type `2a p`, choose "2A Percy St" (it is marked "something recorded") and press
+   Enter or "Dig".
+2. A lantern is lowered through the plans. Skip or Escape ends it. The record opens: "HERE STOOD / Coal &
+   Wood Yard", with the sentence quoting both plans and the stamp "Past industrial use recorded".
+3. Drag the divider, or use the arrow keys. Switch the left side between the 1911 plan, the 1931-35
+   plan, the 1939 photograph and "Imagined, about 1911". Switch the right side between today's photograph
+   and today's outlines.
+4. Press "Download the one-page record" for the printable Report. "Share this check" copies the link.
+
+The dig is an animation. The lookup itself is instant.
+
+## What it tells you, and what it does not
+
+- **Buried screens; it doesn't certify.** It says nothing about soil, water or structures today. It is
+  not a utility locate. Before you dig, request locates through
+  [Ontario Dig Authority](https://ontariodigauthority.ca/).
+- **The verdict is one of five tags**, decided by code from the plan's lettering: "Past industrial use
+  recorded", "Industrial use recorded next to this lot", "A past use is lettered on these plans", "No
+  industrial use lettered on these plans" and "Not covered yet".
+- **"Industrial" comes from one short word list** in `web/src/evidence/industrialUse.ts`, matched on
+  whole words. The tag always appears with the lettering that triggered it and the crop of the plan it
+  was read from. The list's header says "Reviewed by: not yet".
+- **"On this lot" and "next to this lot (within X m)"** follow the position-error rule in
+  `.kiro/steering/evidence.md`. "Next to" uses a 30 m radius.
+- **Names are the plan's lettering, quoted.** Buried never names a business or use the plan does not
+  letter.
+- **"No industrial use lettered" is not a clearance.** The page says so beside it.
+- **Photographs and imagined views never produce a finding.** The aerial photographs (2025 and 1939) are
+  for looking. The 1939 photograph is placed approximately, on the City's own caveat. The imagined views
+  are made with an image model from the plans, carry "IMAGINED" in the picture, and are captioned "Not a
+  photograph". A visitor has to choose one.
+- **Coverage: one block of Toronto, two plans.** The block has 168 lots. On the committed data 11 get
+  "Past industrial use recorded", 83 "Industrial use recorded next to this lot", 1 "A past use is lettered
+  on these plans" and 73 "Not covered yet". None gets "No industrial use lettered": the reviewed areas
+  attest buildings only (session 051 notes). Outside the block the page says "Not reconstructed yet."
 
 ## Where it stands
 
-Status is read from the repository as of the last commit to this file. The go/no-go gate results
-are in `docs/gate/README.md`. The first visit was rebuilt on Nov 13 (sessions 037 to 046).
+Figures are from the maintainer's own runs of Nov 25 on the deployed build. They are not a continuous
+check.
 
 | State | What |
 |---|---|
-| Works today | The first visit at `buried.pages.dev` (`/`): the block on a dark table with today's buildings as soot blocks, a headline, and one button, "Raise the past". Pressing it sinks today's buildings to a thin outline and stands up the 1911 plan's published buildings as ghosts. A still picture of the scene shows first while the Unity Player loads. |
-| Works today | Six finds (`data/finds.json`: overall factory, bank, coal yard, machine shop, cork factory, mission hall), each with the lettering crop it was read from. Selecting one opens a catalogue card (a bottom sheet on a phone): the name as lettered, the crop, the plan it was seen on, "Positioned within about X m", a status line, "Show the original sheet", "Share this find" and "Full record". Find tags sit along the top, and any ghost can be clicked. |
-| Works today | The era ruler (Today, 1935, 1911). On a selected find it adds one line saying what the other plan letters there, for example the coal yard under J. W. Corson & Co. on the 1911 plan and Northern Fuels Co. on the 1931-35 plan. |
-| Works today | The Lantern: a round lens, dragged with a pointer or a finger, that shows the other layer inside it. |
-| Works today | Share links: `/find/<slug>` opens raised on that find. |
-| Works today | Without WebGL, or if the Player fails, a flat sheet drawn by the web shell: the plate tile with the published outlines, and the same tags, card, ruler, lens and share link. |
-| Works today | Beyond the first visit: the place page (`/place` for address search, `/place?lot=...` for the dig and the report of one lot), reached from "Look up an address"; the Report (`/report`, with a one-page print layout), reached from "Full record"; the Sources page (`/sources`, which also links the Studio); and the Explorer (`/explorer`). The Report gives findings with status labels, "on this lot" and "near this lot" tests, a coverage statement and the list of records checked. |
-| Works today | The Studio slice (`/studio`, linked from the Sources page, not the header): fetch a registered plate, extract footprints, review them one by one, trace a land-use area from a plate's lettering, publish into the workspace, and export a bundle for the maintainer to review. It needs the Studio service running on the maintainer's machine. |
-| Works today | Pipeline commands: `fetch`, `inspect`, `present`, `align-check`, `control-crops`, `tile`, `extract`, `publish`, `match`, `validate`, `manifest`. `extract` is deterministic image processing; `publish` writes only what a person accepted. |
-| Works today | The `buried-evidence` MCP server (`pipeline/buried_pipeline/mcp`, registered in `.kiro/settings/mcp.json`) and the two agents that read it: `archivist` (sources, rights) and `plate-qa` (what a reviewer should look at). `find_places` returns finds with their review state. The held-out-plate write hook is enabled. |
-| Draft | All 175 features in the two evidence files (167 published, 8 merged fragments). Evidence schema 1.2.0 records a review state for each: 13 are draft by hand (the bank and twelve tracings of the named places on both plans) and 162 are draft by rule. None is reviewed, so every card says "Status: draft, not yet reviewed". Eight rule-drawn fragments were merged into the hand tracings. |
-| Draft | The six finds and their eleven readings: the lettering and the crops were transcribed by the maintainers and have not been reviewed. |
-| Draft | The control points for both plates, picked by eye from 60 m crops, all in the northern two-thirds of plate 229, and the map areas, set once by hand. |
-| In progress | Five older browser tests failed after the Nov 13 merge. Three expected the old journey, one was the land-use failure seen from the Studio suite, and one was real: the confidence line patterns in the 3D scene no longer differed after the look pass. Session 045 reports the land-use and card-sync tests fixed. Session 046 was assigned the rest and has not reported. |
-| Not built | Studio Align and editing: the Studio does not yet let you place control points or edit footprints. Merge and split traces are refused. |
-| Not built | 1947 imagery. Two aerial records are registered in `data/sources.json`, but neither has an alignment record, so neither is tiled or shown, and 1947 is not on the era ruler. |
-| Not built | A deployed Studio service. The site is static; extract and publish need the service run locally. |
-| Not built | Water remembers: no water source has been chosen. |
+| Works today | Landing, suggestions, the dig, the Result, the compare view with its layers, the "As it may have looked" postcard, the How page, the Sources page and the printable Report, at `buried.pages.dev`. They need no WebGL, work on a phone and request nothing outside the site. |
+| Works today | 1,258 Vitest tests pass. The lot-check browser config passes 52 (desktop, 390 px, reduced motion, no WebGL). Pipeline pytest passes. `buried validate` is OK on 18 files and 178 features. |
+| Works today | The pipeline (`fetch`, `inspect`, `present`, `align-check`, `tile`, `extract`, `publish`, `match`, `validate`), the `buried-evidence` MCP server, and the Studio on a maintainer's machine (it needs the Studio service run locally). |
+| Draft | All 178 features. None has been reviewed by a named person, so every record says "draft, not yet reviewed". |
+| Draft | The Industrial word list ("Reviewed by: not yet"). The landing's sentence ("On this block, six addresses stand on a former coal and wood yard.") is computed from the data and is only as good as the traced areas. |
+| Draft | Control points for the plates, picked by eye in the northern two-thirds of plate 229. Position error is less certain outside their hull. |
+| Parked | The raised 3D block and the walk test. Nothing on the site links to them. The Unity Player is not deployed. |
+| Not built | A second block or city, 1947 imagery (two aerial records are registered, none is aligned or shown), a deployed Studio service, any claim about present-day condition. |
+| Not built | A test on a real touch device. The phone passes run in Chromium at 390 px. |
 
-Measured at the gate (plate 229, against six City of Toronto intersections):
+Plate 232 (1931-35) is held out. No extraction setting or fixture was tuned on it.
 
-| Plate | Supplied georeferencing RMSE | Worst point | Published as |
-|---|---|---|---|
-| 1911 (revised to 1914) | 2.140 m | 3.504 m | within about 4.3 m |
-| 1931, revised to 1935 | 1.504 m | 2.607 m | within about 3.1 m |
+## Built with Kiro
 
-Alignment is measured only at the control points. The alignment record states their hull, and a
-position error is less certain outside it, which includes the southern third of plate 229. The
-held-out plate (232, 1931-35) has not been published.
+Every session ran through Kiro CLI. The task brief for each is in `docs/kiro-sessions/` (001 to 056).
 
-Measured on the merged build of Nov 13: 1,032 Vitest tests pass; the first visit against the real
-Player (`playwright.block.config.ts`) passes 9 of 9; with no WebGL (`playwright.blockflat.config.ts`)
-5 of 5; the hosting config 17 of 17; Unity EditMode 218 of 218; `buried validate` is OK on 18 files
-and 175 features; the pipeline test suite passes. These are the maintainer's own runs, not a
-continuous check.
+- **Steering** (`.kiro/steering/`). Six files always or conditionally loaded. `product.md` numbers the
+  honesty rules, including the banned words and the verdict rules; `design.md` holds the palette and its
+  contrast pairs. In `design.md` two pairs fail (lantern on parchment, 1.6; copper on parchment, 3.0),
+  so the steering bans them and a test measures every pair.
+- **Specs** (`.kiro/specs/`). Eight specs, each with requirements, design and tasks. Spec 08, the lot
+  check, has 12 requirements, 13 properties and 23 tasks, ticked only when tests pass.
+- **Hooks** (`.kiro/hooks/`). Seven files: they validate evidence on save, check source rights, run the
+  banned-word tests, regenerate the bridge types, and untick a task whose suites fail. `held-out.json`
+  refuses an agent write that puts plate 232 in a tuning file. `.kiro/hooks/README.md` says what each
+  guards.
+- **Agents** (`.kiro/agents/`). Six, each with a narrow set of permissions. `architect` writes specs and
+  steering and runs no commands. `builder` writes code and runs the allowed commands. `plate-qa` and
+  `archivist` read evidence through the MCP server and never write it.
+- **MCP** (`pipeline/buried_pipeline/mcp/`). `buried-evidence` is a local, read-only server over the
+  committed files. It computes no dates, lot relations or confidence wording.
+- **Property-based tests.** Spec 08 lists P1 to P13 marked `[PBT]`. P1: a tag of "Past industrial use
+  recorded" always has a trigger whose lettering holds a list word. P4: the landing's count equals an
+  independent count of address points inside the shrunk areas. P3: no generated sentence holds a banned
+  word. Hypothesis and fast-check tests are written beside the pure modules.
 
-## Run what exists
+The write-up is `docs/submission/kiro-writeup.md`; the demo script is `docs/submission/demo-script.md`.
 
-Prerequisites:
+## Run it locally
 
-- Python 3.12 with [uv](https://docs.astral.sh/uv/).
-- Node 22 or later with npm.
-- Unity 6000.3.26f1 with WebGL build support. Set `UNITY_BIN` to the editor binary
-  (`.../6000.3.26f1/Unity.app/Contents/MacOS/Unity` on macOS); `tools/unity.sh` exits 3 if it
-  cannot find one.
+The lot check needs only the web package. From `web/`:
 
-Pipeline, from `pipeline/`:
+```
+npm install
+npm test
+npm run typecheck
+npm run dev
+```
+
+`npm test` runs Vitest with fast-check. The site reads the contract files under `data/`. To build it and
+run the lot-check browser tests (no WebGL, own port 4178):
+
+```
+npm run build
+npm exec -- playwright install chromium
+npx playwright test -c playwright.lotcheck.config.ts
+```
+
+Screenshots go to `web/e2e/output/` (gitignored).
+
+Pipeline, from `pipeline/` (Python 3.12 with [uv](https://docs.astral.sh/uv/)):
 
 ```
 uv sync
@@ -77,150 +132,47 @@ uv run ruff check .
 uv run buried validate
 ```
 
-`pytest` ends with a line such as `N passed`. `ruff` prints `All checks passed!`. `validate` checks every
-contract file under `data/` against the schema, including `data/finds.json`, and exits 0, or exits 1 and
-lists each error. `uv run buried fetch`, `inspect`, `present`, `align-check <SOURCE_ID>`,
-`control-crops <SOURCE_ID>`, `tile`, `extract`, `publish`, `match` and `manifest` are described in
-`.kiro/steering/tech.md`. `fetch` writes to `data/raw/`, which is gitignored.
+The other commands (`fetch`, `inspect`, `present`, `align-check`, `tile`, `extract`, `publish`, `match`,
+`manifest`) are listed in `.kiro/steering/tech.md`. `fetch` writes to `data/raw/`, which is gitignored.
 
-Web shell, from `web/`:
-
-```
-npm install
-npm test
-npm run typecheck
-npm run build
-npm run preview
-```
-
-`npm test` runs Vitest and prints a summary with no failed files. `typecheck`
-prints nothing and exits 0. `build` type-checks, then Vite prints its output files and a `built in` line.
-`preview` serves the build on a local URL. The 3D scene needs the Unity build below in
-`web/public/unity/`; without it the page loads and shows the flat sheet.
-
-Unity, from the repository root:
-
-```
-tools/unity.sh exec Buried.Editor.Setup.Run
-tools/unity.sh test
-tools/unity.sh build
-```
-
-The first command imports packages and creates the scenes and assets; the first run takes several
-minutes. Every `tools/unity.sh` call ends with `unity exit code: 0   log: unity/Logs/<mode>.log`.
-`test` also prints the `<test-run ...>` line from the results file; look for `failed="0"`. `build`
-writes the WebGL build to `web/public/unity/`, which is gitignored.
-
-The first visit's browser tests, from `web/`, after `npm run build`:
-
-```
-npm exec -- playwright install chromium
-npx playwright test -c playwright.blockflat.config.ts
-npx playwright test -c playwright.block.config.ts
-```
-
-The first command is needed once. `playwright.blockflat.config.ts` runs the no-WebGL path and needs no
-Unity build. `playwright.block.config.ts` runs the `@unity` specs against the real Player, so it needs
-the Unity build in `web/public/unity/`, and run `npm run build` again after every Unity build. Screenshots
-go to `web/e2e/output/` (gitignored). The older gate test is `npm run test:e2e`.
-
-The still picture the landing shows first is rendered by Unity from the scene the web shell builds.
-From the repository root:
-
-```
-npm --prefix web run gen:still-scene
-tools/unity.sh exec Buried.Editor.Setup.Run
-tools/unity.sh exec Buried.Editor.Still.Render
-```
-
-This writes `web/public/still/block-wide.jpg`, `block-tall.jpg` and `block.json`. The render needs a
-graphics device, so it does not run on a machine with no display. Run it again when `data/finds.json` or
-the evidence changes, or the tags on the still keep stale positions. Do not commit
-`unity/Assets/Buried/Scenes/Bootstrap.unity` or the `ProjectSettings` files that `Setup.Run` touches.
+The parked 3D block needs Unity 6000.3.26f1. From the repository root, `tools/unity.sh exec
+Buried.Editor.Setup.Run`, `tools/unity.sh test` and `tools/unity.sh build` set up, test and build the
+WebGL Player into `web/public/unity/` (gitignored). Set `UNITY_BIN` if the editor is not found.
 
 ## Repository layout
 
 ```
-web/        Vite + React + TypeScript shell: the first visit (block page), place page, Explorer, Studio, Report, Sources, bridge (JS side), Evidence Library
-unity/      Unity 6 project: runtime meshing, drape, camera, lamp and ghost look, bridge (C# side and .jslib), EditMode tests
+web/        Vite + React + TypeScript: the lot check pages, Report, Sources, Studio, Evidence Library
+unity/      Unity 6 project for the parked 3D block (not deployed)
 pipeline/   Python 3.12 package `buried_pipeline` and the `buried` command
-data/       The contract files: schema, source registry, project origin, evidence, finds, control points,
-            alignment records, present-day layers, tiles. data/raw/ and data/work/ are gitignored.
-docs/       Concept brief, Kiro session briefs, and the gate results
+data/       Contract files: schema, source registry, evidence, control points, alignment, present-day layers, tiles
+docs/       Concept brief, session briefs and notes, submission documents
 tools/      unity.sh, the headless Unity runner
 .kiro/      Steering, specs, hooks and agent configurations
 ```
 
 All stored coordinates are EPSG:26917 (metres). Longitude and latitude do not appear in evidence.
 
-## Built with Kiro
-
-- `.kiro/steering/`: the standing rules every session reads. Product and honesty rules, the stack and
-  commands, repository layout, source rights, the evidence model and date logic, and the visual design.
-- `.kiro/specs/`: six specs (evidence model, pipeline, explorer, studio, report, first visit), each with
-  requirements, design and a task list. A task is ticked only after its tests pass. The sixth was written
-  after an outside review and the maintainer's own verdict that the first visit was unclear, and its tasks
-  were built in three groups (web, Unity, pipeline) at the same time.
-- `.kiro/hooks/`: seven hook files that run validation, the banned-word tests and the bridge tests
-  on save, plus a write guard for the held-out plate. `.kiro/hooks/README.md` says what each guards
-  and why.
-- `.kiro/agents/`: six agent configurations. `architect` writes specs, `builder` and `coder`
-  implement tasks, `mechanic` makes small edits, and `archivist` and `plate-qa` read the evidence
-  files through the MCP server and write notes, never evidence.
-- `docs/kiro-sessions/`: the task brief given to Kiro for each session, numbered 001 to 047,
-  including the one that produced this README.
-- Contracts shared by the three lanes: the bridge between the web shell and Unity is at version 0.8.0
-  (`data/schema/bridge.schema.json`), the evidence schema is 1.2.0 (it adds a review state to every
-  feature), and `data/finds.json` lists the six finds with their lettering crops.
-
-The rules in `.kiro/steering/` require property-based tests (Hypothesis in Python, fast-check in
-TypeScript, seeded generators in Unity EditMode). Things they caught:
-
-- **Precision in the alignment property.** A Hypothesis counterexample broke the property that a
-  leave-one-out error is never optimistic. The check used a fixed 1e-9 tolerance, but at northings near
-  4.8e6 m residuals only resolve to about 2e-9 m. The fix fits and evaluates affines relative to a local
-  origin and scales the tolerance with coordinate magnitude. The property was not weakened, and the
-  counterexample stays in the test as an explicit example.
-- **Hole bridging in the triangulator.** The Unity ear-clipping triangulator joins each hole to the
-  outer ring with a bridge. An earlier bridge leaves a vertex in the ring twice, and attaching the next
-  bridge at the wrong copy made the merged ring cross itself. `OccurrenceFacing` in
-  `unity/Assets/Buried/Runtime/Meshing/Triangulator.cs` picks the copy whose angle faces the hole. The
-  extrusion property (E4) generates polygons with up to three holes.
-- **A generator that was wrong, not the code.** The property that published land-use areas never reach
-  outside the map area failed on a small area well inside it. `publish` was right to refuse it: the test's
-  helper attached a lettering crop that ran off the plate. The generator now builds a crop equal to the
-  area, and the counterexample stays as an explicit example.
-
-The steering also requires a test that fails if any extraction fixture or parameter set references
-plate 232 (1935), the held-out plate. The hook that blocks agent writes mentioning it is enabled.
-
 ## Sources and credits
 
-Plates:
+- **Plates.** Goad fire insurance plan, Volume 3, plates 229 and 232. 1911 edition (revised to 1914):
+  "Digitized and georeferenced by the University of Toronto Map & Data Library." 1931 (revised to 1935)
+  edition: "Library and Archives Canada, National Map Collection (NMC-0013999). Digitized and
+  georeferenced by the University of Toronto Map & Data Library." U of T lists the plans as out of
+  copyright. The 1931-35 photographs carry the archive's own reproduction notice, so we rate the risk low,
+  credit both institutions, and the maintainer has yet to confirm it for submission.
+- **Present-day layers** (building outlines, property boundaries, address points, intersections) and the
+  **aerial photographs** of 2025 and 1939: City of Toronto Open Data, "Contains information licensed under
+  the Open Government Licence - Toronto." The City says its historic aerial photographs were not
+  orthorectified and are provided as is.
+- **1947 aerial photographs** (registered, not shown): "1947 aerial photographs: City of Toronto
+  Archives. Georeferenced by the University of Toronto Map & Data Library."
+- **Illustrations** (lantern, earth cross-section, paper, skyline, spade) and the **imagined views** were
+  made with an image model. They are decoration, not evidence, and the Sources page says so.
+- **Fonts**: Libre Baskerville, Source Sans 3 and IBM Plex Mono, self-hosted, each under the SIL Open Font License 1.1.
 
-- 1911 edition: "Digitized and georeferenced by the University of Toronto Map & Data Library."
-- 1931, revised to 1935 edition: "Library and Archives Canada, National Map Collection (NMC-0013999).
-  Digitized and georeferenced by the University of Toronto Map & Data Library."
-
-1947 aerial photographs (registered in `data/sources.json` and `.kiro/steering/sources.md`, none shown): "1947 aerial
-photographs: City of Toronto Archives. Georeferenced by the University of Toronto Map & Data Library."
-
-Present-day layers (building outlines, property boundaries, address points, intersections):
-"Contains information licensed under the Open Government Licence - Toronto."
-
-The 1931-35 plates are photographs of the copy held by Library and Archives Canada, which carries its
-own "no reproduction without permission" notice. U of T distributes the files publicly and lists the
-plans as out of copyright. We rate this low risk, credit both institutions, and the maintainer has yet
-to confirm it for submission.
-
-The full licence and rights notes are in `.kiro/steering/sources.md` and on the app's Sources page.
-The plates are greyscale; no material is recorded unless the plate's lettering states it.
-
-## What Buried is not
-
-Buried screens; it doesn't certify. Its maps are not utility locates and say nothing about present-day
-soil, water or structural condition. Before you dig, request locates through
-[Ontario Dig Authority](https://ontariodigauthority.ca/).
+Full licence and rights notes: `.kiro/steering/sources.md` and the Sources page. The plates are greyscale;
+no material is recorded unless the plan's lettering states it.
 
 ## Licence
 
