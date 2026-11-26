@@ -806,6 +806,115 @@
   max-width: 640px;
 }
 
+/* "As it may have looked" (session 055): a postcard with a thin border and a slight tilt that straightens on hover. */
+.lc-imagined .lc-section-heading {
+  color: var(--ink);
+  text-align: center;
+}
+
+.lc-postcard {
+  background: var(--parchment);
+  border: 1px solid var(--ink);
+  margin: var(--space-3) auto 0;
+  max-width: 460px;
+  padding: 8px 8px 10px;
+  transform: rotate(1deg);
+  transition: transform 0.3s ease-out;
+}
+
+.lc-postcard:hover,
+.lc-postcard:focus-within {
+  transform: rotate(0deg);
+}
+
+.lc-postcard-open {
+  background: var(--ink-soft);
+  border: 0;
+  cursor: zoom-in;
+  display: block;
+  padding: 0;
+  width: 100%;
+}
+
+.lc-postcard-open img {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+.lc-record .lc-postcard-open:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.lc-postcard figcaption {
+  color: var(--ink);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  margin-top: var(--space-2);
+}
+
+.lc-postcard-name {
+  font-family: var(--font-heading);
+  font-style: italic;
+}
+
+.lc-imagined-line {
+  color: var(--ink-soft);
+}
+
+/* The larger picture: never cropped, so its "IMAGINED" mark is always whole. */
+.lc-dialog {
+  background: var(--soot);
+  border: 1px solid var(--parchment-dim);
+  color: var(--parchment);
+  max-height: 96vh;
+  max-width: min(96vw, 1000px);
+  padding: var(--space-3);
+}
+
+.lc-dialog::backdrop {
+  background: var(--soot);
+  opacity: 0.85;
+}
+
+.lc-dialog-image {
+  display: block;
+  height: auto;
+  max-height: 72vh;
+  max-width: 100%;
+  object-fit: contain;
+  width: auto;
+}
+
+.lc-dialog-caption {
+  color: var(--parchment);
+  font-size: 1rem;
+  margin: var(--space-2) 0;
+}
+
+.lc-dialog .lc-imagined-line {
+  color: var(--parchment-dim);
+}
+
+.lc-dialog-close {
+  background: none;
+  border: 1px solid var(--parchment-dim);
+  border-radius: 2px;
+  color: var(--parchment);
+  cursor: pointer;
+  font: inherit;
+  min-height: 44px;
+  min-width: 88px;
+  padding: 0 var(--space-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-postcard {
+    transform: none;
+  }
+}
+
 /* The inscription is set like a grave marker: a thin rule, a second rule within it, corner ornaments, centred. */
 .lc-inscription {
   border: 1px solid var(--ink);

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { plainYears } from '../evidence';
 import type { PolygonalGeometry, PresentLayer } from '../evidence';
@@ -18,6 +18,7 @@ import { LetteringCrop } from './LetteringCrop';
 import { ART, Fog, RegistrationCrosses } from './night';
 import { InscriptionBlock, Stamp } from './RecordSheet';
 import { onLotFeatureIds, viewsOnLot } from './photos';
+import { Postcards } from './Postcard';
 import { usePictures } from './usePictures';
 import type { Pictures } from './usePictures';
 import { useLotData, useBuildings } from './useLotData';
@@ -124,6 +125,9 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
   const lotLines = useMemo(() => polygonsOf(data.lots), [data.lots]);
   // Imagined views are offered only for a lettered use ON the lot (product.md "Pictures" rule 4), from the view model's rows.
   const imagined = useMemo(() => viewsOnLot(onLotFeatureIds(check.rows), data.pictures.views), [check, data.pictures.views]);
+  // The street picture is requested only after the plan tile has loaded (requirement 11.4).
+  const [planReady, setPlanReady] = useState(false);
+  const onPlanReady = useCallback(() => setPlanReady(true), []);
 
   // Where it stood: the outline of each lettered use on the lot, from the evidence, drawn faint on today's side.
   const stood = useMemo(() => {
@@ -200,8 +204,10 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
                 aspect={phone ? 1 : 4 / 3}
                 pictures={data.pictures}
                 imagined={imagined}
+                onPlanReady={onPlanReady}
               />
             </section>
+            <Postcards views={imagined} load={planReady} />
           </div>
           <section className="lc-provenance" aria-label={copy.SECTION.provenance} data-testid="lc-provenance">
             <ul>

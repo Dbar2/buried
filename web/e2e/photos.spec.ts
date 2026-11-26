@@ -143,8 +143,10 @@ test('photographs are not asked for before the plan tile, and the Landing never 
   expect(firstTile).toBeDefined();
   expect(firstPhoto).toBeDefined();
   expect((firstPhoto as { t: number }).t).toBeGreaterThanOrEqual((firstTile as { t: number }).t);
-  // Only the picture the visitor can see is asked for: not the 1939 photograph, not an imagined view.
-  expect(seen.filter((r) => /aerial-1939|imagined\/.*\.jpg/.test(r.url))).toEqual([]);
+  // Only what the visitor can see is asked for: not the 1939 photograph, not an imagined top-down view (the postcard's street picture is on the sheet).
+  expect(seen.filter((r) => /aerial-1939|-topdown\.jpg/.test(r.url))).toEqual([]);
+  const street = seen.find((r) => /-street\.jpg$/.test(r.url));
+  if (street) expect(street.t).toBeGreaterThanOrEqual((firstTile as { t: number }).t);
 });
 
 test('a lot with industrial use only next to it has no imagined view, and a lot the plans do not cover has no imagined view', async ({ page }) => {
@@ -157,6 +159,70 @@ test('a lot with industrial use only next to it has no imagined view, and a lot 
   await expect(page.getByTestId('lc-tag')).toHaveText('Not covered yet');
   await expect(page.getByRole('radio', { name: /Imagined/ })).toHaveCount(0);
   await expect(page.getByTestId('lc-imagined')).toHaveCount(0);
+});
+
+test('"As it may have looked": the postcard, its caption, the larger picture, Escape and focus', async ({ page }) => {
+  await open(page);
+  const section = page.getByTestId('lc-imagined');
+  await expect(section.getByRole('heading', { name: 'As it may have looked' })).toBeVisible();
+  const card = page.getByTestId('lc-postcard');
+  await expect(card).toHaveCount(1);
+  await expect(page.getByTestId('lc-postcard-caption')).toHaveText('The coal and wood yard of J. W. Corson & Co. Imagined from the 1911 plan. Not a photograph.');
+  const image = page.getByTestId('lc-postcard-image');
+  await expect(image).toHaveAttribute('src', '/lotcheck/imagined/coal-yard-street.jpg');
+  await expect.poll(() => image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth)).toBe(1200);
+  // The picture is shown whole: its box has the picture's own proportions.
+  const box = (await image.boundingBox()) as { width: number; height: number };
+  expect(box.width / box.height).toBeCloseTo(1200 / 800, 1);
+  await page.getByTestId('lc-postcard').scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `${OUT}/photos-postcard-desktop.png` });
+  const opener = page.getByTestId('lc-postcard-open');
+  await opener.click();
+  const dialog = page.getByTestId('lc-dialog');
+  await expect(dialog).toBeVisible();
+  await expect(page.getByTestId('lc-dialog-caption')).toHaveText('The coal and wood yard of J. W. Corson & Co. Imagined from the 1911 plan. Not a photograph.');
+  const large = (await page.getByTestId('lc-dialog-image').boundingBox()) as { width: number; height: number };
+  expect(large.width).toBeGreaterThan(box.width);
+  expect(large.width / large.height).toBeCloseTo(1200 / 800, 1);
+  await page.screenshot({ path: `${OUT}/photos-dialog-desktop.png` });
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect(opener).toBeFocused();
+  // The button closes it too.
+  await opener.click();
+  await page.getByTestId('lc-dialog-close').click();
+  await expect(dialog).toHaveCount(0);
+  await expect(opener).toBeFocused();
+});
+
+test('the postcard is not asked for before the plan tile, and it has no tilt under reduced motion', async ({ page }) => {
+  const seen: Array<{ url: string; t: number }> = [];
+  const t0 = Date.now();
+  page.on('request', (r) => seen.push({ url: r.url(), t: Date.now() - t0 }));
+  await open(page);
+  await expect(page.getByTestId('lc-postcard-image')).toBeVisible();
+  const tile = seen.find((r) => /\/data\/tiles\/[^/]+\.jpg$/.test(r.url));
+  const street = seen.find((r) => /coal-yard-street\.jpg$/.test(r.url));
+  expect(street).toBeDefined();
+  expect((street as { t: number }).t).toBeGreaterThanOrEqual((tile as { t: number }).t);
+  expect(await page.getByTestId('lc-postcard').evaluate((el) => getComputedStyle(el).transform)).toBe('none');
+});
+
+test.describe('the postcard with motion', () => {
+  test.use({ reducedMotion: 'no-preference' });
+
+  test('is tilted about one degree and straightens on hover', async ({ page }) => {
+    await open(page);
+    const card = page.getByTestId('lc-postcard');
+    await card.scrollIntoViewIfNeeded();
+    const angle = () => card.evaluate((el) => {
+      const m = getComputedStyle(el).transform.match(/matrix\(([^,]+), ([^,]+),/);
+      return m ? Math.round(Math.atan2(Number(m[2]), Number(m[1])) * (180 / Math.PI) * 10) / 10 : 0;
+    });
+    expect(await angle()).toBe(1);
+    await card.hover();
+    await expect.poll(angle).toBe(0);
+  });
 });
 
 test('the layer controls work by keyboard', async ({ page }) => {
