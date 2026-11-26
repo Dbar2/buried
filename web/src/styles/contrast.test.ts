@@ -89,7 +89,7 @@ describe('the lot check styles use no pair design.md forbids (spec 08 task 7)', 
   it('uses lantern only where design.md lists it, and copper only for the divider grip and the registration crosses', () => {
     // Session 053: the lit lots, the light and the pool on the Landing, the lantern's glow, the focus ring and the field's focus border on soot, the mark.
     expect([...new Set(uses('lantern'))].sort()).toEqual(
-      ['.dg-brand .mark', '.dg-glow', '.lc-button', '.lc-dot', '.lc-field:focus', '.lc-light', '.lc-lot-fill', '.lc-lot-line', '.lc-outline', '.lc-pool', '.lotcheck-page .wordmark .mark', '.lotcheck-scroll :focus-visible'].sort(),
+      ['.dg-brand .mark', '.dg-glow', '.lc-button', '.lc-dot', '.lc-field:focus', '.lc-lantern-pool', '.lc-light', '.lc-lot-fill', '.lc-lot-line', '.lc-outline', '.lc-pool', '.lotcheck-page .wordmark .mark', '.lotcheck-scroll :focus-visible'].sort(),
     );
     expect(uses('copper').sort()).toEqual(['.lc-grip', '.lotcheck-scroll .lc-cross::before, .lotcheck-scroll .lc-cross::after']);
   });

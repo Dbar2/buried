@@ -273,7 +273,15 @@
   will-change: transform;
 }
 
-/* The lantern's own soft pool of light on the paper beneath it. */
+/* The lantern's own soft pool of light on the paper beneath it, clipped to the figure so it never widens the page. */
+.lc-lantern-clip {
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
 .lc-lantern-pool {
   animation:
     lc-ignite 0.9s ease-out backwards,
@@ -426,7 +434,7 @@
 }
 
 .dg-strata {
-  filter: brightness(1.45) contrast(1.08);
+  filter: brightness(1.8) contrast(1.1);
   height: 100%;
   inset: 0;
   object-fit: cover;
@@ -477,8 +485,8 @@
     circle at center,
     transparent 0,
     transparent 7vmin,
-    color-mix(in srgb, var(--soot) 30%, transparent) 14vmin,
-    color-mix(in srgb, var(--soot) 62%, transparent) 22.5vmin,
+    color-mix(in srgb, var(--soot) 18%, transparent) 14vmin,
+    color-mix(in srgb, var(--soot) 55%, transparent) 22.5vmin,
     color-mix(in srgb, var(--soot) 93%, transparent) 34vmin,
     color-mix(in srgb, var(--soot) 93%, transparent) 100%
   );
@@ -676,11 +684,16 @@
 
 @media (max-width: 719px) {
   .dg {
-    --rope-x: 42%;
+    --rope-x: 45%;
   }
 
   .dg-ruler {
     left: 14px;
+  }
+
+  .dg-mark-label {
+    font-size: 0.8125rem;
+    padding: 3px 8px;
   }
 
   .dg-slip {

@@ -55,6 +55,29 @@ for (const size of SIZES) {
       await expect(page).toHaveURL(/\/lot\/5451729$/);
     });
 
+    test('the dig starts from the street: the skyline and the ground line are on screen, with the whole lantern', async ({ page }) => {
+      await page.addInitScript(() => {
+        (window as unknown as { __buriedDigHold: number }).__buriedDigHold = 0;
+      });
+      await page.goto('/');
+      await expect(page.getByTestId('lc-fact')).toBeVisible();
+      await page.getByTestId('lc-address').fill('2A Percy St');
+      await page.getByTestId('lc-address').press('Enter');
+      const dig = page.getByTestId('dig');
+      await expect(dig).toHaveAttribute('data-held', 'true');
+      const sky = await dig.locator('.dg-skyline').boundingBox();
+      const lantern = await dig.locator('.dg-lantern').boundingBox();
+      expect(sky).not.toBeNull();
+      expect(lantern).not.toBeNull();
+      const s = sky as { y: number; height: number };
+      const l = lantern as { y: number; height: number };
+      expect(s.y, 'the skyline is not cut off at the top').toBeGreaterThanOrEqual(0);
+      expect(s.y + s.height, 'the ground line is in the upper half').toBeLessThan(size.height * 0.5);
+      expect(l.y, 'the lantern is whole at the top').toBeGreaterThanOrEqual(0);
+      await finite(page);
+      await page.screenshot({ path: `${OUT}/night-dig-start-${size.name}.png` });
+    });
+
     test('the Result after the stamp', async ({ page }) => {
       await page.goto('/lot/5451729');
       await expect(page.getByTestId('lc-tag')).toBeVisible();
