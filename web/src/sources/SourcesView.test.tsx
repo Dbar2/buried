@@ -2,11 +2,14 @@
  * The Sources page body on the committed registry and tile sidecars (session 027, spec 03 task 17.3):
  * every source with its credit and rights note, and each plate's whole photograph with its size set.
  */
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { sourceYearsText } from '../evidence';
+import { findBannedWords, sourceYearsText } from '../evidence';
 import { diskFetch, REPOSITORY_DATA } from '../explorer/testing/diskFetch';
-import { fullImageAlt, loadSourcesData, SourcesView } from './SourcesPage';
+import { parseImagined, parsePhotos } from '../lotcheck/photos';
+import { cropStyle, fullImageAlt, loadSourcesData, SourcesView } from './SourcesPage';
 
 const decode = (html: string): string => html.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&');
 
@@ -58,6 +61,43 @@ describe('the Sources page on the committed data', async () => {
   it('says the night illustrations were made with an image model and are decoration, not evidence', () => {
     expect(html).toContain('<h2 id="sources-illustrations">Illustrations</h2>');
     expect(html).toContain('The lantern, the earth cross-section, the paper, the skyline and the spade are illustrations made with an image model. They are decoration, not evidence.');
+  });
+
+  it('lists the aerial photographs with their licence, credit and the City\'s caveat for 1939, and the imagined views as not evidence (session 055)', () => {
+    const read = (p: string): unknown => JSON.parse(readFileSync(resolve(__dirname, '../../public/lotcheck', p), 'utf8'));
+    const photos = parsePhotos(read('aerial/aerial.json'));
+    const imagined = parseImagined(read('imagined/imagined.json'));
+    const page = decode(renderToStaticMarkup(<SourcesView data={{ ...data, photos, imagined }} />));
+    expect(page).toContain('<h2 id="sources-aerial">Aerial photographs</h2>');
+    for (const p of photos) {
+      const entry = page.slice(page.indexOf(`data-testid="aerial-${p.id}"`));
+      const text = entry.slice(0, entry.indexOf('</article>'));
+      expect(text).toContain(p.label);
+      expect(text).toContain('Open Government Licence - Toronto');
+      expect(text).toContain('Contains information licensed under the Open Government Licence - Toronto.');
+      expect(text).toContain(p.sourceUrl);
+      expect(text).toContain('loading="lazy"');
+      expect(text.includes('were not orthorectified'), p.id).toBe(p.approximate);
+    }
+    expect(page).toContain('<h2 id="sources-imagined">Imagined views</h2>');
+    expect(page).toContain('Made with an image model from the plans: decoration and illustration, not evidence.');
+    for (const v of imagined.views) expect(page).toContain(`data-testid="imagined-${v.slug}"`);
+    expect(findBannedWords(page.replace(/<[^>]+>/g, ' '))).toEqual([]);
+  });
+
+  it('leaves both sections out when the indexes are not there', () => {
+    expect(html).not.toContain('sources-aerial');
+    expect(html).not.toContain('sources-imagined');
+  });
+
+  it('cuts the small crop of a photograph around a point, inside the picture', () => {
+    const style = cropStyle({ bounds: [632295, 4834745, 632715, 4835185], widthPx: 1680, heightPx: 1760 }, [632410.5, 4834915.3], { width: 320, height: 180 });
+    expect(style.objectFit).toBe('none');
+    const [x, y] = String(style.objectPosition).split(' ').map((v) => Number.parseInt(v, 10));
+    expect(-(x as number)).toBeGreaterThanOrEqual(0);
+    expect(-(x as number) + 320).toBeLessThanOrEqual(1680);
+    expect(-(y as number)).toBeGreaterThanOrEqual(0);
+    expect(-(y as number) + 180).toBeLessThanOrEqual(1760);
   });
 
   it('credits the three typefaces with their licence', () => {

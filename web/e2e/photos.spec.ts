@@ -291,6 +291,27 @@ test.describe('the dig carries a small imagined picture at the layer that letter
   });
 });
 
+test('the Sources page lists the aerial photographs and the imagined views', async ({ page }) => {
+  await page.goto('/sources');
+  const aerial = page.getByTestId('sources-aerial');
+  await expect(aerial.getByRole('heading', { name: 'Aerial photographs' })).toBeVisible();
+  await expect(page.getByTestId('aerial-today-2025')).toContainText('Open Government Licence - Toronto');
+  await expect(page.getByTestId('aerial-today-2025')).toContainText('Contains information licensed under the Open Government Licence - Toronto.');
+  await expect(page.getByTestId('aerial-caveat')).toContainText('not orthorectified');
+  await expect(page.getByTestId('aerial-aerial-1939')).toContainText('1939 aerial photograph, City of Toronto');
+  const imagined = page.getByTestId('sources-imagined');
+  await expect(imagined).toContainText('decoration and illustration, not evidence');
+  await expect(page.getByTestId('imagined-list').locator('li')).toHaveCount(9);
+  await expect(page.getByTestId('imagined-coal-yard')).toContainText('The coal and wood yard of J. W. Corson & Co.');
+  await aerial.scrollIntoViewIfNeeded();
+  const crop = page.getByTestId('aerial-today-2025').locator('img');
+  await crop.scrollIntoViewIfNeeded();
+  await expect.poll(() => crop.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth)).toBe(1680);
+  await crop.evaluate((el: HTMLImageElement) => el.decode());
+  await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+  await page.screenshot({ path: `${OUT}/photos-sources-desktop.png` });
+});
+
 test('phone: the layers wrap, every control is 44 px, nothing scrolls sideways', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 2000 }, deviceScaleFactor: 1, hasTouch: true, reducedMotion: 'reduce' });
   const page = await context.newPage();
