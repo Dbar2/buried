@@ -1010,6 +1010,11 @@
   .lc-provenance {
     order: 5;
   }
+
+  /* The postcard comes last: the one-page record button stays right after the plan. */
+  .lc-imagined {
+    order: 6;
+  }
 }
 
 @media (max-width: 719px) {

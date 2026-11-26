@@ -50,4 +50,4 @@ One builder session, in order. **(demo)** marks what the demo video needs. Recor
 - [x] 20. "As it may have looked" on the record sheet. (12.1, 12.2)
 - [x] 21. Dig thumbnail, Landing line. (12.3, 12.4)
 - [x] 22. Sources page sections. (12.5)
-- [ ] 23. Weight, final runs, notes. (11.4, 1.4)
+- [x] 23. Weight, final runs, notes. (11.4, 1.4)

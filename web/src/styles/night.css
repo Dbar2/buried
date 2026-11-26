@@ -844,16 +844,16 @@
   max-width: 640px;
 }
 
-/* "As it may have looked" (session 055): a postcard with a thin border and a slight tilt that straightens on hover. */
-.lc-imagined .lc-section-heading {
-  color: var(--ink);
-  text-align: center;
+/* "As it may have looked" (session 055): on the dark page, under the record, a postcard with a thin parchment border and
+   a slight tilt that straightens on hover. */
+.lc-imagined {
+  padding-top: var(--space-4);
 }
 
 .lc-postcard {
   background: var(--parchment);
-  border: 1px solid var(--ink);
-  margin: var(--space-3) auto 0;
+  border: 1px solid var(--parchment);
+  margin: var(--space-3) 0 0;
   max-width: 460px;
   padding: 8px 8px 10px;
   transform: rotate(1deg);
@@ -880,7 +880,7 @@
   width: 100%;
 }
 
-.lc-record .lc-postcard-open:focus-visible {
+.lc-postcard .lc-postcard-open:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
 }

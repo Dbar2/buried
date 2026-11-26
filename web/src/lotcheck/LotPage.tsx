@@ -207,7 +207,6 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
                 onPlanReady={onPlanReady}
               />
             </section>
-            <Postcards views={imagined} load={planReady} />
           </div>
           <section className="lc-provenance" aria-label={copy.SECTION.provenance} data-testid="lc-provenance">
             <ul>
@@ -227,6 +226,8 @@ function Body({ check, data, afterPaint }: { check: Extract<LotCheck, { kind: 'c
               ))}
             </ul>
           </section>
+          {/* "As it may have looked": after the plan and the provenance, so the one-page record button stays close to the plan. */}
+          <Postcards views={imagined} load={planReady} />
         </div>
         <div className="lc-side">
           <section className="lc-section lc-plans" aria-labelledby="lc-plans-heading">

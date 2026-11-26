@@ -167,6 +167,10 @@ invent commands; when one is added, record it here.
     runs under reduced motion (no dig, no sweep). Test hook: `window.__buriedDigHold = <mark index>` (set with `addInitScript`) freezes the dig
     inside that mark's pause. Limits (spec 08 1.4): Landing 950 KB, Result 700 KB before the tile. The skyline, the spade and the earth
     cross-section load once the Landing is idle; the Result's lantern loads after its text.
+    Session 055 (photographs and imagined views): the same config runs `e2e/photos.spec.ts` (`npx playwright test -c playwright.lotcheck.config.ts photos`),
+    which writes `e2e/output/photos-*.png` (each Then and Now pair, the postcard and its larger dialog, the dig's thumbnail, the Sources page, a phone
+    pass) and checks that no photograph is requested before the plan tile or on the Landing. The pictures and their two indexes are committed under
+    `web/public/lotcheck/aerial/` and `imagined/`; they are made outside the builder's sessions and are not regenerated.
   - Block page, the first visit (spec 06, sessions 042 to 045), from `web/` after `npm run build`:
     `npx playwright test -c playwright.blockflat.config.ts` (no WebGL; port 4175; no Unity build
     needed) and `npx playwright test -c playwright.block.config.ts` (the `@unity` specs, against

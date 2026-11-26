@@ -64,6 +64,7 @@ function recordResponses(page: Page) {
     }
   });
   const isTile = (url: string) => /\/data\/tiles\/[^/]+\.jpg$/.test(url);
+  const isPicture = (url: string) => /\/lotcheck\/(aerial|imagined)\/[^/]+\.jpg$/.test(url);
   return {
     all: () => done,
     total: () => done.reduce((s, d) => s + d.bytes, 0),
@@ -72,6 +73,12 @@ function recordResponses(page: Page) {
       return done.filter((d) => d.ended <= cut).reduce((s, d) => s + d.bytes, 0);
     },
     largest: (n = 8) => [...done].sort((a, b) => b.bytes - a.bytes).slice(0, n).map((d) => [d.url.replace(/^https?:\/\/[^/]+/, ''), d.bytes] as const),
+    /** Bytes of the responses that finished before the first photograph or imagined picture was requested (session 055). */
+    bytesBeforePhotos: () => {
+      const cut = done.filter((d) => isPicture(d.url)).sort((a, b) => a.started - b.started)[0]?.started ?? Infinity;
+      return done.filter((d) => d.ended <= cut).reduce((s, d) => s + d.bytes, 0);
+    },
+    pictures: () => done.filter((d) => isPicture(d.url)).map((d) => [d.url.replace(/^https?:\/\/[^/]+/, ''), d.bytes] as const),
   };
 }
 
@@ -350,6 +357,20 @@ test('page weight: what each page transfers before the visitor acts', async ({ b
   expect(tileAt).not.toBeNull();
   // The tile is requested after the text is on screen (requirement 1.4).
   expect(tileAt as number).toBeGreaterThan(tag as number);
+  // Session 055: the photographs arrive after the text and the plan tile. What the Result has transferred before the
+  // first picture is requested, the pictures themselves, and everything once today's photograph is on screen.
+  await expect(result.page.getByTestId('lc-frame')).toHaveAttribute('data-now', 'photo');
+  await result.page.waitForLoadState('networkidle');
+  sizes['result_bytes_before_photos'] = result.record.bytesBeforePhotos();
+  sizes['result_pictures'] = result.record.pictures();
+  sizes['result_bytes_with_photo'] = result.record.total();
+  const firstPicture = await result.page.evaluate(() => {
+    const first = (performance.getEntriesByType('resource') as PerformanceResourceTiming[]).filter((e) => /\/lotcheck\/(aerial|imagined)\/[^/]+\.jpg$/.test(e.name)).sort((a, b) => a.startTime - b.startTime)[0];
+    return first ? first.startTime : null;
+  });
+  expect(firstPicture).not.toBeNull();
+  expect(firstPicture as number).toBeGreaterThan(tileAt as number);
+  expect(firstPicture as number).toBeGreaterThan(tag as number);
   await result.context.close();
 
   const how = await fresh('/how', async (p) => {

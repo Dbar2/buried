@@ -176,6 +176,8 @@ test('"As it may have looked": the postcard, its caption, the larger picture, Es
   const box = (await image.boundingBox()) as { width: number; height: number };
   expect(box.width / box.height).toBeCloseTo(1200 / 800, 1);
   await page.getByTestId('lc-postcard').scrollIntoViewIfNeeded();
+  await image.evaluate((el: HTMLImageElement) => el.decode());
+  await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
   await page.screenshot({ path: `${OUT}/photos-postcard-desktop.png` });
   const opener = page.getByTestId('lc-postcard-open');
   await opener.click();

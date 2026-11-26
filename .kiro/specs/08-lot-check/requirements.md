@@ -21,7 +21,9 @@ in the Evidence Library). *Coverage area*: lots for which `buildReport` does not
     and SHALL request the tile only after its text is on screen. (Session 053: the night art, about
     600 KB of WebP, is most of the new weight; the earth cross-section loads after the Landing is
     idle. Before it the figures were 600 and 550 KB; session 052 had raised the Result's from 400,
-    because the schema validator is most of its weight.)
+    because the schema validator is most of its weight.) (Session 055: the Result's figure stays 700 KB; the
+    two picture indexes add about 5 KB. The photographs and imagined pictures are requested after the text
+    and after the plan tile, never on the Landing, and are not counted in it.)
 
 ## Requirement 2: The Landing
 
@@ -195,7 +197,8 @@ in the Evidence Library). *Coverage area*: lots for which `buildReport` does not
 
 12.1 AN imagined view SHALL be offered only when one of its `feature_ids` is a lettered use on the lot, and
      SHALL never be the default. A lot that is only next to a recorded site SHALL get none. [PBT: P13]
-12.2 THE record sheet SHALL show, under the compare view, "As it may have looked": the street picture, the
+12.2 THE Result SHALL show, under the record sheet and its provenance strip (so the one-page record button
+     stays next to the plan), "As it may have looked": the street picture, the
      index's caption and "Imagined from the <plan> plan. Not a photograph.". A click SHALL open it larger in
      a dialog (Escape closes, focus returns). THE picture SHALL never be cropped.
 12.3 AT the layer where the plan letters a use on the lot, THE dig's slip SHALL carry a thumbnail of the
