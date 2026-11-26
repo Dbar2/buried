@@ -67,13 +67,13 @@
 
 .lc-skyline {
   animation: lc-art-in 1.6s ease-out backwards;
-  filter: brightness(0.55) saturate(0.75);
+  filter: brightness(0.75) saturate(0.75);
   height: 190px;
   left: 0;
   max-width: none;
   object-fit: cover;
   object-position: center bottom;
-  opacity: 0.6;
+  opacity: 0.7;
   pointer-events: none;
   position: absolute;
   top: 0;
@@ -81,9 +81,10 @@
   z-index: 0;
 }
 
+/* Two layers of fog low on the page, drifting the opposite ways. Soft --haze with a breath of --parchment-dim. */
 .lc-fog {
   bottom: 0;
-  height: 45%;
+  height: 55%;
   left: 0;
   overflow: hidden;
   pointer-events: none;
@@ -94,20 +95,22 @@
 
 .lc-fog-a,
 .lc-fog-b {
-  inset: 0 -12%;
+  inset: 0 -20%;
   position: absolute;
 }
 
 .lc-fog-a {
-  animation: lc-drift 70s ease-in-out infinite alternate;
+  animation: lc-drift 45s ease-in-out infinite alternate;
   background:
-    radial-gradient(ellipse at 22% 100%, color-mix(in srgb, var(--parchment-dim) 20%, transparent), transparent 58%),
-    radial-gradient(ellipse at 74% 96%, color-mix(in srgb, var(--parchment-dim) 15%, transparent), transparent 52%);
+    radial-gradient(ellipse at 20% 100%, color-mix(in srgb, var(--haze) 100%, transparent) 0, color-mix(in srgb, var(--parchment-dim) 16%, transparent) 30%, transparent 62%),
+    radial-gradient(ellipse at 72% 90%, color-mix(in srgb, var(--haze) 95%, transparent) 0, color-mix(in srgb, var(--parchment-dim) 11%, transparent) 28%, transparent 56%);
 }
 
 .lc-fog-b {
-  animation: lc-drift 95s ease-in-out infinite alternate-reverse;
-  background: radial-gradient(ellipse at 50% 108%, color-mix(in srgb, var(--haze) 90%, transparent), transparent 62%);
+  animation: lc-drift 58s ease-in-out infinite alternate-reverse;
+  background:
+    radial-gradient(ellipse at 48% 100%, color-mix(in srgb, var(--haze) 100%, transparent) 0, color-mix(in srgb, var(--parchment-dim) 14%, transparent) 34%, transparent 66%),
+    radial-gradient(ellipse at 92% 80%, color-mix(in srgb, var(--haze) 90%, transparent) 0, transparent 50%);
 }
 
 .lc-spade {
@@ -270,6 +273,22 @@
   will-change: transform;
 }
 
+/* The lantern's own soft pool of light on the paper beneath it. */
+.lc-lantern-pool {
+  animation:
+    lc-ignite 0.9s ease-out backwards,
+    lc-flame 4.2s 1.5s ease-in-out infinite;
+  aspect-ratio: 1;
+  background: radial-gradient(circle closest-side, color-mix(in srgb, var(--lantern) 48%, transparent) 0, color-mix(in srgb, var(--lantern) 20%, transparent) 45%, transparent 100%);
+  left: 94%;
+  pointer-events: none;
+  position: absolute;
+  top: 21%;
+  transform: translate(-50%, -50%);
+  width: 58%;
+  z-index: 2;
+}
+
 .lc-lantern-landing {
   animation:
     lc-ignite 0.9s ease-out backwards,
@@ -330,6 +349,7 @@
   fill: none;
   pointer-events: none;
   stroke: var(--lantern);
+  stroke-opacity: 0.7;
   stroke-width: 2px;
   vector-effect: non-scaling-stroke;
 }
@@ -337,13 +357,21 @@
 .lc-lot:hover .lc-lot-fill,
 .lc-lot:focus-visible .lc-lot-fill,
 .lc-lot[data-active='true'] .lc-lot-fill {
-  fill-opacity: 0.4;
+  fill-opacity: 0.5;
 }
 
 .lc-lot:focus-visible .lc-lot-line,
-.lc-lot:hover .lc-lot-line {
+.lc-lot:hover .lc-lot-line,
+.lc-lot[data-active='true'] .lc-lot-line {
   animation: none;
-  stroke-width: 4px;
+  stroke-opacity: 1;
+  stroke-width: 2px;
+}
+
+.lc-lot:focus-visible .lc-lot-casing,
+.lc-lot:hover .lc-lot-casing,
+.lc-lot[data-active='true'] .lc-lot-casing {
+  stroke-opacity: 0.95;
 }
 
 .lc-lot-tag {

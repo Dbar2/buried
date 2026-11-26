@@ -240,6 +240,7 @@ export function LandingPage() {
             {picture ? <p className="lc-sheet-no mono">Sheet {sheetOf}</p> : null}
           </div>
         </div>
+        <div className="lc-lantern-pool" aria-hidden="true" />
         <img className="lc-lantern lc-lantern-landing" src={ART.lantern} alt="" width={311} height={640} decoding="async" />
         <figcaption className="lc-map-caption" data-testid="lc-caption">
           {caption}
