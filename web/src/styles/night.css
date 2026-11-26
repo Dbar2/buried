@@ -411,6 +411,11 @@
 }
 
 /* The earth, panned down behind the lantern. The skyline stands on its ground line. */
+.dg-stage {
+  inset: 0;
+  position: absolute;
+}
+
 .dg-world {
   height: max(150vw, 200vh);
   left: 0;
@@ -421,6 +426,7 @@
 }
 
 .dg-strata {
+  filter: brightness(1.45) contrast(1.08);
   height: 100%;
   inset: 0;
   object-fit: cover;
@@ -429,15 +435,16 @@
   width: 100%;
 }
 
+/* On screen, whole, above the ground line when the dig begins (the ground line is at 30 per cent of the window). */
 .dg-skyline {
   bottom: calc(100% - 12.3%);
-  filter: brightness(0.62) saturate(0.8);
+  filter: brightness(0.8) saturate(0.8);
   height: auto;
   left: 16%;
   max-width: none;
-  opacity: 0.85;
+  opacity: 0.9;
   position: absolute;
-  width: 84%;
+  width: min(84%, 78vh);
 }
 
 .dg-col {
@@ -449,16 +456,31 @@
   width: 0;
 }
 
-/* The earth is dark except in the lantern's light: a big dark disc with a clear middle that travels with the flame. */
+/* The rope and lantern sway a little, hanging from the top of the window. Transform only. */
+.dg-sway {
+  animation: dg-sway 5.2s ease-in-out infinite alternate;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  transform-origin: 0 0;
+  width: 0;
+}
+
+/*
+ * The earth is dark except in the lantern's light. The lit area is about 45 per cent of the window's shorter side
+ * across (the light is half gone at 22.5vmin from the flame) and it falls to near black beyond 34vmin.
+ */
 .dg-dark {
   aspect-ratio: 1;
   background: radial-gradient(
-    circle closest-side,
+    circle at center,
     transparent 0,
-    transparent 8%,
-    color-mix(in srgb, var(--soot) 38%, transparent) 14%,
-    color-mix(in srgb, var(--soot) 52%, transparent) 26%,
-    color-mix(in srgb, var(--soot) 52%, transparent) 100%
+    transparent 7vmin,
+    color-mix(in srgb, var(--soot) 30%, transparent) 14vmin,
+    color-mix(in srgb, var(--soot) 62%, transparent) 22.5vmin,
+    color-mix(in srgb, var(--soot) 93%, transparent) 34vmin,
+    color-mix(in srgb, var(--soot) 93%, transparent) 100%
   );
   left: 0;
   position: absolute;
@@ -469,11 +491,11 @@
 
 .dg-glow {
   aspect-ratio: 1;
-  background: radial-gradient(circle closest-side, color-mix(in srgb, var(--lantern) 40%, transparent) 0, color-mix(in srgb, var(--lantern) 12%, transparent) 42%, transparent 100%);
+  background: radial-gradient(circle closest-side, color-mix(in srgb, var(--lantern) 50%, transparent) 0, color-mix(in srgb, var(--lantern) 18%, transparent) 40%, transparent 100%);
   left: 0;
   position: absolute;
   top: 0;
-  width: 70vmax;
+  width: 56vmin;
   will-change: transform;
 }
 
@@ -487,8 +509,9 @@
   will-change: transform;
 }
 
+/* One and a half times the size it was (110 to 170 px). */
 .dg-lantern {
-  height: clamp(110px, 17vh, 170px);
+  height: clamp(165px, 25.5vh, 255px);
   left: 0;
   position: absolute;
   top: 0;
@@ -526,10 +549,10 @@
 .dg-ruler::before {
   background: var(--parchment-dim);
   content: '';
-  height: 60%;
+  height: 46%;
   left: 4px;
   position: absolute;
-  top: 20%;
+  top: 30%;
   width: 1px;
 }
 
@@ -539,7 +562,7 @@
   gap: 10px;
   left: 0;
   position: absolute;
-  top: calc(20% + 54% * var(--k) / var(--n));
+  top: calc(30% + 46% * var(--k) / var(--n));
   transform: translateY(-50%);
 }
 
@@ -577,14 +600,14 @@
   font-family: var(--font-heading);
   font-size: 1.25rem;
   font-style: italic;
-  left: calc(var(--rope-x) + 72px);
+  left: calc(var(--rope-x) + 92px);
   line-height: 1.35;
   margin: 0;
-  max-width: min(420px, calc(100% - var(--rope-x) - 96px));
+  max-width: min(420px, calc(100% - var(--rope-x) - 116px));
   opacity: 0;
   padding: 10px 18px;
   position: absolute;
-  top: calc(20% + 54% * var(--k) / var(--n));
+  top: calc(30% + 46% * var(--k) / var(--n));
   transform: translate(-12px, -50%);
   transition:
     opacity 300ms,
@@ -653,7 +676,7 @@
 
 @media (max-width: 719px) {
   .dg {
-    --rope-x: 40%;
+    --rope-x: 42%;
   }
 
   .dg-ruler {
@@ -662,8 +685,8 @@
 
   .dg-slip {
     font-size: 1.0625rem;
-    left: calc(var(--rope-x) + 46px);
-    max-width: calc(100% - var(--rope-x) - 62px);
+    left: calc(var(--rope-x) + 60px);
+    max-width: calc(100% - var(--rope-x) - 72px);
     padding: 8px 12px;
   }
 
@@ -987,6 +1010,16 @@
   }
 }
 
+@keyframes dg-sway {
+  from {
+    transform: rotate(-0.7deg);
+  }
+
+  to {
+    transform: rotate(0.7deg);
+  }
+}
+
 @keyframes lc-drift {
   from {
     transform: translateX(-6%);
@@ -1204,7 +1237,9 @@
 @media (prefers-reduced-motion: reduce) {
   .lotcheck-scroll *,
   .lotcheck-scroll *::before,
-  .lotcheck-scroll *::after {
+  .lotcheck-scroll *::after,
+  .dg *,
+  .dg-sway {
     animation: none !important;
     transition: none !important;
   }

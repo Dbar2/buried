@@ -28,6 +28,11 @@ const PAUSE_SLIP_AT_MS = 100;
 /** The lantern starts this far above the ground line (in marks) and ends this far below the last mark. */
 const ABOVE_GROUND = -0.5;
 const BELOW_BOTTOM = 0.45;
+/** The spade hitting something: how far, how long the jolt lasts, and how far and how long the light dips (inside the beat). */
+export const JOLT_PX = 2;
+const JOLT_MS = 140;
+const DIP_MS = 160;
+const DIP_DARK = 0.4;
 
 export type CheckOf = Extract<LotCheck, { kind: 'check' }>;
 
@@ -144,6 +149,8 @@ export type DigState = {
   activeMark: number | null;
   /** 0 to 1: the screen going dark in the closing beat. */
   dark: number;
+  /** Pixels the scene is pushed down for a moment when the lantern reaches the bottom, like a spade hitting something. */
+  jolt: number;
 };
 
 const clamp01 = (v: number): number => Math.min(1, Math.max(0, v));
@@ -157,7 +164,7 @@ export function stateAt(tl: DigTimeline, t: number): DigState {
   const time = Math.min(Math.max(t, 0), total);
   const n = tl.marks.length - 1;
   const slipsShown = tl.slipAtMs.flatMap((at, i) => (time >= at ? [i] : []));
-  if (tl.steps.length === 0) return { t: 0, done: true, phase: 'idle', depth: n + BELOW_BOTTOM, slipsShown: [], activeMark: null, dark: 1 };
+  if (tl.steps.length === 0) return { t: 0, done: true, phase: 'idle', depth: n + BELOW_BOTTOM, slipsShown: [], activeMark: null, dark: 1, jolt: 0 };
   const step = tl.steps.find((s) => time >= s.startMs && time < s.endMs) ?? (tl.steps[tl.steps.length - 1] as DigStep);
   const p = step.endMs > step.startMs ? clamp01((time - step.startMs) / (step.endMs - step.startMs)) : 1;
   let depth: number;
@@ -179,7 +186,12 @@ export function stateAt(tl: DigTimeline, t: number): DigState {
   }
   const todaySlip = tl.slipAtMs[0] ?? 0;
   const activeMark = step.kind === 'pause' ? step.markIndex : step.kind === 'ground' && time >= todaySlip ? 0 : null;
-  return { t: time, done: time >= total, phase: time >= total ? 'beat' : step.kind, depth, slipsShown, activeMark, dark: step.kind === 'beat' ? easeInOut(p) : time >= total ? 1 : 0 };
+  // The lantern reaches the bottom: a 2 px jolt that eases back over JOLT_MS, and a quick dip of the light, then the dark beat.
+  const sinceBeat = step.kind === 'beat' ? time - step.startMs : Number.POSITIVE_INFINITY;
+  const jolt = sinceBeat < JOLT_MS ? JOLT_PX * (1 - sinceBeat / JOLT_MS) : 0;
+  const dip = sinceBeat < DIP_MS ? DIP_DARK * Math.sin((Math.PI * sinceBeat) / DIP_MS) : 0;
+  const beatDark = step.kind === 'beat' ? Math.max(easeInOut(p), dip) : time >= total ? 1 : 0;
+  return { t: time, done: time >= total, phase: time >= total ? 'beat' : step.kind, depth, slipsShown, activeMark, dark: beatDark, jolt };
 }
 
 /** A time inside the pause of a mark, with its slip showing: the test hook freezes the clock here. */

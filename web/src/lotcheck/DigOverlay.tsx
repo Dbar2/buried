@@ -18,8 +18,8 @@ export type DigOverlayProps = {
 
 /** Where the ground line sits in the strata art (a share of its height), and the ruler's top and bottom (shares of the window). */
 const GROUND_SHARE = 0.123;
-const RULER_TOP = 0.2;
-const RULER_BOTTOM = 0.74;
+const RULER_TOP = 0.3;
+const RULER_BOTTOM = 0.76;
 const LANTERN_FLAME = 0.55;
 
 /** A skip key counts only from a fresh press at least this long after the dig begins (the key that began it never skips it). */
@@ -63,6 +63,7 @@ export function DigOverlay({ build, onFinish, art }: DigOverlayProps) {
   const dark = useRef<HTMLDivElement>(null);
   const glow = useRef<HTMLDivElement>(null);
   const curtain = useRef<HTMLDivElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
 
   const finish = useCallback(() => {
     if (finished.current) return;
@@ -120,7 +121,8 @@ export function DigOverlay({ build, onFinish, art }: DigOverlayProps) {
       const step = ((RULER_BOTTOM - RULER_TOP) * h) / n;
       const lanternH = lantern.current?.offsetHeight ?? 0;
       // The flame, not the lantern's top, sits on the mark, so the slip beside it is level with the light.
-      const flameY = top + step * st.depth;
+      // At the start it is held low enough that the whole lantern is on screen.
+      const flameY = Math.max(top + step * st.depth, lanternH * LANTERN_FLAME + 12);
       const lanternY = flameY - lanternH * LANTERN_FLAME;
       if (lantern.current) lantern.current.style.transform = `translate(-50%, ${lanternY}px)`;
       if (rope.current) rope.current.style.transform = `translate(-50%, ${lanternY + 8 - h}px)`;
@@ -136,6 +138,7 @@ export function DigOverlay({ build, onFinish, art }: DigOverlayProps) {
         world.current.style.transform = `translateY(${start - 0.7 * progress * range}px)`;
       }
       if (curtain.current) curtain.current.style.opacity = String(st.dark);
+      if (stage.current) stage.current.style.transform = st.jolt > 0 ? `translateY(${st.jolt.toFixed(2)}px)` : '';
       r.dataset.phase = st.phase;
       r.dataset.activeMark = st.activeMark === null ? '' : String(st.activeMark);
       r.dataset.t = String(Math.round(st.t));
@@ -148,7 +151,7 @@ export function DigOverlay({ build, onFinish, art }: DigOverlayProps) {
   // Before the lamp is lit the lantern waits at the ground line.
   useEffect(() => {
     if (timeline) return;
-    draw({ t: 0, done: false, phase: 'idle', depth: -0.5, slipsShown: [], activeMark: null, dark: 0 });
+    draw({ t: 0, done: false, phase: 'idle', depth: -0.5, slipsShown: [], activeMark: null, dark: 0, jolt: 0 });
   }, [timeline, draw]);
 
   // The clock.
@@ -195,15 +198,19 @@ export function DigOverlay({ build, onFinish, art }: DigOverlayProps) {
 
   return (
     <div className="dg" ref={root} role="dialog" aria-modal="true" aria-label={copy.DIG.overlayLabel} tabIndex={-1} data-testid="dig" data-phase="idle" style={style}>
-      <div className="dg-world" ref={world} aria-hidden="true">
-        <img className="dg-strata" src={art.strata} alt="" decoding="async" />
-        <img className="dg-skyline" src={art.skyline} alt="" decoding="async" />
-      </div>
-      <div className="dg-col" aria-hidden="true">
-        <div className="dg-dark" ref={dark} />
-        <div className="dg-glow" ref={glow} />
-        <div className="dg-rope" ref={rope} />
-        <img className="dg-lantern" ref={lantern} src={art.lantern} alt="" decoding="async" />
+      <div className="dg-stage" ref={stage} aria-hidden="true">
+        <div className="dg-world" ref={world}>
+          <img className="dg-strata" src={art.strata} alt="" decoding="async" />
+          <img className="dg-skyline" src={art.skyline} alt="" decoding="async" />
+        </div>
+        <div className="dg-col">
+          <div className="dg-sway">
+            <div className="dg-dark" ref={dark} />
+            <div className="dg-glow" ref={glow} />
+            <div className="dg-rope" ref={rope} />
+            <img className="dg-lantern" ref={lantern} src={art.lantern} alt="" decoding="async" />
+          </div>
+        </div>
       </div>
       <p className="dg-brand" aria-hidden="true">
         <Mark size={24} />

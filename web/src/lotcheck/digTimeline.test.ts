@@ -172,6 +172,24 @@ describe('P8 and P9: the dig', () => {
     );
   });
 
+  it('the lantern hits the bottom with a 2 px jolt and a quick dip of the light, and there is none before or under reduced motion', () => {
+    const tl = buildDigTimeline(fake([planRow('1911', [line('A')]), planRow('1931-35', [line('B')])]), false);
+    const beat = tl.steps.find((s) => s.kind === 'beat');
+    expect(beat).toBeDefined();
+    const at = beat?.startMs ?? 0;
+    expect(stateAt(tl, at - 10).jolt).toBe(0);
+    expect(stateAt(tl, at).jolt).toBe(2);
+    expect(stateAt(tl, at + 70).jolt).toBeGreaterThan(0);
+    expect(stateAt(tl, at + 70).jolt).toBeLessThan(2);
+    expect(stateAt(tl, at + 200).jolt).toBe(0);
+    // The dip: dark rises quickly, above where the smooth beat alone would be.
+    expect(stateAt(tl, at + 80).dark).toBeGreaterThan(0.3);
+    expect(stateAt(tl, at - 10).dark).toBe(0);
+    expect(stateAt(tl, tl.totalMs).dark).toBe(1);
+    const reduced = buildDigTimeline(fake([planRow('1911', [line('A')])]), true);
+    expect(stateAt(reduced, 0).jolt).toBe(0);
+  });
+
   it('the hold time of a mark is inside its pause, with its slip showing', () => {
     const tl = buildDigTimeline(fake([planRow('1911', [line('A')]), planRow('1931-35', [line('B')])]), false);
     for (const m of [0, 1, 2]) {
